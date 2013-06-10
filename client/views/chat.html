@@ -1,0 +1,46 @@
+<template name="chat">
+    {{#if currentRoom}}
+    {{> room}}
+    {{/if}}
+
+    {{#unless currentRoom}}
+    {{> rooms}}
+    {{/unless}}
+</template>
+
+<template name="rooms">
+    <div class="roomList">
+        <h2>Chat rooms</h2>
+
+        <ul>
+            {{#each availableRooms}}
+            {{> roomItem}}
+            {{/each}}
+        </ul>
+        <p><button type="button" id="addRoom">Add new room</button></p>
+    </div>
+</template>
+
+<template name="roomItem">
+    <li class="roomItem">
+        <a href="#" class="enter">{{name}}</a>
+        <button class="delete">Delete</button>
+    </li>
+</template>
+
+<template name="room">
+    <div class="roomScreen">
+        <h2>Room &quot;{{roomName}}&quot;</h2>
+        <ul id="messages">
+            {{#each messages}}
+            <li><span class="author{{authorClass}}">{{author}} [{{timestamp}}]:</span> {{text}}</li>
+            {{/each}}
+        </ul>
+        <form action="javascript:void(0)">
+            <label for="msg">Message: </label>
+            <input id="msg" />
+            <button type="submit">&rArr; Send</button>
+            <button type="button" id="leave">Leave</button>
+        </form>
+    </div>
+</template>

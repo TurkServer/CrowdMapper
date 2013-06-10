@@ -1,3 +1,7 @@
+.idea
+
+client/lib/*
+
 lib-cov
 *.seed
 *.log
