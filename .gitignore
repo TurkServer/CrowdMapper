@@ -1,5 +1,6 @@
 .idea
 
+packages
 client/lib/*
 
 lib-cov

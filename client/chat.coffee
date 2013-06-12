@@ -1,6 +1,7 @@
-Template.rooms.events = "click #addRoom": ->
-  roomName = window.prompt("Name the room", "My room") or "Anonymous Room"
-  ChatRooms.insert name: roomName  if roomName
+Template.rooms.events =
+  "click #addRoom": ->
+    roomName = window.prompt("Name the room", "My room") or "Anonymous Room"
+    ChatRooms.insert name: roomName  if roomName
 
 Template.chat.currentRoom = ->
   Session.get("room") or false
@@ -8,8 +9,13 @@ Template.chat.currentRoom = ->
 Template.rooms.availableRooms = ->
   ChatRooms.find {}
 
+Template.roomItem.active = ->
+  Session.get("room") is @_id
+
 Template.roomItem.events =
-  "click .enter": ->
+  "click .enter": (e) ->
+    e.preventDefault()
+
     name = undefined
     if Session.get("name") is `undefined`
       name = window.prompt("Your name", "Guest") or "Jerky"
@@ -32,7 +38,7 @@ Template.room.messages = ->
 
 Template.room.events =
   "click #leave": ->
-    return  unless window.confirm("Leave this room?", "Do you really want to leave?")
+    return unless window.confirm("Leave this room?", "Do you really want to leave?")
     Session.set "room", `undefined`
 
   submit: ->

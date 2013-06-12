@@ -1,46 +1,51 @@
 <template name="chat">
+    {{> rooms}}
+
     {{#if currentRoom}}
     {{> room}}
     {{/if}}
-
-    {{#unless currentRoom}}
-    {{> rooms}}
-    {{/unless}}
 </template>
 
 <template name="rooms">
-    <div class="roomList">
-        <h2>Chat rooms</h2>
-
-        <ul>
-            {{#each availableRooms}}
-            {{> roomItem}}
-            {{/each}}
-        </ul>
-        <p><button type="button" id="addRoom">Add new room</button></p>
+    <div class="rooms navbar">
+        <a class="brand">Chat</a>
+        <div class="navbar-inner">
+            <ul class="nav">
+                {{#each availableRooms}}
+                {{> roomItem}}
+                {{/each}}
+            </ul>
+            <form class="navbar-form pull-right"><button class="btn" id="addRoom">Add new room</button></form>
+        </div>
     </div>
 </template>
 
 <template name="roomItem">
-    <li class="roomItem">
-        <a href="#" class="enter">{{name}}</a>
-        <button class="delete">Delete</button>
+    {{#if active}}
+    <li class="active">
+    {{else}}
+    <li>
+    {{/if}}
+        <a href="#" class="btn btn-link enter">{{name}}</a>
     </li>
+    <li>
+        <a class="btn btn-danger delete">Delete</a>
+    </li>
+    <li class="divider-vertical"></li>
 </template>
 
 <template name="room">
     <div class="roomScreen">
-        <h2>Room &quot;{{roomName}}&quot;</h2>
-        <ul id="messages">
+        <h4>You are in &quot;{{roomName}}&quot;</h4>
+        <ul class="messages well">
             {{#each messages}}
             <li><span class="author{{authorClass}}">{{author}} [{{timestamp}}]:</span> {{text}}</li>
             {{/each}}
         </ul>
-        <form action="javascript:void(0)">
-            <label for="msg">Message: </label>
-            <input id="msg" />
-            <button type="submit">&rArr; Send</button>
-            <button type="button" id="leave">Leave</button>
+        <form class="form-inline" action="javascript:void(0)">
+            <input type="text" id="msg" placeholder="Chat..." />
+            <button type="submit" class="btn btn-primary">&rArr; Send</button>
+            <button type="button" class="btn btn-warning" id="leave">Leave</button>
         </form>
     </div>
 </template>

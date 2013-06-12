@@ -1,0 +1,24 @@
+<head>
+    <link rel="stylesheet" href="http://dev.openlayers.org/releases/OpenLayers-2.12/theme/default/style.css" type="text/css">
+</head>
+
+<template name="pages">
+    <ul class="nav nav-tabs" id="tabs">
+        <li><a href="/events" data-target="#events" data-toggle="tab">Events</a></li>
+        <li><a href="/map" data-target="#map" data-toggle="tab">Map</a></li>
+    </ul>
+
+    <div class="pages">
+        {{#isolate}}
+        {{renderPage}}
+        {{/isolate}}
+    </div>
+</template>
+
+<template name="map">
+    <div id="map"></div>
+</template>
+
+<template name="events">
+    <div id="events"></div>
+</template>

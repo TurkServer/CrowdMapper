@@ -1,15 +1,17 @@
-/* LESS variables */
-gray = #999;
-blue = #4f82b1;
-
-.roomScreen, .roomList { background: blue; padding: 10px; border:1px solid gray; }
-.roomScreen > form, .roomList > p { background:#eee; padding:5px; border:1px solid gray; border-top:0px; }
-.roomList > ul {background:#FFF;}
-
-.roomList li {
-    padding: 2px
+.rooms, .roomScreen
     float: left
-}
+    width: 100%
+    margin: 0px
 
-#messages { background:#fff; padding: 10px; border:1px solid gray; height: 350px; overflow:auto; }
-#messages .mine { color:green; }
+.rooms
+    clear: left
+
+.roomScreen form
+    margin: 0px
+
+.messages
+    height: 200px
+    overflow:auto
+
+.messages .mine
+    color:green
