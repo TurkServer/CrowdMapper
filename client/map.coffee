@@ -21,7 +21,8 @@ Template.map.rendered = ->
   map.addControl(new OpenLayers.Control.PanZoomBar());
   map.addControl(new OpenLayers.Control.LayerSwitcher({'ascending':false}));
 
-  map.addControl(new OpenLayers.Control.OverviewMap());
+  map.addControl(new OpenLayers.Control.OverviewMap(theme: false));
+
   map.addControl(new OpenLayers.Control.KeyboardDefaults());
 
   map.zoomToMaxExtent()

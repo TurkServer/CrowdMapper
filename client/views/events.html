@@ -1,0 +1,56 @@
+
+<template name="events">
+    <div id="events">
+        <table class="table table-condensed table-hover table-striped">
+            <thead>
+            <tr>
+                <th>Province</th>
+                <th>Region</th>
+                <th>Type</th>
+                <th>Description</th>
+                <th>Sources</th>
+                <th></th>
+            </tr>
+            </thead>
+            <tbody>
+            {{#each eventRecords}}
+            {{> eventRow}}
+            {{/each}}
+            </tbody>
+        </table>
+    </div>
+    <a href="#" class="btn button-newevent">Create New Event</a>
+</template>
+
+<template name="eventRow">
+    <tr {{#if editing}} class="info" {{/if}}>
+        <td><div {{#if iAmEditing}} contenteditable="true" {{/if}}>
+        {{province}}
+        </div></td>
+
+        <td><div {{#if iAmEditing}} contenteditable="true" {{/if}}>
+        {{region}}
+        </div></td>
+
+        <td><div {{#if iAmEditing}} contenteditable="true" {{/if}}>
+        {{type}}
+        </div></td>
+
+        <td><div {{#if iAmEditing}} contenteditable="true" {{/if}}>
+        {{description}}
+        </div></td>
+
+        <td><div {{#if iAmEditing}} contenteditable="true" {{/if}}>
+        {{sources}}
+        </div></td>
+
+        <td>
+        {{#if editing}}
+            {{editor}} is editing
+        {{else}}
+            <a href="#" class="btn btn-warning button-edit">Edit</a>
+            <a href="#" class="btn btn-danger button-delete">Delete</a>
+        {{/if}}
+        </td>
+    </tr>
+</template>

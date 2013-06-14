@@ -16,13 +16,15 @@ Template.roomItem.events =
   "click .enter": (e) ->
     e.preventDefault()
 
-    name = undefined
-    if Session.get("name") is `undefined`
-      name = window.prompt("Your name", "Guest") or "Jerky"
-      Session.set "name", name
+    unless Meteor.user().username
+      alert "You must choose a name to join chat rooms."
+      return
+
     Session.set "room", @_id
 
-  "click .delete": ->
+  "click .delete": (e) ->
+    e.preventDefault()
+
     ChatRooms.remove _id: @_id
 
 Template.room.roomName = ->
@@ -46,11 +48,13 @@ Template.room.events =
     if $msg.val()
       ChatMessages.insert
         room: Session.get("room")
-        author: Session.get("name")
+        author: Meteor.user().username
         text: $msg.val()
         timestamp: (new Date()).toUTCString()
 
     $msg.val ""
     $msg.focus()
     Meteor.flush()
-    $("#messages").scrollTop 99999
+
+    # Silly way of auto scrolling down. Fix.
+    $(".messages").scrollTop 99999
