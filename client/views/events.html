@@ -24,29 +24,33 @@
 
 <template name="eventRow">
     <tr {{#if editing}} class="info" {{/if}}>
-        <td><div {{#if iAmEditing}} contenteditable="true" {{/if}}>
+        <td><div {{#if iAmEditing}} data-ref="province" contenteditable="true" {{/if}}>
         {{province}}
         </div></td>
 
-        <td><div {{#if iAmEditing}} contenteditable="true" {{/if}}>
+        <td><div {{#if iAmEditing}} data-ref="region" contenteditable="true" {{/if}}>
         {{region}}
         </div></td>
 
-        <td><div {{#if iAmEditing}} contenteditable="true" {{/if}}>
+        <td><div {{#if iAmEditing}} data-ref="type" contenteditable="true" {{/if}}>
         {{type}}
         </div></td>
 
-        <td><div {{#if iAmEditing}} contenteditable="true" {{/if}}>
+        <td><div {{#if iAmEditing}} data-ref="description" contenteditable="true" {{/if}}>
         {{description}}
         </div></td>
 
-        <td><div {{#if iAmEditing}} contenteditable="true" {{/if}}>
+        <td><div {{#if iAmEditing}} data-ref="sources" contenteditable="true" {{/if}}>
         {{sources}}
         </div></td>
 
         <td>
         {{#if editing}}
-            {{editor}} is editing
+            {{#if iAmEditing}}
+                <a href="#" class="btn btn-success button-save">Save</a>
+            {{else}}
+                {{editor}} is editing
+            {{/if}}
         {{else}}
             <a href="#" class="btn btn-warning button-edit">Edit</a>
             <a href="#" class="btn btn-danger button-delete">Delete</a>

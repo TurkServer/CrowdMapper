@@ -10,10 +10,10 @@ Meteor.insecureUserLogin = (username, callback) ->
 Deps.autorun ->
   return if Meteor.userId()
 
-  while not username
-    username = window.prompt("Please enter a username", "Guest")
+  console.log "trying login"
 
-  Meteor.insecureUserLogin(username)
+  bootbox.prompt "Please enter a username", (username) ->
+    Meteor.insecureUserLogin(username) if username?
 
 Meteor.Router.add
   '/': 'home',

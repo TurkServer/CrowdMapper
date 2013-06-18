@@ -1,7 +1,9 @@
 Template.rooms.events =
-  "click #addRoom": ->
-    roomName = window.prompt("Name the room", "My room") or "Anonymous Room"
-    ChatRooms.insert name: roomName  if roomName
+  "click #addRoom": (e) ->
+    e.preventDefault()
+
+    bootbox.prompt "Name the room", (roomName) ->
+      ChatRooms.insert(name: roomName) if !!roomName
 
 Template.chat.currentRoom = ->
   Session.get("room") or false
@@ -13,11 +15,11 @@ Template.roomItem.active = ->
   Session.get("room") is @_id
 
 Template.roomItem.events =
-  "click .enter": (e) ->
+  "click .enterRoom": (e) ->
     e.preventDefault()
 
     unless Meteor.user().username
-      alert "You must choose a name to join chat rooms."
+      bootbox.alert "You must choose a name to join chat rooms."
       return
 
     Session.set "room", @_id
@@ -40,8 +42,8 @@ Template.room.messages = ->
 
 Template.room.events =
   "click #leave": ->
-    return unless window.confirm("Leave this room?", "Do you really want to leave?")
-    Session.set "room", `undefined`
+    bootbox.confirm "Leave this room?", (value) ->
+      Session.set("room", `undefined`) if value
 
   submit: ->
     $msg = $("#msg")

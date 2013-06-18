@@ -7,9 +7,9 @@
 </template>
 
 <template name="rooms">
-    <div class="rooms navbar">
-        <a class="brand">Chat</a>
+    <div class="navbar">
         <div class="navbar-inner">
+            <a class="brand" href="#">Chat</a>
             <ul class="nav">
                 {{#each availableRooms}}
                 {{> roomItem}}
@@ -26,10 +26,10 @@
     {{else}}
     <li>
     {{/if}}
-        <a href="#" class="btn btn-link enter">{{name}}</a>
+        <a href="#" class="enterRoom">{{name}}</a>
     </li>
     <li>
-        <a class="btn btn-danger delete">Delete</a>
+        <button class="btn btn-danger delete">Delete</button>
     </li>
     <li class="divider-vertical"></li>
 </template>
