@@ -9,6 +9,7 @@
                 <th>Type</th>
                 <th>Description</th>
                 <th>Sources</th>
+                <th>Location</th>
                 <th></th>
             </tr>
             </thead>
@@ -42,6 +43,14 @@
 
         <td><div {{#if iAmEditing}} data-ref="sources" contenteditable="true" {{/if}}>
         {{sources}}
+        </div></td>
+
+        <td><div>
+        {{#if location}}
+            {{formatLocation}}
+        {{else}}
+            <button class="btn btn-info button-locate">Locate</button>
+        {{/if}}
         </div></td>
 
         <td>
