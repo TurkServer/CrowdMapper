@@ -1,9 +1,19 @@
 
 <template name="pages">
-    <ul class="nav nav-tabs" id="tabs">
-        <li><a href="{{eventsPath}}" data-target="events" data-toggle="tab">Events</a></li>
-        <li><a href="{{mapPath}}" data-target="map" data-toggle="tab">Map</a></li>
-    </ul>
+    <div class="navbar">
+        <div class="navbar-inner">
+            <ul class="nav">
+                <li class="divider-vertical"></li>
+                <li><a href="{{eventsPath}}" data-target="events" data-toggle="tab">Events</a></li>
+                <li class="divider-vertical"></li>
+                <li><a href="{{mapPath}}" data-target="map" data-toggle="tab">Map</a></li>
+                <li class="divider-vertical"></li>
+            </ul>
+            <div class="navbar-text pull-right">
+                {{loginButtons}}
+            </div>
+        </div>
+    </div>
 
     <div class="pages">
         {{#isolate}}

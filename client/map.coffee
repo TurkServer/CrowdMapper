@@ -1,14 +1,6 @@
 Template.map.created = ->
   OpenLayers.ImgPath = "http://dev.openlayers.org/releases/OpenLayers-2.13/img/";
 
-style =
-  graphicName: 'cross',
-  pointRadius: 8,
-  strokeColor: "red",
-  strokeWidth: 1,
-  fillColor: "white",
-  fillOpacity: 0.8,
-
 # Initialize map
 Template.map.rendered = ->
   # Set this externally at some point
@@ -38,7 +30,12 @@ Template.map.rendered = ->
     type: "AerialWithLabels"
     key: "AoMrUbEFitx5QLbLsi2NNplTe84_MyCMWM1aUDkWuWPwMXU3HIwUbzOQaDWyS5a-"
 
-  vectorLayer = new OpenLayers.Layer.Vector("Vector Layer")
+  vectorLayer = new OpenLayers.Layer.Vector "Vector Layer",
+    style:
+      externalGraphic: "http://dev.openlayers.org/releases/OpenLayers-2.13/img/marker.png"
+      graphicWidth: 21
+      graphicHeight: 25
+      graphicYOffset: -24
   cursorLayer = new OpenLayers.Layer.Vector("Cursor Layer")
 
   map = new OpenLayers.Map 'map',
@@ -79,7 +76,7 @@ Template.map.rendered = ->
   @query = markers.observeChanges
     added: (id, fields) ->
       point = new OpenLayers.Geometry.Point(fields.location[0], fields.location[1])
-      feature = new OpenLayers.Feature.Vector(point, null, style)
+      feature = new OpenLayers.Feature.Vector(point)
       feature.id = id
       vectorLayer.addFeatures([feature])
 
@@ -95,7 +92,7 @@ Template.map.rendered = ->
     removed: (id) ->
       feature = vectorLayer.getFeatureById(id)
       return unless feature
-      vectorLayer.removeFeatures [feature]
+      vectorLayer.destroyFeatures [feature]
 
 Template.map.destroyed = ->
   # Tear down observe query

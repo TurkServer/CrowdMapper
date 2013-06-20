@@ -1,23 +1,31 @@
 <template name="chat">
-    {{> rooms}}
+    <div class="row-fluid">
+        <div class="span6">
+            <p>Chat Rooms:</p>
+            <div class="chat-rooms">
+            {{> rooms}}
+            </div>
+            <button class="btn" id="addRoom">Add new room</button>
+        </div>
+
+        <div class="span6">
+            {{#if currentRoom}}
+            {{> roomUsers}}
+            {{/if}}
+        </div>
+    </div>
 
     {{#if currentRoom}}
-    {{> room}}
+        {{> room}}
     {{/if}}
 </template>
 
 <template name="rooms">
-    <div class="navbar">
-        <div class="navbar-inner">
-            <a class="brand" href="#">Chat</a>
-            <ul class="nav">
-                {{#each availableRooms}}
-                {{> roomItem}}
-                {{/each}}
-            </ul>
-            <form class="navbar-form pull-right"><button class="btn" id="addRoom">Add new room</button></form>
-        </div>
-    </div>
+    <ul class="nav nav-pills nav-stacked">
+        {{#each availableRooms}}
+        {{> roomItem}}
+        {{/each}}
+    </ul>
 </template>
 
 <template name="roomItem">
@@ -26,26 +34,29 @@
     {{else}}
     <li>
     {{/if}}
-        <a href="#" class="enterRoom">{{name}}</a>
+        <a href="#" class="enterRoom">{{name}}
+            <button class="btn btn-mini btn-danger pull-right delete">&times;</button>
+        </a>
     </li>
-    <li>
-        <button class="btn btn-danger delete">Delete</button>
-    </li>
-    <li class="divider-vertical"></li>
+</template>
+
+<template name="roomUsers">
+    <p>Users in room:</p>
+    <div class="room-users well">
+
+    </div>
 </template>
 
 <template name="room">
-    <div class="roomScreen">
-        <h4>You are in &quot;{{roomName}}&quot;</h4>
-        <ul class="messages well">
-            {{#each messages}}
-            <li><span class="author{{authorClass}}">{{author}} [{{timestamp}}]:</span> {{text}}</li>
-            {{/each}}
-        </ul>
-        <form class="form-inline" action="javascript:void(0)">
-            <input type="text" id="msg" placeholder="Chat..." />
-            <button type="submit" class="btn btn-primary">&rArr; Send</button>
-            <button type="button" class="btn btn-warning" id="leave">Leave</button>
-        </form>
-    </div>
+    <h4>You are in &quot;{{roomName}}&quot;</h4>
+    <ul class="messages well">
+        {{#each messages}}
+        <li><span class="author{{authorClass}}">{{author}} [{{timestamp}}]:</span> {{text}}</li>
+        {{/each}}
+    </ul>
+    <form class="form-inline" action="javascript:void(0)">
+        <input type="text" id="msg" placeholder="Chat..." />
+        <button type="submit" class="btn btn-primary">&rArr; Send</button>
+        <button type="button" class="btn btn-warning" id="leave">Leave</button>
+    </form>
 </template>

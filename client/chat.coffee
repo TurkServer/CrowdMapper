@@ -1,4 +1,4 @@
-Template.rooms.events =
+Template.chat.events =
   "click #addRoom": (e) ->
     e.preventDefault()
 

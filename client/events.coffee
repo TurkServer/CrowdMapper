@@ -53,6 +53,8 @@ Template.eventRow.events =
 
 Template.eventRow.editing = -> @editor?
 
+Template.eventRow.editorUser = -> Meteor.users.findOne(@editor)
+
 Template.eventRow.iAmEditing = -> @editor is Meteor.userId()
 
 Template.eventRow.formatLocation = ->
