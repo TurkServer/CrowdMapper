@@ -2,10 +2,12 @@
 Accounts.registerLoginHandler (loginRequest) ->
   return unless loginRequest.username
 
-  user = Meteor.users.findOne({username: loginRequest.username})
+  user = Meteor.users.findOne
+    username: loginRequest.username
 
   unless user
-    userId = Meteor.users.insert({username: loginRequest.username})
+    userId = Meteor.users.insert
+      username: loginRequest.username
   else
     userId = user._id;
 
@@ -20,3 +22,4 @@ Accounts.registerLoginHandler (loginRequest) ->
 
 Meteor.startup ->
   # code to run on server at startup
+  # console.log "server started"

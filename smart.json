@@ -1,5 +1,8 @@
 {
   "packages": {
-    "router": {}
+    "router": {},
+    "user-status": {
+      "path": "/home/mao/projects/meteor-user-status"
+    }
   }
 }

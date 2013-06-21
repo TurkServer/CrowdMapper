@@ -1,19 +1,20 @@
+login = ->
+  return if Meteor.userId()
+  console.log "trying login"
+  bootbox.prompt "Please enter a username", (username) ->
+    Meteor.insecureUserLogin(username) if username?
+
 Meteor.startup ->
   console.log 'Started at ' + location.href
+  login()
+
+# Request username if logged out
+Deps.autorun(login)
 
 Meteor.insecureUserLogin = (username, callback) ->
   Accounts.callLoginMethod
     methodArguments: [{username: username}],
     userCallback: callback
-
-# Request username if not logged in
-Deps.autorun ->
-  return if Meteor.userId()
-
-  console.log "trying login"
-
-  bootbox.prompt "Please enter a username", (username) ->
-    Meteor.insecureUserLogin(username) if username?
 
 Meteor.Router.add
   '/': 'home',
