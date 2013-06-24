@@ -1,6 +1,9 @@
 {
   "packages": {
     "router": {},
+    "bootboxjs": {
+      "path": "/home/mao/projects/meteor-bootboxjs"
+    },
     "user-status": {
       "path": "/home/mao/projects/meteor-user-status"
     },
