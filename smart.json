@@ -3,6 +3,9 @@
     "router": {},
     "user-status": {
       "path": "/home/mao/projects/meteor-user-status"
+    },
+    "accounts-testing": {
+      "path": "/home/mao/projects/meteor-accounts-testing"
     }
   }
 }

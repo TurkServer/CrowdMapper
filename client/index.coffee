@@ -11,11 +11,6 @@ Meteor.startup ->
 # Request username if logged out
 Deps.autorun(login)
 
-Meteor.insecureUserLogin = (username, callback) ->
-  Accounts.callLoginMethod
-    methodArguments: [{username: username}],
-    userCallback: callback
-
 Meteor.Router.add
   '/': 'home',
   '/map': 'map',

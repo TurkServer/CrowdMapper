@@ -5,6 +5,9 @@
       "router": {},
       "user-status": {
         "path": "../meteor-user-status"
+      },
+      "accounts-testing": {
+        "path": "../meteor-accounts-testing"
       }
     },
     "packages": {
@@ -13,8 +16,11 @@
         "tag": "v0.5.1",
         "commit": "32e377c7703bb119acccc859fc7296882903cbe7"
       },
-      "meteor-user-status": {
+      "user-status": {
         "path": "../meteor-user-status"
+      },
+      "accounts-testing": {
+        "path": "../meteor-accounts-testing"
       },
       "page-js-ie-support": {
         "git": "https://github.com/tmeasday/meteor-page-js-ie-support.git",
