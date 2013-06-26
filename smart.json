@@ -1,14 +1,17 @@
 {
   "packages": {
     "router": {},
+    "sharejs": {
+      "path": "../meteor-sharejs"
+    },
     "bootboxjs": {
-      "path": "/home/mao/projects/meteor-bootboxjs"
+      "path": "../meteor-bootboxjs"
     },
     "user-status": {
-      "path": "/home/mao/projects/meteor-user-status"
+      "path": "../meteor-user-status"
     },
     "accounts-testing": {
-      "path": "/home/mao/projects/meteor-accounts-testing"
+      "path": "../meteor-accounts-testing"
     }
   }
 }

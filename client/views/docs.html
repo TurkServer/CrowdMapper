@@ -1,0 +1,34 @@
+<template name="docs">
+    <div class="row-fluid">
+        <div class="span3">
+            {{> docTabs}}
+        </div>
+        <div class="span9">
+            {{> docCurrent}}
+        </div>
+    </div>
+</template>
+
+<template name="docTabs">
+    <ul class="nav nav-pills nav-stacked">
+    {{#each documents}}
+    {{> docTab}}
+    {{/each}}
+    </ul>
+
+    <button class="btn action-newdoc">New Document</button>
+</template>
+
+<template name="docTab">
+    <li {{#if active}}class="active"{{/if}}>
+        <a href="#" data-toggle="tab">
+            {{title}}
+        </a>
+    </li>
+</template>
+
+<template name="docCurrent">
+    {{#if document}}
+    {{sharejsAce document id="editor"}}
+    {{/if}}
+</template>

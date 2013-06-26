@@ -5,7 +5,6 @@ login = ->
     Meteor.insecureUserLogin(username) if username?
 
 Meteor.startup ->
-  console.log 'Started at ' + location.href
   login()
 
 # Request username if logged out
@@ -15,8 +14,10 @@ Meteor.Router.add
   '/': 'home',
   '/map': 'map',
   '/events': 'events'
+  '/docs': 'docs'
 
 Template.pages.events =
+  "click a[data-target='docs']": -> Meteor.Router.to("/docs")
   "click a[data-target='events']": -> Meteor.Router.to("/events")
   "click a[data-target='map']": -> Meteor.Router.to("/map")
 

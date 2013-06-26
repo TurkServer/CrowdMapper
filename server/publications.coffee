@@ -14,5 +14,8 @@ Meteor.publish "chatrooms", ->
 Meteor.publish "chatmessages", ->
   ChatMessages.find()
 
+Meteor.publish "docs", ->
+  Documents.find()
+
 Meteor.publish "events", ->
   Events.find()
