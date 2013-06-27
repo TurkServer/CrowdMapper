@@ -14,11 +14,12 @@ Template.events.events =
     e.preventDefault()
 
     Events.insert
-      province: "empty",
-      region: "empty",
-      type: "empty",
-      description: "empty",
-      sources: "empty"
+      editor: Meteor.userId()
+      province: "",
+      region: "",
+      type: "",
+      description: "",
+      sources: ""
 
 Template.eventRow.events =
   "click .button-locate": (e) ->
@@ -32,19 +33,6 @@ Template.eventRow.events =
 
   "dblclick tr": edit
   "click a.button-edit": edit
-
-  # Blur on enter key
-  "keydown div[data-ref]": (e) ->
-    return unless e.keyCode == 13
-    e.preventDefault()
-    $(e.target).blur()
-
-  "blur div[data-ref]": (e) ->
-    el = $(e.target)
-    val = {}
-    val[el.attr("data-ref")] = el.text()
-    Events.update @_id,
-      $set: val
 
   "click a.button-save": (e) ->
     context = $(e.target).closest("tr")
@@ -61,3 +49,21 @@ Template.eventRow.formatLocation = ->
   point = new OpenLayers.Geometry.Point(@location[0], @location[1])
   point.transform(epsg900913, epsg4326)
   point.y.toFixed(2) + "," + point.x.toFixed(2)
+
+Handlebars.registerHelper "eventCell", (context, field, editable) ->
+  return new Handlebars.SafeString(
+    Template._eventCell
+      _id: context._id
+      field: field
+      value: context[field]
+      editable: editable
+  )
+
+Template._eventCell.rendered = ->
+  return unless @data.editable
+  $(@find('div.editable:not(.editable-click)')).editable('destroy').editable
+    success: (response, newValue) =>
+      val = {}
+      val[@data.field] = newValue
+      Events.update @data._id,
+        $set: val

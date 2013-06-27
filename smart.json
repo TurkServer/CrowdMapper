@@ -12,6 +12,9 @@
     },
     "accounts-testing": {
       "path": "../meteor-accounts-testing"
+    },
+    "x-editable-bootstrap": {
+      "path": "../meteor-x-editable-bootstrap"
     }
   }
 }

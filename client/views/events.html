@@ -25,25 +25,12 @@
 
 <template name="eventRow">
     <tr {{#if editing}} class="info" {{/if}}>
-        <td><div {{#if iAmEditing}} data-ref="province" contenteditable="true" {{/if}}>
-        {{province}}
-        </div></td>
 
-        <td><div {{#if iAmEditing}} data-ref="region" contenteditable="true" {{/if}}>
-        {{region}}
-        </div></td>
-
-        <td><div {{#if iAmEditing}} data-ref="type" contenteditable="true" {{/if}}>
-        {{type}}
-        </div></td>
-
-        <td><div {{#if iAmEditing}} data-ref="description" contenteditable="true" {{/if}}>
-        {{description}}
-        </div></td>
-
-        <td><div {{#if iAmEditing}} data-ref="sources" contenteditable="true" {{/if}}>
-        {{sources}}
-        </div></td>
+        {{eventCell this "province" iAmEditing}}
+        {{eventCell this "region" iAmEditing}}
+        {{eventCell this "type" iAmEditing}}
+        {{eventCell this "description" iAmEditing}}
+        {{eventCell this "sources" iAmEditing}}
 
         <td><div>
         {{#if location}}
@@ -66,4 +53,10 @@
         {{/if}}
         </td>
     </tr>
+</template>
+
+<template name="_eventCell">
+    <td><div data-ref="{{field}}" class="{{#if editable}}editable{{/if}}">
+        {{value}}
+    </div></td>
 </template>

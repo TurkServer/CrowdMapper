@@ -14,6 +14,9 @@
       },
       "accounts-testing": {
         "path": "../meteor-accounts-testing"
+      },
+      "x-editable-bootstrap": {
+        "path": "../meteor-x-editable-bootstrap"
       }
     },
     "packages": {
@@ -33,6 +36,9 @@
       },
       "accounts-testing": {
         "path": "../meteor-accounts-testing"
+      },
+      "x-editable-bootstrap": {
+        "path": "../meteor-x-editable-bootstrap"
       },
       "page-js-ie-support": {
         "git": "https://github.com/tmeasday/meteor-page-js-ie-support.git",

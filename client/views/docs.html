@@ -10,7 +10,7 @@
 </template>
 
 <template name="docTabs">
-    <ul class="nav nav-pills nav-stacked">
+    <ul class="nav nav-pills nav-stacked" id="doc-list">
     {{#each documents}}
     {{> docTab}}
     {{/each}}
@@ -29,6 +29,8 @@
 
 <template name="docCurrent">
     {{#if document}}
+    <input class="input-xlarge" type="text" value="{{title}}">
+    <button class="btn btn-danger btn-small">Delete this document</button>
     {{sharejsAce document id="editor"}}
     {{/if}}
 </template>
