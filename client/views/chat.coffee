@@ -29,6 +29,9 @@ Template.roomItem.events =
 
     ChatRooms.remove _id: @_id
 
+    # don't select chatroom - http://stackoverflow.com/questions/10407783/stop-event-propagation-in-meteor
+    e.stopImmediatePropagation()
+
 Template.room.roomName = ->
   room = ChatRooms.findOne(_id: Session.get("room"))
   room and room.name

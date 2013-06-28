@@ -5,6 +5,15 @@ Template.events.eventRecords = ->
 edit = (e) ->
   Events.update @_id,
     $set: { editor: Meteor.userId() }
+  , {}, (err) ->
+
+#    row = $(e.target).closest("tr")
+#
+#    row.popover(
+#      placement: "left"
+#      content: "Click a cell to edit"
+#      trigger: "hover"
+#    )
 
 epsg4326 = new OpenLayers.Projection("EPSG:4326")
 epsg900913 = new OpenLayers.Projection("EPSG:900913")
@@ -28,14 +37,15 @@ Template.eventRow.events =
       $set:
         location: [13410000, 1104000] # in the ocean near philippines
 
-  "click a.button-delete": (e) ->
-    Events.remove @_id
+  "click .button-delete": (e) ->
+    bootbox.confirm "Really delete this event? This cannot be undone!"
+    , (result) =>
+      Events.remove @_id if result
 
   "dblclick tr": edit
-  "click a.button-edit": edit
+  "click .button-edit": edit
 
-  "click a.button-save": (e) ->
-    context = $(e.target).closest("tr")
+  "click .button-save": (e) ->
     Events.update @_id,
       $unset: { editor: 1 }
 
@@ -48,7 +58,7 @@ Template.eventRow.iAmEditing = -> @editor is Meteor.userId()
 Template.eventRow.formatLocation = ->
   point = new OpenLayers.Geometry.Point(@location[0], @location[1])
   point.transform(epsg900913, epsg4326)
-  point.y.toFixed(2) + "," + point.x.toFixed(2)
+  point.y.toFixed(2) + ",<br>" + point.x.toFixed(2)
 
 Handlebars.registerHelper "eventCell", (context, field, editable) ->
   return new Handlebars.SafeString(
