@@ -34,7 +34,9 @@
     {{else}}
     <li>
     {{/if}}
-        <a href="#" class="enterRoom">{{name}}
+        <a href="#" class="enterRoom">
+            <span class="badge badge-inverse">{{users}}</span>
+            {{name}}
             <i class="icon-trash delete"></i>
         </a>
     </li>
@@ -43,7 +45,9 @@
 <template name="roomUsers">
     <p>Users in room:</p>
     <div class="room-users well">
-
+        {{#each users}}
+        {{> userPill findUser}}
+        {{/each}}
     </div>
 </template>
 

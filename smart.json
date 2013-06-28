@@ -15,6 +15,7 @@
     },
     "x-editable-bootstrap": {
       "path": "../meteor-x-editable-bootstrap"
-    }
+    },
+    "publish-with-relations": {}
   }
 }

@@ -2,7 +2,7 @@
 Meteor.subscribe "userStatus"
 
 Meteor.subscribe "chatrooms"
-Meteor.subscribe "chatmessages"
+# Chat messages are subscribed to individually
 
 Meteor.subscribe "docs"
 Meteor.subscribe "events"

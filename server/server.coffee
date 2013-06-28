@@ -1,2 +1,8 @@
 Meteor.startup ->
-  # code to run on server at startup
+  # Clear all users stored in chatrooms
+  ChatUsers.remove({})
+
+  ChatRooms.update {},
+    $set:
+      {users: 0}
+  , multi: true

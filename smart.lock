@@ -17,7 +17,8 @@
       },
       "x-editable-bootstrap": {
         "path": "../meteor-x-editable-bootstrap"
-      }
+      },
+      "publish-with-relations": {}
     },
     "packages": {
       "router": {
@@ -39,6 +40,11 @@
       },
       "x-editable-bootstrap": {
         "path": "../meteor-x-editable-bootstrap"
+      },
+      "publish-with-relations": {
+        "git": "https://github.com/erundook/meteor-publish-with-relations.git",
+        "tag": "v0.1.5",
+        "commit": "98213e9f056b139597c99fb9ec2884ae6be76d91"
       },
       "page-js-ie-support": {
         "git": "https://github.com/tmeasday/meteor-page-js-ie-support.git",

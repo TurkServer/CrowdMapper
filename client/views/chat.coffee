@@ -1,9 +1,18 @@
+# Send room changes to server
+# TODO this incurs a high traffic cost when switching between rooms
+Deps.autorun ->
+  roomId = Session.get("room")
+  Meteor.subscribe "chatstate", roomId
+
 Template.chat.events =
   "click #addRoom": (e) ->
     e.preventDefault()
 
     bootbox.prompt "Name the room", (roomName) ->
-      ChatRooms.insert(name: roomName) if !!roomName
+      ChatRooms.insert({
+        name: roomName
+        users: 0
+      }) if !!roomName
 
 Template.chat.currentRoom = ->
   Session.get("room") or false
@@ -12,7 +21,7 @@ Template.rooms.availableRooms = ->
   ChatRooms.find {}
 
 Template.roomItem.active = ->
-  Session.get("room") is @_id
+  Session.equals("room", @_id)
 
 Template.roomItem.events =
   "click .enterRoom": (e) ->
@@ -32,6 +41,12 @@ Template.roomItem.events =
     # don't select chatroom - http://stackoverflow.com/questions/10407783/stop-event-propagation-in-meteor
     e.stopImmediatePropagation()
 
+Template.roomUsers.users = ->
+  ChatUsers.find {}
+
+Template.roomUsers.findUser = ->
+  Meteor.users.findOne @userId
+
 Template.room.roomName = ->
   room = ChatRooms.findOne(_id: Session.get("room"))
   room and room.name
@@ -50,16 +65,18 @@ Template.room.events =
 
   submit: ->
     $msg = $("#msg")
-    if $msg.val()
-      ChatMessages.insert
-        room: Session.get("room")
-        author: Meteor.user().username
-        text: $msg.val()
-        timestamp: (new Date()).toUTCString()
+    return unless $msg.val()
+
+    ChatMessages.insert
+      room: Session.get("room")
+      author: Meteor.user().username
+      text: $msg.val()
+      timestamp: (new Date()).toUTCString()
 
     $msg.val ""
     $msg.focus()
     Meteor.flush()
 
-    # Silly way of auto scrolling down. Fix.
-    $(".messages").scrollTop 99999
+    # Silly way of auto scrolling down. Also do on others' messages.
+    $messages = $(".messages")
+    $messages.scrollTop $messages[0].scrollHeight

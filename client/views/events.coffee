@@ -58,7 +58,7 @@ Template.eventRow.iAmEditing = -> @editor is Meteor.userId()
 Template.eventRow.formatLocation = ->
   point = new OpenLayers.Geometry.Point(@location[0], @location[1])
   point.transform(epsg900913, epsg4326)
-  point.y.toFixed(2) + ",<br>" + point.x.toFixed(2)
+  point.y.toFixed(2) + ", " + point.x.toFixed(2)
 
 Handlebars.registerHelper "eventCell", (context, field, editable) ->
   return new Handlebars.SafeString(
