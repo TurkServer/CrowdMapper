@@ -4,11 +4,12 @@
         <table class="table table-condensed table-hover table-striped">
             <thead>
             <tr>
-                <th>Province</th>
-                <th>Region</th>
-                <th>Type</th>
-                <th>Description</th>
+                {{#each eventFields}}
+                <th>{{name}}</th>
+                {{/each}}
+
                 <th>Sources</th>
+
                 <th class="header-location">Location</th>
                 <th class="header-buttons"></th>
             </tr>
@@ -26,11 +27,11 @@
 <template name="eventRow">
     <tr {{#if editing}} class="info" {{/if}}>
 
-        {{eventCell this "province" iAmEditing}}
-        {{eventCell this "region" iAmEditing}}
-        {{eventCell this "type" iAmEditing}}
-        {{eventCell this "description" iAmEditing}}
-        {{eventCell this "sources" iAmEditing}}
+        {{#each eventFields}}
+        {{eventCell ../this this}}
+        {{/each}}
+
+        {{eventCell this "sources"}}
 
         <td><div>
         {{#if location}}
@@ -64,7 +65,13 @@
 </template>
 
 <template name="_eventCell">
-    <td><div data-ref="{{field}}" class="{{#if editable}}editable{{/if}}">
+    <td><div class="{{#if editable}}editable{{/if}}">
+        {{value}}
+    </div></td>
+</template>
+
+<template name="_eventCellSelect">
+    <td><div data-type="select" data-original-title="Select {{name}}" class="{{#if editable}}editable{{/if}}">
         {{value}}
     </div></td>
 </template>

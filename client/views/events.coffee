@@ -60,20 +60,55 @@ Template.eventRow.formatLocation = ->
   point.transform(epsg900913, epsg4326)
   point.y.toFixed(2) + ", " + point.x.toFixed(2)
 
-Handlebars.registerHelper "eventCell", (context, field, editable) ->
-  return new Handlebars.SafeString(
-    Template._eventCell
-      _id: context._id
-      field: field
-      value: context[field]
-      editable: editable
-  )
+Handlebars.registerHelper "eventFields", ->
+  Meteor.settings.public.events
+
+# Process event choices into choice arrays
+sources = {}
+for field in Meteor.settings.public.events
+  continue if field.type isnt "dropdown"
+  sources[field.key] = []
+  for choice in field.choices
+    sources[field.key].push
+      text: choice
+      value: choice
+
+###
+  Rendering and helpers for individual sheet cells
+###
+Handlebars.registerHelper "eventCell", (context, field) ->
+  obj =
+    _id: context._id
+    value: context[field.key]
+    editable: context.editor is Meteor.userId()
+
+  $.extend(obj, field)
+
+  if field?.type is "dropdown"
+    return new Handlebars.SafeString Template._eventCellSelect(obj)
+  else
+    return new Handlebars.SafeString Template._eventCell(obj)
 
 Template._eventCell.rendered = ->
   return unless @data.editable
-  $(@find('div.editable:not(.editable-click)')).editable('destroy').editable
+  settings =
     success: (response, newValue) =>
       val = {}
-      val[@data.field] = newValue
+      val[@data.key] = newValue
       Events.update @data._id,
         $set: val
+
+  $(@find('div.editable:not(.editable-click)')).editable('destroy').editable(settings)
+
+Template._eventCellSelect.rendered = ->
+  return unless @data.editable
+  settings =
+    success: (response, newValue) =>
+      val = {}
+      val[@data.key] = newValue
+      Events.update @data._id,
+        $set: val
+    value: @data.value
+    source: sources[@data.key]
+
+  $(@find('div.editable:not(.editable-click)')).editable('destroy').editable(settings)

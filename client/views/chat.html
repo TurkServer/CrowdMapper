@@ -55,7 +55,7 @@
     <h4>You are in &quot;{{roomName}}&quot;</h4>
     <ul class="messages well">
         {{#each messages}}
-        <li><span class="author{{authorClass}}">{{author}} [{{timestamp}}]:</span> {{text}}</li>
+        {{> messageItem}}
         {{/each}}
     </ul>
     <form class="form-inline" action="javascript:void(0)">
@@ -63,4 +63,14 @@
         <button type="submit" class="btn btn-primary">&rArr; Send</button>
         <button type="button" class="btn btn-warning" id="leave">Leave</button>
     </form>
+</template>
+
+<template name="messageItem">
+    <li>
+    {{#if author}}
+    <span class="">{{author}}:</span> {{text}}
+    {{else}}
+    <small><i class="muted">{{text}}</i></small>
+    {{/if}}
+    </li>
 </template>

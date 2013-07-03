@@ -1,7 +1,105 @@
 {
     "public": {
-        "sharejs" : {
-            "port" : 3005
-        }
+        "events": [
+            {
+                "key": "region",
+                "name": "Region",
+                "type": "dropdown",
+                "choices": [
+                    "CAR - Cordillera Administrative Region",
+                    "REGION I (Ilocos Region)",
+                    "REGION VI (Western Visayas)",
+                    "REGION VII (Central Visayas)",
+                    "ARMM - Autonomous Region in Muslim Mindanao",
+                    "NCR - National Capital Region",
+                    "REGION IV-A (Calabarzon)",
+                    "REGION IV-B (Mimaropa)",
+                    "REGION V (Bicol Region)",
+                    "REGION III (Central Luzon)",
+                    "REGION XII (Soccsksargen)",
+                    "REGION XI (Davao Region)",
+                    "REGION IX (Zamboanga Peninsula)",
+                    "REGION VIII (Eastern Visayas)",
+                    "REGION XIII (Caraga)",
+                    "REGION X (Northern Mindanao)",
+                    "REGION II (Cagayan Valley)"
+                ]
+            }
+            ,
+            {
+                "key": "province",
+                "name": "Province",
+                "type": "dropdown",
+                "choices": [
+                    "Dinagat Islands",
+                    "Surigao Del Norte",
+                    "Agusan Del Norte",
+                    "Agusan Del Sur",
+                    "Antique",
+                    "Batangas",
+                    "Biliran",
+                    "Bukidnon",
+                    "Camiguin",
+                    "Capiz",
+                    "Cebu",
+                    "Compostela Valley",
+                    "Davao Del Norte",
+                    "Davao Del Sur",
+                    "Davao Oriental",
+                    "Eastern Samar",
+                    "Guimaras",
+                    "Iklan",
+                    "Iloilo",
+                    "Lanao Del Norte",
+                    "Lanao Del Sur",
+                    "Leyte",
+                    "Marinduque",
+                    "Masbate",
+                    "Misamis Occidental",
+                    "Misamis Oriental",
+                    "Negros Occidental",
+                    "Negros Oriental",
+                    "North Cotabato",
+                    "Northern Samar",
+                    "Occidental Mindoro",
+                    "Oriental Mindoro",
+                    "Palawan",
+                    "Romblon",
+                    "Samar",
+                    "Siquijor",
+                    "South Cotabato",
+                    "Southern Leyte",
+                    "Surigao Del Sur",
+                    "Western Samar",
+                    "Zamboanga Del Norte",
+                    "Zamboanga Del Sur"
+                ]
+            }
+            ,
+            {
+                "key": "type",
+                "name": "Type",
+                "type": "dropdown",
+                "choices": [
+                    "Infrastructure Damage",
+                    "Roads",
+                    "Bridges",
+                    "Schools",
+                    "Hospitals/Health facilities",
+                    "Large scale housing damage",
+                    "Displaced population",
+                    "Population displaced in spontaneous settlement",
+                    "Evacuation centre",
+                    "Other",
+                    "Not Known"
+                ]
+            }
+            ,
+            {
+                "key": "description",
+                "name": "Description",
+                "type": "text"
+            }
+        ]
     }
 }

@@ -71,7 +71,7 @@ Template.room.events =
       room: Session.get("room")
       author: Meteor.user().username
       text: $msg.val()
-      timestamp: (new Date()).toUTCString()
+      timestamp: +(new Date())
 
     $msg.val ""
     $msg.focus()
