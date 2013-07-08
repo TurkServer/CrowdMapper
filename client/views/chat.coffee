@@ -14,14 +14,13 @@ Template.chat.events =
         users: 0
       }) if !!roomName
 
-Template.chat.currentRoom = ->
-  Session.get("room") or false
+Template.chat.currentRoom = -> Session.get("room") or false
 
-Template.rooms.availableRooms = ->
-  ChatRooms.find {}
+Template.rooms.availableRooms = -> ChatRooms.find {}
 
-Template.roomItem.active = ->
-  Session.equals("room", @_id)
+Template.roomItem.active = -> Session.equals("room", @_id)
+
+Template.roomItem.empty = -> @users is 0
 
 Template.roomItem.events =
   "click .enterRoom": (e) ->
@@ -35,8 +34,7 @@ Template.roomItem.events =
 
   "click .delete": (e) ->
     e.preventDefault()
-
-    ChatRooms.remove _id: @_id
+    Meteor.call("deleteChat", @_id)
 
     # don't select chatroom - http://stackoverflow.com/questions/10407783/stop-event-propagation-in-meteor
     e.stopImmediatePropagation()

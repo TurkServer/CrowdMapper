@@ -1,6 +1,9 @@
 {
   "packages": {
     "router": {},
+    "turkserver": {
+      "path": "../turkserver-meteor"
+    },
     "sharejs": {
       "path": "../meteor-sharejs"
     },

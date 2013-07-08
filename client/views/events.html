@@ -5,7 +5,12 @@
             <thead>
             <tr>
                 {{#each eventFields}}
-                <th>{{name}}</th>
+                <th>
+                    {{name}}
+                    <span class="sorter badge badge-inverse" data-key="{{key}}">
+                        <i class="icon-white {{iconClass}}"></i>
+                    </span>
+                </th>
                 {{/each}}
 
                 <th>Sources</th>

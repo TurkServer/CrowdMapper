@@ -3,6 +3,9 @@
   "dependencies": {
     "basePackages": {
       "router": {},
+      "turkserver": {
+        "path": "../turkserver-meteor"
+      },
       "sharejs": {
         "path": "../meteor-sharejs"
       },
@@ -25,6 +28,9 @@
         "git": "https://github.com/tmeasday/meteor-router.git",
         "tag": "v0.5.1",
         "commit": "32e377c7703bb119acccc859fc7296882903cbe7"
+      },
+      "turkserver": {
+        "path": "../turkserver-meteor"
       },
       "sharejs": {
         "path": "../meteor-sharejs"

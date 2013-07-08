@@ -1,9 +1,9 @@
 <template name="docs">
-    <div class="row-fluid">
-        <div class="span3">
+    <div class="row-fluid full-height">
+        <div class="span3 full-height carrier">
             {{> docTabs}}
         </div>
-        <div class="span9">
+        <div class="span9 full-height carrier">
             {{> docCurrent}}
         </div>
     </div>
@@ -15,7 +15,6 @@
     {{> docTab}}
     {{/each}}
     </ul>
-
     <button class="btn action-newdoc">New Document</button>
 </template>
 

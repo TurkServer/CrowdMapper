@@ -1,7 +1,18 @@
-/* CSS declarations go here */
+html, body
+    height: 100%
+
+// apply a natural box layout model to all elements
+*
+    -moz-box-sizing: border-box
+    -webkit-box-sizing: border-box
+    box-sizing: border-box
+
+// Works perfectly with the box-sizing above.
+.full-height
+    height: 100%
 
 body
-    padding: 20px 20px 0px;
+    padding: 20px 20px 10px;
 
 ol, ul
     list-style: none;
@@ -16,9 +27,6 @@ blockquote:before, blockquote:after, q:before, q:after
 table
     border-collapse: collapse;
     border-spacing: 0;
-
-.full-height
-    height: 100%
 
 .user-list
     height: 80px

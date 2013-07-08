@@ -28,7 +28,7 @@ Meteor.publish "chatstate", (room)  ->
       userId: userId
       roomId: room
   else
-    leaveRoom(room, userId)
+    leaveRoom(existing.roomId, userId)
     ChatUsers.update sessionId,
       $set:
         userId: userId

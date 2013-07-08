@@ -1,6 +1,11 @@
 
 Template.events.eventRecords = ->
-  Events.find {}
+  sort = {}
+  key = Session.get("eventSortKey")
+  sort[key] = Session.get("eventSortOrder") || 1 if key?
+
+  Events.find {},
+    sort: sort
 
 edit = (e) ->
   Events.update @_id,
@@ -29,6 +34,26 @@ Template.events.events =
       type: "",
       description: "",
       sources: ""
+
+  "click span.sorter": (e) ->
+    key = $(e.target).closest("span").attr("data-key")
+    sortKey = Session.get("eventSortKey")
+    if sortKey? and key is sortKey
+      # swap order of existing sort
+      Session.set("eventSortOrder", -1 * Session.get("eventSortOrder"))
+    else
+      Session.set("eventSortKey", key)
+      Session.set("eventSortOrder", 1)
+
+Template.events.iconClass = ->
+  if Session.equals("eventSortKey", @key)
+    # TODO This is inefficient. Fix it.
+    if Session.get("eventSortOrder") is 1
+      "icon-chevron-up"
+    else
+      "icon-chevron-down"
+  else
+    "icon-resize-vertical"
 
 Template.eventRow.events =
   "click .button-locate": (e) ->

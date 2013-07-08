@@ -37,7 +37,9 @@
         <a href="#" class="enterRoom">
             <span class="badge badge-inverse">{{users}}</span>
             {{name}}
+            {{#if empty}}
             <i class="icon-trash delete"></i>
+            {{/if}}
         </a>
     </li>
 </template>
