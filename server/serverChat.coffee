@@ -17,25 +17,34 @@ leaveRoom = (roomId, userId) ->
 
 # publish messages and users for a room
 Meteor.publish "chatstate", (room)  ->
+  # TODO handle things properly when a user logs out and do not let logged out users subscribe...
   userId = @_session.userId
   sessionId = @_session.id
 
+  # Leave any existing room
   existing = ChatUsers.findOne(sessionId)
+  leaveRoom(existing.roomId, existing.userId) if existing
 
-  unless existing
-    ChatUsers.insert
-      _id: sessionId,
-      userId: userId
-      roomId: room
-  else
-    leaveRoom(existing.roomId, userId)
+  # don't try to enter room if not in room or not logged in
+  if not room or not userId
+    ChatUsers.remove(sessionId) if existing
+    return
+
+  # Enter new room
+  if existing
     ChatUsers.update sessionId,
       $set:
         userId: userId
         roomId: room
+  else
+    ChatUsers.insert
+      _id: sessionId,
+      userId: userId
+      roomId: room
 
   enterRoom(room, userId)
 
+  # publish room messages and users
   Meteor.publishWithRelations
     handle: this,
     collection: ChatRooms,
@@ -52,9 +61,8 @@ Meteor.publish "chatstate", (room)  ->
 
 # Clean up any chat rooms on logout
 UserStatus.on "sessionLogout", (userId, sessionId) ->
-  # TODO replace with findAndUpdate
+  # TODO use findAndUpdate here once supported
   existing = ChatUsers.findOne(sessionId)
+  leaveRoom(existing.roomId, userId) if existing
 
-  leaveRoom(existing.roomId, userId)
-
-  ChatUsers.remove(sessionId)
+  ChatUsers.remove(sessionId) if existing

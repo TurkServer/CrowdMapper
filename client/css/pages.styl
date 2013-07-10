@@ -2,7 +2,7 @@
     position: relative
 
 .pages
-    // overflow: hidden // become a BFC, no longer relevant
+    // overflow: hidden // become a BFC (height wrap), no longer relevant
     position: absolute
     top: 62px
     bottom: 0px
@@ -18,10 +18,14 @@
 #map, #events
     display: block
 
+.popover-fix
+    position: relative
+    overflow-x: visible // no dice, doesn't seem to work
+    overflow-y: auto
+
 newevent-height = 30px
 
 #events, #doc-list
-    overflow: auto
     position: absolute
     top: 0px
     bottom: newevent-height + 10px
