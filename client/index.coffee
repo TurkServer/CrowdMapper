@@ -10,14 +10,14 @@ Meteor.startup ->
 # Request username if logged out
 Deps.autorun(login)
 
-Meteor.Router.add
-  '/': 'home',
-  '/map': 'map',
-  '/events': 'events'
-  '/docs': 'docs'
+Router.map ->
+  @route('home', {path: '/'})
+  @route('map')
+  @route('events')
+  @route('docs')
 
 Template.pages.events =
-  "click a[data-target='docs']": -> Meteor.Router.to("/docs")
-  "click a[data-target='events']": -> Meteor.Router.to("/events")
-  "click a[data-target='map']": -> Meteor.Router.to("/map")
+  "click a[data-target='docs']": -> Router.go("/docs")
+  "click a[data-target='events']": -> Router.go("/events")
+  "click a[data-target='map']": -> Router.go("/map")
 

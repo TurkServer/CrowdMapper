@@ -3,14 +3,13 @@
   "dependencies": {
     "basePackages": {
       "router": {},
+      "bootboxjs": {},
+      "publish-with-relations": {},
       "turkserver": {
         "path": "../turkserver-meteor"
       },
       "sharejs": {
         "path": "../meteor-sharejs"
-      },
-      "bootboxjs": {
-        "path": "../meteor-bootboxjs"
       },
       "user-status": {
         "path": "../meteor-user-status"
@@ -20,42 +19,41 @@
       },
       "x-editable-bootstrap": {
         "path": "../meteor-x-editable-bootstrap"
-      },
-      "publish-with-relations": {}
+      }
     },
     "packages": {
-      "router": {
-        "git": "https://github.com/tmeasday/meteor-router.git",
-        "tag": "v0.5.1",
-        "commit": "32e377c7703bb119acccc859fc7296882903cbe7"
-      },
-      "turkserver": {
-        "path": "../turkserver-meteor"
-      },
-      "sharejs": {
-        "path": "../meteor-sharejs"
-      },
       "bootboxjs": {
-        "path": "../meteor-bootboxjs"
-      },
-      "user-status": {
-        "path": "../meteor-user-status"
-      },
-      "accounts-testing": {
-        "path": "../meteor-accounts-testing"
-      },
-      "x-editable-bootstrap": {
-        "path": "../meteor-x-editable-bootstrap"
+        "git": "https://github.com/TimHeckel/meteor-bootboxjs.git",
+        "tag": "v3.2.0",
+        "commit": "6088b5b6ec13304457394cd358cbdc5f3def1a1c"
       },
       "publish-with-relations": {
         "git": "https://github.com/erundook/meteor-publish-with-relations.git",
         "tag": "v0.1.5",
         "commit": "98213e9f056b139597c99fb9ec2884ae6be76d91"
       },
+      "turkserver": {
+        "path": "../turkserver-meteor"
+      },
+      "sharejs": {
+        "path": "../meteor-sharejs"
+      },
+      "user-status": {
+        "path": "../meteor-user-status"
+      },
+      "accounts-testing": {
+        "path": "../meteor-accounts-testing"
+      },
+      "x-editable-bootstrap": {
+        "path": "../meteor-x-editable-bootstrap"
+      },
       "page-js-ie-support": {
         "git": "https://github.com/tmeasday/meteor-page-js-ie-support.git",
         "tag": "v1.3.5",
         "commit": "b99ed8380aefd10b2afc8f18d9eed4dd0d8ea9cb"
+      },
+      "collection-hooks": {
+        "path": "../meteor-collection-hooks"
       }
     }
   }

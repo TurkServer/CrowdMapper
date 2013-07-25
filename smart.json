@@ -1,14 +1,12 @@
 {
   "packages": {
-    "router": {},
+    "bootboxjs": {},
+    "publish-with-relations": {},
     "turkserver": {
       "path": "../turkserver-meteor"
     },
     "sharejs": {
       "path": "../meteor-sharejs"
-    },
-    "bootboxjs": {
-      "path": "../meteor-bootboxjs"
     },
     "user-status": {
       "path": "../meteor-user-status"
@@ -18,7 +16,6 @@
     },
     "x-editable-bootstrap": {
       "path": "../meteor-x-editable-bootstrap"
-    },
-    "publish-with-relations": {}
+    }
   }
 }
