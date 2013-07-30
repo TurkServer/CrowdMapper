@@ -4,20 +4,24 @@ login = ->
   bootbox.prompt "Please enter a username", (username) ->
     Meteor.insecureUserLogin(username) if username?
 
+# Start initial login after stuff loaded
 Meteor.startup ->
-  login()
+  Meteor.setTimeout login, 50
 
-# Request username if logged out
+# Always request username if logged out
 Deps.autorun(login)
 
+# Routing
 Router.map ->
   @route('home', {path: '/'})
-  @route('map')
-  @route('events')
-  @route('docs')
+  @route('mapper')
+  @route('admin')
 
-Template.pages.events =
-  "click a[data-target='docs']": -> Router.go("/docs")
-  "click a[data-target='events']": -> Router.go("/events")
-  "click a[data-target='map']": -> Router.go("/map")
+#Router.configure
+#  layout: 'layout'
+#  renderTemplates:
+#    'datastream':
+#      to: 'datastream'
+#    'sidebar':
+#      to: 'sidebar'
 

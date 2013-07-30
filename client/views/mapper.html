@@ -1,0 +1,44 @@
+
+<template name="pageNav">
+    <div class="navbar">
+        <div class="navbar-inner">
+            <ul class="nav">
+                <li class="divider-vertical"></li>
+                <li><a href="#" data-target="docs" data-toggle="tab">Documents</a></li>
+                <li class="divider-vertical"></li>
+                <li><a href="#" data-target="events" data-toggle="tab">Events</a></li>
+                <li class="divider-vertical"></li>
+                <li><a href="#" data-target="map" data-toggle="tab">Map</a></li>
+                <li class="divider-vertical"></li>
+            </ul>
+            <div class="navbar-text pull-right">
+                {{loginButtons}}
+            </div>
+        </div>
+    </div>
+</template>
+
+<template name="mapper">
+    <div class="container-fluid full-height">
+        <div class="row-fluid full-height">
+            <div class="span2 full-height">
+                {{> datastream}}
+            </div>
+            <div class="span7 full-height carrier stack">
+                {{> pageNav}}
+                <div id="mapper-docs" class="pages">
+                    {{> docs}}
+                </div>
+                <div id="mapper-events" class="pages">
+                    {{> events}}
+                </div>
+                <div id="mapper-map" class="pages">
+                    {{> map}}
+                </div>
+            </div>
+            <div class="span3 full-height carrier">
+                {{> sidebar}}
+            </div>
+        </div>
+    </div>
+</template>

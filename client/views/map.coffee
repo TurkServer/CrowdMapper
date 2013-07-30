@@ -36,7 +36,8 @@ Template.map.rendered = ->
       graphicWidth: 21
       graphicHeight: 25
       graphicYOffset: -24
-  cursorLayer = new OpenLayers.Layer.Vector("Cursor Layer")
+
+  cursorLayer = new OpenLayers.Layer.Vector("Cursor Layer") # currently unused
 
   map = new OpenLayers.Map 'map',
     # center: new OpenLayers.LonLat(0, 0)
@@ -93,6 +94,11 @@ Template.map.rendered = ->
       feature = vectorLayer.getFeatureById(id)
       return unless feature
       vectorLayer.destroyFeatures [feature]
+
+  # HACK: remove the explicit visibility attribute on the vector layer - causes display issues in Firefox
+  Meteor.setTimeout ->
+    $("g[id^=OpenLayers_Layer_Vector_]").css("visibility", '')
+  , 1000
 
 Template.map.destroyed = ->
   # Tear down observe query

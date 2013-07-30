@@ -1,6 +1,9 @@
 .carrier
     position: relative
 
+.stack > .pages:not(.active)
+  visibility: hidden
+
 .pages
     // overflow: hidden // become a BFC (height wrap), no longer relevant
     position: absolute

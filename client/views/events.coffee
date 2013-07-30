@@ -1,4 +1,3 @@
-
 Template.events.eventRecords = ->
   sort = {}
   key = Session.get("eventSortKey")

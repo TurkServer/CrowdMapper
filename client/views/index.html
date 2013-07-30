@@ -2,24 +2,21 @@
   <title>CrowdMapper</title>
 </head>
 
-<body>
-  <div class="container-fluid full-height">
-      <div class="row-fluid full-height">
-          <div class="span2 full-height">
-              {{> datastream}}
-          </div>
-          <div class="span7 full-height carrier">
-              {{> pages}}
-          </div>
-          <div class="span3 full-height carrier">
-             {{> userList}}
-             {{> chat}}
-          </div>
-      </div>
-  </div>
+<template name="home">
+    <div class="hero-unit">
+        <h1>Welcome to CrowdMapper.</h1>
+        <a href="/mapper" class="btn btn-success">Get started!</a>
+    </div>
+</template>
 
+<template name="admin">
   {{> turkserver}}
-</body>
+</template>
+
+<template name="sidebar">
+    {{> userList}}
+    {{> chat}}
+</template>
 
 <template name="userList">
     <div class="well user-list">

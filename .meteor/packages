@@ -10,4 +10,13 @@ jquery
 stylus
 bootstrap
 accounts-ui
-meteor-iron-router
+iron-router
+standard-app-packages
+x-editable-bootstrap
+user-status
+bootboxjs
+publish-with-relations
+accounts-testing
+turkserver
+collection-hooks
+sharejs
