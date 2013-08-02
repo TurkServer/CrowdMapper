@@ -1,10 +1,11 @@
 Template.events.eventRecords = ->
-  sort = {}
-  key = Session.get("eventSortKey")
-  sort[key] = Session.get("eventSortOrder") || 1 if key?
 
-  Events.find {},
-    sort: sort
+  key = Session.get("eventSortKey")
+  return Events.find() unless key
+
+  sort = {}
+  sort[key] = Session.get("eventSortOrder") || 1 if key?
+  return Events.find {}, { sort: sort }
 
 edit = (e) ->
   Events.update @_id,
@@ -32,7 +33,7 @@ Template.events.events =
       region: "",
       type: "",
       description: "",
-      sources: ""
+      sources: []
 
   "click span.sorter": (e) ->
     key = $(e.target).closest("span").attr("data-key")
@@ -53,6 +54,18 @@ Template.events.iconClass = ->
       "icon-chevron-down"
   else
     "icon-resize-vertical"
+
+Template.eventRow.rendered = ->
+  data = @data
+  $(@firstNode).droppable
+    addClasses: false
+    hoverClass: "success"
+    tolerance: "pointer"
+    drop: (event, ui) ->
+      tweet = Spark.getDataContext(ui.draggable.context)
+
+      Events.update data._id,
+        $addToSet: { sources: tweet._id }
 
 Template.eventRow.events =
   "click .button-locate": (e) ->

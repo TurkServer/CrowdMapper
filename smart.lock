@@ -2,7 +2,6 @@
   "meteor": {},
   "dependencies": {
     "basePackages": {
-      "router": {},
       "bootboxjs": {},
       "publish-with-relations": {},
       "turkserver": {
@@ -46,9 +45,6 @@
       },
       "x-editable-bootstrap": {
         "path": "../meteor-x-editable-bootstrap"
-      },
-      "collection-hooks": {
-        "path": "../meteor-collection-hooks"
       }
     }
   }

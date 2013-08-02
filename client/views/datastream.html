@@ -1,5 +1,16 @@
 <template name="datastream">
-    <div class="well full-height">
+    <ul class="well full-height scroll-vertical popout-elements">
+        {{#each data}}
+        {{> dataItem}}
+        {{/each}}
+    </ul>
+</template>
 
-    </div>
+<template name="dataItem">
+    <li class="data-cell">
+        {{{text}}}
+        <button class="btn btn-danger btn-mini data-remove" title="Hide this">
+            <i class="icon-white icon-remove"></i>
+        </button>
+    </li>
 </template>

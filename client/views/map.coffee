@@ -83,7 +83,8 @@ Template.map.rendered = ->
 
     changed: (id, fields) ->
       feature = vectorLayer.getFeatureById(id)
-      return unless feature # this should just draw the feature, probably
+      # don't draw unless the feature exists and location changed
+      return unless feature and fields.location
 
       feature.geometry.x = fields.location[0]
       feature.geometry.y = fields.location[1]

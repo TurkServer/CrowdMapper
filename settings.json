@@ -1,4 +1,11 @@
 {
+    "sharejs": {
+        "options": {
+            "db": {
+                "type": "redis"
+            }
+        }
+    },
     "public": {
         "events": [
             {

@@ -6,3 +6,4 @@ Meteor.startup ->
     $set:
       {users: 0}
   , multi: true
+

@@ -30,13 +30,19 @@
 </template>
 
 <template name="eventRow">
-    <tr {{#if editing}} class="info" {{/if}}>
+    <tr class="{{#if editing}}info{{/if}}">
 
         {{#each eventFields}}
         {{eventCell ../this this}}
         {{/each}}
 
-        {{eventCell this "sources"}}
+        <td>
+            <div>
+                {{#each sources}}
+                {{> tweetIcon this}}
+                {{/each}}
+            </div>
+        </td>
 
         <td><div>
         {{#if location}}
@@ -67,6 +73,12 @@
         {{/if}}
         </td>
     </tr>
+</template>
+
+<template name="tweetIcon">
+    <span class="label label-info">
+        <i class="icon-white icon-tag"></i>
+    </span>
 </template>
 
 <template name="_eventCell">

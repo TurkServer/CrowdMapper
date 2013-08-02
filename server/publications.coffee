@@ -8,8 +8,13 @@ Meteor.publish "userStatus", ->
 
 # TODO: Improve the publication logic
 
+Meteor.publish "datastream", ->
+  Datastream.find()
+
 Meteor.publish "docs", ->
   Documents.find()
 
 Meteor.publish "events", ->
   Events.find()
+
+

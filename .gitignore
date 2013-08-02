@@ -1,4 +1,6 @@
 .idea
+Meteor
+dump.rdb
 
 packages
 client/lib/*

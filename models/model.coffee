@@ -3,6 +3,9 @@ this.ChatRooms = new Meteor.Collection("chatrooms")
 this.ChatUsers = new Meteor.Collection("chatusers")
 this.ChatMessages = new Meteor.Collection("chatmessages")
 
+# Datastream
+this.Datastream = new Meteor.Collection("datastream")
+
 # Docs
 this.Documents = new Meteor.Collection("docs")
 

@@ -2,7 +2,7 @@
     position: relative
 
 .stack > .pages:not(.active)
-  visibility: hidden
+    visibility: hidden
 
 .pages
     // overflow: hidden // become a BFC (height wrap), no longer relevant
@@ -17,9 +17,14 @@
     position: absolute
     top: 30px
     bottom: 0px
+    -webkit-box-shadow: 0px 0px 5px 5px rgba(0, 0, 0, 0.2);
+    box-shadow: 0px 0px 5px 5px rgba(0, 0, 0, 0.2);
 
 #map, #events
     display: block
+    -webkit-box-shadow: 0px 0px 5px 5px rgba(0, 0, 0, 0.2);
+    box-shadow: 0px 0px 5px 5px rgba(0, 0, 0, 0.2);
+    border-radius: 4px
 
 .popover-fix
     position: relative
@@ -39,11 +44,6 @@ newevent-height = 30px
     position: absolute
     height: newevent-height
     bottom: 0px
-
-table
-    table-layout: fixed
-    word-wrap: normal
-    // word-wrap: break-word
 
 .header-buttons, .header-location
     width: 71px

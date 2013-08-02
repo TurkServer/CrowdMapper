@@ -30,6 +30,6 @@
     {{#if document}}
     <input class="input-xlarge" type="text" value="{{title}}">
     <button class="btn btn-danger btn-small">Delete this document</button>
-    {{sharejsAce document id="editor"}}
+    {{sharejsAce document callback=config id="editor"}}
     {{/if}}
 </template>

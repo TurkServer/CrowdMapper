@@ -37,3 +37,9 @@ Template.docCurrent.events =
     id = Session.get("document")
     Documents.remove(id)
     Session.set("document", null)
+
+Template.docCurrent.config = ->
+  (editor) ->
+    # Set some reasonable options on the editor
+    editor.setShowPrintMargin(false)
+    editor.getSession().setUseWrapMode(true)
