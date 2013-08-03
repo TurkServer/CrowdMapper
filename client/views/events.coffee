@@ -1,11 +1,3 @@
-Template.events.eventRecords = ->
-
-  key = Session.get("eventSortKey")
-  return Events.find() unless key
-
-  sort = {}
-  sort[key] = Session.get("eventSortOrder") || 1 if key?
-  return Events.find {}, { sort: sort }
 
 edit = (e) ->
   Events.update @_id,
@@ -44,6 +36,14 @@ Template.events.events =
     else
       Session.set("eventSortKey", key)
       Session.set("eventSortOrder", 1)
+
+Template.events.eventRecords = ->
+  key = Session.get("eventSortKey")
+  return Events.find() unless key
+
+  sort = {}
+  sort[key] = Session.get("eventSortOrder") || 1 if key?
+  return Events.find {}, { sort: sort }
 
 Template.events.iconClass = ->
   if Session.equals("eventSortKey", @key)
@@ -149,3 +149,11 @@ Template._eventCellSelect.rendered = ->
     source: sources[@data.key]
 
   $(@find('div.editable:not(.editable-click)')).editable('destroy').editable(settings)
+
+Template.tweetIcon.rendered = ->
+  $(@firstNode).popover
+    html: true
+    placement: "top"
+    trigger: "hover"
+    content: =>
+      Datastream.findOne(@data).text

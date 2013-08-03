@@ -56,6 +56,16 @@ Template.map.rendered = ->
 
   map.addControl(new OpenLayers.Control.KeyboardDefaults());
 
+  report = (e) -> console.log e
+
+  # Allow selecting stuff
+  selectControl = new OpenLayers.Control.SelectFeature vectorLayer,
+    hover: true
+    eventListeners:
+      beforefeaturehighlighted: report,
+      featurehighlighted: report,
+      featureunhighlighted: report
+
   # Allow repositioning stuff
   modifyControl = new OpenLayers.Control.ModifyFeature vectorLayer,
     onModification: (feature) ->
@@ -64,7 +74,10 @@ Template.map.rendered = ->
         $set:
           location: [point.x, point.y]
 
+  map.addControl(selectControl)
   map.addControl(modifyControl)
+
+  selectControl.activate()
   modifyControl.activate()
 
   map.zoomToMaxExtent()
