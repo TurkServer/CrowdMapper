@@ -1,6 +1,23 @@
 Template.map.created = ->
   OpenLayers.ImgPath = "http://dev.openlayers.org/releases/OpenLayers-2.13/img/";
 
+###
+  TODO replace earthquake-3 with ${type}
+###
+defaultStyle =
+  externalGraphic: "/images/map/earthquake-3-red.png"
+  graphicOpacity: 1
+  graphicWidth: 32
+  graphicHeight: 37
+  graphicYOffset: -36
+
+styleMap = new OpenLayers.StyleMap
+  'default': OpenLayers.Util.applyDefaults(defaultStyle, OpenLayers.Feature.Vector.style["default"])
+  hover:
+    externalGraphic: "/images/map/earthquake-3-yellow.png"
+  select:
+    externalGraphic: "/images/map/earthquake-3-cyan.png"
+
 # Initialize map
 Template.map.rendered = ->
   # Set this externally at some point
@@ -31,11 +48,7 @@ Template.map.rendered = ->
     key: "AoMrUbEFitx5QLbLsi2NNplTe84_MyCMWM1aUDkWuWPwMXU3HIwUbzOQaDWyS5a-"
 
   vectorLayer = new OpenLayers.Layer.Vector "Vector Layer",
-    style:
-      externalGraphic: "http://dev.openlayers.org/releases/OpenLayers-2.13/img/marker.png"
-      graphicWidth: 21
-      graphicHeight: 25
-      graphicYOffset: -24
+    styleMap: styleMap
 
   cursorLayer = new OpenLayers.Layer.Vector("Cursor Layer") # currently unused
 
@@ -56,28 +69,62 @@ Template.map.rendered = ->
 
   map.addControl(new OpenLayers.Control.KeyboardDefaults());
 
-  report = (e) -> console.log e
-
-  # Allow selecting stuff
-  selectControl = new OpenLayers.Control.SelectFeature vectorLayer,
+  # Allow hovering over stuff
+  hoverControl = new OpenLayers.Control.SelectFeature vectorLayer,
     hover: true
-    eventListeners:
-      beforefeaturehighlighted: report,
-      featurehighlighted: report,
-      featureunhighlighted: report
+    highlightOnly: true
+    renderIntent: "hover"
+#    eventListeners:
+#      beforefeaturehighlighted: (e) -> console.log e
+#      featurehighlighted: (e) ->
+#      featureunhighlighted: (e) ->
+
+  # Select control that manually triggers updates
+  selectControl = new OpenLayers.Control.SelectFeature vectorLayer,
+    clickout: true
+    toggle: true
 
   # Allow repositioning stuff
   modifyControl = new OpenLayers.Control.ModifyFeature vectorLayer,
-    onModification: (feature) ->
-      point = feature.geometry
-      Events.update { _id: feature.id },
+    standalone: true
+
+  # Hook up layer events
+  vectorLayer.events.on
+    featureselected: (e) ->
+      modifyControl.selectFeature(e.feature)
+
+      feature = e.feature
+      popup = new OpenLayers.Popup.FramedCloud("chicken",
+        new OpenLayers.LonLat(feature.geometry.x, feature.geometry.y)
+        null, # no size definition needed
+        feature.id, # The HTML
+        false
+      )
+      feature.popup = popup
+      map.addPopup(popup, true) # Kick out any old popups for good measure
+
+    featureunselected: (e) ->
+      modifyControl.unselectFeature(e.feature)
+
+      feature = e.feature
+      map.removePopup(feature.popup)
+      feature.popup.destroy()
+      feature.popup = null
+
+    featuremodified: (e) ->
+      point = e.feature.geometry
+      Events.update { _id: e.feature.id },
         $set:
           location: [point.x, point.y]
 
-  map.addControl(selectControl)
-  map.addControl(modifyControl)
+  # Order of hover and select control matters
+  map.addControl(hoverControl)
+  hoverControl.activate()
 
+  map.addControl(selectControl)
   selectControl.activate()
+
+  map.addControl(modifyControl)
   modifyControl.activate()
 
   map.zoomToMaxExtent()
@@ -101,6 +148,7 @@ Template.map.rendered = ->
 
       feature.geometry.x = fields.location[0]
       feature.geometry.y = fields.location[1]
+
       # redraw the feature
       vectorLayer.drawFeature(feature)
 
