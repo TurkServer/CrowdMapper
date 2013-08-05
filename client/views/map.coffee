@@ -1,22 +1,22 @@
 Template.map.created = ->
   OpenLayers.ImgPath = "http://dev.openlayers.org/releases/OpenLayers-2.13/img/";
 
-###
-  TODO replace earthquake-3 with ${type}
-###
-defaultStyle =
-  externalGraphic: "/images/map/earthquake-3-red.png"
-  graphicOpacity: 1
-  graphicWidth: 32
-  graphicHeight: 37
-  graphicYOffset: -36
+  ###
+    TODO replace earthquake-3 with ${type}
+  ###
+  defaultStyle =
+    externalGraphic: "/images/map/earthquake-3-red.png"
+    graphicOpacity: 1
+    graphicWidth: 32
+    graphicHeight: 37
+    graphicYOffset: -36
 
-styleMap = new OpenLayers.StyleMap
-  'default': OpenLayers.Util.applyDefaults(defaultStyle, OpenLayers.Feature.Vector.style["default"])
-  hover:
-    externalGraphic: "/images/map/earthquake-3-yellow.png"
-  select:
-    externalGraphic: "/images/map/earthquake-3-cyan.png"
+  @styleMap = new OpenLayers.StyleMap
+    'default': OpenLayers.Util.applyDefaults(defaultStyle, OpenLayers.Feature.Vector.style["default"])
+    hover:
+      externalGraphic: "/images/map/earthquake-3-yellow.png"
+    select:
+      externalGraphic: "/images/map/earthquake-3-cyan.png"
 
 # Initialize map
 Template.map.rendered = ->
@@ -48,7 +48,7 @@ Template.map.rendered = ->
     key: "AoMrUbEFitx5QLbLsi2NNplTe84_MyCMWM1aUDkWuWPwMXU3HIwUbzOQaDWyS5a-"
 
   vectorLayer = new OpenLayers.Layer.Vector "Vector Layer",
-    styleMap: styleMap
+    styleMap: @styleMap
 
   cursorLayer = new OpenLayers.Layer.Vector("Cursor Layer") # currently unused
 
@@ -59,7 +59,7 @@ Template.map.rendered = ->
     restrictedExtent: extent
     resolutions: resolutions
     serverResolutions: serverResolutions
-    theme: false # don't attempt to load theme from default path
+    theme: null # don't attempt to load theme from default path
 
   map.addControl(new OpenLayers.Control.MousePosition());
   map.addControl(new OpenLayers.Control.PanZoomBar());

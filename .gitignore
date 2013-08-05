@@ -2,7 +2,7 @@
 Meteor
 dump.rdb
 
-packages
+packages/*
 client/lib/*
 
 lib-cov

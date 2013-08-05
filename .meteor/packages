@@ -10,8 +10,9 @@ jquery
 stylus
 bootstrap
 accounts-ui
-iron-router
 standard-app-packages
+webapp
+iron-router
 x-editable-bootstrap
 user-status
 bootboxjs
@@ -19,3 +20,4 @@ publish-with-relations
 accounts-testing
 sharejs
 turkserver
+openlayers
