@@ -6,3 +6,20 @@
 <template name="map">
     <div class="full-height" id="map"></div>
 </template>
+
+<template name="mapPopup">
+    <strong class="text-error">{{type}}</strong>
+    <br>
+    <small>{{description}}</small>
+    <br>
+    <strong><small>{{province}}</small></strong>
+    <br>
+    <em><small>{{region}}</small></em>
+    <br>
+    <strong>{{{formatLocation}}}</strong>
+
+    {{#each sources}}
+    {{> tweetIcon this}}
+    {{/each}}
+
+</template>

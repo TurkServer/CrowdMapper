@@ -1,5 +1,28 @@
+# OpenLayers config - set this externally at some point
+extent = [11700000, 525000, 15700000, 2450000] # Philippines
+
+resolutions = [19567.87923828125, 9783.939619140625,
+               4891.9698095703125, 2445.9849047851562, 1222.9924523925781,
+               611.4962261962891, 305.74811309814453, 152.87405654907226,
+               76.43702827453613, 38.218514137268066, 19.109257068634033,
+               9.554628534317017, 4.777314267158508, 2.388657133579254,
+               1.194328566789627, 0.5971642833948135, 0.29858214169740677,
+               0.14929107084870338, 0.07464553542435169]
+serverResolutions = [156543.03390625, 78271.516953125,
+                     39135.7584765625, 19567.87923828125, 9783.939619140625,
+                     4891.9698095703125, 2445.9849047851562, 1222.9924523925781,
+                     611.4962261962891, 305.74811309814453, 152.87405654907226,
+                     76.43702827453613, 38.218514137268066, 19.109257068634033,
+                     9.554628534317017, 4.777314267158508, 2.388657133579254,
+                     1.194328566789627, 0.5971642833948135, 0.29858214169740677,
+                     0.14929107084870338, 0.07464553542435169]
+
 Template.map.created = ->
+
   OpenLayers.ImgPath = "http://dev.openlayers.org/releases/OpenLayers-2.13/img/";
+
+  # Move popup behind vector layers - see http://www.mail-archive.com/users@openlayers.org/msg00541.html
+  # OpenLayers.Map.prototype.Z_INDEX_BASE.Popup = 500
 
   ###
     TODO replace earthquake-3 with ${type}
@@ -20,26 +43,10 @@ Template.map.created = ->
 
 # Initialize map
 Template.map.rendered = ->
-  # Set this externally at some point
-  extent = [11700000, 525000, 15700000, 2450000] # Philippines
+  # Don't re-render map due to reactive sub-regions triggering this
+  return if @map
 
-  resolutions = [19567.87923828125, 9783.939619140625,
-                4891.9698095703125, 2445.9849047851562, 1222.9924523925781,
-                611.4962261962891, 305.74811309814453, 152.87405654907226,
-                76.43702827453613, 38.218514137268066, 19.109257068634033,
-                9.554628534317017, 4.777314267158508, 2.388657133579254,
-                1.194328566789627, 0.5971642833948135, 0.29858214169740677,
-                0.14929107084870338, 0.07464553542435169]
-  serverResolutions = [156543.03390625, 78271.516953125,
-                      39135.7584765625, 19567.87923828125, 9783.939619140625,
-                      4891.9698095703125, 2445.9849047851562, 1222.9924523925781,
-                      611.4962261962891, 305.74811309814453, 152.87405654907226,
-                      76.43702827453613, 38.218514137268066, 19.109257068634033,
-                      9.554628534317017, 4.777314267158508, 2.388657133579254,
-                      1.194328566789627, 0.5971642833948135, 0.29858214169740677,
-                      0.14929107084870338, 0.07464553542435169]
-
-  console.log "map render"
+  console.log "starting map render"
 
 #  mapLayer = new OpenLayers.Layer.OSM("Simple OSM Map");
   mapLayer = new OpenLayers.Layer.Bing
@@ -60,12 +67,20 @@ Template.map.rendered = ->
     resolutions: resolutions
     serverResolutions: serverResolutions
     theme: null # don't attempt to load theme from default path
+    controls: [
+      new OpenLayers.Control.Navigation(),
+      new OpenLayers.Control.PanZoomBar()
+    ]
 
-  map.addControl(new OpenLayers.Control.MousePosition());
-  map.addControl(new OpenLayers.Control.PanZoomBar());
+  @map = map
+
+  map.addControl new OpenLayers.Control.MousePosition
+    numDigits: 2
+    displayProjection: new OpenLayers.Projection("EPSG:4326")
+
   map.addControl(new OpenLayers.Control.LayerSwitcher({'ascending':false}));
 
-  map.addControl(new OpenLayers.Control.OverviewMap(theme: false));
+  map.addControl(new OpenLayers.Control.OverviewMap(theme: null));
 
   map.addControl(new OpenLayers.Control.KeyboardDefaults());
 
@@ -81,7 +96,7 @@ Template.map.rendered = ->
 
   # Select control that manually triggers updates
   selectControl = new OpenLayers.Control.SelectFeature vectorLayer,
-    clickout: true
+    clickout: false
     toggle: true
 
   # Allow repositioning stuff
@@ -91,25 +106,46 @@ Template.map.rendered = ->
   # Hook up layer events
   vectorLayer.events.on
     featureselected: (e) ->
-      modifyControl.selectFeature(e.feature)
-
       feature = e.feature
-      popup = new OpenLayers.Popup.FramedCloud("chicken",
-        new OpenLayers.LonLat(feature.geometry.x, feature.geometry.y)
-        null, # no size definition needed
-        feature.id, # The HTML
-        false
-      )
-      feature.popup = popup
-      map.addPopup(popup, true) # Kick out any old popups for good measure
+      modifyControl.selectFeature(feature)
+      console.log "selected ", e.feature
+
+      lonlat = new OpenLayers.LonLat(feature.geometry.x, feature.geometry.y)
+
+      # TODO render popups dynamically and with fields
+      content =
+
+      unless @popup
+        @popup = new OpenLayers.Popup.Anchored("event",
+          lonlat,
+          null, # Popup size - defaults to 200x200 or use autoSize
+          null, # The HTML
+          { # The anchor
+            size: new OpenLayers.Size(0, 0)
+            offset: new OpenLayers.Pixel(0, -36)
+          }
+        )
+        @popup.autoSize = true # Prob won't work without specifying HTML
+        @popup.relativePosition = "tr"
+      else
+        @popup.lonlat = lonlat
+        @popup.contentDiv.innerHTML = ''
+
+      # Make that shit reactive
+      @popup.contentDiv.appendChild Meteor.render ->
+        new Handlebars.SafeString Template.mapPopup Events.findOne(feature.id)
+
+      map.addPopup(@popup, true) # Kick out any old popups for good measure
+
+      # Resize popup to fit contents
+      # Of course, this won't affect reactive updates but those are unlikely to trigger huge size changes
+      @popup.updateSize()
 
     featureunselected: (e) ->
       modifyControl.unselectFeature(e.feature)
+      console.log "unselected ", e.feature
 
-      feature = e.feature
-      map.removePopup(feature.popup)
-      feature.popup.destroy()
-      feature.popup = null
+      map.removePopup(@popup) if @popup
 
     featuremodified: (e) ->
       point = e.feature.geometry

@@ -10,6 +10,7 @@ Meteor.startup ->
     throw err if err
     tweets = replaceURLWithHTMLLinks(res).split("\n")
     _.each tweets, (e, i) ->
+      return unless e # Don't insert empty string
       Datastream.insert
         text: e
     console.log(tweets.length + " tweets inserted")

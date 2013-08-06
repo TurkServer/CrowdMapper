@@ -12,19 +12,21 @@
     left: 0px
     right: 0px
 
+drop-shadow()
+    -webkit-box-shadow: 0px 0px 5px 5px rgba(0, 0, 0, 0.2);
+    box-shadow: 0px 0px 5px 5px rgba(0, 0, 0, 0.2);
+
 #editor
     width: 100%
     position: absolute
     top: 30px
     bottom: 0px
-    -webkit-box-shadow: 0px 0px 5px 5px rgba(0, 0, 0, 0.2);
-    box-shadow: 0px 0px 5px 5px rgba(0, 0, 0, 0.2);
+    drop-shadow()
 
 #map, #events
     display: block
-    -webkit-box-shadow: 0px 0px 5px 5px rgba(0, 0, 0, 0.2);
-    box-shadow: 0px 0px 5px 5px rgba(0, 0, 0, 0.2);
     border-radius: 4px
+    drop-shadow()
 
 newevent-height = 30px
 
@@ -43,8 +45,5 @@ newevent-height = 30px
 .header-buttons, .header-location
     width: 71px
 
-// Fix for bootstrap crapping on openlayers
-#map img
-    max-width: none
 
 
