@@ -108,7 +108,7 @@ Template.map.rendered = ->
     featureselected: (e) ->
       feature = e.feature
       modifyControl.selectFeature(feature)
-      console.log "selected ", e.feature
+#      console.log "selected ", e.feature
 
       lonlat = new OpenLayers.LonLat(feature.geometry.x, feature.geometry.y)
 
@@ -143,7 +143,7 @@ Template.map.rendered = ->
 
     featureunselected: (e) ->
       modifyControl.unselectFeature(e.feature)
-      console.log "unselected ", e.feature
+#      console.log "unselected ", e.feature
 
       map.removePopup(@popup) if @popup
 
