@@ -5,6 +5,10 @@
 .olControlMousePosition
     color: #FFFFFF
 
+// HACK: remove the explicit visibility attribute on the vector layer - causes display issues in Firefox
+.olLayerDiv > svg > g
+    visibility: inherit !important
+
 // Allow tweet tags to extend outside popups
 .olPopup
     overflow: visible !important

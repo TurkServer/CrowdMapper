@@ -129,7 +129,9 @@ Template.map.rendered = ->
         @popup.relativePosition = "tr"
       else
         @popup.lonlat = lonlat
-        @popup.contentDiv.innerHTML = ''
+        # Clear contents: see http://stackoverflow.com/questions/3955229/remove-all-child-elements-of-a-dom-node-in-javascript
+        while @popup.contentDiv.firstChild
+          @popup.contentDiv.removeChild @popup.contentDiv.firstChild
 
       # Make that shit reactive
       @popup.contentDiv.appendChild Meteor.render ->
@@ -192,11 +194,6 @@ Template.map.rendered = ->
       feature = vectorLayer.getFeatureById(id)
       return unless feature
       vectorLayer.destroyFeatures [feature]
-
-  # HACK: remove the explicit visibility attribute on the vector layer - causes display issues in Firefox
-  Meteor.setTimeout ->
-    $("g[id^=OpenLayers_Layer_Vector_]").css("visibility", '')
-  , 1000
 
 Template.map.destroyed = ->
   # Tear down observe query

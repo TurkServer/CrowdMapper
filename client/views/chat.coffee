@@ -76,5 +76,5 @@ Template.room.events =
     Meteor.flush()
 
     # Silly way of auto scrolling down. Also do on others' messages.
-    $messages = pp$(".messages")
+    $messages = $(".messages")
     $messages.scrollTop $messages[0].scrollHeight
