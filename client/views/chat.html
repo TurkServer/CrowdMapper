@@ -54,7 +54,7 @@
 </template>
 
 <template name="room">
-    <h4>You are in &quot;{{roomName}}&quot;</h4>
+    {{> roomTitle}}
     <ul class="messages well">
         {{#each messages}}
         {{> messageItem}}
@@ -65,6 +65,10 @@
         <button type="submit" class="btn btn-primary">&rArr; Send</button>
         <button type="button" class="btn btn-warning" id="leave">Leave</button>
     </form>
+</template>
+
+<template name="roomTitle">
+    <h4 class="editable" title="Rename this room">{{roomName}}</h4>
 </template>
 
 <template name="messageItem">

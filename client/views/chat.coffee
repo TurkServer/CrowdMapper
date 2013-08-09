@@ -45,10 +45,6 @@ Template.roomUsers.users = ->
 Template.roomUsers.findUser = ->
   Meteor.users.findOne @userId
 
-Template.room.roomName = ->
-  room = ChatRooms.findOne(_id: Session.get("room"))
-  room and room.name
-
 Template.room.messages = ->
   ChatMessages.find room: Session.get("room")
 
@@ -78,3 +74,17 @@ Template.room.events =
     # Silly way of auto scrolling down. Also do on others' messages.
     $messages = $(".messages")
     $messages.scrollTop $messages[0].scrollHeight
+
+Template.roomTitle.rendered = ->
+  settings =
+    success: (response, newValue) ->
+      roomId = Session.get("room")
+      return unless roomId
+      ChatRooms.update roomId,
+        $set: { name: newValue }
+
+  $(@find('.editable:not(.editable-click)')).editable('destroy').editable(settings)
+
+Template.roomTitle.roomName = ->
+  room = ChatRooms.findOne(_id: Session.get("room"))
+  room and room.name
