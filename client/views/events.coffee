@@ -46,8 +46,9 @@ Template.events.eventRecords = ->
   key = Session.get("eventSortKey")
   return Events.find() unless key
 
-  sort = {}
-  sort[key] = Session.get("eventSortOrder") || 1 if key?
+  # Secondary sort by key prevents jumping
+  #  sort[key] = Session.get("eventSortOrder") || 1 if key?
+  sort = [ [key, if Session.get("eventSortOrder") is -1 then "desc" else "asc"], [ "_id", "asc" ] ]
   return Events.find {}, { sort: sort }
 
 Template.events.iconClass = ->

@@ -18,11 +18,25 @@ serverResolutions = [156543.03390625, 78271.516953125,
                      0.14929107084870338, 0.07464553542435169]
 
 Template.map.created = ->
-
   OpenLayers.ImgPath = "http://dev.openlayers.org/releases/OpenLayers-2.13/img/";
+
+  # XXX Hack the shit out of the buggy-ass OpenLayers Popup
 
   # Move popup behind vector layers - see http://www.mail-archive.com/users@openlayers.org/msg00541.html
   # OpenLayers.Map.prototype.Z_INDEX_BASE.Popup = 500
+
+  # Force popup to always above only
+  # See original implementation in https://github.com/openlayers/openlayers/blob/master/lib/OpenLayers/Popup/Anchored.js
+  OpenLayers.Popup.Anchored.prototype.calculateRelativePosition = (px) ->
+    lonlat = @map.getLonLatFromLayerPx(px)
+    extent = @map.getExtent()
+    quadrant = extent.determineQuadrant(lonlat);
+
+    # flip left/right but always at top
+    result = ""
+    result += "t"
+    result += if quadrant.charAt(1) is 'l' then 'r' else 'l'
+    return result
 
   ###
     TODO replace earthquake-3 with ${type}
@@ -57,11 +71,9 @@ Template.map.rendered = ->
   vectorLayer = new OpenLayers.Layer.Vector "Vector Layer",
     styleMap: @styleMap
 
-  cursorLayer = new OpenLayers.Layer.Vector("Cursor Layer") # currently unused
-
   map = new OpenLayers.Map 'map',
     # center: new OpenLayers.LonLat(0, 0)
-    layers: [mapLayer, vectorLayer, cursorLayer]
+    layers: [mapLayer, vectorLayer]
     maxExtent: extent
     restrictedExtent: extent
     resolutions: resolutions
@@ -79,91 +91,94 @@ Template.map.rendered = ->
     displayProjection: new OpenLayers.Projection("EPSG:4326")
 
   map.addControl(new OpenLayers.Control.LayerSwitcher({'ascending':false}));
-
   map.addControl(new OpenLayers.Control.OverviewMap(theme: null));
-
   map.addControl(new OpenLayers.Control.KeyboardDefaults());
+
+  popup = null
+  selectedFeature = null
+
+  displayPopup = (feature) ->
+    lonlat = new OpenLayers.LonLat(feature.geometry.x, feature.geometry.y)
+
+    unless popup
+      popup = new OpenLayers.Popup.Anchored("event",
+        lonlat,
+        null, # Popup size - defaults to 200x200 or use autoSize; needed for FramedCloud due to bug
+        null, # The HTML
+      { # The anchor
+        size: new OpenLayers.Size(0, 0)
+        offset: new OpenLayers.Pixel(0, -36)
+      }
+      )
+      popup.autoSize = true # Prob won't work without specifying HTML
+    else
+      popup.lonlat = lonlat
+      # Clear contents: see http://stackoverflow.com/questions/3955229/remove-all-child-elements-of-a-dom-node-in-javascript
+      while popup.contentDiv.firstChild
+        popup.contentDiv.removeChild popup.contentDiv.firstChild
+
+    # Make that shit reactive
+    # XXX Don't try to optimize this because it gets un-reactive when taken off the page anyway
+    popup.contentDiv.appendChild Meteor.render ->
+      new Handlebars.SafeString Template.mapPopup Events.findOne(feature.id)
+
+    map.addPopup(popup, true) # Kick out any old popups for good measure
+
+    # Resize popup to fit contents
+    # Of course, this won't affect reactive updates but those are unlikely to trigger huge size changes
+    popup.updateSize()
+
+  hidePopup = ->
+    map.removePopup(popup) if popup
 
   # Allow hovering over stuff
   hoverControl = new OpenLayers.Control.SelectFeature vectorLayer,
     hover: true
     highlightOnly: true
     renderIntent: "hover"
-#    eventListeners:
+    eventListeners:
 #      beforefeaturehighlighted: (e) -> console.log e
-#      featurehighlighted: (e) ->
-#      featureunhighlighted: (e) ->
+      featurehighlighted: (e) ->
+        return if selectedFeature
+        displayPopup(e.feature)
+      featureunhighlighted: ->
+        return if selectedFeature
+        hidePopup()
 
   # Select control that manually triggers updates
   selectControl = new OpenLayers.Control.SelectFeature vectorLayer,
-    clickout: false
+    clickout: true
     toggle: true
 
-  # Allow repositioning stuff
-  modifyControl = new OpenLayers.Control.ModifyFeature vectorLayer,
-    standalone: true
+  dragControl = new OpenLayers.Control.DragFeature vectorLayer,
+    # This hides ANY feature while dragging and displays the selected one or dragged one
+    # XXX this is a little inefficient to do on each drag but the start carries all mouseclicks
+    onDrag: hidePopup
 
-  # Hook up layer events
+    onComplete: (feature, pixel) ->
+      point = feature.geometry
+      Events.update { _id: feature.id },
+        $set: { location: [point.x, point.y] }
+
+      displayPopup(selectedFeature || feature)
+
   vectorLayer.events.on
-    featureselected: (e) ->
-      feature = e.feature
-      modifyControl.selectFeature(feature)
-#      console.log "selected ", e.feature
-
-      lonlat = new OpenLayers.LonLat(feature.geometry.x, feature.geometry.y)
-
-      # TODO render popups dynamically and with fields
-      content =
-
-      unless @popup
-        @popup = new OpenLayers.Popup.Anchored("event",
-          lonlat,
-          null, # Popup size - defaults to 200x200 or use autoSize
-          null, # The HTML
-          { # The anchor
-            size: new OpenLayers.Size(0, 0)
-            offset: new OpenLayers.Pixel(0, -36)
-          }
-        )
-        @popup.autoSize = true # Prob won't work without specifying HTML
-        @popup.relativePosition = "tr"
-      else
-        @popup.lonlat = lonlat
-        # Clear contents: see http://stackoverflow.com/questions/3955229/remove-all-child-elements-of-a-dom-node-in-javascript
-        while @popup.contentDiv.firstChild
-          @popup.contentDiv.removeChild @popup.contentDiv.firstChild
-
-      # Make that shit reactive
-      @popup.contentDiv.appendChild Meteor.render ->
-        new Handlebars.SafeString Template.mapPopup Events.findOne(feature.id)
-
-      map.addPopup(@popup, true) # Kick out any old popups for good measure
-
-      # Resize popup to fit contents
-      # Of course, this won't affect reactive updates but those are unlikely to trigger huge size changes
-      @popup.updateSize()
-
-    featureunselected: (e) ->
-      modifyControl.unselectFeature(e.feature)
-#      console.log "unselected ", e.feature
-
-      map.removePopup(@popup) if @popup
-
-    featuremodified: (e) ->
-      point = e.feature.geometry
-      Events.update { _id: e.feature.id },
-        $set:
-          location: [point.x, point.y]
+    "featureselected": (e) ->
+      displayPopup(e.feature)
+      selectedFeature = e.feature
+    "featureunselected": ->
+      selectedFeature = null
+      hidePopup()
 
   # Order of hover and select control matters
   map.addControl(hoverControl)
   hoverControl.activate()
 
+  map.addControl(dragControl)
+  dragControl.activate()
+
   map.addControl(selectControl)
   selectControl.activate()
-
-  map.addControl(modifyControl)
-  modifyControl.activate()
 
   map.zoomToMaxExtent()
 
