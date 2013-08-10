@@ -18,8 +18,6 @@ serverResolutions = [156543.03390625, 78271.516953125,
                      0.14929107084870338, 0.07464553542435169]
 
 Template.map.created = ->
-  OpenLayers.ImgPath = "http://dev.openlayers.org/releases/OpenLayers-2.13/img/";
-
   # XXX Hack the shit out of the buggy-ass OpenLayers Popup
 
   # Move popup behind vector layers - see http://www.mail-archive.com/users@openlayers.org/msg00541.html

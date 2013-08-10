@@ -23,7 +23,7 @@ Template.roomItem.active = -> Session.equals("room", @_id)
 Template.roomItem.empty = -> @users is 0
 
 Template.roomItem.events =
-  "click .enterRoom": (e) ->
+  "click .action-room-enter": (e) ->
     e.preventDefault()
 
     unless Meteor.user().username

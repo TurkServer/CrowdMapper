@@ -1,2 +1,3 @@
-# Don't store minified openlayers in our repo
-OpenLayers.js
+# Don't store minified JS files in our repo
+OpenLayers.*
+jquery-ui.*

@@ -4,22 +4,6 @@ edit = (e) ->
     $set: { editor: Meteor.userId() }
   , {}, (err) ->
 
-#    row = $(e.target).closest("tr")
-#
-#    row.popover(
-#      placement: "left"
-#      content: "Click a cell to edit"
-#      trigger: "hover"
-#    )
-
-epsg4326 = null
-epsg900913 = null
-
-# Initialize these after page loaded
-Template.events.created = ->
-  epsg4326 = new OpenLayers.Projection("EPSG:4326")
-  epsg900913 = new OpenLayers.Projection("EPSG:900913")
-
 Template.events.events =
   "click a.button-newevent": (e) ->
     e.preventDefault()
@@ -65,7 +49,7 @@ Template.eventRow.rendered = ->
   data = @data
   $(@firstNode).droppable
     addClasses: false
-    hoverClass: "success"
+    hoverClass: "info"
     tolerance: "pointer"
     drop: (event, ui) ->
       tweet = Spark.getDataContext(ui.draggable.context)
@@ -97,11 +81,6 @@ Template.eventRow.editing = -> @editor?
 Template.eventRow.editorUser = -> Meteor.users.findOne(@editor)
 
 Template.eventRow.iAmEditing = -> @editor is Meteor.userId()
-
-Handlebars.registerHelper "formatLocation", ->
-  point = new OpenLayers.Geometry.Point(@location[0], @location[1])
-  point.transform(epsg900913, epsg4326)
-  point.x.toFixed(2) + ", " + point.y.toFixed(2)
 
 Handlebars.registerHelper "eventFields", ->
   Meteor.settings.public.events
@@ -156,10 +135,3 @@ Template._eventCellSelect.rendered = ->
 
   $(@find('div.editable:not(.editable-click)')).editable('destroy').editable(settings)
 
-Template.tweetIcon.rendered = ->
-  $(@firstNode).popover
-    html: true
-    placement: "top"
-    trigger: "hover"
-    content: =>
-      Datastream.findOne(@data).text

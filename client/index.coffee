@@ -25,6 +25,9 @@ Router.map ->
 #    'sidebar':
 #      to: 'sidebar'
 
+Template.userList.usersOnline = ->
+  Meteor.users.find()
+
 disconnectDialog = null
 
 # Warn when disconnected instead of just sitting there.
