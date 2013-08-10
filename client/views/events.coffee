@@ -1,3 +1,4 @@
+@Mapper = @Mapper || {}
 
 edit = (e) ->
   Events.update @_id,
@@ -58,11 +59,21 @@ Template.eventRow.rendered = ->
         $addToSet: { sources: tweet._id }
 
 Template.eventRow.events =
+  "click .action-event-mapview": (e) ->
+    e.preventDefault()
+    # TODO give the proper active style at the top
+    Session.set("taskView", "map")
+
+    Mapper.selectEvent @_id
+
   "click .button-locate": (e) ->
     # In the future, bring to map edit interface
     Events.update @_id,
       $set:
         location: [13410000, 1104000] # in the ocean near philippines
+
+    Session.set("taskView", "map")
+    Mapper.selectEvent @_id
 
   "click .button-delete": (e) ->
     bootbox.confirm "Really delete this event? This cannot be undone!"

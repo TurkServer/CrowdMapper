@@ -1,3 +1,5 @@
+@Mapper = @Mapper || {}
+
 # OpenLayers config - set this externally at some point
 extent = [11700000, 525000, 15700000, 2450000] # Philippines
 
@@ -167,6 +169,14 @@ Template.map.rendered = ->
     "featureunselected": ->
       selectedFeature = null
       hidePopup()
+
+  # Register external helpers
+  Mapper.selectEvent = (id) ->
+    feature = vectorLayer.getFeatureById(id)
+    return unless feature
+    selectControl.unselectAll()
+    map.zoomToMaxExtent()
+    selectControl.select(feature)
 
   # Order of hover and select control matters
   map.addControl(hoverControl)

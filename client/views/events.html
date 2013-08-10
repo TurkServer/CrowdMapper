@@ -49,7 +49,9 @@
 
         <td><div>
         {{#if location}}
-            <a href="/map">{{{formatLocation}}}</a>
+            <a href="#" class="action-event-mapview" title="View on map">
+                {{{formatLocation}}}
+            </a>
         {{else}}
             <button title="Place on map" class="btn btn-mini btn-info button-locate">
                 <i class="icon-white icon-search"></i>Locate
