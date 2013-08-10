@@ -2,10 +2,15 @@ html, body
     height: 100%
 
 // apply a natural box layout model to all elements
-*
+*, *:before, *:after
     -moz-box-sizing: border-box
     -webkit-box-sizing: border-box
     box-sizing: border-box
+// Except inputs, which would be too small - http://stackoverflow.com/a/15495604/586086
+input
+    -moz-box-sizing: content-box
+    -webkit-box-sizing: content-box
+    box-sizing: content-box
 
 // Works perfectly with the box-sizing above.
 .full-height
@@ -40,3 +45,7 @@ table
 .scroll-vertical
     overflow-x: hidden
     overflow-y: auto
+
+.well.well-skinny
+    padding: 9px
+    margin-bottom: 5px

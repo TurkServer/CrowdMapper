@@ -73,6 +73,8 @@ Template.eventRow.events =
         location: [13410000, 1104000] # in the ocean near philippines
 
     Session.set("taskView", "map")
+    # TODO show a message to do something with this
+    # TODO does this require a flush?
     Mapper.selectEvent @_id
 
   "click .button-delete": (e) ->

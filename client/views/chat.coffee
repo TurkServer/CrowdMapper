@@ -53,9 +53,6 @@ Template.room.messages = ->
 #    (if Session.equals("name", @author) then " mine" else "")
 
 Template.room.events =
-  "click #leave": ->
-    bootbox.confirm "Leave this room?", (value) ->
-      Session.set("room", `undefined`) if value
 
   submit: ->
     $msg = $("#msg")
@@ -75,7 +72,7 @@ Template.room.events =
     $messages = $(".messages")
     $messages.scrollTop $messages[0].scrollHeight
 
-Template.roomTitle.rendered = ->
+Template.roomHeader.rendered = ->
   settings =
     success: (response, newValue) ->
       roomId = Session.get("room")
@@ -85,6 +82,12 @@ Template.roomTitle.rendered = ->
 
   $(@find('.editable:not(.editable-click)')).editable('destroy').editable(settings)
 
-Template.roomTitle.roomName = ->
+Template.roomHeader.roomName = ->
   room = ChatRooms.findOne(_id: Session.get("room"))
   room and room.name
+
+Template.roomHeader.events =
+  "click .action-room-leave": ->
+    # TODO convert this to a method call ... !
+#    bootbox.confirm "Leave this room?", (value) ->
+    Session.set("room", `undefined`) # if value

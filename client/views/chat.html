@@ -1,14 +1,15 @@
 <template name="chat">
     <div class="row-fluid">
-        <div class="span6">
-            <p>Chat Rooms:</p>
+        <div class="span8">
+            <p>Chat Rooms:
+                <button class="btn btn-mini pull-right" id="addRoom">Create room</button>
+            </p>
             <div class="chat-rooms">
             {{> rooms}}
             </div>
-            <button class="btn" id="addRoom">Add new room</button>
         </div>
 
-        <div class="span6">
+        <div class="span4">
             {{#if currentRoom}}
             {{> roomUsers}}
             {{/if}}
@@ -45,8 +46,8 @@
 </template>
 
 <template name="roomUsers">
-    <p>Users in room:</p>
-    <div class="room-users well">
+    <p class="text-center">In room:</p>
+    <div class="room-users well well-skinny">
         {{#each users}}
         {{> userPill findUser}}
         {{/each}}
@@ -54,21 +55,27 @@
 </template>
 
 <template name="room">
-    {{> roomTitle}}
-    <ul class="messages well">
+
+    {{> roomHeader}}
+
+    <ul class="messages well well-skinny">
         {{#each messages}}
         {{> messageItem}}
         {{/each}}
     </ul>
     <form class="form-inline" action="javascript:void(0)">
         <input type="text" id="msg" placeholder="Chat..." />
-        <button type="submit" class="btn btn-primary">&rArr; Send</button>
-        <button type="button" class="btn btn-warning" id="leave">Leave</button>
+        <button type="submit" class="btn btn-primary" title="Send">
+            <i class="icon-white icon-share-alt"></i>
+        </button>
     </form>
 </template>
 
-<template name="roomTitle">
-    <h4 class="editable" title="Rename this room">{{roomName}}</h4>
+<template name="roomHeader">
+    <h4>
+        <span class="editable" title="Rename this room">{{roomName}}</span>
+        <button type="button" class="btn btn-warning btn-mini pull-right action-room-leave">Leave</button>
+    </h4>
 </template>
 
 <template name="messageItem">
