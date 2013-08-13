@@ -24,12 +24,12 @@
 <template name="userList">
     <div class="well well-skinny user-list">
     Users:
-    {{#each usersOnline}}
+    {{#each users}}
     {{> userPill}}
     {{/each}}
     </div>
 </template>
 
 <template name="userPill">
-    <span class="label label-success">{{username}}</span>
+    <span class="label {{#if profile.online}}label-success{{/if}}">{{username}}</span>
 </template>

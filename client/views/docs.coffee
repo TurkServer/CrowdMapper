@@ -1,8 +1,11 @@
 Template.docTabs.documents = ->
   Documents.find()
 
+Template.docTabs.noDocuments = ->
+  Documents.find().count() is 0
+
 Template.docTabs.events =
-  "click .action-newdoc": ->
+  "click .action-document-new": ->
     Documents.insert
       title: "untitled"
     , (err, id) ->
@@ -16,7 +19,17 @@ Template.docTabs.events =
 Template.docTab.active = ->
   @_id is Session.get("document")
 
-Template.docCurrent.title = ->
+Template.docTitle.rendered = ->
+  settings =
+    success: (response, newValue) ->
+      docId = Session.get("document")
+      return unless document
+      Documents.update docId,
+        $set: { title: newValue }
+
+  $(@find('.editable:not(.editable-click)')).editable('destroy').editable(settings)
+
+Template.docTitle.title = ->
   id = Session.get("document")
   Documents.findOne(id)?.title
 
@@ -24,16 +37,7 @@ Template.docCurrent.document = ->
   Session.get("document")
 
 Template.docCurrent.events =
-  "keydown input": (e) ->
-    return unless e.keyCode == 13
-    e.preventDefault()
-
-    $(e.target).blur()
-    id = Session.get("document")
-    Documents.update id,
-      title: e.target.value
-
-  "click button": ->
+  "click .action-document-delete": ->
     id = Session.get("document")
     Documents.remove(id)
     Session.set("document", null)

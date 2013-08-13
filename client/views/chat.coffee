@@ -5,16 +5,13 @@ Deps.autorun ->
   Meteor.subscribe "chatstate", roomId
 
 Template.chat.events =
-  "click #addRoom": (e) ->
+  "click .action-room-create": (e) ->
     e.preventDefault()
 
     bootbox.prompt "Name the room", (roomName) ->
-      ChatRooms.insert({
-        name: roomName
-        users: 0
-      }) if !!roomName
+      Meteor.call "createChat", roomName if !!roomName
 
-Template.chat.currentRoom = -> Session.get("room") or false
+Template.chat.currentRoom = -> Session.get("room")? && Meteor.userId()?
 
 Template.rooms.availableRooms = -> ChatRooms.find {}
 
@@ -26,13 +23,13 @@ Template.roomItem.events =
   "click .action-room-enter": (e) ->
     e.preventDefault()
 
-    unless Meteor.user().username
-      bootbox.alert "You must choose a name to join chat rooms."
+    unless Meteor.userId()
+      bootbox.alert "You must be logged in to join chat rooms."
       return
 
     Session.set "room", @_id
 
-  "click .delete": (e) ->
+  "click .action-room-delete": (e) ->
     e.preventDefault()
     Meteor.call("deleteChat", @_id)
 
@@ -45,9 +42,6 @@ Template.roomUsers.users = ->
 Template.roomUsers.findUser = ->
   Meteor.users.findOne @userId
 
-Template.room.messages = ->
-  ChatMessages.find room: Session.get("room")
-
 # Not sure what this does but it breaks stuff
 #  Template.messageItem.authorClass = ->
 #    (if Session.equals("name", @author) then " mine" else "")
@@ -58,19 +52,13 @@ Template.room.events =
     $msg = $("#msg")
     return unless $msg.val()
 
-    ChatMessages.insert
-      room: Session.get("room")
-      author: Meteor.user().username
-      text: $msg.val()
-      timestamp: +(new Date())
+    Meteor.call "sendChat", Session.get("room"), $msg.val()
 
-    $msg.val ""
+    $msg.val("")
     $msg.focus()
     Meteor.flush()
 
-    # Silly way of auto scrolling down. Also do on others' messages.
-    $messages = $(".messages")
-    $messages.scrollTop $messages[0].scrollHeight
+    # Auto scroll happens on messageBox render now..
 
 Template.roomHeader.rendered = ->
   settings =
@@ -91,3 +79,19 @@ Template.roomHeader.events =
     # TODO convert this to a method call ... !
 #    bootbox.confirm "Leave this room?", (value) ->
     Session.set("room", `undefined`) # if value
+
+Template.messageBox.rendered = ->
+  # Scroll down whenever anything happens
+  $messages = $ @find(".messages")
+  $messages.scrollTop $messages[0].scrollHeight
+
+Template.messageBox.messages = ->
+  ChatMessages.find
+    room: Session.get("room")
+
+# These usernames are nonreactive because find does not use any reactive variables
+Template.messageItem.username = -> Meteor.users.findOne(@userId).username
+
+Template.messageItem.eventText = ->
+  username = Meteor.users.findOne(@userId).username
+  return username + " has " + (if @event is "enter" then "entered" else "left" ) + " the room."

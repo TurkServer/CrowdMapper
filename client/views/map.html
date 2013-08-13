@@ -3,17 +3,20 @@
 </template>
 
 <template name="mapPopup">
-    <strong class="text-error">{{dereference "type" type}}</strong>
-    <br>
-    <small>{{description}}</small>
-    <br>
-    <strong><small>{{dereference "province" province}}</small></strong>
-    <br>
-    <em><small>{{dereference "region" region}}</small></em>
-    <br>
-    <strong>{{{formatLocation}}}</strong>
+    {{! XXX HACK: this div allows the 4-parent thingy to get the correct context. Fix it }}
+    <div>
+        <strong class="text-error">{{dereference "type" type}}</strong>
+        <br>
+        <small>{{description}}</small>
+        <br>
+        <strong><small>{{dereference "province" province}}</small></strong>
+        <br>
+        <em><small>{{dereference "region" region}}</small></em>
+        <br>
+        <strong>{{{formatLocation}}}</strong>
 
-    {{#each sources}}
-    {{> tweetIcon this}}
-    {{/each}}
+        {{#each sources}}
+        {{> tweetIcon this}}
+        {{/each}}
+    </div>
 </template>

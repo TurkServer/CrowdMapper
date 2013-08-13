@@ -14,9 +14,15 @@ Template.tweetIcon.events =
     tweetId = Spark.getDataContext(e.target)
 
     # TODO Fix this horrible hack for finding the event context
-    eventCell = Spark.getDataContext(e.target.parentNode.parentNode.parentNode.parentNode)
+#    eventContext = Spark.getDataContext(e.target.parentNode.parentNode.parentNode.parentNode)
 
-    Events.update eventCell._id,
+    # This is a slightly more robust hack but with worse performance
+    target = e.target
+    eventContext = tweetId
+    while eventContext is tweetId
+      eventContext = Spark.getDataContext(target = target.parentNode)
+
+    Events.update eventContext._id,
       $pull: { sources: tweetId }
 
 epsg4326 = null

@@ -47,6 +47,27 @@ Meteor.methods
   ###
     Chat Methods
   ###
+  createChat: (roomName) ->
+    ChatRooms.insert
+      name: roomName
+      users: 0
+
+  sendChat: (roomId, message) ->
+    userId = Meteor.userId()
+    return unless Meteor.userId()
+
+    obj = {
+      room: roomId
+      userId: userId
+      text: message
+    }
+
+    # Attach server-side timestamps to chat messages
+    obj.timestamp = +(new Date()) unless @isSimulation
+
+    ChatMessages.insert(obj)
+
+
   deleteChat: (roomId) ->
     if @isSimulation
       # Client stub - do a quick check

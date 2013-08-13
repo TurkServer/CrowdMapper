@@ -25,7 +25,7 @@ Router.map ->
 #    'sidebar':
 #      to: 'sidebar'
 
-Template.userList.usersOnline = ->
+Template.userList.users = ->
   Meteor.users.find()
 
 disconnectDialog = null

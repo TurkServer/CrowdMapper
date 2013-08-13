@@ -2,7 +2,7 @@
     <div class="row-fluid">
         <div class="span8">
             <p>Chat Rooms:
-                <button class="btn btn-mini pull-right" id="addRoom">Create room</button>
+                <button class="btn btn-mini pull-right action-room-create">Create room</button>
             </p>
             <div class="chat-rooms">
             {{> rooms}}
@@ -38,7 +38,7 @@
         <a href="#" class="action-room-enter">
             <span class="badge badge-inverse">{{users}}</span>
             {{#if empty}}
-            <i class="icon-trash delete"></i>
+            <i class="icon-trash action-room-delete"></i>
             {{/if}}
             {{name}}
         </a>
@@ -55,14 +55,8 @@
 </template>
 
 <template name="room">
-
     {{> roomHeader}}
-
-    <ul class="messages well well-skinny">
-        {{#each messages}}
-        {{> messageItem}}
-        {{/each}}
-    </ul>
+    {{> messageBox}}
     <form class="form-inline" action="javascript:void(0)">
         <input type="text" id="msg" placeholder="Chat..." />
         <button type="submit" class="btn btn-primary" title="Send">
@@ -78,12 +72,20 @@
     </h4>
 </template>
 
+<template name="messageBox">
+    <ul class="messages well well-skinny">
+        {{#each messages}}
+        {{> messageItem}}
+        {{/each}}
+    </ul>
+</template>
+
 <template name="messageItem">
     <li>
-    {{#if author}}
-    <span class="">{{author}}:</span> {{text}}
+    {{#if text}}
+    <span class="">{{username}}:</span> {{text}}
     {{else}}
-    <small><i class="muted">{{text}}</i></small>
+    <small><span class="muted">{{eventText}}</span></small>
     {{/if}}
     </li>
 </template>

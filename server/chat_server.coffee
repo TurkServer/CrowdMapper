@@ -6,19 +6,22 @@ enterRoom = (roomId, userId) ->
     $inc: { users: 1 }
   ChatMessages.insert
     room: roomId
-    text: Meteor.users.findOne(userId).username + " entered the room."
+    event: "enter"
+    userId: userId
 
 leaveRoom = (roomId, userId) ->
   ChatRooms.update roomId,
     $inc: { users: -1 }
   ChatMessages.insert
     room: roomId
-    text: Meteor.users.findOne(userId).username + " left the room."
+    event: "leave"
+    userId: userId
 
 # publish messages and users for a room
 Meteor.publish "chatstate", (room)  ->
   # TODO handle things properly when a user logs out and do not let logged out users subscribe...
-  userId = @_session.userId
+  userId = @userId # @_session.userId
+  return null unless userId
   sessionId = @_session.id
 
   # Leave any existing room
@@ -58,6 +61,15 @@ Meteor.publish "chatstate", (room)  ->
       key: 'room',
       collection: ChatMessages
     }]
+
+# Clear all users stored in chatrooms on start
+Meteor.startup ->
+  ChatUsers.remove({})
+
+  ChatRooms.update {},
+    $set:
+      {users: 0}
+  , multi: true
 
 # Clean up any chat rooms on logout
 UserStatus.on "sessionLogout", (userId, sessionId) ->

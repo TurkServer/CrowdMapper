@@ -14,12 +14,17 @@
     {{#each documents}}
     {{> docTab}}
     {{/each}}
+    {{#if noDocuments}}
+        <li class="disabled">
+            <a>No docs yet. Create one!</a>
+        </li>
+    {{/if}}
     </ul>
-    <button class="btn action-newdoc">New Document</button>
+    <button class="btn btn-primary action-document-new">New Document</button>
 </template>
 
 <template name="docTab">
-    <li {{#if active}}class="active"{{/if}}>
+    <li class="{{#if active}}active{{/if}}">
         <a href="#" data-toggle="tab">
             {{title}}
         </a>
@@ -28,8 +33,12 @@
 
 <template name="docCurrent">
     {{#if document}}
-    <input class="input-xlarge" type="text" value="{{title}}">
-    <button class="btn btn-danger btn-small">Delete this document</button>
+    {{> docTitle}}
+    <button class="btn btn-danger btn-mini pull-right action-document-delete">Delete this document</button>
     {{sharejsAce document callback=config id="editor"}}
     {{/if}}
+</template>
+
+<template name="docTitle">
+    <span class="editable" title="Rename this document" data-inputclass="input-xlarge">{{title}}</span>
 </template>
