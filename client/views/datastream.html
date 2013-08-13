@@ -1,16 +1,53 @@
 <template name="datastream">
-    <ul class="well popout-elements full-height scroll-vertical">
-        {{#each data}}
-        {{> dataItem}}
-        {{/each}}
-    </ul>
+    {{> dataToggle}}
+
+    <div class="well popout-elements">
+        {{!-- again, a workaround to allow the inner divs to be dragged out --}}
+        <ul class="scroll-vertical" style="width: 100%; height:100%; display:block">
+            {{#each data}}
+                {{#if visible}}
+                {{dataItem}}
+                {{/if}}
+            {{/each}}
+        </ul>
+    </div>
 </template>
 
-<template name="dataItem">
+<template name="dataToggle">
+    <strong>Toggle data view:</strong>
+    <div class="btn-group data-filters">
+        <button type="button" class="btn btn-info {{#if unfiltered}}active{{/if}}"
+                data-show="unfiltered" title="Toggle unfiltered data">Untagged</button>
+        <button type="button" class="btn btn-success {{#if tagged}}active{{/if}}"
+                data-show="tagged" title="Toggle tagged data">Tagged</button>
+        <button type="button" class="btn btn-warning {{#if hidden}}active{{/if}}"
+                data-show="hidden" title="Toggle hidden data">Hidden</button>
+    </div>
+</template>
+
+<template name="_dataItemTagged">
+    <li class="data-cell bolded">
+        {{{text}}}
+        <span class="badge badge-info data-cell-icon" title="Events tagged">
+            {{numEvents}}
+        </span>
+    </li>
+</template>
+
+<template name="_dataItemNormal">
     <li class="data-cell">
         {{{text}}}
-        <button class="btn btn-danger btn-mini data-remove" title="Hide this">
-            <i class="icon-white icon-remove"></i>
+        <button class="btn btn-danger btn-mini data-cell-icon action-data-hide" title="Hide this">
+            <i class="icon-white icon-thumbs-down"></i>
+        </button>
+    </li>
+</template>
+
+<template name="_dataItemHidden">
+    <li class="data-cell dimmed">
+        {{{text}}}
+        <button class="btn btn-success btn-mini data-cell-icon action-data-unhide" title="Unhide this">
+            <i class="icon-white icon-thumbs-up"></i>
         </button>
     </li>
 </template>

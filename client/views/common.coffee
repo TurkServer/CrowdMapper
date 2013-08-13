@@ -22,8 +22,7 @@ Template.tweetIcon.events =
     while eventContext is tweetId
       eventContext = Spark.getDataContext(target = target.parentNode)
 
-    Events.update eventContext._id,
-      $pull: { sources: tweetId }
+    Meteor.call "dataUnlink", tweetId, eventContext._id
 
 epsg4326 = null
 epsg900913 = null

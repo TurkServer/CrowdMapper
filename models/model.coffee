@@ -1,5 +1,6 @@
 # Chat
 this.ChatRooms = new Meteor.Collection("chatrooms")
+# These two would not need to be stuffed into TurkServer
 this.ChatUsers = new Meteor.Collection("chatusers")
 this.ChatMessages = new Meteor.Collection("chatmessages")
 
@@ -13,6 +14,41 @@ this.Documents = new Meteor.Collection("docs")
 this.Events = new Meteor.Collection("events")
 
 Meteor.methods
+  ###
+    Data Methods
+  ###
+  dataHide: (id) ->
+    # Can't hide tagged events
+    return if not @isSimulation and Datastream.findOne(id)?.events?.length > 0
+
+    Datastream.update id,
+      $set: { hidden: true }
+
+  dataUnhide: (id) ->
+    Datastream.update id,
+      $set: { hidden: false }
+
+  dataLink: (tweetId, eventId) ->
+    return unless tweetId and eventId
+
+    # Attach this tweet to the event
+    Events.update eventId,
+      $addToSet: { sources: tweetId }
+
+    # Attach this event to the tweet, unhide if necessary
+    Datastream.update tweetId,
+      $addToSet: { events: eventId }
+      $set: { hidden: false }
+
+  dataUnlink: (tweetId, eventId) ->
+    return unless tweetId and eventId
+
+    Events.update eventId,
+      $pull: { sources: tweetId }
+
+    Datastream.update tweetId,
+      $pull: { events: eventId }
+
   ###
     Event Methods
   ###
@@ -53,26 +89,24 @@ Meteor.methods
       users: 0
 
   sendChat: (roomId, message) ->
+    # Do nothing on client side
+    return if @isSimulation
+
     userId = Meteor.userId()
     return unless Meteor.userId()
 
-    obj = {
+    obj =
       room: roomId
       userId: userId
       text: message
-    }
-
-    # Attach server-side timestamps to chat messages
-    obj.timestamp = +(new Date()) unless @isSimulation
+      timestamp: +(new Date()) # Attach server-side timestamps to chat messages
 
     ChatMessages.insert(obj)
-
 
   deleteChat: (roomId) ->
     if @isSimulation
       # Client stub - do a quick check
-      count = ChatRooms.findOne(roomId).users
-      unless count is 0
+      unless ChatRooms.findOne(roomId).users is 0
         bootbox.alert "You can only delete empty chat rooms."
       else
         ChatRooms.remove roomId

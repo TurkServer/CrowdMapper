@@ -8,6 +8,7 @@ enterRoom = (roomId, userId) ->
     room: roomId
     event: "enter"
     userId: userId
+    timestamp: +(new Date())
 
 leaveRoom = (roomId, userId) ->
   ChatRooms.update roomId,
@@ -16,6 +17,7 @@ leaveRoom = (roomId, userId) ->
     room: roomId
     event: "leave"
     userId: userId
+    timestamp: +(new Date())
 
 # publish messages and users for a room
 Meteor.publish "chatstate", (room)  ->

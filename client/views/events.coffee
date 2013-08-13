@@ -79,8 +79,7 @@ Template.eventRow.rendered = ->
     drop: (event, ui) ->
       tweet = Spark.getDataContext(ui.draggable.context)
 
-      Events.update data._id,
-        $addToSet: { sources: tweet._id }
+      Meteor.call "dataLink", tweet._id, data._id
 
 Template.eventRow.events =
   "click .action-event-mapview": (e) ->

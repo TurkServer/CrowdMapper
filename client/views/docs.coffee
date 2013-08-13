@@ -34,13 +34,17 @@ Template.docTitle.title = ->
   Documents.findOne(id)?.title
 
 Template.docCurrent.document = ->
-  Session.get("document")
+  id = Session.get("document")
+  # Can't stay in a document if someone deletes it!
+  return if Documents.findOne(id) then id else `undefined`
 
 Template.docCurrent.events =
   "click .action-document-delete": ->
-    id = Session.get("document")
-    Documents.remove(id)
-    Session.set("document", null)
+    bootbox.confirm "Deleting this document will kick out all other editors! Are you sure?", (res) ->
+      return unless res
+      id = Session.get("document")
+      Documents.remove(id)
+      Session.set("document", null)
 
 Template.docCurrent.config = ->
   (editor) ->
