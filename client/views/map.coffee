@@ -223,3 +223,7 @@ Template.map.rendered = ->
 Template.map.destroyed = ->
   # Tear down observe query
   @query?.stop()
+
+# TODO this is just a workaround but don't hardcode fields in future
+Template.mapPopup.dereference = (key, value) ->
+  Mapper.sources[key][value]?.text || ""

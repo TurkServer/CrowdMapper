@@ -30,6 +30,9 @@ Template.userList.usersOnline = ->
 
 disconnectDialog = null
 
+Handlebars.registerHelper "userPillById", (userId) ->
+  return new Handlebars.SafeString Template.userPill Meteor.users.findOne userId
+
 # Warn when disconnected instead of just sitting there.
 Deps.autorun ->
   status = Meteor.status()

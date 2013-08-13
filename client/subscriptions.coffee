@@ -6,5 +6,6 @@ Meteor.subscribe("userStatus")
 
 Meteor.subscribe("datastream")
 Meteor.subscribe("docs")
+
 Meteor.subscribe("events")
 

@@ -22,6 +22,10 @@
             </tr>
             </thead>
             <tbody>
+            {{#if noEvents}}
+            {{> emptyRow}}
+            {{/if}}
+
             {{#each eventRecords}}
             {{> eventRow}}
             {{/each}}
@@ -29,67 +33,103 @@
         </table>
     </div>
     </div>
-    <a href="#" class="btn button-newevent">Create New Event</a>
+    <button class="btn btn-primary action-event-new">Create New Event</button>
+</template>
+
+<template name="emptyRow">
+    <td colspan="{{numCols}}">
+        <h3 class="muted text-center">No events yet. Create some!</h3>
+    </td>
 </template>
 
 <template name="eventRow">
-    <tr class="{{#if editing}}info{{/if}}">
+    <tr class="{{#if cellEditable}}info{{/if}}">
+
+        {{! TODO - if adding cell locking, need to overcome reactivity issues when adjacent changed}}
 
         {{#each eventFields}}
-        {{eventCell ../this this}}
+            {{eventCell ../this this}}
         {{/each}}
 
-        <td>
-            <div>
-                {{#each sources}}
-                {{> tweetIcon this}}
-                {{/each}}
-            </div>
-        </td>
+        {{> eventSources}}
 
-        <td><div>
-        {{#if location}}
-            <a href="#" class="action-event-mapview" title="View on map">
-                {{{formatLocation}}}
-            </a>
-        {{else}}
-            <button title="Place on map" class="btn btn-mini btn-info button-locate">
-                <i class="icon-white icon-search"></i>Locate
-            </button>
-        {{/if}}
-        </div></td>
+        {{> eventLocation}}
 
-        <td>
-        {{#if editing}}
-            {{#if iAmEditing}}
-                <button title="Save this event" class="btn btn-mini btn-success button-save">
-                    <i class="icon-white icon-ok"></i>Save
-                </button>
-            {{else}}
-                {{> userPill editorUser}} is editing
-            {{/if}}
-        {{else}}
-            <button title="Edit this event" class="btn btn-mini btn-warning button-edit">
-                <i class="icon-white icon-pencil"></i>
-            </button>
-            <button title="Delete this event" class="btn btn-mini btn-danger button-delete">
-                <i class="icon-white icon-trash"></i>
-            </button>
-        {{/if}}
-        </td>
+        {{editCell}}
     </tr>
 </template>
 
 <template name="_eventCell">
     <td>
-        <div class="{{#if editable}}editable{{/if}}">
+        {{#if editable}}
+        <div data-type="text" data-original-title="Enter {{name}}" data-inputclass="input-xlarge" class="editable">
             {{value}}
         </div>
+        {{else}}
+        {{value}}
+        {{/if}}
     </td>
 </template>
 
 <template name="_eventCellSelect">
-    <td><div data-type="select" data-original-title="Select {{name}}" class="{{#if editable}}editable{{/if}}">
-        {{value}}
-    </div></td>
+    <td>
+        {{#if editable}}
+        <div data-type="select" data-original-title="Select {{name}}" data-inputclass="input-large" class="editable">
+            {{textValue}}
+        </div>
+        {{else}}
+        {{textValue}}
+        {{/if}}
+    </td>
+</template>
+
+<template name="eventSources">
+    <td>
+        <div>
+            {{#each sources}}
+            {{> tweetIcon this}}
+            {{/each}}
+        </div>
+    </td>
+</template>
+
+<template name="eventLocation">
+    <td>
+        <div>
+            {{#if location}}
+            <a href="#" class="action-event-mapview" title="View on map">
+                {{{formatLocation}}}
+            </a>
+            {{else}}
+            <button title="Place on map" class="btn btn-mini btn-info action-event-locate">
+                <i class="icon-white icon-search"></i>Locate
+            </button>
+            {{/if}}
+        </div>
+    </td>
+</template>
+
+<template name="_editCellOther">
+    <td>
+         {{userPillById editor}} is editing
+    </td>
+</template>
+
+<template name="_editCellSelf">
+    <td>
+        <button title="save this event" class="btn btn-mini btn-success action-event-save">
+            <i class="icon-white icon-ok"></i>Save
+        </button>
+    </td>
+</template>
+
+<template name="_editCellOpen">
+    <td>
+        <button title="Edit this event" class="btn btn-mini btn-warning action-event-edit">
+            <i class="icon-white icon-pencil"></i>
+        </button>
+        <button title="Delete this event" class="btn btn-mini btn-danger action-event-delete">
+            <i class="icon-white icon-trash"></i>
+        </button>
+    </td>
 </template>

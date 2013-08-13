@@ -3,18 +3,17 @@
 </template>
 
 <template name="mapPopup">
-    <strong class="text-error">{{type}}</strong>
+    <strong class="text-error">{{dereference "type" type}}</strong>
     <br>
     <small>{{description}}</small>
     <br>
-    <strong><small>{{province}}</small></strong>
+    <strong><small>{{dereference "province" province}}</small></strong>
     <br>
-    <em><small>{{region}}</small></em>
+    <em><small>{{dereference "region" region}}</small></em>
     <br>
     <strong>{{{formatLocation}}}</strong>
 
     {{#each sources}}
     {{> tweetIcon this}}
     {{/each}}
-
 </template>

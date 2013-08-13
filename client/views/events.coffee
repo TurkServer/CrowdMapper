@@ -1,21 +1,37 @@
 @Mapper = @Mapper || {}
 
+# Process event choices into choice arrays
+sources = {}
+for field in Meteor.settings.public.events
+  if field.type isnt "dropdown"
+    sources[field.key] = null
+  else
+    sources[field.key] = []
+    for choice, i in field.choices
+      sources[field.key].push
+        text: choice
+        value: i
+
+@Mapper.sources = sources
+
+generateNewEvent = ->
+  # TODO maybe switch to Mongo IDs at some point
+  eventId = Random.id()
+
+  fields = {}
+  for key, val of sources
+    fields[key] = if val? then null else ""
+
+  Meteor.call "createEvent", eventId, fields
+
 edit = (e) ->
-  Events.update @_id,
-    $set: { editor: Meteor.userId() }
-  , {}, (err) ->
+  Meteor.call "editEvent", @_id
 
 Template.events.events =
-  "click a.button-newevent": (e) ->
+  "click .action-event-new": (e) ->
     e.preventDefault()
 
-    Events.insert
-      editor: Meteor.userId()
-      province: "",
-      region: "",
-      type: "",
-      description: "",
-      sources: []
+    generateNewEvent()
 
   "click span.sorter": (e) ->
     key = $(e.target).closest("span").attr("data-key")
@@ -26,6 +42,14 @@ Template.events.events =
     else
       Session.set("eventSortKey", key)
       Session.set("eventSortOrder", 1)
+
+Template.events.noEvents = ->
+  Events.find().count() is 0
+
+Template.emptyRow.numCols = ->
+  # Add 1 each for sources, map, and buttons
+  # TODO kinda hacky and not robust
+  Meteor.settings.public.events.length + 3
 
 Template.events.eventRecords = ->
   key = Session.get("eventSortKey")
@@ -66,7 +90,7 @@ Template.eventRow.events =
 
     Mapper.selectEvent @_id
 
-  "click .button-locate": (e) ->
+  "click .action-event-locate": (e) ->
     # In the future, bring to map edit interface
     Events.update @_id,
       $set:
@@ -77,61 +101,50 @@ Template.eventRow.events =
     # TODO does this require a flush?
     Mapper.selectEvent @_id
 
-  "click .button-delete": (e) ->
+  "dblclick tr": edit
+  "click .action-event-edit": edit
+
+  "click .action-event-delete": (e) ->
     bootbox.confirm "Really delete this event? This cannot be undone!"
     , (result) =>
-      Events.remove @_id if result
+      Meteor.call("deleteEvent", @_id) if result
 
-  "dblclick tr": edit
-  "click .button-edit": edit
-
-  "click .button-save": (e) ->
+  "click .action-event-save": (e) ->
     Events.update @_id,
       $unset: { editor: 1 }
 
-Template.eventRow.editing = -> @editor?
-
-Template.eventRow.editorUser = -> Meteor.users.findOne(@editor)
-
-Template.eventRow.iAmEditing = -> @editor is Meteor.userId()
-
 Handlebars.registerHelper "eventFields", ->
   Meteor.settings.public.events
-
-# Process event choices into choice arrays
-sources = {}
-for field in Meteor.settings.public.events
-  continue if field.type isnt "dropdown"
-  sources[field.key] = []
-  for choice in field.choices
-    sources[field.key].push
-      text: choice
-      value: choice
 
 ###
   Rendering and helpers for individual sheet cells
 ###
 Handlebars.registerHelper "eventCell", (context, field) ->
-  obj =
+  obj = {
     _id: context._id
+    key: field.key
+    name: field.name
     value: context[field.key]
     editable: context.editor is Meteor.userId()
+  }
 
-  $.extend(obj, field)
-
+  # Temporarily extend the field for render, but we don't have to store it in DB :)
   if field?.type is "dropdown"
+    obj.textValue = sources[field.key][obj.value]?.text if obj.value?
     return new Handlebars.SafeString Template._eventCellSelect(obj)
   else
     return new Handlebars.SafeString Template._eventCell(obj)
+
+Handlebars.registerHelper "cellEditable", -> @editor is Meteor.userId()
 
 Template._eventCell.rendered = ->
   return unless @data.editable
   settings =
     success: (response, newValue) =>
-      val = {}
-      val[@data.key] = newValue
+      result = {}
+      result[@data.key] = newValue
       Events.update @data._id,
-        $set: val
+        $set: result
 
   $(@find('div.editable:not(.editable-click)')).editable('destroy').editable(settings)
 
@@ -139,12 +152,20 @@ Template._eventCellSelect.rendered = ->
   return unless @data.editable
   settings =
     success: (response, newValue) =>
-      val = {}
-      val[@data.key] = newValue
+      result = {}
+      result[@data.key] = newValue
       Events.update @data._id,
-        $set: val
+        $set: result
     value: @data.value
     source: sources[@data.key]
 
   $(@find('div.editable:not(.editable-click)')).editable('destroy').editable(settings)
 
+Handlebars.registerHelper "editCell", ->
+  me = Meteor.userId()
+  if @editor is me
+    return new Handlebars.SafeString Template._editCellSelf @
+  else if @editor?
+    return new Handlebars.SafeString Template._editCellOther @
+  else
+    return new Handlebars.SafeString Template._editCellOpen @

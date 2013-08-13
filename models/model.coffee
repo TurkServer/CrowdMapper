@@ -13,6 +13,40 @@ this.Documents = new Meteor.Collection("docs")
 this.Events = new Meteor.Collection("events")
 
 Meteor.methods
+  ###
+    Event Methods
+  ###
+  createEvent: (eventId, fields) ->
+    obj = {
+      _id: eventId
+      sources: []
+      # location: undefined
+    }
+
+    _.extend(obj, fields)
+
+    Events.insert(obj)
+
+  editEvent: (id) ->
+    userId = Meteor.userId()
+    unless userId?
+      bootbox.alert("Sorry, you must be logged in to make edits.") if @isSimulation
+      return
+
+    event = Events.findOne(id)
+
+    unless event.editor
+      Events.update id,
+        $set: { editor: userId }
+    else if @isSimulation and event.editor isnt userId
+      bootbox.alert("Sorry, someone is already editing that event.")
+
+  deleteEvent: (id) ->
+    Events.remove(id)
+
+  ###
+    Chat Methods
+  ###
   deleteChat: (roomId) ->
     if @isSimulation
       # Client stub - do a quick check
