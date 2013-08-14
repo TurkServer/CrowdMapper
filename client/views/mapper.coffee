@@ -1,4 +1,11 @@
 # The map needs to load first or openlayers complains
+@Mapper = @Mapper || {}
+
+Mapper.switchTab = (page) ->
+  return unless page is "docs" or page is "events" or page is "map"
+  $("a[data-target='#{page}']").trigger("click")
+  # TODO why is this necessary? Should not be since the above should trigger it.
+  Session.set("taskView", page)
 
 Meteor.startup ->
   Session.set("taskView", 'events')
