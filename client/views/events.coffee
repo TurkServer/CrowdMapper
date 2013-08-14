@@ -97,7 +97,7 @@ Template.eventRow.events =
 
     Mapper.switchTab "map"
     # TODO show a message to do something with this
-    # TODO does this require a flush?
+    # TODO does this require a flush? Doesn't seem like it...
     Mapper.selectEvent @_id
 
   "dblclick tr": edit

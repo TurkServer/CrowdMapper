@@ -6,6 +6,7 @@ login = ->
 
 # Start initial login after stuff loaded
 Meteor.startup ->
+  # login()
   Meteor.setTimeout login, 50
 
 # Always request username if logged out

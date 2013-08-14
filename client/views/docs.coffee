@@ -1,3 +1,7 @@
+Meteor.startup ->
+  # Remove any session document
+  Session.set("document", null)
+
 Template.docTabs.documents = ->
   Documents.find()
 
@@ -35,8 +39,8 @@ Template.docTitle.title = ->
 
 Template.docCurrent.document = ->
   id = Session.get("document")
-  # Can't stay in a document if someone deletes it!
-  return if Documents.findOne(id) then id else `undefined`
+  # Can't stay in a document if someone deletes it! Don't do reactive or this causes re-render on title change.
+  return if Documents.findOne(id, {reactive: false}) then id else `undefined`
 
 Template.docCurrent.events =
   "click .action-document-delete": ->

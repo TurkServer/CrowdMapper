@@ -3,11 +3,10 @@
 </head>
 
 <template name="home">
-    <div class="container">
-        <div class="hero-unit">
-            <h1>Welcome to CrowdMapper.</h1>
-            <p>Instructions would be here.</p>
-            <a href="/mapper" class="btn btn-success">Get started!</a>
+    <div class="container full-height">
+        <div class="hero-unit full-height scroll-vertical">
+            {{> instructions }}
+            <a href="/mapper" class="btn btn-large btn-success">Get started!</a>
         </div>
     </div>
 </template>

@@ -66,7 +66,7 @@ Template.map.rendered = ->
   mapLayer = new OpenLayers.Layer.Bing
     name: "Bing Map"
     type: "AerialWithLabels"
-    key: "AoMrUbEFitx5QLbLsi2NNplTe84_MyCMWM1aUDkWuWPwMXU3HIwUbzOQaDWyS5a-"
+    key: "AtsCXPry0QFxHVXRBJDXPVVy88GhE6tTwtW61SNJoVl8AYwcNce_UsO3VZ3lGT3Q"
 
   vectorLayer = new OpenLayers.Layer.Vector "Vector Layer",
     styleMap: @styleMap
