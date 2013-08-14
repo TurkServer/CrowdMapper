@@ -14,10 +14,23 @@
 .roomScreen form
     margin: 0px
 
+.chat-header
+    position: absolute
+    width: 100%
+
+// This is a weird hack to position the chat box for now. Alternatively, we should use JS.
 .messages
-    height: 200px
+    position: absolute
+    width: 100%
+    top: 310px
+    bottom: 50px
     overflow: auto
     margin: 0px
 
 .messages .mine
     color:green
+
+.chat-footer
+    position: absolute
+    width: 100%
+    bottom: 0

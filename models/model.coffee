@@ -78,6 +78,13 @@ Meteor.methods
       bootbox.alert("Sorry, someone is already editing that event.")
 
   deleteEvent: (id) ->
+    event = Events.findOne(id)
+
+    # Pull all tweet links
+    _.each event.sources, (tweetId) ->
+      Datastream.update tweetId,
+        $pull: { events: id }
+
     Events.remove(id)
 
   ###

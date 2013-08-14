@@ -55,18 +55,20 @@
 </template>
 
 <template name="room">
-    {{> roomHeader}}
-    {{> messageBox}}
-    <form class="form-inline" action="javascript:void(0)">
-        <input type="text" id="msg" placeholder="Chat..." />
-        <button type="submit" class="btn btn-primary" title="Send">
-            <i class="icon-white icon-share-alt"></i>
-        </button>
-    </form>
+    <div style="display: table-row; height: 100%; position: relative">
+        {{> roomHeader}}
+        {{> messageBox}}
+        <form class="form-inline chat-footer" action="javascript:void(0)">
+            <input type="text" id="msg" placeholder="Chat..." />
+            <button type="submit" class="btn btn-primary" title="Send">
+                <i class="icon-white icon-share-alt"></i>
+            </button>
+        </form>
+    </div>
 </template>
 
 <template name="roomHeader">
-    <h4>
+    <h4 class="chat-header">
         <span class="editable" title="Rename this room">{{roomName}}</span>
         <button type="button" class="btn btn-warning btn-mini pull-right action-room-leave">Leave</button>
     </h4>

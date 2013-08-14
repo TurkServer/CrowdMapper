@@ -16,11 +16,11 @@
 <template name="dataToggle">
     <strong>Toggle data view:</strong>
     <div class="btn-group data-filters">
-        <button type="button" class="btn btn-info {{#if unfiltered}}active{{/if}}"
+        <button type="button" class="btn btn-danger {{#if unfiltered}}active{{/if}}"
                 data-show="unfiltered" title="Toggle unfiltered data">Untagged</button>
-        <button type="button" class="btn btn-success {{#if tagged}}active{{/if}}"
+        <button type="button" class="btn btn-info {{#if tagged}}active{{/if}}"
                 data-show="tagged" title="Toggle tagged data">Tagged</button>
-        <button type="button" class="btn btn-warning {{#if hidden}}active{{/if}}"
+        <button type="button" class="btn {{#if hidden}}active{{/if}}"
                 data-show="hidden" title="Toggle hidden data">Hidden</button>
     </div>
 </template>

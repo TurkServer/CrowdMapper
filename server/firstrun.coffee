@@ -2,10 +2,7 @@ replaceURLWithHTMLLinks = (text) ->
   exp = /(\b(https?|ftp|file):\/\/[-A-Z0-9+&@#\/%?=~_|!:,.;]*[-A-Z0-9+&@#\/%=~_|])/ig
   text.replace(exp, "<a href='$1' target='_blank'>$1</a>")
 
-Meteor.startup ->
-  return if Datastream.find().count() > 0
-
-  # Load initial tweets on first start
+loadDumbTweets = ->
   Assets.getText "tweets_raw_partial.txt", (err, res) ->
     throw err if err
     tweets = replaceURLWithHTMLLinks(res).split("\n")
@@ -14,3 +11,36 @@ Meteor.startup ->
       Datastream.insert
         text: e
     console.log(tweets.length + " tweets inserted")
+
+loadCSVTweets = ->
+  # csv is exported by the csv package
+  limit = 500 # for demo purposes
+
+  Assets.getText "PabloPh_UN_cleaned.csv", (err, res) ->
+    throw err if err
+    tweets = replaceURLWithHTMLLinks(res)
+
+    csv()
+    .from.string(tweets, {
+      columns: true
+      trim: true
+    })
+    .to.array Meteor.bindEnvironment ( arr, count ) ->
+
+      i = 0
+      while i < limit
+        Datastream.insert
+          _id: i.toString() # Keeps things in time order
+          text: arr[i].text
+        i++
+      console.log(i + " tweets inserted")
+
+    , (e) ->
+      Meteor._debug "Exception while reading CSV:", e
+
+Meteor.startup ->
+  return if Datastream.find().count() > 0
+
+  # Load initial tweets on first start
+  # loadDumbTweets()
+  loadCSVTweets()

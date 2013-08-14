@@ -19,6 +19,8 @@ bootboxjs
 publish-with-relations
 accounts-testing
 sharejs
+# For parsing input files
+csv
 
 # Do not add until collection-hooks bug fixed
 # turkserver
