@@ -2,8 +2,8 @@
 Meteor
 dump.rdb
 
+.backups
 packages/*
-client/lib/*
 
 lib-cov
 *.seed
