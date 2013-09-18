@@ -3,6 +3,7 @@
   "dependencies": {
     "basePackages": {
       "bootboxjs": {},
+      "iron-router": {},
       "publish-with-relations": {},
       "turkserver": {
         "path": "../turkserver-meteor"
@@ -23,8 +24,13 @@
     "packages": {
       "bootboxjs": {
         "git": "https://github.com/TimHeckel/meteor-bootboxjs.git",
-        "tag": "v3.2.0",
-        "commit": "6088b5b6ec13304457394cd358cbdc5f3def1a1c"
+        "tag": "v3.2.2",
+        "commit": "580adfebfa12b4d2186a80cec1109dab74ad6228"
+      },
+      "iron-router": {
+        "git": "https://github.com/EventedMind/iron-router.git",
+        "tag": "v0.5.4",
+        "commit": "3e0e22ff85630b7503d0daa1538c6d90abb84020"
       },
       "publish-with-relations": {
         "git": "https://github.com/erundook/meteor-publish-with-relations.git",
@@ -45,6 +51,9 @@
       },
       "x-editable-bootstrap": {
         "path": "../meteor-x-editable-bootstrap"
+      },
+      "collection-hooks": {
+        "path": "../meteor-collection-hooks"
       }
     }
   }

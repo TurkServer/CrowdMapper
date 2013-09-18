@@ -1,6 +1,7 @@
 {
   "packages": {
     "bootboxjs": {},
+    "iron-router": {},
     "publish-with-relations": {},
     "turkserver": {
       "path": "../turkserver-meteor"

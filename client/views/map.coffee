@@ -91,7 +91,9 @@ Template.map.rendered = ->
     displayProjection: new OpenLayers.Projection("EPSG:4326")
 
   map.addControl(new OpenLayers.Control.LayerSwitcher({'ascending':false}));
-  map.addControl(new OpenLayers.Control.OverviewMap(theme: null));
+  map.addControl(new OpenLayers.Control.OverviewMap
+    theme: null # again, don't load theme
+  )
   map.addControl(new OpenLayers.Control.KeyboardDefaults());
 
   popup = null
