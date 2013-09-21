@@ -19,6 +19,7 @@ bootboxjs
 publish-with-relations
 accounts-testing
 sharejs
+autocomplete
 # For parsing input files
 csv
 

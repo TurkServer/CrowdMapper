@@ -92,7 +92,8 @@ Template.map.rendered = ->
 
   map.addControl(new OpenLayers.Control.LayerSwitcher({'ascending':false}));
   map.addControl(new OpenLayers.Control.OverviewMap
-    theme: null # again, don't load theme
+    mapOptions:
+      theme: null # again, don't load theme
   )
   map.addControl(new OpenLayers.Control.KeyboardDefaults());
 

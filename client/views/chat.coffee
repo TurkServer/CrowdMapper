@@ -60,6 +60,8 @@ Template.room.events =
 
     # Auto scroll happens on messageBox render now..
 
+Template.room.triggers = {}
+
 Template.roomHeader.rendered = ->
   settings =
     success: (response, newValue) ->

@@ -17,6 +17,9 @@
     },
     "x-editable-bootstrap": {
       "path": "../meteor-x-editable-bootstrap"
+    },
+    "autocomplete": {
+      "path": "../meteor-autocomplete"
     }
   }
 }

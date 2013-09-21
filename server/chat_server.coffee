@@ -4,20 +4,20 @@ Meteor.publish "chatrooms", ->
 enterRoom = (roomId, userId) ->
   ChatRooms.update roomId,
     $inc: { users: 1 }
-  ChatMessages.insert
-    room: roomId
-    event: "enter"
-    userId: userId
-    timestamp: +(new Date())
+#  ChatMessages.insert
+#    room: roomId
+#    event: "enter"
+#    userId: userId
+#    timestamp: +(new Date())
 
 leaveRoom = (roomId, userId) ->
   ChatRooms.update roomId,
     $inc: { users: -1 }
-  ChatMessages.insert
-    room: roomId
-    event: "leave"
-    userId: userId
-    timestamp: +(new Date())
+#  ChatMessages.insert
+#    room: roomId
+#    event: "leave"
+#    userId: userId
+#    timestamp: +(new Date())
 
 # publish messages and users for a room
 Meteor.publish "chatstate", (room)  ->
