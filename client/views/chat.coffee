@@ -60,7 +60,24 @@ Template.room.events =
 
     # Auto scroll happens on messageBox render now..
 
-Template.room.triggers = {}
+Template.room.settings = -> {
+  position: "top"
+  limit: 5
+  rules: [
+    {
+      token: '@'
+      collection: Meteor.users
+      field: "username"
+      template: Template.userPill
+    },
+    {
+      token: '!'
+      collection: Datastream
+      field: "_id"
+      template: Template.tweetNumbered
+    }
+  ]
+}
 
 Template.roomHeader.rendered = ->
   settings =
