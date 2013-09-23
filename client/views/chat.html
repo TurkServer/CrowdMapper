@@ -85,7 +85,7 @@
 <template name="messageItem">
     <li>
     {{#if text}}
-    <span class="">{{username}}:</span> {{text}}
+    <span class="">{{username}}:</span> {{{renderText}}}
     {{else}}
     <small><span class="muted">{{eventText}}</span></small>
     {{/if}}

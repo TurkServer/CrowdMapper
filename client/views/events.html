@@ -11,6 +11,7 @@
         <table class="table table-condensed table-hover table-striped">
             <thead>
             <tr>
+                <th class="header-num vertical-nopad"></th>
                 {{#each eventFields}}
                 <th class="vertical-nopad"></th>
                 {{/each}}
@@ -42,10 +43,16 @@
     <table class="table table-condensed table-hover table-striped events-header">
         <thead>
         <tr>
+            <th class="header-num">
+                #
+                <span class="sorter label {{labelClass}}" data-key="num">
+                    <i class="icon-white {{iconClass}}"></i>
+                </span>
+            </th>
             {{#each eventFields}}
             <th>
                 {{name}}
-                <span class="sorter badge badge-inverse" data-key="{{key}}">
+                <span class="sorter label {{labelClass}}" data-key="{{key}}">
                     <i class="icon-white {{iconClass}}"></i>
                 </span>
             </th>
@@ -77,9 +84,10 @@
 </template>
 
 <template name="eventRow">
-    <tr class="{{#if cellEditable}}info{{/if}}">
+    <tr class="{{rowClass}}">
 
         {{! TODO - if adding cell locking, need to overcome reactivity issues when adjacent changed}}
+        {{> eventNum}}
 
         {{#each eventFields}}
             {{eventCell ../this this}}
@@ -91,6 +99,12 @@
 
         {{editCell}}
     </tr>
+</template>
+
+<template name="eventNum">
+    <td>
+        <span class="label label-important">{{num}}</span>
+    </td>
 </template>
 
 <template name="_eventCell">
@@ -121,7 +135,7 @@
     <td>
         <div>
             {{#each sources}}
-            {{> tweetIcon this}}
+            {{> tweetIcon findTweet}}
             {{/each}}
         </div>
     </td>

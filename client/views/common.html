@@ -1,7 +1,11 @@
+<template name="userPill">
+    <span class="label {{#if profile.online}}label-success{{/if}}">{{username}}</span>
+</template>
+
 <template name="tweetIcon">
     <div class="tweet-icon-container">
         <span class="label label-info">
-            <i class="icon-white icon-tag"></i>
+            <i class="icon-white icon-tag"></i>{{_id}}
         </span>
     </div>
 </template>
@@ -16,4 +20,42 @@
         <i class="icon-white icon-tag"></i>{{_id}}
     </span>
     <span class="chopped">{{{text}}}</span>
+</template>
+
+<template name="eventShort">
+    <td>
+        <span class="label label-important">{{num}}</span>
+        <span class="chopped">{{description}}</span>
+    </td>
+</template>
+
+<!-- Lookup templates for chat functions -->
+<template name="userLookup">
+    {{#with doc}}
+    {{#if this}}
+        <span class="label {{labelClass}}">{{username}}</span>
+    {{else}}
+        {{../this}}
+    {{/if}}
+    {{/with}}
+</template>
+
+<template name="tweetLookup">
+    {{#with doc}}
+    {{#if this}}
+        <span class="label label-info clickme"><i class="icon-white icon-tag"></i>{{_id}}</span>
+    {{else}}
+        {{../this}}
+    {{/if}}
+    {{/with}}
+</template>
+
+<template name="eventLookup">
+    {{#with doc}}
+    {{#if this}}
+        <span class="label label-important clickme"></i>{{num}}</span>
+    {{else}}
+        {{../this}}
+    {{/if}}
+    {{/with}}
 </template>

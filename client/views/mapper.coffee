@@ -10,6 +10,9 @@ Mapper.switchTab = (page) ->
 Meteor.startup ->
   Session.set("taskView", 'events')
 
+  Session.set("scrollEvent", null)
+  Session.set("scrollTweet", null)
+
 Template.pageNav.events =
   "click a": (e) -> e.preventDefault()
 

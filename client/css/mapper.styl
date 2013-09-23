@@ -52,6 +52,11 @@ newdoc-height = 30px
     height: 100%
     width: 100%;
 
+.events-body tr.selected
+    drop-shadow()
+    border: 2px solid #000000
+    margin: -2px
+
 .table-condensed th.vertical-nopad
     padding-top: 0px
     padding-bottom: 0px
@@ -60,6 +65,9 @@ newdoc-height = 30px
     position: absolute
     height: newdoc-height
     bottom: 0px
+
+.header-num
+    width: 45px
 
 .header-buttons, .header-location
     width: 71px
@@ -79,3 +87,6 @@ newdoc-height = 30px
     display: block
     margin-left: auto
     margin-right: auto
+
+.clickme
+    cursor: pointer

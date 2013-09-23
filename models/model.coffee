@@ -24,10 +24,6 @@ Meteor.methods
     Datastream.update id,
       $set: { hidden: true }
 
-  dataUnhide: (id) ->
-    Datastream.update id,
-      $set: { hidden: false }
-
   dataLink: (tweetId, eventId) ->
     return unless tweetId and eventId
 
@@ -52,16 +48,8 @@ Meteor.methods
   ###
     Event Methods
   ###
-  createEvent: (eventId, fields) ->
-    obj = {
-      _id: eventId
-      sources: []
-      # location: undefined
-    }
 
-    _.extend(obj, fields)
-
-    Events.insert(obj)
+  # createEvent: defined separately for server and client
 
   editEvent: (id) ->
     userId = Meteor.userId()

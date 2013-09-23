@@ -27,8 +27,18 @@ generateNewEvent = ->
 edit = (e) ->
   Meteor.call "editEvent", @_id
 
+# Set initial sort order on start
+Meteor.startup ->
+  Session.set("eventSortKey", "num")
+  Session.set("eventSortOrder", 1)
+
+Template.eventsHeader.labelClass = ->
+  key = @key || "num" # FIXME: hack for the first num field
+  if Session.equals("eventSortKey", key) then "label-inverse" else ""
+
 Template.eventsHeader.iconClass = ->
-  if Session.equals("eventSortKey", @key)
+  key = @key || "num" # FIXME: hack for the first num field
+  if Session.equals("eventSortKey", key)
     # TODO This is inefficient. Fix it.
     if Session.get("eventSortOrder") is 1
       "icon-chevron-up"
@@ -38,6 +48,8 @@ Template.eventsHeader.iconClass = ->
     "icon-resize-vertical"
 
 Template.events.events =
+  "click tr": (e) ->
+    Session.set("selectedEvent", @_id)
   "click span.sorter": (e) ->
     key = $(e.target).closest("span").attr("data-key")
     sortKey = Session.get("eventSortKey")
@@ -54,7 +66,7 @@ Template.events.noEvents = ->
 Handlebars.registerHelper "numEventCols", ->
   # Add 1 each for sources, map, and buttons
   # TODO kinda hacky and not robust
-  Meteor.settings.public.events.length + 3
+  Meteor.settings.public.events.length + 4
 
 Template.events.eventRecords = ->
   key = Session.get("eventSortKey")
@@ -78,8 +90,24 @@ Template.eventRow.rendered = ->
     tolerance: "pointer"
     drop: (event, ui) ->
       tweet = Spark.getDataContext(ui.draggable.context)
+      # Don't do anything if this tweet is already on this event
+      return if $.inArray(data._id, tweet.events) >= 0
+
+      target = ui.draggable.context
+      parent = tweet
+      while parent is tweet
+        parent = Spark.getDataContext(target = target.parentNode)
 
       Meteor.call "dataLink", tweet._id, data._id
+      # unlink from parent if it was an event
+      Meteor.call "dataUnlink", tweet._id, parent._id if parent._id
+
+  if Session.equals("scrollEvent", @data._id)
+    parent = $(".scroll-vertical.events-body")
+    element = $(@firstNode)
+    scrollTo = parent.scrollTop() + element.position().top - parent.height()/2 + element.height()/2;
+    parent.animate({scrollTop: scrollTo}, "slow")
+    Session.set("scrollEvent", null)
 
 Template.eventRow.events =
   "click .action-event-mapview": (e) ->
@@ -134,7 +162,11 @@ Handlebars.registerHelper "eventCell", (context, field) ->
   else
     return new Handlebars.SafeString Template._eventCell(obj)
 
-Handlebars.registerHelper "cellEditable", -> @editor is Meteor.userId()
+Template.eventRow.rowClass = ->
+  classes = []
+  classes.push("selected") if Session.equals("selectedEvent", @_id)
+  classes.push("info") if @editor is Meteor.userId()
+  return classes.join(" ")
 
 Template._eventCell.rendered = ->
   return unless @data.editable

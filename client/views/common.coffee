@@ -1,3 +1,6 @@
+Handlebars.registerHelper "findTweet", ->
+  # FIXME wtf is handlebars doing here?
+  Datastream.findOne(this.toString())
 
 Template.tweetIcon.rendered = ->
   $(@firstNode).popover
@@ -9,20 +12,36 @@ Template.tweetIcon.rendered = ->
       # No need for reactivity (Meteor.render) here since tweet does not change
       Template.tweetPopup Datastream.findOne(@data)
 
+  $(@firstNode).draggable
+    addClasses: false
+    # containment: "window"
+    cursorAt: { top: 0, left: 0 }
+    distance: 5
+    revert: "invalid"
+    scroll: false
+    zIndex: 1000
+    helper: ->
+      # TODO: fixme don't clone the popover if there is one
+      return $(this).clone().remove(".popover")
+
 Template.tweetIcon.events =
   "click .action-unlink-tweet": (e) ->
-    tweetId = Spark.getDataContext(e.target)
+    # This needs to work on both events and map
+    tweet = Spark.getDataContext(e.target)
 
     # TODO Fix this horrible hack for finding the event context
 #    eventContext = Spark.getDataContext(e.target.parentNode.parentNode.parentNode.parentNode)
 
     # This is a slightly more robust hack but with worse performance
     target = e.target
-    eventContext = tweetId
-    while eventContext is tweetId
+    eventContext = tweet
+    while eventContext is tweet
       eventContext = Spark.getDataContext(target = target.parentNode)
 
-    Meteor.call "dataUnlink", tweetId, eventContext._id
+    Meteor.call "dataUnlink", tweet._id, eventContext._id
+
+    # Hide this if it's not tagged somewhere
+    Meteor.call "dataHide", tweet._id
 
 epsg4326 = null
 epsg900913 = null
@@ -39,3 +58,42 @@ Handlebars.registerHelper "formatLocation", ->
   point = new OpenLayers.Geometry.Point(@location[0], @location[1])
   point.transform(epsg900913, epsg4326)
   point.x.toFixed(2) + ", " + point.y.toFixed(2)
+
+# TODO: fix inefficient double lookup here
+Template.userLookup.doc = ->
+  Meteor.users.findOne({username: this.substring(1)})
+
+Template.userLookup.labelClass = ->
+  if @_id is Meteor.userId() then "label-warning" else ""
+
+Template.tweetLookup.doc = ->
+  Datastream.findOne(this.substring(1))
+
+showEvent = (eventId) ->
+  Mapper.switchTab 'events' # Make sure we are on the event page
+  # Set up a scroll event, then trigger a re-render
+  Session.set("selectedEvent", null)
+  Session.set("scrollEvent", eventId)
+  Session.set("selectedEvent", eventId)
+
+Template.tweetLookup.events =
+  "click .clickme": (e) ->
+    if @hidden
+      bootbox.alert("That data has been deleted.")
+    else if @events and @events.length > 0
+      # Scroll to event
+      eventId = @events[0]
+      showEvent(eventId)
+    else
+      # Scroll to tweet
+      Session.set("selectedTweet", null)
+      Session.set("scrollTweet", @_id)
+      Session.set("selectedTweet", @_id)
+
+Template.eventLookup.doc = ->
+  Events.findOne({num: parseInt(this.substring(1))})
+
+Template.eventLookup.events =
+  "click .clickme": (e) -> showEvent(@_id)
+
+

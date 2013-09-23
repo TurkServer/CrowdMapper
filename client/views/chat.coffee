@@ -75,6 +75,12 @@ Template.room.settings = -> {
       collection: Datastream
       field: "_id"
       template: Template.tweetNumbered
+    },
+    {
+      token: '#'
+      collection: Events
+      field: "num"
+      template: Template.eventShort
     }
   ]
 }
@@ -110,6 +116,20 @@ Template.messageBox.messages = ->
 
 # These usernames are nonreactive because find does not use any reactive variables
 Template.messageItem.username = -> Meteor.users.findOne(@userId).username
+
+userRegex = new RegExp('(^|\\b|\\s)(@[\\w.]*)($|\\b|\\s)','g')
+tweetRegex = new RegExp('(^|\\b|\\s)(![\\d]*)($|\\b|\\s)','g')
+eventRegex = new RegExp('(^|\\b|\\s)(#[\\d]*)($|\\b|\\s)','g')
+
+# Replace any matched users, tweets, or events with links
+Template.messageItem.renderText = ->
+  text = Handlebars._escape(@text)
+  text = text.replace userRegex, (_, p1, p2) ->
+    new Handlebars.SafeString Template.userLookup(p2)
+  text = text.replace tweetRegex, (_, p1, p2) ->
+    new Handlebars.SafeString Template.tweetLookup(p2)
+  text = text.replace eventRegex, (_, p1, p2) ->
+    new Handlebars.SafeString Template.eventLookup(p2)
 
 Template.messageItem.eventText = ->
   username = Meteor.users.findOne(@userId).username
