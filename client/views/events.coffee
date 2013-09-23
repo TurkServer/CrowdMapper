@@ -27,12 +27,17 @@ generateNewEvent = ->
 edit = (e) ->
   Meteor.call "editEvent", @_id
 
+Template.eventsHeader.iconClass = ->
+  if Session.equals("eventSortKey", @key)
+    # TODO This is inefficient. Fix it.
+    if Session.get("eventSortOrder") is 1
+      "icon-chevron-up"
+    else
+      "icon-chevron-down"
+  else
+    "icon-resize-vertical"
+
 Template.events.events =
-  "click .action-event-new": (e) ->
-    e.preventDefault()
-
-    generateNewEvent()
-
   "click span.sorter": (e) ->
     key = $(e.target).closest("span").attr("data-key")
     sortKey = Session.get("eventSortKey")
@@ -46,7 +51,7 @@ Template.events.events =
 Template.events.noEvents = ->
   Events.find().count() is 0
 
-Template.emptyRow.numCols = ->
+Handlebars.registerHelper "numEventCols", ->
   # Add 1 each for sources, map, and buttons
   # TODO kinda hacky and not robust
   Meteor.settings.public.events.length + 3
@@ -60,15 +65,10 @@ Template.events.eventRecords = ->
   sort = [ [key, if Session.get("eventSortOrder") is -1 then "desc" else "asc"], [ "_id", "asc" ] ]
   return Events.find {}, { sort: sort }
 
-Template.events.iconClass = ->
-  if Session.equals("eventSortKey", @key)
-    # TODO This is inefficient. Fix it.
-    if Session.get("eventSortOrder") is 1
-      "icon-chevron-up"
-    else
-      "icon-chevron-down"
-  else
-    "icon-resize-vertical"
+Template.createRow.events =
+  "click .action-event-new": (e) ->
+    e.preventDefault()
+    generateNewEvent()
 
 Template.eventRow.rendered = ->
   data = @data

@@ -28,18 +28,37 @@ drop-shadow()
     border-radius: 4px
     drop-shadow()
 
-newevent-height = 30px
+newdoc-height = 30px
 
-#events, #doc-list
+#doc-list
     position: absolute
     top: 0px
-    bottom: newevent-height + 10px
+    bottom: newdoc-height + 10px
     left: 0px
     right: 0px
 
-.action-event-new, .action-document-new
+#events
     position: absolute
-    height: newevent-height
+    top: 35px // 28px header height
+    bottom: 0px
+    left: 0px
+    right: 0px
+
+.events-header.table, .events-body > .table
+    margin-bottom: 0
+
+.events-body
+    display: block
+    height: 100%
+    width: 100%;
+
+.table-condensed th.vertical-nopad
+    padding-top: 0px
+    padding-bottom: 0px
+
+.action-document-new
+    position: absolute
+    height: newdoc-height
     bottom: 0px
 
 .header-buttons, .header-location
@@ -54,3 +73,9 @@ newevent-height = 30px
     overflow: hidden
     white-space: nowrap
     text-overflow: ellipsis
+
+.center
+    float: none
+    display: block
+    margin-left: auto
+    margin-right: auto

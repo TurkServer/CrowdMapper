@@ -1,26 +1,25 @@
 
 <template name="events">
+    {{! isolate this so it doesn't scroll when changing sort}}
+    {{> eventsHeader}}
+
     <div id="events" class="">
     {{!-- This extra container solves the problem of the absolute div clipping shit --}}
-    <div class="scroll-vertical" style="width: 100%; height:100%; display:block">
+    <div class="scroll-vertical events-body">
+        {{! isolate this to not mess with the outer scrolling}}
+        {{#isolate}}
         <table class="table table-condensed table-hover table-striped">
             <thead>
             <tr>
                 {{#each eventFields}}
-                <th>
-                    {{name}}
-                    <span class="sorter badge badge-inverse" data-key="{{key}}">
-                        <i class="icon-white {{iconClass}}"></i>
-                    </span>
-                </th>
+                <th class="vertical-nopad"></th>
                 {{/each}}
-
-                <th>Sources</th>
-
-                <th class="header-location">Location</th>
-                <th class="header-buttons"></th>
+                <th class="vertical-nopad">{{! Sources}}</th>
+                <th class="header-location vertical-nopad"></th>
+                <th class="header-buttons vertical-nopad"></th>
             </tr>
             </thead>
+
             <tbody>
             {{#if noEvents}}
             {{> emptyRow}}
@@ -29,17 +28,52 @@
             {{#each eventRecords}}
             {{> eventRow}}
             {{/each}}
+
+            {{> createRow}}
             </tbody>
         </table>
+        {{/isolate}}
     </div>
+
     </div>
-    <button class="btn btn-primary action-event-new">Create New Event</button>
+</template>
+
+<template name="eventsHeader">
+    <table class="table table-condensed table-hover table-striped events-header">
+        <thead>
+        <tr>
+            {{#each eventFields}}
+            <th>
+                {{name}}
+                <span class="sorter badge badge-inverse" data-key="{{key}}">
+                    <i class="icon-white {{iconClass}}"></i>
+                </span>
+            </th>
+            {{/each}}
+
+            <th>Sources</th>
+
+            <th class="header-location">Location</th>
+            <th class="header-buttons"></th>
+        </tr>
+        </thead>
+    </table>
 </template>
 
 <template name="emptyRow">
-    <td colspan="{{numCols}}">
-        <h3 class="muted text-center">No events yet. Create some!</h3>
-    </td>
+    <tr>
+        <td colspan="{{numEventCols}}">
+            <h3 class="muted text-center">No events yet. Create some!</h3>
+        </td>
+    </tr>
+</template>
+
+<template name="createRow">
+    <tr>
+        <td colspan="{{numEventCols}}">
+            <button class="btn btn-primary center action-event-new">Create New Event</button>
+        </td>
+    </tr>
 </template>
 
 <template name="eventRow">
