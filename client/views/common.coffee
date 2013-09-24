@@ -1,3 +1,10 @@
+Template.userPill.labelClass = ->
+  if @_id is Meteor.userId()
+    "label-warning"
+  else if @profile?.online
+    "label-success"
+  else ""
+
 Handlebars.registerHelper "findTweet", ->
   # FIXME wtf is handlebars doing here?
   Datastream.findOne(this.toString())
@@ -62,9 +69,6 @@ Handlebars.registerHelper "formatLocation", ->
 # TODO: fix inefficient double lookup here
 Template.userLookup.doc = ->
   Meteor.users.findOne({username: this.substring(1)})
-
-Template.userLookup.labelClass = ->
-  if @_id is Meteor.userId() then "label-warning" else ""
 
 Template.tweetLookup.doc = ->
   Datastream.findOne(this.substring(1))

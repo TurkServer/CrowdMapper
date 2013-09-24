@@ -82,13 +82,18 @@ Template.createRow.events =
     e.preventDefault()
     generateNewEvent()
 
+acceptDrop = ->
+  # Don't accept drops from random pages
+  Session.equals("taskView", 'events')
+
 Template.eventRow.rendered = ->
   data = @data
   $(@firstNode).droppable
     addClasses: false
     hoverClass: "info"
     tolerance: "pointer"
-    drop: (event, ui) ->
+    accept: acceptDrop
+    drop: processDrop = (event, ui) ->
       tweet = Spark.getDataContext(ui.draggable.context)
       # Don't do anything if this tweet is already on this event
       return if $.inArray(data._id, tweet.events) >= 0
@@ -165,7 +170,12 @@ Handlebars.registerHelper "eventCell", (context, field) ->
 Template.eventRow.rowClass = ->
   classes = []
   classes.push("selected") if Session.equals("selectedEvent", @_id)
-  classes.push("info") if @editor is Meteor.userId()
+
+  if @editor is Meteor.userId()
+    classes.push("info")
+  else if @editor
+    classes.push("warning")
+
   return classes.join(" ")
 
 Template._eventCell.rendered = ->

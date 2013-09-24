@@ -1,7 +1,8 @@
 # Chat
 this.ChatRooms = new Meteor.Collection("chatrooms")
+
 # These two would not need to be stuffed into TurkServer
-this.ChatUsers = new Meteor.Collection("chatusers")
+# this.ChatUsers is separated
 this.ChatMessages = new Meteor.Collection("chatmessages")
 
 # Datastream

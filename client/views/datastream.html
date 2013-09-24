@@ -1,7 +1,7 @@
 <template name="datastream">
     <div class="well popout-elements">
         {{!-- again, a workaround to allow the inner divs to be dragged out --}}
-        <ul class="scroll-vertical" style="width: 100%; height:100%; display:block">
+        <ul class="scroll-vertical data-body">
             {{#each data}}
                 {{#if visible}}
                 {{> dataItem}}

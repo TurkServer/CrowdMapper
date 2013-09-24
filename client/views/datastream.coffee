@@ -32,7 +32,7 @@ Template.dataItem.rendered = ->
       return $(this).clone().width(currentWidth)
 
   if Session.equals("scrollTweet", @data._id)
-    parent = $(".popout-elements ul.scroll-vertical")
+    parent = $(".scroll-vertical.data-body")
     element = $(@firstNode)
     scrollTo = parent.scrollTop() + element.position().top - parent.height()/2 + element.height()/2;
     parent.animate({scrollTop: scrollTo}, "slow")

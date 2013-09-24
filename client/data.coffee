@@ -1,3 +1,5 @@
+@ChatUsers = new Meteor.Collection("chatusers")
+
 Meteor.methods
   createEvent: (eventId, fields) ->
     obj = {

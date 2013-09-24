@@ -1,19 +1,15 @@
-html, body
-    height: 100%
+@import 'nib'
 
 // apply a natural box layout model to all elements
 *, *:before, *:after
-    -moz-box-sizing: border-box
-    -webkit-box-sizing: border-box
-    box-sizing: border-box
+    box-sizing border-box
+
 // Except inputs, which would be too small - http://stackoverflow.com/a/15495604/586086
 input
-    -moz-box-sizing: content-box
-    -webkit-box-sizing: content-box
-    box-sizing: content-box
+    box-sizing content-box
 
 // Works perfectly with the box-sizing above.
-.full-height
+html, body, .full-height
     height: 100%
 
 body
@@ -30,23 +26,3 @@ blockquote:before, blockquote:after, q:before, q:after
     content: '';
     content: none;
 
-table
-    border-collapse: collapse;
-    border-spacing: 0;
-    table-layout: fixed
-    // word-wrap: normal
-    word-wrap: break-word
-
-.user-list
-    height: 80px
-    max-height: 80px
-    overflow: auto
-
-.scroll-vertical
-    overflow-x: hidden
-    overflow-y: auto
-
-.well.well-skinny
-    padding: 9px
-    // margin-bottom: 5px
-    margin: 0px 0px 5px 0px

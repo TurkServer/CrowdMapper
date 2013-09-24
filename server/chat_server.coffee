@@ -1,3 +1,6 @@
+# Don't persist the contents of this collection
+@ChatUsers = new Meteor.Collection("chatusers", {connection: null})
+
 Meteor.publish "chatrooms", ->
   ChatRooms.find()
 
@@ -66,8 +69,6 @@ Meteor.publish "chatstate", (room)  ->
 
 # Clear all users stored in chatrooms on start
 Meteor.startup ->
-  ChatUsers.remove({})
-
   ChatRooms.update {},
     $set:
       {users: 0}

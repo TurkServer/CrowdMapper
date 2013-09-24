@@ -1,5 +1,5 @@
 <template name="userPill">
-    <span class="label {{#if profile.online}}label-success{{/if}}">{{username}}</span>
+    <span class="label {{labelClass}}">{{username}}</span>
 </template>
 
 <template name="tweetIcon">
@@ -31,31 +31,25 @@
 
 <!-- Lookup templates for chat functions -->
 <template name="userLookup">
-    {{#with doc}}
-    {{#if this}}
-        <span class="label {{labelClass}}">{{username}}</span>
+    {{#withif doc}}
+        {{> userPill}}
     {{else}}
-        {{../this}}
-    {{/if}}
-    {{/with}}
+        {{this}}
+    {{/withif}}
 </template>
 
 <template name="tweetLookup">
-    {{#with doc}}
-    {{#if this}}
+    {{#withif doc}}
         <span class="label label-info clickme"><i class="icon-white icon-tag"></i>{{_id}}</span>
     {{else}}
-        {{../this}}
-    {{/if}}
-    {{/with}}
+        {{this}}
+    {{/withif}}
 </template>
 
 <template name="eventLookup">
-    {{#with doc}}
-    {{#if this}}
+    {{#withif doc}}
         <span class="label label-important clickme"></i>{{num}}</span>
     {{else}}
-        {{../this}}
-    {{/if}}
-    {{/with}}
+        {{this}}
+    {{/withif}}
 </template>

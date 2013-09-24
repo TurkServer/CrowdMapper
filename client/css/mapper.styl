@@ -1,3 +1,5 @@
+@import 'nib'
+
 .carrier
     position: relative
 
@@ -12,21 +14,39 @@
     left: 0px
     right: 0px
 
-drop-shadow()
-    -webkit-box-shadow: 0px 0px 5px 5px rgba(0, 0, 0, 0.2);
-    box-shadow: 0px 0px 5px 5px rgba(0, 0, 0, 0.2);
+table
+    border-collapse: collapse;
+    border-spacing: 0;
+    table-layout: fixed
+    // word-wrap: normal
+    word-wrap: break-word
+
+.user-list
+    height: 80px
+    max-height: 80px
+    overflow: auto
+
+.scroll-vertical
+    overflow-x: hidden
+    overflow-y: auto
+
+.well.well-skinny
+    padding: 9px
+    // margin-bottom: 5px
+    margin: 0px 0px 5px 0px
+
+#editor, #map, #events
+    box-shadow 0px 0px 5px 5px rgba(0, 0, 0, 0.2);
 
 #editor
     width: 100%
     position: absolute
     top: 30px
     bottom: 0px
-    drop-shadow()
 
 #map, #events
     display: block
     border-radius: 4px
-    drop-shadow()
 
 newdoc-height = 30px
 
@@ -47,15 +67,32 @@ newdoc-height = 30px
 .events-header.table, .events-body > .table
     margin-bottom: 0
 
-.events-body
+.events-body, .data-body
     display: block
     height: 100%
     width: 100%;
 
-.events-body tr.selected
-    drop-shadow()
-    border: 2px solid #000000
-    margin: -2px
+shadow-color = rgba(0,0,0,0.5)
+shadow = 14px
+-shadow = - shadow
+blur = 4px
+spread = -10px
+
+tr.selected > td
+    box-shadow:
+        0 shadow blur spread shadow-color inset,
+        0 -shadow blur spread shadow-color inset
+
+// Since we have to, make the top left and bottom right corners the dark overlapping ones
+tr.selected > td:first-child
+    box-shadow:
+        shadow -shadow blur spread shadow-color inset,
+        0 shadow blur spread shadow-color inset
+
+tr.selected > td:last-child
+    box-shadow:
+        0 -shadow blur spread shadow-color inset,
+        -shadow shadow blur spread shadow-color inset
 
 .table-condensed th.vertical-nopad
     padding-top: 0px
