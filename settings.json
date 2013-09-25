@@ -2,7 +2,8 @@
     "sharejs": {
         "options": {
             "db": {
-                "type": "redis"
+                "type": "mongo",
+                "opsCollectionPerDoc": false
             }
         }
     },

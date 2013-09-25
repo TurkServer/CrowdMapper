@@ -9,7 +9,7 @@ this.ChatMessages = new Meteor.Collection("chatmessages")
 this.Datastream = new Meteor.Collection("datastream")
 
 # Docs
-this.Documents = new Meteor.Collection("docs")
+this.Documents = new Meteor.Collection("documents")
 
 # Events / Map
 this.Events = new Meteor.Collection("events")
