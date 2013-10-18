@@ -19,6 +19,9 @@
       },
       "x-editable-bootstrap": {
         "path": "../meteor-x-editable-bootstrap"
+      },
+      "autocomplete": {
+        "path": "../meteor-autocomplete"
       }
     },
     "packages": {
@@ -51,6 +54,9 @@
       },
       "x-editable-bootstrap": {
         "path": "../meteor-x-editable-bootstrap"
+      },
+      "autocomplete": {
+        "path": "../meteor-autocomplete"
       },
       "collection-hooks": {
         "path": "../meteor-collection-hooks"

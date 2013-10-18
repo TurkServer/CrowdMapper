@@ -1,3 +1,33 @@
 <template name="tutorial">
+    {{! don't put anything reactive in here, it's all animated.}}
     <div class="spotlight"></div>
+    <div class="modal positioned">
+        <div class="modal-body">
+            {{#isolate}}
+            {{{content}}}
+            {{/isolate}}
+        </div>
+        <div class="modal-footer">
+            {{> tutorial_buttons}}
+        </div>
+    </div>
+</template>
+
+<template name="tutorial_buttons">
+    <div class="btn-group">
+        <button class="btn btn-warning action-tutorial-back" {{prevDisabled}}>
+            <i class="icon-white icon-arrow-left"></i>Back
+        </button>
+        <button class="btn btn-primary action-tutorial-next" {{nextDisabled}}>
+            Next<i class="icon-white icon-arrow-right"></i>
+        </button>
+    </div>
+</template>
+
+<template name="tut_whatis">
+    What is crisis mapping?
+</template>
+
+<template name="tut_experiment">
+    What is this experiment?
 </template>

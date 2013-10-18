@@ -29,14 +29,6 @@ Template.mapper.rendered = ->
   return unless tab?
   $('#mapper-'+tab).addClass('active')
 
-  # TODO remove test Attach temporary spotlight event
-
-  spot = $(".spotlight").get(0)
-  $(@firstNode).mousemove (e) ->
-    x = e.pageX;
-    y = e.pageY;
-    spot.style.backgroundImage = "-webkit-radial-gradient(#{x}px #{y}px, circle closest-side, transparent 0, transparent 100px, rgba(0, 0, 0, 0.5) 120px)"
-
 # Do the stack with jQuery to avoid slow reloads
 Deps.autorun ->
   tab = Session.get('taskView')
