@@ -1,5 +1,5 @@
 <template name="chat">
-    <div class="row-fluid">
+    <div class="row-fluid chat-overview">
         <div class="span8">
             <p>Chat Rooms:
                 <button class="btn btn-mini pull-right action-room-create">Create room</button>
@@ -55,7 +55,7 @@
 </template>
 
 <template name="room">
-    <div style="display: table-row; height: 100%; position: relative">
+    <div class="chat-messaging" style="display: table-row; height: 100%; position: relative">
         {{> roomHeader}}
         {{> messageBox}}
         <form class="form-inline chat-footer" action="javascript:void(0)">

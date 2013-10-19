@@ -8,6 +8,9 @@
             {{/isolate}}
         </div>
         <div class="modal-footer">
+            <span class="muted pull-left">
+                <i class="icon-move"></i>drag me to reposition
+            </span>
             {{> tutorial_buttons}}
         </div>
     </div>
@@ -24,14 +27,139 @@
     </div>
 </template>
 
+<!-- Beginning of tutorial -->
+
 <template name="tut_whatis">
-    What is crisis mapping?
+    <p>Welcome to the Crisis Mapping Experiment, a collaboration between researchers at Microsoft Research NYC, Stevens Institute of Technology, Harvard University, and The Standby Task Force.</p>
+
+    <p><b>Crisis mapping</b> is a relatively recent but rapidly growing phenomenon that started from the 2010 Haiti Earthquake.</p>
+
+    <p>In response to a natural or humanitarian disaster, crisis-mappers (e.g. the Standby Task Force) monitor social media and other news sources for reports of events on the ground, and then verify and geo-locate these reports. The result is an annotated “crisis map” that evolves in real-time, and which can be used by external decision makers, first responders, non-government organizations, and local residents to aid in recovery and restoration.</p>
 </template>
 
 <template name="tut_experiment">
-    What is this experiment?
+    <p>We are conducting an experiment to better understand how groups of people can work together on a crisis mapping problem.</p>
+
+    <p>As a participant in this experiment, you will be shown Twitter reports from an actual crisis: Typhoon Pablo, a Category 5 hurricane which hit the Philippines in December 2012.</p>
+
+    <p>Some of these reports contain information that is relevant for a crisis map—for example, flooded regions, washed out roads or bridges, or local residents that have been displaced—while other reports are irrelevant or redundant. Likewise, some reports are accurate, reporting actual events correctly, while others contain errors or may even be fictitious.</p>
+
+    <p><b>NOTE: This hurricane and the data you see is historical. This is not an actual crisis.</b></p>
 </template>
 
+<template name="tut_yourtask">
+    <p>Your group must figure out which reports are both relevant and accurate, and to create events with additional information, including the type of problem, its location, and any appropriate description, in our database.  These events will then appear as icons on your crisis map.</p>
+
+    <p>During the experiment, you will use CrowdMapper, a customized open-source platform that we have designed and built for this experiment. The platform comprises several components, with which you will need to be familiar.</p>
+
+    <p><b>First, we'll briefly review all of the components of CrowdMapper.</b></p>
+</template>
+
+<!-- Overview of page sections -->
+
 <template name="tut_datastream">
-    This is the datastream
+    <p>The <b>Data Stream</b> appears on the left, and is a stream of actual tweets that will be shown to all participants.</p>
+</template>
+
+<template name="tut_navbar">
+    <p>The navbar allows you to access the three primary ways to share information and work with others: <b>documents</b>, <b>events</b>, and a <b>map</b>.</p>
+</template>
+
+<template name="tut_events">
+    <p>The <b>Events</b> page is the primary tool for creating events from the Data Stream.</p>
+</template>
+
+<template name="tut_map">
+    <p>The <b>Map</b> represents events that have been entered with a location.</p>
+</template>
+
+<template name="tut_documents">
+    <p><b>Documents</b> are available for recording information relevant to the task but not included in the database, and are shared with everyone else.</p>
+</template>
+
+<template name="tut_userlist">
+    <p>The <b>User List</b> shows team members who are currently online in green, and those who have stopped participating in grey.</p>
+</template>
+
+<template name="tut_chatrooms">
+    <p>You may create and join <b>chat rooms</b> to communicate with other users.</p>
+</template>
+
+<template name="tut_actionreview">
+    <p>That's all you need to work with! Remember, however, that you will be working with several other people at the same time. It's important to understand how everything works.</p>
+
+    <p><b>Next, we will describe how to use all of the components in more detail.</b></p>
+</template>
+
+<!-- Review of interface interactions -->
+
+<template name="tut_filterdata">
+    <p>Everyone sees the same data in the data stream.</p>
+
+    <p>You may click links in a tweet to investigate them, and hide tweets that appear to be irrelevant. When you hide a tweet, it will disappear for everyone else as well.</p>
+
+    <p><b class="text-error">Hide a tweet now.</b></p>
+</template>
+
+<template name="tut_editevent">
+    <p>You may edit any event by double-clicking or clicking the Edit button. You may edit any field by clicking on it; click Save to allow someone else to edit. The Sources field shows any tweets that have been attached to an event, and the Location field show’s an event’s location on the map, if any.
+    </p>
+
+    <p><b class="text-error">Do some event editing now.</b></p>
+</template>
+
+<template name="tut_sortevent">
+    <p>You can sort events by their data by clicking the chevrons in the event header.</p>
+</template>
+
+<template name="tut_dragdata">
+    <p>You can attach tweets to rows on the Events page by dragging them and dropping on an event, which establishes them as a reference for the event.</p>
+
+    <p><b class="text-error">Drag a tweet over now.</b></p>
+</template>
+
+<template name="tut_editmap">
+    <p>You may hover or click on any event to view its details, and drag any event marker to change its geographical location.</p>
+
+    <p><b class="text-error">Do some map editing now.</b></p>
+</template>
+
+<template name="tut_editdocs">
+    <p>You can rename any document by clicking on its title and create new documents as necessary.</p>
+
+    <p><b class="text-error">Open a document and edit it now.</b></p>
+</template>
+
+<template name="tut_joinchat">
+    <p> You will see a list of all chat rooms and the number of people in them, but you can only be in one chat room at a time.</p>
+
+    <p>To join a chat room, just click on it.</p>
+
+    <p><b class="text-error">Join a chat room now.</b></p>
+</template>
+
+<template name="tut_leavechat">
+    <p>When you are in a chat room, you can see who else is in that room. Each chat room displays the entire history of chats in that room.</p>
+
+    <p>To leave a chat room, you can either click on “leave” or click on another chat room, which will then become active.</p>
+</template>
+
+<template name="tut_chatting">
+    <p>Talking to others about tweets/events and autocomplete and crap</p>
+
+    <p><b class="text-error">Say some crap to others now.</b></p>
+</template>
+
+<!-- Final reminders -->
+
+<template name="tut_groundrules">
+    <p>How you go about completing this task is up to you and your teammates.</p>
+
+    <p>At the end of the experiment, your group will be graded on the completeness and correctness of your crisis map. The experiment will run for one hour. You may quit at any time.</p>
+
+    <p>You have X amount of time to complete the experiment.</p>
+
+    <p>You will be paid...somehow</p>
+
+    <p><b>You may return to this tutorial at any time by clicking some crap in the navbar.</b></p>
 </template>

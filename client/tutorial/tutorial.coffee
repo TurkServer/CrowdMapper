@@ -1,40 +1,122 @@
 steps = [
-  {
-    spot: null
     template: Template.tut_whatis
-  },
-  {
-    spot: null
+  ,    
     template: Template.tut_experiment
-  },
-  {
-    spot: ".popout-elements"
+  ,    
+    template: Template.tut_yourtask
+  ,
+    spot: ".datastream"
     template: Template.tut_datastream
-  }
+  ,
+    spot: ".navbar"
+    template: Template.tut_navbar
+  ,
+    spot: ".navbar, #mapper-events"
+    template: Template.tut_events
+    onLoad: -> Mapper.switchTab("events")
+  ,
+    spot: ".navbar, #mapper-map"
+    template: Template.tut_map
+    onLoad: -> Mapper.switchTab("map")
+  ,
+    spot: ".navbar, #mapper-docs"
+    template: Template.tut_documents
+    onLoad: ->
+      Mapper.switchTab("docs")
+      unless Session.get("document")?
+        # open a doc if there is one
+        someDoc = Documents.findOne()
+        Session.set("document", someDoc._id) if someDoc?
+  ,
+    spot: ".user-list"
+    template: Template.tut_userlist
+  ,
+    spot: ".chat-overview"
+    template: Template.tut_chatrooms
+  ,
+    template: Template.tut_actionreview
+  ,
+    spot: ".datastream"
+    template: Template.tut_filterdata
+  ,
+    spot: "#mapper-events"
+    template: Template.tut_editevent
+    onLoad: -> Mapper.switchTab("events")
+  ,
+    spot: ".events-header"
+    template: Template.tut_sortevent
+  ,
+    spot: ".datastream, #mapper-events"
+    template: Template.tut_dragdata
+    onLoad: -> Mapper.switchTab("events")
+  ,
+    spot: "#mapper-map"
+    template: Template.tut_editmap
+    onLoad: -> Mapper.switchTab("map")
+  ,
+    spot: "#mapper-docs"
+    template: Template.tut_editdocs
+    onLoad: -> Mapper.switchTab("docs")
+  ,
+    spot: ".chat-overview"
+    template: Template.tut_joinchat
+  ,
+    spot: ".chat-overview, .chat-messaging"
+    template: Template.tut_leavechat
+  ,
+    spot: ".chat-messaging"
+    template: Template.tut_chatting
+    onLoad: ->
+      unless Session.get("room")?
+        # join a chat room there is one
+        someRoom = ChatRooms.findOne()
+        Session.set("room", someRoom._id) if someRoom?
+  ,
+    template: Template.tut_groundrules
 ]
 
 Template.tutorial.created = ->
   @data.tutorial = new Tutorial(steps)
 
-
 Template.tutorial.rendered = ->
   # Animate spotlight and modal to appropriate positions
   spot = @find(".spotlight")
   modal = @find(".modal")
+  tutorial = @data.tutorial
 
-  unless @firstRender
-    # Make modal draggable so it can be moved out of the way if necessary
-    # Set an arbitrary scope so it can't be dropped on anything
-    $(modal).draggable({scope: "tutorial-modal"});
+  [spotCSS, modalCSS] = tutorial.getPositions()
+  $(spot).animate(spotCSS)
+  $(modal).animate(modalCSS)
 
-    # TODO attach a window resize handler
-    @firstRender = true
+  return if @initialRendered # Only do the below on first render
+  console.log "first tutorial render"
 
-  [spotCSS, modalCSS] = @data.tutorial.getPositions()
-  $(spot).animate(spotCSS);
-  $(modal).animate(modalCSS);
+  # attach a window resize handler
+  @resizer = ->
+    [spotCSS, modalCSS] = tutorial.getPositions()
+    # Don't animate, just move
+    $(spot).css(spotCSS)
+    $(modal).css(modalCSS)
+
+  $(window).on('resize', @resizer)
+
+  # Make modal draggable so it can be moved out of the way if necessary
+  # Set an arbitrary scope so it can't be dropped on anything
+  $(modal).draggable
+    scope: "tutorial-modal"
+    containment: "window"
+
+  @initialRendered = true
+
+Template.tutorial.destroyed = ->
+  # Take off the resize watcher
+  $(window).off('resize', @resizer) if @resizer
+  @resizer = null
 
 Template.tutorial.content = ->
+  # Run load function, if any
+  @tutorial.currentLoadFunc()?()
+
   @tutorial.currentTemplate()()
 
 Template.tutorial_buttons.events =
@@ -89,10 +171,19 @@ class Tutorial
     @stepDep.depend()
     return @steps[@step].template
 
+  # Stuff below is currently not reactive
+  currentLoadFunc: ->
+    return @steps[@step].onLoad
+
   getPositions: ->
     # @stepDep.depend() if we want reactivity
     selector = @steps[@step].spot
-    return [ defaultSpot, defaultModal ] if selector is null
+    return [ defaultSpot, defaultModal ] unless selector?
+
+    items = $(selector)
+    if items.length is 0
+      console.log "Tutorial error: couldn't find spot for " + selector
+      return [ defaultSpot, defaultModal ]
 
     # Compute spot and modal positions
     hull =
@@ -101,13 +192,14 @@ class Tutorial
       bottom: 5000
       right: 5000
 
-    $(selector).each (i) ->
+    items.each (i) ->
       $el = $(this)
       offset = $el.offset()
       hull.top = Math.min(hull.top, offset.top)
       hull.left = Math.min(hull.left, offset.left)
-      hull.bottom = Math.min(hull.bottom, $(window).height() - offset.top - $el.height())
-      hull.right = Math.min(hull.right, $(window).width() - offset.left - $el.width())
+      # outer height/width used here: http://api.jquery.com/outerHeight/
+      hull.bottom = Math.min(hull.bottom, $(window).height() - offset.top - $el.outerHeight())
+      hull.right = Math.min(hull.right, $(window).width() - offset.left - $el.outerWidth())
 
     # enlarge spotlight slightly and find largest side
     maxKey = null
