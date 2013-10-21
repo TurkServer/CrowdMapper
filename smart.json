@@ -20,6 +20,12 @@
     },
     "autocomplete": {
       "path": "../meteor-autocomplete"
+    },
+    "tutorials": {
+      "path": "../meteor-tutorials"
+    },
+    "jqueryui": {
+      "path": "../meteor-jqueryui"
     }
   }
 }
