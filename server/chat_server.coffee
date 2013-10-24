@@ -74,6 +74,34 @@ Meteor.startup ->
       {users: 0}
   , multi: true
 
+userRegex = new RegExp('(^|\\b|\\s)(@[\\w.]+)($|\\b|\\s)','g')
+
+Meteor.methods
+  sendChat: (roomId, message) ->
+    userId = Meteor.userId()
+    return unless Meteor.userId()
+
+    obj =
+      room: roomId
+      userId: userId
+      text: message
+      timestamp: +(new Date()) # Attach server-side timestamps to chat messages
+
+    ChatMessages.insert(obj)
+    @unblock()
+
+    # Parse and generate any notifications from this chat
+    # TODO need we escape this?
+    # text = Handlebars._escape(message)
+    message.replace userRegex, (_, p1, p2) ->
+      targetUser = Meteor.users.findOne({username: p2.substring(1)})
+      return unless targetUser?
+      Notifications.insert
+        user: targetUser._id
+        sender: userId
+        type: "mention"
+        room: roomId
+
 # Clean up any chat rooms on logout
 UserStatus.on "sessionLogout", (userId, sessionId) ->
   # TODO use findAndUpdate here once supported

@@ -14,6 +14,9 @@ this.Documents = new Meteor.Collection("documents")
 # Events / Map
 this.Events = new Meteor.Collection("events")
 
+# Chat and invite notivications
+this.Notifications = new Meteor.Collection("notifications")
+
 Meteor.methods
   ###
     Data Methods
@@ -84,20 +87,7 @@ Meteor.methods
       name: roomName
       users: 0
 
-  sendChat: (roomId, message) ->
-    # Do nothing on client side
-    return if @isSimulation
-
-    userId = Meteor.userId()
-    return unless Meteor.userId()
-
-    obj =
-      room: roomId
-      userId: userId
-      text: message
-      timestamp: +(new Date()) # Attach server-side timestamps to chat messages
-
-    ChatMessages.insert(obj)
+  # sendChat: does extra stuff on server
 
   deleteChat: (roomId) ->
     if @isSimulation

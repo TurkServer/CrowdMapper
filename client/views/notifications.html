@@ -1,0 +1,35 @@
+
+<template name="notifications">
+    <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+        Notifications
+        {{#withif notificationCount}}
+        <span class="badge badge-important">{{this}}</span>
+        {{/withif}}
+        <b class="caret"></b>
+    </a>
+    <ul class="dropdown-menu">
+        {{#if notificationCount}}
+        {{#each notifications}}
+        {{{renderNotification}}}
+        {{/each}}
+        {{else}}
+        <li><a><i>No Notifications.</i></a></li>
+        {{/if}}
+    </ul>
+</template>
+
+<template name="_inviteNotification">
+    <li>
+        <a href="#">
+            <b>{{username}}</b> invited you to <i>{{roomname}}</i>
+        </a>
+    </li>
+</template>
+
+<template name="_mentionNotification">
+    <li>
+        <a href="#">
+            <b>{{username}}</b> mentioned you in <i>{{roomname}}</i>
+        </a>
+    </li>
+</template>

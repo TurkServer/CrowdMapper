@@ -9,3 +9,5 @@ Meteor.subscribe("docs")
 
 Meteor.subscribe("events")
 
+Meteor.subscribe("notifications")
+

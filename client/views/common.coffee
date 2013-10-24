@@ -5,6 +5,46 @@ Template.userPill.labelClass = ->
     "label-success"
   else ""
 
+Template.userPill.rendered = ->
+  # Show chat invite?
+  if @data.profile?.online and @data._id isnt Meteor.userId()
+    $(@firstNode).popover
+      html: true
+      placement: "bottom"
+      trigger: "hover"
+      container: @firstNode
+      content: =>
+        # Also no reactive here
+        Template.userInvitePopup()
+
+Template.userPill.events =
+  "click .action-chat-invite": (e) ->
+    myId = Meteor.userId()
+    unless myId?
+      bootbox.alert("You must be logged in to invite others to chat.")
+      return
+
+    myRoom = Session.get("room")
+    unless myRoom?
+      bootbox.alert("Join a chat room first to invite someone to chat with you.")
+      return
+
+    user = Spark.getDataContext(e.target)
+
+    if ChatUsers.find(userId: user._id)?
+      bootbox.alert("You and #{user.username} are already in the same room.")
+      return
+
+    bootbox.confirm "Invite #{user.username} to join you in <b>" + ChatRooms.findOne(myRoom).name + "</b>?"
+    , (result) ->
+      # TODO make this a method later
+      Notifications.insert(
+        user: user._id
+        sender: myId
+        type: "invite"
+        room: myRoom
+      ) if result
+
 Handlebars.registerHelper "findTweet", ->
   # FIXME wtf is handlebars doing here?
   Datastream.findOne(this.toString())

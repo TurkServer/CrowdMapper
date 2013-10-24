@@ -11,3 +11,7 @@ Meteor.methods
     _.extend(obj, fields)
 
     Events.insert(obj)
+
+  sendChat: (roomId, message) ->
+    # Do nothing on client side, wait for server ack
+    return if @isSimulation

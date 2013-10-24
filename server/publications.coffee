@@ -17,3 +17,6 @@ Meteor.publish "docs", ->
 Meteor.publish "events", ->
   Events.find()
 
+Meteor.publish 'notifications', ->
+  Notifications.find
+    user: this.userId

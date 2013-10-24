@@ -17,9 +17,16 @@
                 </li>
                 <li class="divider-vertical"></li>
             </ul>
-            <div class="navbar-text pull-right">
-                {{loginButtons}}
-            </div>
+
+            <ul class="nav pull-right">
+                <li class="notification dropdown">
+                    {{> notifications}}
+                </li>
+                <li class="divider-vertical"></li>
+                <li class="navbar-text">
+                    {{loginButtons}}
+                </li>
+            </ul>
         </div>
     </div>
 </template>
@@ -58,3 +65,4 @@
         {{> chat}}
     </div>
 </template>
+

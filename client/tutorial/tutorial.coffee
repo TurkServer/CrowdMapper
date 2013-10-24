@@ -34,10 +34,41 @@ Template.mapper.steps = [
     spot: ".chat-overview"
     template: Template.tut_chatrooms
   ,
+    spot: ".notification"
+    template: Template.tut_notifications
+  ,
     template: Template.tut_actionreview
   ,
     spot: ".datastream"
     template: Template.tut_filterdata
+  ,
+    spot: ".events-header tr > th:eq(0), .events-body tr > td:nth-child(1)"
+    template: Template.tut_events_index
+    onLoad: -> Mapper.switchTab("events")
+  ,
+    spot: ".events-header tr > th:eq(1), .events-body tr > td:nth-child(2)"
+    template: Template.tut_events_region
+    onLoad: -> Mapper.switchTab("events")
+  ,
+    spot: ".events-header tr > th:eq(2), .events-body tr > td:nth-child(3)"
+    template: Template.tut_events_province
+    onLoad: -> Mapper.switchTab("events")
+  ,
+    spot: ".events-header tr > th:eq(3), .events-body tr > td:nth-child(4)"
+    template: Template.tut_events_type
+    onLoad: -> Mapper.switchTab("events")
+  ,
+    spot: ".events-header tr > th:eq(4), .events-body tr > td:nth-child(5)"
+    template: Template.tut_events_description
+    onLoad: -> Mapper.switchTab("events")
+  ,
+    spot: ".events-header tr > th:eq(5), .events-body tr > td:nth-child(6)"
+    template: Template.tut_events_sources
+    onLoad: -> Mapper.switchTab("events")
+  ,
+    spot: ".events-header tr > th:eq(6), .events-body tr > td:nth-child(7)"
+    template: Template.tut_events_location
+    onLoad: -> Mapper.switchTab("events")
   ,
     spot: "#mapper-events"
     template: Template.tut_editevent
@@ -49,6 +80,10 @@ Template.mapper.steps = [
     spot: ".datastream, #mapper-events"
     template: Template.tut_dragdata
     onLoad: -> Mapper.switchTab("events")
+  ,
+    spot: ".olControlPanZoomBar > *"
+    template: Template.tut_mapcontrols
+    onLoad: -> Mapper.switchTab("map")
   ,
     spot: "#mapper-map"
     template: Template.tut_editmap
@@ -73,4 +108,7 @@ Template.mapper.steps = [
         Session.set("room", someRoom._id) if someRoom?
   ,
     template: Template.tut_groundrules
+  ,
+    template: Template.tut_end
+    spot: "body"
 ]
