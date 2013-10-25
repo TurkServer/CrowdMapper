@@ -31,7 +31,7 @@ Template.userPill.events =
 
     user = Spark.getDataContext(e.target)
 
-    if ChatUsers.find(userId: user._id)?
+    if ChatUsers.findOne(userId: user._id)?
       bootbox.alert("You and #{user.username} are already in the same room.")
       return
 

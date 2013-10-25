@@ -42,7 +42,7 @@ Template.mapper.steps = [
     spot: ".datastream"
     template: Template.tut_filterdata
   ,
-    spot: ".events-header tr > th:eq(0), .events-body tr > td:nth-child(1)"
+    spot: ".events-header tr > th:eq(0), .events-body tr > td:nth-child(1):not(.event-create)"
     template: Template.tut_events_index
     onLoad: -> Mapper.switchTab("events")
   ,
