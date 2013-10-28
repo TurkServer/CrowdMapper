@@ -14,6 +14,18 @@ for field in Meteor.settings.public.events
 
 @Mapper.sources = sources
 
+# Fix the order of event fields
+# TODO get this from the server sometime in the future
+eventFields = []
+eventDefs = Meteor.settings.public.events
+# Order: type, description, region, province
+eventFields.push eventDefs[2]
+eventFields.push eventDefs[3]
+eventFields.push eventDefs[0]
+eventFields.push eventDefs[1]
+
+Handlebars.registerHelper "eventFields", -> eventFields
+
 generateNewEvent = ->
   # TODO maybe switch to Mongo IDs at some point
   eventId = Random.id()
@@ -134,6 +146,8 @@ Template.eventRow.events =
     Mapper.selectEvent @_id
 
   "dblclick tr": edit
+
+Template._editCellOpen.events =
   "click .action-event-edit": edit
 
   "click .action-event-delete": (e) ->
@@ -141,12 +155,10 @@ Template.eventRow.events =
     , (result) =>
       Meteor.call("deleteEvent", @_id) if result
 
+Template._editCellSelf.events =
   "click .action-event-save": (e) ->
     Events.update @_id,
       $unset: { editor: 1 }
-
-Handlebars.registerHelper "eventFields", ->
-  Meteor.settings.public.events
 
 ###
   Rendering and helpers for individual sheet cells

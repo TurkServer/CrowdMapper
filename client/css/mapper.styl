@@ -21,6 +21,15 @@ table
     // word-wrap: normal
     word-wrap: break-word
 
+@keyframes glow {
+  to {
+    text-shadow: 0 0 10px red;
+  }
+}
+
+.notification > a.glowing
+  animation: glow .5s infinite alternate;
+
 .user-list
     height: 80px
     max-height: 80px

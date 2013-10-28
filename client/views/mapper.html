@@ -1,3 +1,27 @@
+<template name="mapper">
+    <div class="container-fluid full-height">
+        <div class="row-fluid full-height">
+            <div class="span2 full-height carrier">
+                {{> datastream}}
+            </div>
+            <div class="span7 full-height carrier stack">
+                {{> pageNav}}
+                <div id="mapper-docs" class="pages">
+                    {{> docs}}
+                </div>
+                <div id="mapper-events" class="pages">
+                    {{> events}}
+                </div>
+                <div id="mapper-map" class="pages">
+                    {{> map}}
+                </div>
+            </div>
+            <div class="span3 full-height carrier">
+                {{> sidebar}}
+            </div>
+        </div>
+    </div>
+</template>
 
 <template name="pageNav">
     <div class="navbar">
@@ -29,34 +53,6 @@
             </ul>
         </div>
     </div>
-</template>
-
-<template name="mapper">
-    <div class="container-fluid full-height">
-        <div class="row-fluid full-height">
-            <div class="span2 full-height carrier">
-                {{> datastream}}
-            </div>
-            <div class="span7 full-height carrier stack">
-                {{> pageNav}}
-                <div id="mapper-docs" class="pages">
-                    {{> docs}}
-                </div>
-                <div id="mapper-events" class="pages">
-                    {{> events}}
-                </div>
-                <div id="mapper-map" class="pages">
-                    {{> map}}
-                </div>
-            </div>
-            <div class="span3 full-height carrier">
-                {{> sidebar}}
-            </div>
-        </div>
-    </div>
-
-    {{!TODO decide when and where to show this later}}
-    {{ tutorial steps}}
 </template>
 
 <template name="sidebar">

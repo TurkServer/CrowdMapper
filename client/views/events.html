@@ -49,6 +49,7 @@
                     <i class="icon-white {{iconClass}}"></i>
                 </span>
             </th>
+            <th>Sources</th>
             {{#each eventFields}}
             <th>
                 {{name}}
@@ -57,8 +58,6 @@
                 </span>
             </th>
             {{/each}}
-
-            <th>Sources</th>
 
             <th class="header-location">Location</th>
             <th class="header-buttons"></th>
@@ -89,15 +88,15 @@
         {{! TODO - if adding cell locking, need to overcome reactivity issues when adjacent changed}}
         {{> eventNum}}
 
+        {{> eventSources}}
+
         {{#each eventFields}}
             {{eventCell ../this this}}
         {{/each}}
 
-        {{> eventSources}}
-
         {{> eventLocation}}
 
-        {{editCell}}
+        <td>{{editCell}}</td>
     </tr>
 </template>
 
@@ -158,26 +157,20 @@
 </template>
 
 <template name="_editCellOther">
-    <td>
-         {{userPillById editor}} is editing
-    </td>
+    {{userPillById editor}} is editing
 </template>
 
 <template name="_editCellSelf">
-    <td>
-        <button title="save this event" class="btn btn-mini btn-success action-event-save">
-            <i class="icon-white icon-ok"></i>Save
-        </button>
-    </td>
+    <button title="save this event" class="btn btn-mini btn-success action-event-save">
+        <i class="icon-white icon-ok"></i>Save
+    </button>
 </template>
 
 <template name="_editCellOpen">
-    <td>
-        <button title="Edit this event" class="btn btn-mini btn-warning action-event-edit">
-            <i class="icon-white icon-pencil"></i>
-        </button>
-        <button title="Delete this event" class="btn btn-mini btn-danger action-event-delete">
-            <i class="icon-white icon-trash"></i>
-        </button>
-    </td>
+    <button title="Edit this event" class="btn btn-mini btn-warning action-event-edit">
+        <i class="icon-white icon-pencil"></i>
+    </button>
+    <button title="Delete this event" class="btn btn-mini btn-danger action-event-delete">
+        <i class="icon-white icon-trash"></i>
+    </button>
 </template>

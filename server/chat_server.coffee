@@ -4,6 +4,8 @@
 Meteor.publish "chatrooms", ->
   ChatRooms.find()
 
+# TODO store or log the enter/leave messages below
+
 enterRoom = (roomId, userId) ->
   ChatRooms.update roomId,
     $inc: { users: 1 }
@@ -11,7 +13,7 @@ enterRoom = (roomId, userId) ->
 #    room: roomId
 #    event: "enter"
 #    userId: userId
-#    timestamp: +(new Date())
+#    timestamp: Date.now()
 
 leaveRoom = (roomId, userId) ->
   ChatRooms.update roomId,
@@ -20,7 +22,7 @@ leaveRoom = (roomId, userId) ->
 #    room: roomId
 #    event: "leave"
 #    userId: userId
-#    timestamp: +(new Date())
+#    timestamp: Date.now()
 
 # publish messages and users for a room
 Meteor.publish "chatstate", (room)  ->
@@ -77,15 +79,28 @@ Meteor.startup ->
 userRegex = new RegExp('(^|\\b|\\s)(@[\\w.]+)($|\\b|\\s)','g')
 
 Meteor.methods
+  inviteChat: (userId, roomId) ->
+    myId = Meteor.userId()
+    return unless myId
+
+    Notifications.insert
+      user: userId
+      sender: myId
+      type: "invite"
+      room: roomId
+      timestamp: Date.now()
+
   sendChat: (roomId, message) ->
     userId = Meteor.userId()
     return unless Meteor.userId()
+
+    chatTime = Date.now()
 
     obj =
       room: roomId
       userId: userId
       text: message
-      timestamp: +(new Date()) # Attach server-side timestamps to chat messages
+      timestamp: chatTime # Attach server-side timestamps to chat messages
 
     ChatMessages.insert(obj)
     @unblock()
@@ -101,6 +116,7 @@ Meteor.methods
         sender: userId
         type: "mention"
         room: roomId
+        timestamp: chatTime
 
 # Clean up any chat rooms on logout
 UserStatus.on "sessionLogout", (userId, sessionId) ->

@@ -1,51 +1,186 @@
 <!-- Beginning of tutorial -->
 
 <template name="tut_whatis">
-    <p>Welcome to the Crisis Mapping Experiment, a collaboration between researchers at Microsoft Research NYC, Stevens Institute of Technology, Harvard University, and The Standby Task Force.</p>
+    <p>Welcome to the Crisis Mapping Experiment, a collaboration between researchers at Microsoft Research, Facebook, Harvard University, and The Standby Task Force.</p>
 
-    <p><b>Crisis mapping</b> is a relatively recent but rapidly growing phenomenon that started from the 2010 Haiti Earthquake.</p>
+    <p>We are conducting an experiment to better understand how groups of people can work together on a crisis mapping problem.</p>
 
-    <p>In response to a natural or humanitarian disaster, crisis-mappers (e.g. the Standby Task Force) monitor social media and other news sources for reports of events on the ground, and then verify and geo-locate these reports. The result is an annotated “crisis map” that evolves in real-time, and which can be used by external decision makers, first responders, non-government organizations, and local residents to aid in recovery and restoration.</p>
+    <p> A “crisis map” is created in response to a natural or humanitarian
+    disaster by monitoring social media for reports of events on the ground and placing them on a map.</p> 
 </template>
 
 <template name="tut_experiment">
-    <p>We are conducting an experiment to better understand how groups of people can work together on a crisis mapping problem.</p>
 
-    <p>As a participant in this experiment, you will be shown Twitter reports from an actual crisis: Typhoon Pablo, a Category 5 hurricane which hit the Philippines in December 2012.</p>
+    <p>As a participant in this experiment, you will be shown Twitter reports from Typhoon Pablo, a Category 5 hurricane which hit the Philippines in December 2012.</p>
 
-    <p>Some of these reports contain information that is relevant for a crisis map—for example, flooded regions, washed out roads or bridges, or local residents that have been displaced—while other reports are irrelevant or redundant. Likewise, some reports are accurate, reporting actual events correctly, while others contain errors or may even be fictitious.</p>
+    <p>Some of these reports describe events for example, flooded regions,
+      washed out roads or bridges, or local residents that have been
+      displaced that should be recorded on the crisis map. </p>
+
+    <p> Other reports are irrelevant or inaccurate and should not be recorded. </p>
 
     <p><b>NOTE: This hurricane and the data you see is historical. This is not an actual crisis.</b></p>
 </template>
 
 <template name="tut_yourtask">
-    <p>Your group must figure out which reports are both relevant and accurate, and to create events with additional information, including the type of problem, its location, and any appropriate description, in our database.  These events will then appear as icons on your crisis map.</p>
+    <p>Your group must figure out which reports describe crisis events.
+    You must then record these events with the following information: the
+    type of event, its location, and its description.</p>
 
-    <p>During the experiment, you will use CrowdMapper, a customized open-source platform that we have designed and built for this experiment. The platform comprises several components, with which you will need to be familiar.</p>
-
-    <p><b>First, we'll briefly review all of the components of CrowdMapper.</b></p>
+    <p><b>Next, we'll briefly describe how to build a crisis map.</b></p>
 </template>
 
 <!-- Overview of page sections -->
 
 <template name="tut_datastream">
-    <p>The <b>Data Stream</b> appears on the left, and is a stream of actual tweets that will be shown to all participants.</p>
+    <p>Data appears in the <b>Tweet Stream</b> on the left.</p>
+</template>
+
+<template name="tut_filterdata">
+    <p>You may click on any link to see what the tweet refers to.</p>
+    
+    <p>You may also hide tweets that appear to be irrelevant. When you hide a tweet, it disappears for everyone.</p>
+
+    <p>One of these tweets is irrelevant.  <b class="text-error">Hide the irrelevant tweet now.</b></p>
 </template>
 
 <template name="tut_navbar">
-    <p>The navbar allows you to access the three primary ways to share information and work with others: <b>documents</b>, <b>events</b>, and a <b>map</b>.</p>
+    <p>The navbar allows you to access the three primary ways to share
+    information and work with others: <b>event records</b>, <b>map</b>, and <b>documents</b>.</p>
 </template>
 
 <template name="tut_events">
-    <p>The <b>Events</b> page is the primary tool for creating events from the Data Stream.</p>
+    <p>The <b>Event Records</b> pane is the primary tool for recording
+    events.</p>
+    
+    <p>Here you will see all of the event records you and your collaborators create.</p>
+</template>
+
+<template name="tut_create_event">
+    <p>Create a new event by clicking this button.</p>
+</template>
+
+<template name="tut_dragdata">
+    <p>You can attach tweets to the event record by dragging it on to the record.</p>
+
+    <p><b class="text-error">Drag the tweet about XXX over to the event you just created.</b></p>
+</template>
+
+<template name="tut_events_index">
+    <p>The events page has several columns describing information about events.</p>
+
+    <p>The first column shows records numbered in the order they were created.</p>
+</template>
+
+<template name="tut_events_sources">
+    <p>The <b>Sources</b> column shows all tweets that refer to the same event.</p>
+</template>
+
+<template name="tut_events_type">
+    <p>Events that are relevant for crisis mapping will fit into one of
+    these types: 
+    <ul>
+      <li>infrastructure damage: roads</li>
+      <li>infrastructure damage: housing</li>
+      <li>infrastructure damage: other</li>
+      <li>infrastructure damage: bridges</li>
+      <li>casualties</li>
+      <li>displaced population: evacuation</li>
+      <li>displaced population: settlement</li>
+      <li>evacuation center</li>
+      <li>flooding</li>
+      <li>hospitals/health facilities</li>
+      <li>schools</li>
+      <li>other</li>
+      <li>not known</li>
+    </ul></p>
+    
+    <p>Classify the XXX event using the <b>Type</b> column.</p>
+</template>
+
+<template name="tut_events_description">
+    <p>Briefly describe the event in the <b>Description</b> column.</p>
+</template>
+
+<template name="tut_events_region">
+    <p>The <b>Region</b> column shows the region where the event
+    occurred.</p>
+
+    <p><b class="text-error">Add the region from the tweet.</b></p>
+</template>
+
+<template name="tut_events_province">
+    <p>The <b>Province</b> column is the province where the event
+    occurred.</p>
+
+    <p>The tweet does not have information about the province. Leave it blank for now.</p>
+</template>
+
+<template name="tut_events_location">
+    <p>The <b>Location</b> column shows the latitude/longitude for the event.</p>
+
+    <p>The tweet does not have information about the location. Leave it blank for now.</p>
+</template>
+
+<template name="tut_editevent">
+    <p>You may also edit an existing event record by double-clicking or by clicking the
+    Edit button. Only one person can edit an event record at a time, so when done,
+    click Save. 
+    </p>
+
+    <p>This tweet has additional information on this
+    event.  <b class="text-error">Add this information to the
+    description.</b></p>
+</template>
+
+<template name="tut_addtweet">
+    <p>You may also add tweets to existing event records if they refer to
+    the same event.<p>
+
+    <p>This tweet has additional information about the event you just
+    recorded.  <b class="text-error">Add this tweet to the record.</b></p>
+</template>
+
+<template name="tut_sortevent">
+    <p>You can sort events by their data by clicking the chevrons in the event header.</p>
 </template>
 
 <template name="tut_map">
-    <p>The <b>Map</b> represents events that have been entered with a location.</p>
+    <p>The <b>Map</b> displays a marker for each recorded event.</p>
+    
+    <p>If no lat/long has been entered, the marker will appear in the
+    sidebar.</p>
 </template>
+
+<template name="tut_mapcontrols">
+    <p>Use these map controls to pan around the map, and zoom in and out</p>
+
+    <p>You can also drag the map to pan, and zoom using your computer's scroll function (usually mouse wheel or multi-finger drag).</p>
+</template>
+
+<template name="tut_editmap">
+    <p>You may hover or click on any event to view its details, and drag any event marker to change its geographical location.</p>
+
+    <p>Using the location information from the tweet, drag the marker from
+      the sidebar to correct location.</p>
+</template>
+
+<template name="tut_maplocation">
+    <p>Notice that the lat/long has automatically been updated in the event
+    record.</p>
+    
+    <p>Now, add the province and save the record.</p>
+</template>
+
+<!-- left off here -->
 
 <template name="tut_documents">
     <p><b>Documents</b> are available for recording information relevant to the task but not included in the database, and are shared with everyone else.</p>
+</template>
+<template name="tut_editdocs">
+    <p>You can rename any document by clicking on its title and create new documents as necessary.</p>
+
+    <p><b class="text-error">Open a document and edit it now.</b></p>
 </template>
 
 <template name="tut_userlist">
@@ -60,87 +195,6 @@
     <p>When other users invite you to chat or mention you in a chat room, you will see notifications appear here.</p>
 
     <p>Click on them to go to the chat room.</p>
-</template>
-
-<template name="tut_actionreview">
-    <p>That's all you need to work with! Remember, however, that you will be working with several other people at the same time. It's important to understand how everything works.</p>
-
-    <p><b>Next, we will describe how to use all of the components in more detail.</b></p>
-</template>
-
-<!-- Review of interface interactions -->
-
-<template name="tut_filterdata">
-    <p>Everyone sees the same data in the data stream.</p>
-
-    <p>You may click links in a tweet to investigate them, and hide tweets that appear to be irrelevant. When you hide a tweet, it will disappear for everyone else as well.</p>
-
-    <p><b class="text-error">Hide a tweet now.</b></p>
-</template>
-
-<template name="tut_events_index">
-    <p>The first column of the events page shows events numbered in the order that you and other mappers generate them.</p>
-</template>
-
-<template name="tut_events_region">
-    <p>The <b>Region</b> column should contain one of several administrative regions of the Philippines.</p>
-</template>
-
-<template name="tut_events_province">
-    <p>The <b>Province</b> column is your best guess of the province for the event.</p>
-</template>
-
-<template name="tut_events_type">
-    <p>The <b>Type</b> column gives you several categories of the type of event that organizations are interested in.</p>
-
-    <i>Specify more specifically what we want</i>
-</template>
-
-<template name="tut_events_description">
-    <p>In the <b>Description</b> column, feel free to enter whatever you think will help.</p>
-</template>
-
-<template name="tut_events_sources">
-    <p>In the <b>Sources</b> column, you will see all tweets that have been added as references to an event.</p>
-</template>
-
-<template name="tut_events_location">
-    <p>In the <b>Location</b> column, you can enter and see latitude/longitude coordinates for events.</p>
-</template>
-
-<template name="tut_editevent">
-    <p>You may edit any event by double-clicking or clicking the Edit button. You may edit any field by clicking on it; click Save to allow someone else to edit. The Sources field shows any tweets that have been attached to an event, and the Location field show’s an event’s location on the map, if any.
-    </p>
-
-    <p><b class="text-error">Do some event editing now.</b></p>
-</template>
-
-<template name="tut_sortevent">
-    <p>You can sort events by their data by clicking the chevrons in the event header.</p>
-</template>
-
-<template name="tut_dragdata">
-    <p>You can attach tweets to rows on the Events page by dragging them and dropping on an event, which establishes them as a reference for the event.</p>
-
-    <p><b class="text-error">Drag a tweet over now.</b></p>
-</template>
-
-<template name="tut_mapcontrols">
-    <p>Use these map controls to pan around the map, and zoom in and out</p>
-
-    <p>You can also drag the map to pan, and zoom using your computer's scroll function (usually mouse wheel or multi-finger drag).</p>
-</template>
-
-<template name="tut_editmap">
-    <p>You may hover or click on any event to view its details, and drag any event marker to change its geographical location.</p>
-
-    <p><b class="text-error">Do some map editing now.</b></p>
-</template>
-
-<template name="tut_editdocs">
-    <p>You can rename any document by clicking on its title and create new documents as necessary.</p>
-
-    <p><b class="text-error">Open a document and edit it now.</b></p>
 </template>
 
 <template name="tut_joinchat">
@@ -166,19 +220,21 @@
 <!-- Final reminders -->
 
 <template name="tut_groundrules">
-    <p>How you go about completing this task is up to you and your teammates.</p>
+    <p>The experiment will run for one hour.</p>
 
-    <p>At the end of the experiment, your group will be graded on the completeness and correctness of your crisis map. The experiment will run for one hour. You may quit at any time.</p>
+    <p>At the end of the experiment, your group will be graded on the completeness and correctness of your crisis map. </p>
 
-    <p>You have X amount of time to complete the experiment.</p>
+    <p>Your payment will be determined by how much time you personally spend working on the task, and also the overall performance of your group</p>
 
-    <p>You will be paid...somehow</p>
+    <p>You may quit the experiment at any time, however you will only by paid for the time you work</p>
 
-    <p><b>You may return to this tutorial at any time by clicking some crap in the navbar.</b></p>
+    <p>You may also pause your work during the experiment by clicking on the Pause button. You will not be paid for the time when you are paused but may re-enter the experiment at any time by clicking the Restart button.<p>
+
+    <p>If you perform no activity for XX mins, you will be automatically paused.<p>
 </template>
 
 <template name="tut_end">
-    <p>This is the end of the tutorial.</p>
+    <p>Please read and acknowledge the terms of use for participating in this experiment<p>
 
     <p>There should be a finish button down there.</p>
 </template>

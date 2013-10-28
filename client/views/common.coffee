@@ -37,16 +37,10 @@ Template.userPill.events =
 
     bootbox.confirm "Invite #{user.username} to join you in <b>" + ChatRooms.findOne(myRoom).name + "</b>?"
     , (result) ->
-      # TODO make this a method later
-      Notifications.insert(
-        user: user._id
-        sender: myId
-        type: "invite"
-        room: myRoom
-      ) if result
+      Meteor.call "inviteChat", user._id, myRoom if result
 
 Handlebars.registerHelper "findTweet", ->
-  # FIXME wtf is handlebars doing here?
+  # FIXME wtf is handlebars doing here? See https://github.com/meteor/meteor/issues/1447
   Datastream.findOne(this.toString())
 
 Template.tweetIcon.rendered = ->

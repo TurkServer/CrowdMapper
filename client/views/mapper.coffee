@@ -13,21 +13,21 @@ Meteor.startup ->
   Session.set("scrollEvent", null)
   Session.set("scrollTweet", null)
 
-Template.pageNav.events =
-  "click a": (e) -> e.preventDefault()
-
-  "click a[data-target='docs']": ->
-    Session.set("taskView", 'docs')
-  "click a[data-target='events']": ->
-    Session.set('taskView', 'events')
-  "click a[data-target='map']": ->
-    Session.set('taskView', 'map')
-
 Template.mapper.rendered = ->
   # Set initial active tab when rendered
   tab = Session.get('taskView')
   return unless tab?
   $('#mapper-'+tab).addClass('active')
+
+Template.pageNav.events =
+  "click a": (e) -> e.preventDefault()
+
+  "click a[data-target='docs']": ->
+    Mapper.switchTab('docs')
+  "click a[data-target='events']": ->
+    Mapper.switchTab('events')
+  "click a[data-target='map']": ->
+    Mapper.switchTab('map')
 
 # Do the stack with jQuery to avoid slow reloads
 Deps.autorun ->

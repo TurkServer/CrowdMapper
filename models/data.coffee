@@ -101,3 +101,13 @@ Meteor.methods
       return unless ChatUsers.find(roomId: roomId).count() is 0
       ChatRooms.remove roomId
       # TODO should we delete messages? Or use them for logging...
+
+  ###
+    Notifications
+  ###
+
+  # inviteChat: does stuff on server
+
+  readNotification: (noteId) ->
+    Notifications.update noteId,
+      $set: {read: Date.now()}

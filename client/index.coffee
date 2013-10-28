@@ -15,6 +15,7 @@ Deps.autorun(login)
 # Routing
 Router.map ->
   @route('home', {path: '/'})
+  @route('tutorial')
   @route('mapper')
   @route('admin')
 

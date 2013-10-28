@@ -1,7 +1,10 @@
 Template.notifications.notifications = ->
-  return Notifications.find {}
-    # TODO sort in decreasing order
-    # sort: {timestamp: -1}
+  return Notifications.find {},
+    # show most recent first
+    sort: {timestamp: -1}
+
+Template.notifications.glowClass = ->
+  if Notifications.find().count() > 0 then "glowing" else ""
 
 Template.notifications.notificationCount = ->
   return Notifications.find().count()
@@ -13,10 +16,9 @@ Template.notifications.renderNotification = ->
 
 notifyEvents =
   'click a': (e) ->
-    e.preventDefault()    
-    Notifications.update this._id,
-      $set: {read: true}
+    e.preventDefault()
     Session.set("room", this.room)
+    Meteor.call "readNotification", this._id
       
 Template._inviteNotification.events = notifyEvents
 Template._mentionNotification.events = notifyEvents

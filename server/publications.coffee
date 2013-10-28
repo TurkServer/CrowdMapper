@@ -17,6 +17,10 @@ Meteor.publish "docs", ->
 Meteor.publish "events", ->
   Events.find()
 
+# TODO: index notifications
+
 Meteor.publish 'notifications', ->
+  # Only publish unread notifications for this user
   Notifications.find
     user: this.userId
+    read: {$exists: false}

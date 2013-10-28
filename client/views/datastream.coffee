@@ -19,6 +19,8 @@ Template.dataItem.rendered = ->
   # Only visible elements are rendered in the #each helper so no optimization to do here
   $(@firstNode).draggable
     addClasses: false
+    # TODO: Allow text selection on parts of tweet
+    # cancel: ".data-text"
     # containment: "window"
     cursorAt: { top: 0, left: 0 }
     distance: 5
