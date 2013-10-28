@@ -1,3 +1,15 @@
+openDocument = ->
+  unless Session.get("document")?
+    # open a doc if there is one
+    someDoc = Documents.findOne()
+    Session.set("document", someDoc._id) if someDoc?
+
+joinChatroom = ->
+  unless Session.get("room")?
+    # join a chat room there is one
+    someRoom = ChatRooms.findOne()
+    Session.set("room", someRoom._id) if someRoom?
+
 tutorialSteps = [
     template: Template.tut_whatis
   ,    
@@ -89,10 +101,7 @@ tutorialSteps = [
     template: Template.tut_documents
     onLoad: ->
       Mapper.switchTab("docs")
-      unless Session.get("document")?
-        # open a doc if there is one
-        someDoc = Documents.findOne()
-        Session.set("document", someDoc._id) if someDoc?
+      openDocument()
   ,
     spot: "#mapper-docs"
     template: Template.tut_editdocs
@@ -112,14 +121,10 @@ tutorialSteps = [
   ,
     spot: ".chat-overview, .chat-messaging"
     template: Template.tut_leavechat
+    onLoad: joinChatroom
   ,
     spot: ".chat-messaging"
     template: Template.tut_chatting
-    onLoad: ->
-      unless Session.get("room")?
-        # join a chat room there is one
-        someRoom = ChatRooms.findOne()
-        Session.set("room", someRoom._id) if someRoom?
   ,
     template: Template.tut_groundrules
   ,

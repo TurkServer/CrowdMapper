@@ -76,6 +76,11 @@ newdoc-height = 30px
 .events-header.table, .events-body > .table
     margin-bottom: 0
 
+// Don't allow table headers to wrap
+// TODO come up with a better solution for this later
+.events-header th
+    white-space: nowrap
+
 .events-body, .data-body
     display: block
     height: 100%

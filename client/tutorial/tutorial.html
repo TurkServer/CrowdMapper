@@ -13,12 +13,6 @@
 
     <p>As a participant in this experiment, you will be shown Twitter reports from Typhoon Pablo, a Category 5 hurricane which hit the Philippines in December 2012.</p>
 
-    <p>Some of these reports describe events for example, flooded regions,
-      washed out roads or bridges, or local residents that have been
-      displaced that should be recorded on the crisis map. </p>
-
-    <p> Other reports are irrelevant or inaccurate and should not be recorded. </p>
-
     <p><b>NOTE: This hurricane and the data you see is historical. This is not an actual crisis.</b></p>
 </template>
 
@@ -26,6 +20,12 @@
     <p>Your group must figure out which reports describe crisis events.
     You must then record these events with the following information: the
     type of event, its location, and its description.</p>
+
+    <p>Some of these reports describe events for example, flooded regions,
+        washed out roads or bridges, or local residents that have been
+        displaced that should be recorded on the crisis map. </p>
+
+    <p> Other reports are irrelevant or inaccurate and should not be recorded. </p>
 
     <p><b>Next, we'll briefly describe how to build a crisis map.</b></p>
 </template>
@@ -67,7 +67,7 @@
 </template>
 
 <template name="tut_events_index">
-    <p>The events page has several columns describing information about events.</p>
+    <p><b>The events page has several columns describing information about events.</b></p>
 
     <p>The first column shows records numbered in the order they were created.</p>
 </template>
@@ -161,8 +161,7 @@
 <template name="tut_editmap">
     <p>You may hover or click on any event to view its details, and drag any event marker to change its geographical location.</p>
 
-    <p>Using the location information from the tweet, drag the marker from
-      the sidebar to correct location.</p>
+    <p><b class="text-error">Using the location information from the tweet, position the marker for the event in its correct location.</b></p>
 </template>
 
 <template name="tut_maplocation">
@@ -212,9 +211,17 @@
 </template>
 
 <template name="tut_chatting">
-    <p>Talking to others about tweets/events and autocomplete and crap</p>
+    <p>When you are in a chat room, you can use special characters to notify users and reference tweets or events.</p>
 
-    <p><b class="text-error">Say some crap to others now.</b></p>
+    <ul>
+        <li>Use <b class="text-error">@</b> to mention a user by name. This will notify them.</li>
+        <li>Use <b class="text-error">!</b> to reference a tweet by its number.</li>
+        <li>Use <b class="text-error">#</b> to reference an event by its number.</li>
+    </ul>
+
+    <p>When you start typing the symbols above, an automatic filtered list will appear. Mentioning tweets or events will create a clickable link for everyone.</p>
+
+    <p><b class="text-error">Tell XXX user to take a look at the tweet you just created.</b> For example, type '@XXXUser can you take a look at event #XXXNum?'</p>
 </template>
 
 <!-- Final reminders -->
@@ -236,5 +243,5 @@
 <template name="tut_end">
     <p>Please read and acknowledge the terms of use for participating in this experiment<p>
 
-    <p>There should be a finish button down there.</p>
+    <p><b class="text-warning">Terms of use should appear here.</b></p>
 </template>
