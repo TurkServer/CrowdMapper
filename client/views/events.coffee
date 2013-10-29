@@ -1,43 +1,40 @@
 @Mapper = @Mapper || {}
 
-# Process event choices into choice arrays
-sources = {}
-for field in Meteor.settings.public.events
-  if field.type isnt "dropdown"
-    sources[field.key] = null
-  else
-    sources[field.key] = []
-    for choice, i in field.choices
-      sources[field.key].push
-        text: choice
-        value: i
+# This function needs to be run before any of the event logic can happen
+Mapper.processSources = ->
+  # Process event choices into choice arrays
+  sources = {}
+  EventFields.find().forEach (field) ->
+    if field.type isnt "dropdown"
+      sources[field.key] = null
+    else
+      sources[field.key] = []
+      for choice, i in field.choices
+        sources[field.key].push
+          text: choice
+          value: i
 
-@Mapper.sources = sources
+  Mapper.sources = sources
+  # Grab the fields just once ...?
+  Mapper.staticFields = EventFields.find({}, {sort: {order: 1}}).fetch()
 
-# Fix the order of event fields
-# TODO get this from the server sometime in the future
-eventFields = []
-eventDefs = Meteor.settings.public.events
-# Order: type, description, region, province
-eventFields.push eventDefs[2]
-eventFields.push eventDefs[3]
-eventFields.push eventDefs[0]
-eventFields.push eventDefs[1]
-
-Handlebars.registerHelper "eventFields", -> eventFields
+Handlebars.registerHelper "eventFields", -> Mapper.staticFields
 
 generateNewEvent = ->
   # TODO maybe switch to Mongo IDs at some point
   eventId = Random.id()
 
   fields = {}
-  for key, val of sources
+  for key, val of Mapper.sources
     fields[key] = if val? then null else ""
 
   Meteor.call "createEvent", eventId, fields
 
 edit = (e) ->
   Meteor.call "editEvent", @_id
+  # TODO make this less janky
+  Mapper.switchTab "events"
+  Session.set("scrollEvent", @_id)
 
 # Set initial sort order on start
 Meteor.startup ->
@@ -76,9 +73,9 @@ Template.events.noEvents = ->
   Events.find().count() is 0
 
 Handlebars.registerHelper "numEventCols", ->
-  # Add 1 each for sources, map, and buttons
-  # TODO kinda hacky and not robust
-  Meteor.settings.public.events.length + 4
+  # Used for rendering whole-width rows
+  # Add 1 each for index, sources, map, and buttons
+  EventFields.find().count() + 4
 
 Template.events.eventRecords = ->
   key = Session.get("eventSortKey")
@@ -174,7 +171,7 @@ Handlebars.registerHelper "eventCell", (context, field) ->
 
   # Temporarily extend the field for render, but we don't have to store it in DB :)
   if field?.type is "dropdown"
-    obj.textValue = sources[field.key][obj.value]?.text if obj.value?
+    obj.textValue = Mapper.sources[field.key][obj.value]?.text if obj.value?
     return new Handlebars.SafeString Template._eventCellSelect(obj)
   else
     return new Handlebars.SafeString Template._eventCell(obj)
@@ -210,7 +207,7 @@ Template._eventCellSelect.rendered = ->
       Events.update @data._id,
         $set: result
     value: @data.value
-    source: sources[@data.key]
+    source: Mapper.sources[@data.key]
 
   $(@find('div.editable:not(.editable-click)')).editable('destroy').editable(settings)
 

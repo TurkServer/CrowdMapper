@@ -1,3 +1,4 @@
+# TODO move these to be router controlled
 
 Meteor.subscribe("chatrooms")
 # Chat messages are subscribed to individually

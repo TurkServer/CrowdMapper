@@ -12,6 +12,7 @@ this.Datastream = new Meteor.Collection("datastream")
 this.Documents = new Meteor.Collection("documents")
 
 # Events / Map
+this.EventFields = new Meteor.Collection("eventfields")
 this.Events = new Meteor.Collection("events")
 
 # Chat and invite notivications

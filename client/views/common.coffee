@@ -1,3 +1,6 @@
+Template.userList.users = ->
+  Meteor.users.find()
+
 Template.userPill.labelClass = ->
   if @_id is Meteor.userId()
     "label-warning"
@@ -38,6 +41,9 @@ Template.userPill.events =
     bootbox.confirm "Invite #{user.username} to join you in <b>" + ChatRooms.findOne(myRoom).name + "</b>?"
     , (result) ->
       Meteor.call "inviteChat", user._id, myRoom if result
+
+Handlebars.registerHelper "userPillById", (userId) ->
+  return new Handlebars.SafeString Template.userPill Meteor.users.findOne userId
 
 Handlebars.registerHelper "findTweet", ->
   # FIXME wtf is handlebars doing here? See https://github.com/meteor/meteor/issues/1447

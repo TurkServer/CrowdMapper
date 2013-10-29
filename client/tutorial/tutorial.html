@@ -17,36 +17,37 @@
 </template>
 
 <template name="tut_yourtask">
-    <p>Your group must figure out which reports describe crisis events.
-    You must then record these events with the following information: the
-    type of event, its location, and its description.</p>
+    <p>Your group must figure out which reports describe relevant crisis events.</p>
 
-    <p>Some of these reports describe events for example, flooded regions,
-        washed out roads or bridges, or local residents that have been
-        displaced that should be recorded on the crisis map. </p>
+    <p>You must then record these events describing the
+        type of event, its description, and its location.</p>
+
+    <p>Relevant reports include damage to infrastructure, reports of flooded regions,
+        casualties, local residents that have been
+        displaced, and evacuation centers. These should be recorded on the crisis map. </p>
 
     <p> Other reports are irrelevant or inaccurate and should not be recorded. </p>
-
-    <p><b>Next, we'll briefly describe how to build a crisis map.</b></p>
 </template>
 
 <!-- Overview of page sections -->
 
 <template name="tut_datastream">
-    <p>Data appears in the <b>Tweet Stream</b> on the left.</p>
+    <p>Data reports appear as Tweets in the Stream on the left.</p>
 </template>
 
 <template name="tut_filterdata">
-    <p>You may click on any link to see what the tweet refers to.</p>
+    <p>You should click on links to see what reports refer to, and to determine whether or not the data is relevant.</p>
     
     <p>You may also hide tweets that appear to be irrelevant. When you hide a tweet, it disappears for everyone.</p>
 
-    <p>One of these tweets is irrelevant.  <b class="text-error">Hide the irrelevant tweet now.</b></p>
+    <p><b class="text-error">Find an irrelevant tweet and hide it.</b></p>
 </template>
 
 <template name="tut_navbar">
     <p>The navbar allows you to access the three primary ways to share
     information and work with others: <b>event records</b>, <b>map</b>, and <b>documents</b>.</p>
+
+    <p>It also shows <b>notifications</b> you receive from other mappers.</p>
 </template>
 
 <template name="tut_events">
@@ -56,46 +57,62 @@
     <p>Here you will see all of the event records you and your collaborators create.</p>
 </template>
 
+<template name="tut_event_description">
+     <p>Event records comprise several fields describing information about events.</p>
+
+     <p>Your job is to fill in these fields for each relevant crisis event.</p>
+
+     <p>Some information about the event can be found in the tweet itself, while other information can be found online or will require your own judgment.</p>
+</template>
+
 <template name="tut_create_event">
     <p>Create a new event by clicking this button.</p>
 </template>
 
-<template name="tut_dragdata">
-    <p>You can attach tweets to the event record by dragging it on to the record.</p>
+<template name="tut_editevent">
+    <p>You may also edit an existing event record by double-clicking or by clicking the
+        yellow <b>Edit</b> button. You will see edits by other mappers in real-time.</p>
 
-    <p><b class="text-error">Drag the tweet about XXX over to the event you just created.</b></p>
+    <p>Only one person can edit an event record at a time, so when done,
+        click the green <b>Save</b> button that appears.</p>
+
+    <p><b class="text-error">Click the edit button on the event record you just created.</b></p>
 </template>
 
 <template name="tut_events_index">
-    <p><b>The events page has several columns describing information about events.</b></p>
-
     <p>The first column shows records numbered in the order they were created.</p>
+
+    <p>You can use this number to coordinate with other mappers in the chat room, which we'll show later.</p>
 </template>
 
 <template name="tut_events_sources">
     <p>The <b>Sources</b> column shows all tweets that refer to the same event.</p>
+
+    <p>You can attach a tweet to the event record by dragging it and dropping it on the record.</p>
+
+    <p><b class="text-error">Drag a tweet over to the event you just created.</b></p>
 </template>
 
 <template name="tut_events_type">
     <p>Events that are relevant for crisis mapping will fit into one of
-    these types: 
+    these types:</p>
+
     <ul>
-      <li>infrastructure damage: roads</li>
-      <li>infrastructure damage: housing</li>
-      <li>infrastructure damage: other</li>
-      <li>infrastructure damage: bridges</li>
-      <li>casualties</li>
-      <li>displaced population: evacuation</li>
-      <li>displaced population: settlement</li>
-      <li>evacuation center</li>
-      <li>flooding</li>
-      <li>hospitals/health facilities</li>
-      <li>schools</li>
-      <li>other</li>
-      <li>not known</li>
+    <li>Damaged bridges</li>
+    <li>Damaged crops</li>
+    <li>Damaged hospitals/health facilities</li>
+    <li>Damaged housing</li>
+    <li>Damaged roads</li>
+    <li>Damaged schools</li>
+    <li>Damaged vehicles</li>
+    <li>Damaged infrastructure (other)</li>
+    <li>Death(s) reported</li>
+    <li>Displaced population</li>
+    <li>Evacuation center</li>
+    <li>Flooding</li>
     </ul></p>
-    
-    <p>Classify the XXX event using the <b>Type</b> column.</p>
+
+    <p><b class="text-error">Classify the event by choosing a <b>Type</b> from the dropdown menu.</b></p>
 </template>
 
 <template name="tut_events_description">
@@ -106,39 +123,47 @@
     <p>The <b>Region</b> column shows the region where the event
     occurred.</p>
 
-    <p><b class="text-error">Add the region from the tweet.</b></p>
+    <p>The Philippines has 17 administrative regions.</p>
+
+    <p>If you can determine the region, <b class="text-error">add the region from the tweet.</b></p>
+
+    <!-- Add the region from the tweet. -->
 </template>
 
 <template name="tut_events_province">
     <p>The <b>Province</b> column is the province where the event
     occurred.</p>
 
-    <p>The tweet does not have information about the province. Leave it blank for now.</p>
+    <p>There are 80 provinces in the Philippines.</p>
+
+    <p>If you can find the province for the tweet, enter it in now.</p>
+
+    <!-- <p>The tweet does not have information about the province. Leave it blank for now.</p> -->
 </template>
 
 <template name="tut_events_location">
     <p>The <b>Location</b> column shows the latitude/longitude for the event.</p>
 
-    <p>The tweet does not have information about the location. Leave it blank for now.</p>
-</template>
+    <p>If an event record does not have a location yet, you can place it on a map.</p>
 
-<template name="tut_editevent">
-    <p>You may also edit an existing event record by double-clicking or by clicking the
-    Edit button. Only one person can edit an event record at a time, so when done,
-    click Save. 
-    </p>
+    <!-- This needs to be changed --->
+    <p>Press the <b>Locate</b> button to place the event on the map.</p>
 
-    <p>This tweet has additional information on this
-    event.  <b class="text-error">Add this information to the
-    description.</b></p>
+    <!-- <p>The tweet does not have information about the location. Leave it blank for now.</p> -->
 </template>
 
 <template name="tut_addtweet">
-    <p>You may also add tweets to existing event records if they refer to
-    the same event.<p>
+    <p>You may also <b>add additional tweets to existing event records</b> if they refer to
+    the same event. You can also <b>drag tweets from one event to another</b> to correct mistakes or reorganize records.<p>
 
+    <p>By <b>hovering your mouse over a tweet</b> that has been attached to an event, you will see its content. You can also click the small X in the popover to hide the tweet.</p>
+
+    <p>If you can find another tweet that refers to the same event as this one, add it to the record by dragging and dropping.</p>
+
+    <!--
     <p>This tweet has additional information about the event you just
-    recorded.  <b class="text-error">Add this tweet to the record.</b></p>
+    recorded.<b class="text-error">Add this tweet to the record.</b></p>
+    -->
 </template>
 
 <template name="tut_sortevent">
@@ -148,8 +173,9 @@
 <template name="tut_map">
     <p>The <b>Map</b> displays a marker for each recorded event.</p>
     
-    <p>If no lat/long has been entered, the marker will appear in the
-    sidebar.</p>
+    <p>If no latitude/longitude has been entered for an event, the marker will not appear on the map.</p>
+
+    <!-- the marker will appear in the sidebar. -->
 </template>
 
 <template name="tut_mapcontrols">
@@ -171,23 +197,25 @@
     <p>Now, add the province and save the record.</p>
 </template>
 
-<!-- left off here -->
-
 <template name="tut_documents">
-    <p><b>Documents</b> are available for recording information relevant to the task but not included in the database, and are shared with everyone else.</p>
+    <p><b>Documents</b> are available for recording information relevant to the task but not included in event records, and are shared with everyone else.</p>
+
+    <p><b class="text-error">Create or open a document now.</b></p>
 </template>
 <template name="tut_editdocs">
     <p>You can rename any document by clicking on its title and create new documents as necessary.</p>
 
-    <p><b class="text-error">Open a document and edit it now.</b></p>
+    <p><b class="text-error">Type something in the document.</b> Other mappers will see this when they read the document.</p>
 </template>
 
 <template name="tut_userlist">
-    <p>The <b>User List</b> shows team members who are currently online in green, and those who have stopped participating in grey.</p>
+    <p>The <b>User List</b> shows team members who are currently online in green, and those who have stopped participating in grey. You are shown in orange.</p>
 </template>
 
 <template name="tut_chatrooms">
     <p>You may create and join <b>chat rooms</b> to communicate with other users.</p>
+
+    <p>Click <b>create room</b> if you don't see a room already.</p>
 </template>
 
 <template name="tut_notifications">
@@ -221,7 +249,7 @@
 
     <p>When you start typing the symbols above, an automatic filtered list will appear. Mentioning tweets or events will create a clickable link for everyone.</p>
 
-    <p><b class="text-error">Tell XXX user to take a look at the tweet you just created.</b> For example, type '@XXXUser can you take a look at event #XXXNum?'</p>
+    <p><b class="text-error">Tell XXX user to take a look at the tweet you just created.</b> For example, type '@XXXUser can you take a look at event #YYY?'</p>
 </template>
 
 <!-- Final reminders -->
@@ -229,19 +257,30 @@
 <template name="tut_groundrules">
     <p>The experiment will run for one hour.</p>
 
+    <p>You may quit the experiment at any time.</p>
+
+    <p>You may also pause your work during the experiment by clicking on the Pause button. You may re-enter the experiment at any time by clicking the Restart button.</p>
+
+    <p>If you perform no activity for XX mins, you will be automatically paused.<p>
+</template>
+
+<template name="tut_payment">
     <p>At the end of the experiment, your group will be graded on the completeness and correctness of your crisis map. </p>
 
     <p>Your payment will be determined by how much time you personally spend working on the task, and also the overall performance of your group</p>
 
-    <p>You may quit the experiment at any time, however you will only by paid for the time you work</p>
+    <p>If you quit early you will only by paid for the time you work. You will also not be paid for the time when you are paused. <p>
 
-    <p>You may also pause your work during the experiment by clicking on the Pause button. You will not be paid for the time when you are paused but may re-enter the experiment at any time by clicking the Restart button.<p>
-
-    <p>If you perform no activity for XX mins, you will be automatically paused.<p>
 </template>
 
 <template name="tut_end">
     <p>Please read and acknowledge the terms of use for participating in this experiment<p>
 
     <p><b class="text-warning">Terms of use should appear here.</b></p>
+
+    <p>
+        <label class="checkbox">
+            <input type="checkbox"> I acknowledge the terms of use.
+        </label>
+    <p>
 </template>

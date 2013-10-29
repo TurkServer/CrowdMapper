@@ -30,6 +30,10 @@ tutorialSteps = [
     template: Template.tut_events
     onLoad: -> Mapper.switchTab("events")
   ,
+    spot: "#mapper-events"
+    template: Template.tut_event_description
+    onLoad: -> Mapper.switchTab("events")
+  ,
     spot: "td.event-create"
     template: Template.tut_create_event
     onLoad: ->
@@ -38,15 +42,15 @@ tutorialSteps = [
       # TODO use the position of the button instead of this hack
       $(".events-body.scroll-vertical").scrollTop(50000)
   ,
-    spot: ".datastream, #mapper-events"
-    template: Template.tut_dragdata
+    spot: "#mapper-events"
+    template: Template.tut_editevent
     onLoad: -> Mapper.switchTab("events")
   ,
     spot: ".events-header tr > th:eq(0), .events-body tr > td:nth-child(1):not(.event-create)"
     template: Template.tut_events_index
     onLoad: -> Mapper.switchTab("events")
   ,
-    spot: ".events-header tr > th:eq(1), .events-body tr > td:nth-child(2)"
+    spot: ".events-header tr > th:eq(1), .events-body tr > td:nth-child(2), .datastream"
     template: Template.tut_events_sources
     onLoad: -> Mapper.switchTab("events")
   ,
@@ -70,16 +74,13 @@ tutorialSteps = [
     template: Template.tut_events_location
     onLoad: -> Mapper.switchTab("events")
   ,
-    spot: "#mapper-events"
-    template: Template.tut_editevent
-    onLoad: -> Mapper.switchTab("events")
-  ,
     spot: ".datastream, #mapper-events"
     template: Template.tut_addtweet
     onLoad: -> Mapper.switchTab("events")
   ,
     spot: ".events-header"
     template: Template.tut_sortevent
+    onLoad: -> Mapper.switchTab("events")
   ,
     spot: ".navbar, #mapper-map"
     template: Template.tut_map
@@ -99,13 +100,13 @@ tutorialSteps = [
   ,
     spot: ".navbar, #mapper-docs"
     template: Template.tut_documents
-    onLoad: ->
-      Mapper.switchTab("docs")
-      openDocument()
+    onLoad: -> Mapper.switchTab("docs")
   ,
     spot: "#mapper-docs"
     template: Template.tut_editdocs
-    onLoad: -> Mapper.switchTab("docs")
+    onLoad: ->
+      Mapper.switchTab("docs")
+      openDocument()
   ,
     spot: ".user-list"
     template: Template.tut_userlist
@@ -128,9 +129,11 @@ tutorialSteps = [
   ,
     template: Template.tut_groundrules
   ,
+    template: Template.tut_payment
+  ,
     template: Template.tut_end
 ]
 
-Template.tutorial.options =
+Template.mapperContainer.options =
   steps: tutorialSteps
   onFinish: -> Router.go("/mapper")

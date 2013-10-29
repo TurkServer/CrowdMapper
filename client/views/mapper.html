@@ -1,3 +1,11 @@
+<template name="mapperContainer">
+    {{> mapper}}
+
+    {{#if tutorialEnabled}}
+    {{tutorial options}}
+    {{/if}}
+</template>
+
 <template name="mapper">
     <div class="container-fluid full-height">
         <div class="row-fluid full-height">
@@ -29,15 +37,15 @@
             <ul class="nav">
                 <li class="divider-vertical"></li>
                 <li>
-                    <a href="#" data-target="docs" data-toggle="tab">Documents</a>
-                </li>
-                <li class="divider-vertical"></li>
-                <li>
-                    <a href="#" data-target="events" data-toggle="tab">Events</a>
+                    <a href="#" data-target="events" data-toggle="tab">Event Records</a>
                 </li>
                 <li class="divider-vertical"></li>
                 <li>
                     <a href="#" data-target="map" data-toggle="tab">Map</a>
+                </li>
+                <li class="divider-vertical"></li>
+                <li>
+                    <a href="#" data-target="docs" data-toggle="tab">Documents</a>
                 </li>
                 <li class="divider-vertical"></li>
             </ul>

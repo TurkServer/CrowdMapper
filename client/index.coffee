@@ -13,10 +13,18 @@ Meteor.startup ->
 Deps.autorun(login)
 
 # Routing
+Router.configure
+  notFoundTemplate: 'home'
+  # loadingTemplate: 'spinner' # TODO get a spinner here
+
 Router.map ->
   @route('home', {path: '/'})
-  @route('tutorial')
-  @route('mapper')
+  @route 'mapper',
+    template: 'mapperContainer'
+    path: '/mapper/:tutorial?'
+    waitOn: -> Meteor.subscribe("eventFieldData")
+    before: Mapper.processSources
+    data: -> { tutorialEnabled: @params.tutorial is "tutorial" }
   @route('admin')
 
 #Router.configure
@@ -27,13 +35,7 @@ Router.map ->
 #    'sidebar':
 #      to: 'sidebar'
 
-Template.userList.users = ->
-  Meteor.users.find()
-
 disconnectDialog = null
-
-Handlebars.registerHelper "userPillById", (userId) ->
-  return new Handlebars.SafeString Template.userPill Meteor.users.findOne userId
 
 # Warn when disconnected instead of just sitting there.
 Deps.autorun ->
