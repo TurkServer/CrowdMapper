@@ -23,11 +23,14 @@ autocomplete
 tutorials
 jqueryui
 
+# Can be used to download OpenLayers files
+build-fetcher
+
+# Potentially troublesome with collection-hooks bug
+turkserver
+
 # For parsing input files
 csv
-
-# Do not add until collection-hooks bug fixed
-# turkserver
 
 # Only for running OL straight from unbuilt source
 # openlayers

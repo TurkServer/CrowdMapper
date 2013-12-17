@@ -1,4 +1,7 @@
 {
+    "turkserver": {
+        "adminPassword": "test"
+    },
     "sharejs": {
         "options": {
             "db": {

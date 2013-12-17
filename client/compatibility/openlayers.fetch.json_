@@ -1,0 +1,12 @@
+[
+    {
+        "file": "OpenLayers.js",
+        "url": "http://dev.openlayers.org/releases/OpenLayers-2.13.1/OpenLayers.js",
+        "bare": true
+    }
+,
+    {
+        "file": "OpenLayers.css",
+        "url": "http://dev.openlayers.org/releases/OpenLayers-2.13.1/theme/default/style.css"
+    }
+]

@@ -3,8 +3,11 @@
     "bootboxjs": {},
     "iron-router": {},
     "publish-with-relations": {},
+    "build-fetcher": {
+      "path": "../meteor-build-fetcher"
+    },
     "turkserver": {
-      "path": "../turkserver-meteor"
+        "path": "../turkserver-meteor"
     },
     "sharejs": {
       "path": "../meteor-sharejs"
