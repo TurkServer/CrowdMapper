@@ -22,8 +22,12 @@ Router.map ->
   @route 'mapper',
     template: 'mapperContainer'
     path: '/mapper/:tutorial?'
-    waitOn: -> Meteor.subscribe("eventFieldData")
-    before: Mapper.processSources
+    ###
+      Can't do this due to https://github.com/EventedMind/iron-router/issues/336
+      So we subscribe to EventFields statically right now.
+    ###
+    # waitOn: -> Meteor.subscribe("eventFieldData")
+    # before: Mapper.processSources
     data: -> { tutorialEnabled: @params.tutorial is "tutorial" }
   @route('admin')
 
