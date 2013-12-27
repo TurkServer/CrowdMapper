@@ -4,13 +4,13 @@ Template.userList.users = ->
 Template.userPill.labelClass = ->
   if @_id is Meteor.userId()
     "label-warning"
-  else if @profile?.online
+  else if @status?.online
     "label-success"
   else ""
 
 Template.userPill.rendered = ->
   # Show chat invite?
-  if @data.profile?.online and @data._id isnt Meteor.userId()
+  if @data.status?.online and @data._id isnt Meteor.userId()
     $(@firstNode).popover
       html: true
       placement: "bottom"

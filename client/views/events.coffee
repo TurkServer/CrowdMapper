@@ -18,7 +18,12 @@ Mapper.processSources = ->
   # Grab the fields just once ...?
   Mapper.staticFields = EventFields.find({}, {sort: {order: 1}}).fetch()
 
-Handlebars.registerHelper "eventFields", -> Mapper.staticFields
+Handlebars.registerHelper "eventFields", ->
+  # Process the sources if we are missing the static fields
+  # Problem occured when sub ready but dependent calculation didn't run yet
+  unless Mapper.staticFields
+    Mapper.processSources()
+  Mapper.staticFields
 
 generateNewEvent = ->
   # TODO maybe switch to Mongo IDs at some point
