@@ -2,9 +2,15 @@
   "meteor": {},
   "dependencies": {
     "basePackages": {
-      "bootboxjs": {},
-      "iron-router": {},
-      "publish-with-relations": {},
+      "bootboxjs": {
+        "version": "3.2.2"
+      },
+      "iron-router": {
+        "version": "0.6.1"
+      },
+      "publish-with-relations": {
+        "version": "0.1.5"
+      },
       "build-fetcher": {
         "path": "../meteor-build-fetcher"
       },

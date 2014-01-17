@@ -1,10 +1,9 @@
-
-# User status and profile
+# User status and username
 Meteor.publish "userStatus", ->
   Meteor.users.find {}, # All users (in my group)
     fields:
-      'username': 1
-      'status': 1
+      username: 1
+      status: 1
 
 # TODO: Improve the publication logic
 
