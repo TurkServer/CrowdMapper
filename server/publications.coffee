@@ -1,10 +1,10 @@
 
 # User status and profile
 Meteor.publish "userStatus", ->
-  Meteor.users.find { }, # "profile.online": true
+  Meteor.users.find {}, # All users (in my group)
     fields:
       'username': 1
-      'profile': 1
+      'status': 1
 
 # TODO: Improve the publication logic
 

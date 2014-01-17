@@ -3,6 +3,7 @@
     "bootboxjs": {},
     "iron-router": {},
     "publish-with-relations": {},
+    "x-editable-bootstrap": {},
     "build-fetcher": {
       "path": "../meteor-build-fetcher"
     },
@@ -17,9 +18,6 @@
     },
     "accounts-testing": {
       "path": "../meteor-accounts-testing"
-    },
-    "x-editable-bootstrap": {
-      "path": "../meteor-x-editable-bootstrap"
     },
     "autocomplete": {
       "path": "../meteor-autocomplete"
