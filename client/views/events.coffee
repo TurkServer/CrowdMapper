@@ -91,7 +91,7 @@ Template.events.eventRecords = ->
   sort = [ [key, if Session.get("eventSortOrder") is -1 then "desc" else "asc"], [ "_id", "asc" ] ]
   return Events.find {}, { sort: sort }
 
-Template.createRow.events =
+Template.createFooter.events =
   "click .action-event-new": (e) ->
     e.preventDefault()
     generateNewEvent()

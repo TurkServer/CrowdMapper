@@ -9,7 +9,7 @@
 .pages
     // overflow: hidden // become a BFC (height wrap), no longer relevant
     position: absolute
-    top: 62px
+    top: 47px // 42px + 5px bottom margin on the navbar
     bottom: 0px
     left: 0px
     right: 0px
@@ -68,10 +68,17 @@ newdoc-height = 30px
 
 #events
     position: absolute
-    top: 35px // 28px header height
-    bottom: 0px
+    top: 32px // 27px header height
+    bottom: 35px // 30px button height
     left: 0px
     right: 0px
+
+.event-create
+  position: absolute
+  height: 30px
+  left: 0px
+  bottom: 0px
+  right: 0px
 
 .events-header.table, .events-body > .table
     margin-bottom: 0

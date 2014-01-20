@@ -34,7 +34,7 @@ tutorialSteps = [
     template: Template.tut_event_description
     onLoad: -> Mapper.switchTab("events")
   ,
-    spot: "td.event-create"
+    spot: ".event-create"
     template: Template.tut_create_event
     onLoad: ->
       Mapper.switchTab("events")
@@ -46,7 +46,7 @@ tutorialSteps = [
     template: Template.tut_editevent
     onLoad: -> Mapper.switchTab("events")
   ,
-    spot: ".events-header tr > th:eq(0), .events-body tr > td:nth-child(1):not(.event-create)"
+    spot: ".events-header tr > th:eq(0), .events-body tr > td:nth-child(1)"
     template: Template.tut_events_index
     onLoad: -> Mapper.switchTab("events")
   ,

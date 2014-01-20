@@ -29,18 +29,17 @@
             {{#each eventRecords}}
             {{> eventRow}}
             {{/each}}
-
-            {{> createRow}}
             </tbody>
         </table>
         {{/isolate}}
     </div>
-
     </div>
+
+    {{> createFooter}}
 </template>
 
 <template name="eventsHeader">
-    <table class="table table-condensed table-hover table-striped events-header">
+    <table class="table table-condensed table-hover table-striped compact events-header">
         <thead>
         <tr>
             <th class="header-num">
@@ -59,7 +58,9 @@
             </th>
             {{/each}}
 
-            <th class="header-location">Location</th>
+            <th class="header-location">
+                Location
+            </th>
             <th class="header-buttons"></th>
         </tr>
         </thead>
@@ -74,12 +75,10 @@
     </tr>
 </template>
 
-<template name="createRow">
-    <tr>
-        <td class="event-create" colspan="{{numEventCols}}">
-            <button class="btn btn-primary center action-event-new">Create New Event</button>
-        </td>
-    </tr>
+<template name="createFooter">
+    <div class="text-center event-create">
+        <button class="btn btn-primary center action-event-new">Create New Event</button>
+    </div>
 </template>
 
 <template name="eventRow">

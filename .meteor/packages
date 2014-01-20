@@ -26,8 +26,7 @@ jqueryui
 # Can be used to download OpenLayers files
 build-fetcher
 
-# Potentially troublesome with collection-hooks bug
-turkserver
+# turkserver
 
 # For parsing input files
 csv

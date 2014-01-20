@@ -41,5 +41,5 @@ Router.map ->
     ###
     waitOn: fieldSub
     data: -> { tutorialEnabled: @params.tutorial is "tutorial" }
-  @route('admin')
+
 
