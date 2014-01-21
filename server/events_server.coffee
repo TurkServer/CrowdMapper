@@ -11,8 +11,9 @@ Meteor.publish "eventFieldData", ->
 Events._ensureIndex
   editor: 1
 
-UserStatus.on "sessionLogout", (userId, _) ->
-  Events.update { editor: userId },
+UserStatus.on "sessionLogout", (doc) ->
+  # TODO bind groupId here or make TurkServer functionality
+  Events.update { editor: doc.userId },
     $unset: { editor: null }
   , multi: true
 

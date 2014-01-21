@@ -119,9 +119,10 @@ Meteor.methods
         timestamp: chatTime
 
 # Clean up any chat rooms on logout
-UserStatus.on "sessionLogout", (userId, sessionId) ->
+UserStatus.on "sessionLogout", (doc) ->
+  # TODO bind groupId here or make TurkServer functionality
   # TODO use findAndUpdate here once supported
-  existing = ChatUsers.findOne(sessionId)
-  leaveRoom(existing.roomId, userId) if existing
+  existing = ChatUsers.findOne(doc.sessionId)
+  leaveRoom(existing.roomId, doc.userId) if existing
 
-  ChatUsers.remove(sessionId) if existing
+  ChatUsers.remove(doc.sessionId) if existing

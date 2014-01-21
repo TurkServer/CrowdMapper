@@ -67,6 +67,9 @@ Template.map.rendered = ->
     name: "Bing Map"
     type: "Road" # "AerialWithLabels"
     key: "AtsCXPry0QFxHVXRBJDXPVVy88GhE6tTwtW61SNJoVl8AYwcNce_UsO3VZ3lGT3Q"
+    # Fix for the pink tiles and cross-origin errors
+    tileOptions: { crossOriginKeyword: 'anonymous'}
+    # transitionEffect: null
 
   vectorLayer = new OpenLayers.Layer.Vector "Vector Layer",
     styleMap: @styleMap

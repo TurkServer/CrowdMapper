@@ -3,7 +3,7 @@ Template.userList.users = ->
 
 Template.userPill.labelClass = ->
   if @_id is Meteor.userId()
-    "label-info"
+    "label-inverse"
   else if @status?.online
     "label-success"
   else ""
