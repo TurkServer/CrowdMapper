@@ -1,6 +1,10 @@
 # Don't persist the contents of this collection
 @ChatUsers = new Meteor.Collection("chatusers", {connection: null})
 
+# Index chat messages by room and then by timestamp.
+# It will not be partitioned by TurkServer.
+ChatMessages._ensureIndex({ room: 1, timestamp: 1})
+
 Meteor.publish "chatrooms", ->
   ChatRooms.find()
 

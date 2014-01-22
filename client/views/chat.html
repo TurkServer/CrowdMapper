@@ -36,9 +36,9 @@
     <li>
     {{/if}}
         <a href="#" class="action-room-enter">
-            <span class="badge badge-inverse">{{users}}</span>
+            <span class="badge badge-inverse" title="Users in room: {{users}}">{{users}}</span>
             {{#if empty}}
-            <i class="icon-trash action-room-delete"></i>
+            <i class="icon-trash action-room-delete" title="Delete this room"></i>
             {{/if}}
             {{name}}
         </a>
