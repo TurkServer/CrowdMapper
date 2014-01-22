@@ -219,8 +219,8 @@ Template._eventCellSelect.rendered = ->
 Handlebars.registerHelper "editCell", ->
   me = Meteor.userId()
   if @editor is me
-    return new Handlebars.SafeString Template._editCellSelf @
+    return Template._editCellSelf @
   else if @editor?
-    return new Handlebars.SafeString Template._editCellOther @
+    return Template.userPill(Meteor.users.findOne(@editor)) + " is editing"
   else
-    return new Handlebars.SafeString Template._editCellOpen @
+    return Template._editCellOpen @

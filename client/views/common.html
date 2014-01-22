@@ -18,7 +18,7 @@
 <template name="tweetIcon">
     <div class="tweet-icon-container">
         <span class="label label-info">
-            <i class="icon-white icon-tag"></i>{{_id}}
+            <i class="icon-white icon-tag"></i>{{num}}
         </span>
     </div>
 </template>
@@ -28,11 +28,21 @@
     <span class="editable-clear-x action-unlink-tweet" title="Unlink this tweet"></span>
 </template>
 
+<template name="tweetIconClickable">
+    <span class="label label-info clickme">
+        <i class="icon-white icon-tag"></i>{{num}}
+    </span>
+</template>
+
 <template name="tweetNumbered">
     <span class="label label-info">
-        <i class="icon-white icon-tag"></i>{{_id}}
+        <i class="icon-white icon-tag"></i>{{num}}
     </span>
     <span class="chopped">{{{text}}}</span>
+</template>
+
+<template name="eventIconClickable">
+    <span class="label label-important clickme">{{num}}</span>
 </template>
 
 <template name="eventShort">
@@ -42,28 +52,4 @@
     </td>
 </template>
 
-<!-- Lookup templates for chat functions -->
 
-<template name="userLookup">
-    {{#withif doc}}
-        {{> userPill}}
-    {{else}}
-        {{this}}
-    {{/withif}}
-</template>
-
-<template name="tweetLookup">
-    {{#withif doc}}
-        <span class="label label-info clickme"><i class="icon-white icon-tag"></i>{{_id}}</span>
-    {{else}}
-        {{this}}
-    {{/withif}}
-</template>
-
-<template name="eventLookup">
-    {{#withif doc}}
-        <span class="label label-important clickme"></i>{{num}}</span>
-    {{else}}
-        {{this}}
-    {{/withif}}
-</template>

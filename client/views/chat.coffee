@@ -73,7 +73,7 @@ Template.room.settings = -> {
     {
       token: '!'
       collection: Datastream
-      field: "_id"
+      field: "num"
       template: Template.tweetNumbered
     },
     {
@@ -121,13 +121,29 @@ userRegex = new RegExp('(^|\\b|\\s)(@[\\w.]+)($|\\b|\\s)','g')
 tweetRegex = new RegExp('(^|\\b|\\s)(![\\d]+)($|\\b|\\s)','g')
 eventRegex = new RegExp('(^|\\b|\\s)(#[\\d]+)($|\\b|\\s)','g')
 
+# TODO remove ugly space added below
+userFunc = (_, p1, p2) ->
+  username = p2.substring(1)
+  user = Meteor.users.findOne(username: username)
+  return " " + if user then Template.userPill(user) else username
+
+tweetFunc = (_, p1, p2) ->
+  tweetNum = p2.substring(1)
+  tweet = Datastream.findOne( {num: tweetNum}, fields: { num: 1 } )
+  return " " + if tweet then Template.tweetIconClickable(tweet) else tweetNum
+
+eventFunc = (_, p1, p2) ->
+  eventNum = parseInt( p2.substring(1) )
+  event = Events.findOne( {num: eventNum}, fields: { num: 1 } )
+  return " " + if event then Template.eventIconClickable(event) else eventNum
+
 # Replace any matched users, tweets, or events with links
 Template.messageItem.renderText = ->
   text = Handlebars._escape(@text)
   # No SafeString needed here as long as renderText is unescaped
-  text = text.replace userRegex, (_, p1, p2) -> Template.userLookup(p2)
-  text = text.replace tweetRegex, (_, p1, p2) -> Template.tweetLookup(p2)
-  text = text.replace eventRegex, (_, p1, p2) -> Template.eventLookup(p2)
+  text = text.replace userRegex, userFunc
+  text = text.replace tweetRegex, tweetFunc
+  text = text.replace eventRegex, eventFunc
 
 Template.messageItem.eventText = ->
   username = Meteor.users.findOne(@userId).username

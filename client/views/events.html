@@ -95,7 +95,7 @@
 
         {{> eventLocation}}
 
-        <td>{{editCell}}</td>
+        <td>{{{ editCell }}}</td>
     </tr>
 </template>
 
@@ -153,10 +153,6 @@
             {{/if}}
         </div>
     </td>
-</template>
-
-<template name="_editCellOther">
-    {{userPillById editor}} is editing
 </template>
 
 <template name="_editCellSelf">

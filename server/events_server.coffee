@@ -21,6 +21,7 @@ UserStatus.on "sessionLogout", (doc) ->
 Events._ensureIndex
   num: 1
 
+# TODO make this maxEventIdx work in TurkServer
 maxEventIdx = null
 
 Meteor.startup ->

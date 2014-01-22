@@ -42,12 +42,8 @@ Template.userPill.events =
     , (result) ->
       Meteor.call "inviteChat", user._id, myRoom if result
 
-Handlebars.registerHelper "userPillById", (userId) ->
-  return new Handlebars.SafeString Template.userPill Meteor.users.findOne userId
-
-Handlebars.registerHelper "findTweet", ->
-  # FIXME wtf is handlebars doing here? See https://github.com/meteor/meteor/issues/1447
-  Datastream.findOne(this.toString())
+# String conversion needed: https://github.com/meteor/meteor/issues/1447
+Handlebars.registerHelper "findTweet", -> Datastream.findOne(""+@)
 
 Template.tweetIcon.rendered = ->
   $(@firstNode).popover
@@ -106,13 +102,6 @@ Handlebars.registerHelper "formatLocation", ->
   point.transform(epsg900913, epsg4326)
   point.x.toFixed(2) + ", " + point.y.toFixed(2)
 
-# TODO: fix inefficient double lookup here
-Template.userLookup.doc = ->
-  Meteor.users.findOne({username: this.substring(1)})
-
-Template.tweetLookup.doc = ->
-  Datastream.findOne(this.substring(1))
-
 showEvent = (eventId) ->
   Mapper.switchTab 'events' # Make sure we are on the event page
   # Set up a scroll event, then trigger a re-render
@@ -120,7 +109,7 @@ showEvent = (eventId) ->
   Session.set("scrollEvent", eventId)
   Session.set("selectedEvent", eventId)
 
-Template.tweetLookup.events =
+Template.tweetIconClickable.events =
   "click .clickme": (e) ->
     if @hidden
       bootbox.alert("That data has been deleted.")
@@ -134,10 +123,5 @@ Template.tweetLookup.events =
       Session.set("scrollTweet", @_id)
       Session.set("selectedTweet", @_id)
 
-Template.eventLookup.doc = ->
-  Events.findOne({num: parseInt(this.substring(1))})
-
-Template.eventLookup.events =
+Template.eventIconClickable.events =
   "click .clickme": (e) -> showEvent(@_id)
-
-
