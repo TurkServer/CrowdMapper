@@ -30,19 +30,27 @@ table
 .notification > a.glowing
   animation: glow .5s infinite alternate;
 
+.vertical-table
+  display: table
+  border-spacing: 0px 5px
+
+.vertical-table-row
+  display: table-row
+
+.vertical-table-cell
+  display: table-cell
+
 .user-list
-    height: 80px
-    max-height: 80px
-    overflow: auto
+  height: 80px
+  max-height: 80px
+
+.chat-overview
+  height: 172px
+  max-height: 172px
 
 .scroll-vertical
     overflow-x: hidden
     overflow-y: auto
-
-.well.well-skinny
-    padding: 9px
-    // margin-bottom: 5px
-    margin: 0px 0px 5px 0px
 
 #editor, #map, #events
     box-shadow 0px 0px 5px 5px rgba(0, 0, 0, 0.2);
@@ -83,8 +91,7 @@ newdoc-height = 30px
 .events-header.table, .events-body > .table
     margin-bottom: 0
 
-// Don't allow table headers to wrap
-// TODO come up with a better solution for this later
+// Don't allow table headers to wrap - They are also sized small to help with this
 .events-header th
     white-space: nowrap
 

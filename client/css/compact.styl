@@ -2,6 +2,22 @@
  Compact styling modifications for bootstrap 2.3.2
  */
 
+form.compact
+  margin: 0px
+
+h1.compact, h2.compact, h3.compact, h4.compact, h5.compact, h6.compact
+  margin: 0px
+
+.container-fluid.compact
+  padding-left: 5px
+  padding-right: 5px
+
+.nav.nav-stacked.compact
+  margin-bottom: 0px
+
+.nav-pills.compact:before, .nav-pills.compact:after
+  content: none
+
 .navbar.compact
   margin-bottom: 5px
 
@@ -13,8 +29,14 @@
   padding-left: 8px
   padding-right: 8px
 
+.row-fluid.compact:before, .row-fluid.compact:after
+  content: none
+
 .table.compact th
   font-size: 12px // Smaller text = less horizontal space
   font-weight: bold
   line-height: 19px // Height of the sorting chevrons
 
+.well.well-skinny
+  padding: 9px
+  margin: 0px

@@ -7,12 +7,12 @@
 </template>
 
 <template name="mapper">
-    <div class="container-fluid full-height">
-        <div class="row-fluid full-height">
-            <div class="span2 full-height carrier">
+    <div class="container-fluid compact fill-height">
+        <div class="row-fluid fill-height">
+            <div class="span2 fill-height carrier">
                 {{> datastream}}
             </div>
-            <div class="span7 full-height carrier stack">
+            <div class="span7 fill-height carrier stack">
                 {{> pageNav}}
                 <div id="mapper-docs" class="pages">
                     {{> docs}}
@@ -24,7 +24,7 @@
                     {{> map}}
                 </div>
             </div>
-            <div class="span3 full-height carrier">
+            <div class="span3 fill-height carrier">
                 {{> sidebar}}
             </div>
         </div>
@@ -62,9 +62,22 @@
 </template>
 
 <template name="sidebar">
-    <div style="display: table; width: 100%; height: 100%">
-        {{> userList}}
-        {{> chat}}
+    <div class="vertical-table fill-parent">
+    <div class="vertical-table-row">
+        <div class="vertical-table-cell user-list">
+            {{> userList}}
+        </div>
+    </div>
+    <div class="vertical-table-row">
+        <div class="vertical-table-cell chat-overview">
+            {{> chat}}
+        </div>
+    </div>
+    <div class="vertical-table-row">
+        <div class="vertical-table-cell">
+            {{> currentChatroom}}
+        </div>
+    </div>
     </div>
 </template>
 

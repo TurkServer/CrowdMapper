@@ -1,10 +1,10 @@
 <template name="chat">
-    <div class="row-fluid chat-overview">
+    <div class="row-fluid compact chat-overview">
         <div class="span8">
-            <p>Chat Rooms:
-                <button class="btn btn-mini pull-right action-room-create">Create room</button>
-            </p>
-            <div class="chat-rooms">
+            <h5 class="compact">Chat Rooms:
+                <button class="btn btn-mini btn-info pull-right action-room-create">New room</button>
+            </h5>
+            <div class="chat-rooms fill-width">
             {{> rooms}}
             </div>
         </div>
@@ -15,14 +15,25 @@
             {{/if}}
         </div>
     </div>
+</template>
 
+<template name="currentChatroom">
+    <div class="chat-messaging fill-height carrier">
     {{#if currentRoom}}
-        {{> room}}
+        {{> roomHeader}}
+        {{> messageBox}}
+        <form class="form-inline compact" action="javascript:void(0)">
+            {{inputAutocomplete settings class="chat-input" placeholder="Chat..."}}
+            <button type="submit" class="btn btn-primary action-chat-send" title="Send">
+                <i class="icon-white icon-share-alt"></i>
+            </button>
+        </form>
     {{/if}}
+    </div>
 </template>
 
 <template name="rooms">
-    <ul class="nav nav-pills nav-stacked">
+    <ul class="nav nav-pills nav-stacked fill-height compact">
         {{#each availableRooms}}
         {{> roomItem}}
         {{/each}}
@@ -46,7 +57,7 @@
 </template>
 
 <template name="roomUsers">
-    <p class="text-center">In room:</p>
+    <h5 class="text-center compact">In room:</h5>
     <div class="room-users well well-skinny">
         {{#each users}}
         {{> userPill findUser}}
@@ -54,21 +65,8 @@
     </div>
 </template>
 
-<template name="room">
-    <div class="chat-messaging" style="display: table-row; height: 100%; position: relative">
-        {{> roomHeader}}
-        {{> messageBox}}
-        <form class="form-inline chat-footer" action="javascript:void(0)">
-            {{inputAutocomplete settings id="msg" placeholder="Chat..."}}
-            <button type="submit" class="btn btn-primary" title="Send">
-                <i class="icon-white icon-share-alt"></i>
-            </button>
-        </form>
-    </div>
-</template>
-
 <template name="roomHeader">
-    <h4 class="chat-header">
+    <h4 class="chat-header compact">
         <span class="editable" title="Rename this room">{{roomName}}</span>
         <button type="button" class="btn btn-warning btn-mini pull-right action-room-leave">Leave</button>
     </h4>

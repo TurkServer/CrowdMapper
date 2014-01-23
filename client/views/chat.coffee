@@ -4,14 +4,14 @@ Deps.autorun ->
   roomId = Session.get("room")
   Meteor.subscribe "chatstate", roomId
 
+Handlebars.registerHelper "currentRoom", -> Meteor.userId()? && Session.get("room")?
+
 Template.chat.events =
   "click .action-room-create": (e) ->
     e.preventDefault()
 
     bootbox.prompt "Name the room", (roomName) ->
       Meteor.call "createChat", roomName if !!roomName
-
-Template.chat.currentRoom = -> Session.get("room")? && Meteor.userId()?
 
 Template.rooms.availableRooms = -> ChatRooms.find {}
 
@@ -42,14 +42,10 @@ Template.roomUsers.users = ->
 Template.roomUsers.findUser = ->
   Meteor.users.findOne @userId
 
-# Not sure what this does but it breaks stuff
-#  Template.messageItem.authorClass = ->
-#    (if Session.equals("name", @author) then " mine" else "")
-
-Template.room.events =
-
-  submit: ->
-    $msg = $("#msg")
+Template.currentChatroom.events =
+  submit: (e, tmpl) ->
+    e.preventDefault()
+    $msg = $ tmpl.find(".chat-input")
     return unless $msg.val()
 
     Meteor.call "sendChat", Session.get("room"), $msg.val()
@@ -60,7 +56,7 @@ Template.room.events =
 
     # Auto scroll happens on messageBox render now..
 
-Template.room.settings = -> {
+Template.currentChatroom.settings = -> {
   position: "top"
   limit: 5
   rules: [
