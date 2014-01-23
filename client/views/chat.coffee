@@ -125,12 +125,12 @@ userFunc = (_, p1, p2) ->
 
 tweetFunc = (_, p1, p2) ->
   tweetNum = p2.substring(1)
-  tweet = Datastream.findOne( {num: tweetNum}, fields: { num: 1 } )
+  tweet = Datastream.findOne( {num: tweetNum} )
   return " " + if tweet then Template.tweetIconClickable(tweet) else tweetNum
 
 eventFunc = (_, p1, p2) ->
   eventNum = parseInt( p2.substring(1) )
-  event = Events.findOne( {num: eventNum}, fields: { num: 1 } )
+  event = Events.findOne( {num: eventNum} )
   return " " + if event then Template.eventIconClickable(event) else eventNum
 
 # Replace any matched users, tweets, or events with links

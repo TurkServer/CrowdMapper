@@ -86,7 +86,10 @@ Meteor.methods
   inviteChat: (userId, roomId) ->
     myId = Meteor.userId()
     return unless myId
+    # Don't invite if user is already in the same room
+    return if ChatUsers.findOne(userId: userId)?.roomId is roomId
 
+    # TODO Skip invite if this user has already invited the other user to this room
     Notifications.insert
       user: userId
       sender: myId
@@ -109,12 +112,12 @@ Meteor.methods
     ChatMessages.insert(obj)
     @unblock()
 
-    # Parse and generate any notifications from this chat
-    # TODO need we escape this?
-    # text = Handlebars._escape(message)
+    # Parse and generate any notifications from this chat, using this regex ability
     message.replace userRegex, (_, p1, p2) ->
       targetUser = Meteor.users.findOne({username: p2.substring(1)})
       return unless targetUser?
+      # Don't notify if user is already in the same room
+      return if ChatUsers.findOne(userId: targetUser._id)?.roomId is roomId
       Notifications.insert
         user: targetUser._id
         sender: userId

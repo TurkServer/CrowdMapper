@@ -8,17 +8,6 @@
 input
     box-sizing content-box
 
-// Works perfectly with the box-sizing above.
-html, body, .fill-height
-    height: 100%
-
-.fill-parent
-  height: 100%
-  width: 100%
-
-.fill-width
-  width: 100%
-
 body
     // padding: 20px 20px 10px;
     padding-bottom: 5px
@@ -34,3 +23,30 @@ blockquote:before, blockquote:after, q:before, q:after
     content: '';
     content: none;
 
+// Works perfectly with the box-sizing above.
+html, body, .fill-parent
+  height: 100%
+  width: 100%
+
+.fill-height
+  height: 100%
+
+.fill-width
+  width: 100%
+
+.carrier
+  position: relative
+
+.scroll-vertical
+  overflow-x: hidden
+  overflow-y: auto
+
+.vertical-table
+  display: table
+  border-spacing: 0px 8px
+
+.vertical-table-row
+  display: table-row
+
+.vertical-table-cell
+  display: table-cell

@@ -15,6 +15,13 @@ Template.datastream.events =
   "click .action-data-hide": ->
     Meteor.call "dataHide", @_id
 
+dragHelper = ->
+  # Make sure we are on events
+  Mapper.switchTab("events")
+  # Set explicit width on the clone
+  currentWidth = $(this).width()
+  return $(this).clone().width(currentWidth)
+
 Template.dataItem.rendered = ->
   # Only visible elements are rendered in the #each helper so no optimization to do here
   $(@firstNode).draggable
@@ -27,11 +34,7 @@ Template.dataItem.rendered = ->
     revert: "invalid"
     scroll: false
     zIndex: 1000
-
-    helper: ->
-      # Set explicit width on the clone
-      currentWidth = $(this).width()
-      return $(this).clone().width(currentWidth)
+    helper: dragHelper
 
   if Session.equals("scrollTweet", @data._id)
     parent = $(".scroll-vertical.data-body")
