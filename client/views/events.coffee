@@ -96,30 +96,39 @@ Template.createFooter.events =
     e.preventDefault()
     generateNewEvent()
 
-acceptDrop = ->
+acceptDrop = (draggable) ->
   # Don't accept drops from random pages
-  Session.equals("taskView", 'events')
+  return false unless Session.equals("taskView", 'events')
+  event = Spark.getDataContext @ # These are the only droppables on the page
+  return false unless event
+  tweet = Spark.getDataContext(draggable.context)
+  # Don't accept drops to the same event
+  return false if $.inArray(event._id, tweet.events) >= 0
+  return true
+
+processDrop = (event, ui) ->
+  event = Spark.getDataContext @
+  return unless event
+  tweet = Spark.getDataContext(ui.draggable.context)
+  # Don't do anything if this tweet is already on this event
+  return if $.inArray(event._id, tweet.events) >= 0
+
+  target = ui.draggable.context
+  parent = tweet
+  while parent is tweet
+    parent = Spark.getDataContext(target = target.parentNode)
+
+  Meteor.call "dataLink", tweet._id, event._id
+  # unlink from parent if it was an event
+  Meteor.call "dataUnlink", tweet._id, parent._id if parent._id
 
 Template.eventRow.rendered = ->
-  data = @data
   $(@firstNode).droppable
     addClasses: false
-    hoverClass: "info"
+    hoverClass: "success"
     tolerance: "pointer"
     accept: acceptDrop
-    drop: processDrop = (event, ui) ->
-      tweet = Spark.getDataContext(ui.draggable.context)
-      # Don't do anything if this tweet is already on this event
-      return if $.inArray(data._id, tweet.events) >= 0
-
-      target = ui.draggable.context
-      parent = tweet
-      while parent is tweet
-        parent = Spark.getDataContext(target = target.parentNode)
-
-      Meteor.call "dataLink", tweet._id, data._id
-      # unlink from parent if it was an event
-      Meteor.call "dataUnlink", tweet._id, parent._id if parent._id
+    drop: processDrop
 
   if Session.equals("scrollEvent", @data._id)
     parent = $(".scroll-vertical.events-body")

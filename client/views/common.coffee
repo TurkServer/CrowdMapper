@@ -66,8 +66,11 @@ Template.tweetIcon.rendered = ->
     revert: "invalid"
     scroll: false
     zIndex: 1000
+    start: Mapper.highlightEvents
+    stop: Mapper.unhighlightEvents
     helper: ->
       # TODO: fixme don't clone the popover if there is one
+      # somehow the popover still shows up
       return $(this).clone().remove(".popover")
 
 Template.tweetIcon.events =

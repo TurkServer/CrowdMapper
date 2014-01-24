@@ -3,6 +3,7 @@
     {{! isolate this so it doesn't scroll when changing sort}}
     {{> eventsHeader}}
 
+    {{! We add and remove a highlighted class to this div to avoid messing with scroll}}
     <div id="events" class="">
     {{!-- This extra container solves the problem of the absolute div clipping shit --}}
     <div class="scroll-vertical events-body">
@@ -190,7 +191,7 @@
         {{> userPill lookupUser}}
         {{/each}}
     {{else}}
-        <i>No users have voted for this event.</i>
+        <i>No one has voted for this event.</i>
     {{/if}}
     </p>
 

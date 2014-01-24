@@ -34,6 +34,9 @@ Template.dataItem.rendered = ->
     revert: "invalid"
     scroll: false
     zIndex: 1000
+    # Make it really obvious where to drop these
+    start: Mapper.highlightEvents
+    stop: Mapper.unhighlightEvents
     helper: dragHelper
 
   if Session.equals("scrollTweet", @data._id)

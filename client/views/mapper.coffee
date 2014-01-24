@@ -12,6 +12,9 @@ Mapper.switchTab = (page) ->
   # TODO why is this necessary? Should not be since the above should trigger it.
   Session.set("taskView", page)
 
+Mapper.highlightEvents = -> $("#events").addClass("highlighted")
+Mapper.unhighlightEvents = -> $("#events").removeClass("highlighted")
+
 Meteor.startup ->
   Session.set("taskView", 'events')
 
