@@ -16,7 +16,7 @@ Template.userPill.rendered = ->
       placement: "bottom"
       trigger: "hover"
       container: @firstNode
-      content: =>
+      content: ->
         # Also no reactive here
         Template.userInvitePopup()
 
@@ -45,15 +45,18 @@ Template.userPill.events =
 # String conversion needed: https://github.com/meteor/meteor/issues/1447
 Handlebars.registerHelper "findTweet", -> Datastream.findOne(""+@)
 
+Handlebars.registerHelper "lookupUser", -> Meteor.users.findOne(""+@)
+
 Template.tweetIcon.rendered = ->
+  tweetId = @data
   $(@firstNode).popover
     html: true
     placement: "top"
     trigger: "hover"
     container: @firstNode # Hovering over the popover should hold it open
-    content: =>
+    content: ->
       # No need for reactivity (Meteor.render) here since tweet does not change
-      Template.tweetPopup Datastream.findOne(@data)
+      Template.tweetPopup Datastream.findOne(tweetId)
 
   $(@firstNode).draggable
     addClasses: false

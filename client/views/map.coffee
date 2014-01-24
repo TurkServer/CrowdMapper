@@ -125,8 +125,7 @@ Template.map.rendered = ->
 
     # Make that shit reactive
     # XXX Don't try to optimize this because it gets un-reactive when taken off the page anyway
-    popup.contentDiv.appendChild Meteor.render ->
-      new Handlebars.SafeString Template.mapPopup Events.findOne(feature.id)
+    popup.contentDiv.appendChild Meteor.render -> Template.mapPopup Events.findOne(feature.id)
 
     map.addPopup(popup, true) # Kick out any old popups for good measure
 

@@ -137,7 +137,7 @@ Template.eventRow.events =
     Mapper.selectEvent @_id
 
   "click .action-event-locate": (e) ->
-    # In the future, bring to map edit interface
+    # TODO In the future, bring to map edit interface
     Events.update @_id,
       $set:
         location: [13410000, 1104000] # in the ocean near philippines
@@ -177,9 +177,9 @@ Handlebars.registerHelper "eventCell", (context, field) ->
   # Temporarily extend the field for render, but we don't have to store it in DB :)
   if field?.type is "dropdown"
     obj.textValue = Mapper.sources[field.key][obj.value]?.text if obj.value?
-    return new Handlebars.SafeString Template._eventCellSelect(obj)
+    return Template._eventCellSelect(obj)
   else
-    return new Handlebars.SafeString Template._eventCell(obj)
+    return Template._eventCell(obj)
 
 Template.eventRow.rowClass = ->
   classes = []
@@ -208,7 +208,7 @@ Template._eventCellSelect.rendered = ->
   settings =
     success: (response, newValue) =>
       result = {}
-      result[@data.key] = newValue
+      result[@data.key] = parseInt(newValue) # Make sure we store an int back in the database
       Events.update @data._id,
         $set: result
     value: @data.value
@@ -224,3 +224,39 @@ Handlebars.registerHelper "editCell", ->
     return Template.userPill(Meteor.users.findOne(@editor)) + " is editing"
   else
     return Template._editCellOpen @
+
+Template.eventVoting.rendered = ->
+  eventId = @data._id
+  $(@firstNode).popover
+    html: true
+    placement: "left"
+    trigger: "hover"
+    container: @firstNode # Hovering over the popover should hold it open
+    content: ->
+      # No need for reactivity (Meteor.render) here since tweet does not change
+      Meteor.render -> Template.eventVotePopup Events.findOne(eventId, fields: {votes: 1})
+
+Template.eventVoting.events =
+  "click .action-event-upvote": ->
+    userId = Meteor.userId()
+    unless userId
+      bootbox.alert("You must be logged in to vote on an event.")
+      return
+    Events.update @_id,
+      $addToSet: { votes: userId }
+
+  "click .action-event-unvote": ->
+    userId = Meteor.userId()
+    unless userId
+      bootbox.alert("You must be logged in to vote on an event.")
+      return
+    Events.update @_id,
+      $pull: { votes: userId }
+
+Template.eventVoting.badgeClass = -> if @votes?.length > 0 then "badge-success" else "badge-default"
+Template.eventVoting.numVotes = -> @votes?.length || 0
+
+Template.eventVotePopup.anyVotes = -> @votes?.length > 0
+Template.eventVotePopup.iVoted = ->
+  userId = Meteor.userId()
+  return userId && _.contains(@votes, userId)

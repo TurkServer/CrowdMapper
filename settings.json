@@ -7,6 +7,14 @@
             "db": {
                 "type": "mongo",
                 "opsCollectionPerDoc": false
+            },
+            "accounts_auth": {
+              "authenticate": {
+                "collection": "users",
+                "token_validations": {
+                  "_id": "is_equal"
+                }
+              }
             }
         }
     }
