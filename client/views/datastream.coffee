@@ -22,22 +22,24 @@ dragHelper = ->
   currentWidth = $(this).width()
   return $(this).clone().width(currentWidth)
 
+dragProps =
+  addClasses: false
+  # cancel: ".data-text"
+  # containment: "window"
+  cursorAt: { top: 0, left: 0 }
+  distance: 5
+  handle: ".label" # the header
+  helper: dragHelper
+  revert: "invalid"
+  scroll: false
+  # Make it really obvious where to drop these
+  start: Mapper.highlightEvents
+  stop: Mapper.unhighlightEvents
+  zIndex: 1000
+
 Template.dataItem.rendered = ->
   # Only visible elements are rendered in the #each helper so no optimization to do here
-  $(@firstNode).draggable
-    addClasses: false
-    # TODO: Allow text selection on parts of tweet
-    # cancel: ".data-text"
-    # containment: "window"
-    cursorAt: { top: 0, left: 0 }
-    distance: 5
-    revert: "invalid"
-    scroll: false
-    zIndex: 1000
-    # Make it really obvious where to drop these
-    start: Mapper.highlightEvents
-    stop: Mapper.unhighlightEvents
-    helper: dragHelper
+  $(@firstNode).draggable dragProps
 
   if Session.equals("scrollTweet", @data._id)
     parent = $(".scroll-vertical.data-body")

@@ -12,3 +12,86 @@
     </div>
 </template>
 
+<template name="mapperContainer">
+    {{> mapper}}
+
+    {{#if tutorialEnabled}}
+    {{tutorial options}}
+    {{/if}}
+</template>
+
+<template name="mapper">
+    <div class="container-fluid compact fill-height">
+        <div class="row-fluid fill-height">
+            <div class="span2 fill-height carrier">
+                {{> datastream}}
+            </div>
+            <div class="span7 fill-height carrier stack">
+                {{> pageNav}}
+                <div id="mapper-docs" class="pages">
+                    {{> docs}}
+                </div>
+                <div id="mapper-events" class="pages">
+                    {{> events}}
+                </div>
+                <div id="mapper-map" class="pages">
+                    {{> map}}
+                </div>
+            </div>
+            <div class="span3 fill-height carrier">
+                {{> sidebar}}
+            </div>
+        </div>
+    </div>
+</template>
+
+<template name="pageNav">
+    <div class="navbar compact">
+        <div class="navbar-inner compact">
+            <ul class="nav">
+                <li>
+                    <a href="#" data-target="events" data-toggle="tab">Event Records</a>
+                </li>
+                <li class="divider-vertical"></li>
+                <li>
+                    <a href="#" data-target="map" data-toggle="tab">Map</a>
+                </li>
+                <li class="divider-vertical"></li>
+                <li>
+                    <a href="#" data-target="docs" data-toggle="tab">Documents</a>
+                </li>
+            </ul>
+
+            <ul class="nav pull-right">
+                <li class="notification dropdown">
+                    {{> notifications}}
+                </li>
+                <li class="divider-vertical"></li>
+                <li class="navbar-text">
+                    {{loginButtons}}
+                </li>
+            </ul>
+        </div>
+    </div>
+</template>
+
+<template name="sidebar">
+    <div class="vertical-table fill-parent">
+        <div class="vertical-table-row">
+            <div class="vertical-table-cell user-list">
+                {{> userList}}
+            </div>
+        </div>
+        <div class="vertical-table-row">
+            <div class="vertical-table-cell chat-overview">
+                {{> chat}}
+            </div>
+        </div>
+        <div class="vertical-table-row">
+            <div class="vertical-table-cell fill-height">
+                {{> currentChatroom}}
+            </div>
+        </div>
+    </div>
+</template>
+

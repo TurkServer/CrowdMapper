@@ -47,6 +47,24 @@ Handlebars.registerHelper "findTweet", -> Datastream.findOne(""+@)
 
 Handlebars.registerHelper "lookupUser", -> Meteor.users.findOne(""+@)
 
+cloneWithoutPopover = ->
+  # TODO: fixme don't clone the popover if there is one
+  # somehow the popover still shows up
+  return $(this).clone().remove(".popover")
+
+tweetIconDragProps =
+  addClasses: false
+  # containment: "window"
+  cursorAt: { top: 0, left: 0 }
+  distance: 5
+  handle: ".label"
+  helper: cloneWithoutPopover
+  revert: "invalid"
+  scroll: false
+  start: Mapper.highlightEvents
+  stop: Mapper.unhighlightEvents
+  zIndex: 1000
+
 Template.tweetIcon.rendered = ->
   tweetId = @data
   $(@firstNode).popover
@@ -58,20 +76,7 @@ Template.tweetIcon.rendered = ->
       # No need for reactivity (Meteor.render) here since tweet does not change
       Template.tweetPopup Datastream.findOne(tweetId)
 
-  $(@firstNode).draggable
-    addClasses: false
-    # containment: "window"
-    cursorAt: { top: 0, left: 0 }
-    distance: 5
-    revert: "invalid"
-    scroll: false
-    zIndex: 1000
-    start: Mapper.highlightEvents
-    stop: Mapper.unhighlightEvents
-    helper: ->
-      # TODO: fixme don't clone the popover if there is one
-      # somehow the popover still shows up
-      return $(this).clone().remove(".popover")
+  $(@firstNode).draggable(tweetIconDragProps)
 
 Template.tweetIcon.events =
   "click .action-unlink-tweet": (e) ->
