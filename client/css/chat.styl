@@ -18,26 +18,27 @@
     position: absolute
     width: 100%
 
-// This is a weird hack to position the chat box for now. Alternatively, we should use JS.
 .messages
-    position: absolute
-    width: 100%
-    top: 30px
-    bottom: 35px
-    overflow: auto
-    margin: 0px
+  position: absolute
+  width: 100%
+  top: 30px
+  bottom: 35px
+  margin: 0
+  padding: 0px
 
-.messages .mine
-    color:green
+.messages-body
+  margin: 0
+  padding: 5px
+  height: 100%
+  width: 100%
+
+.chat-messaging > form
+  position: absolute
+  width: 100%
+  height: auto
+  bottom: 0
 
 .chat-input
-  position: absolute
-  width: auto // to unset default width for inputs
-  left: 0
-  bottom: 0
-  right: 45px
+  width: 80%
 
-.action-chat-send
-  position: absolute
-  bottom: 0
-  right: 0
+// .action-chat-send

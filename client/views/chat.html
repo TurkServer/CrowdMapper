@@ -22,7 +22,7 @@
     {{#if currentRoom}}
         {{> roomHeader}}
         {{> messageBox}}
-        <form class="form-inline compact" action="javascript:void(0)">
+        <form class="form-inline input-append compact" action="javascript:void(0)">
             {{inputAutocomplete settings class="chat-input" placeholder="Chat..."}}
             <button type="submit" class="btn btn-primary action-chat-send" title="Send">
                 <i class="icon-white icon-share-alt"></i>
@@ -73,17 +73,19 @@
 </template>
 
 <template name="messageBox">
-    <ul class="messages well well-skinny">
-        {{#each messages}}
-        {{> messageItem}}
-        {{/each}}
-    </ul>
+    <div class="messages well well-nopad">
+        <ul class="scroll-vertical messages-body">
+            {{#each messages}}
+            {{> messageItem}}
+            {{/each}}
+        </ul>
+    </div>
 </template>
 
 <template name="messageItem">
     <li>
     {{#if text}}
-    <span class="">{{username}}:</span> {{{renderText}}}
+    <u>{{username}}</u>: {{{renderText}}}
     {{else}}
     <small><span class="muted">{{eventText}}</span></small>
     {{/if}}

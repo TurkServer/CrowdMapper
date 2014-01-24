@@ -103,7 +103,7 @@ Template.roomHeader.events =
 
 Template.messageBox.rendered = ->
   # Scroll down whenever anything happens
-  $messages = $ @find(".messages")
+  $messages = $ @find(".messages-body")
   $messages.scrollTop $messages[0].scrollHeight
 
 Template.messageBox.messages = ->
