@@ -42,4 +42,23 @@ Router.map ->
     waitOn: fieldSub
     data: -> { tutorialEnabled: @params.tutorial is "tutorial" }
 
+###
+  Window sizing warning
+###
+sizeWarningDialog = null
 
+checkSize = ->
+  bigEnough = $(window).width() > 1250 and $(window).height() > 500
+
+  if bigEnough and sizeWarningDialog?
+    sizeWarningDialog.modal("hide")
+    sizeWarningDialog = null
+    return
+
+  if !bigEnough and sizeWarningDialog is null
+    sizeWarningDialog = bootbox.dialog("<h3>Your screen is not big enough for this task. Please maximize your window if possible.</h3>")
+    return
+
+Meteor.startup ->
+  checkSize()
+  $(window).resize checkSize
