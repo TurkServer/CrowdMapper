@@ -62,8 +62,7 @@ Template.eventsHeader.iconClass = ->
     "icon-resize-vertical"
 
 Template.events.events =
-  "click tr": (e) ->
-    Session.set("selectedEvent", @_id)
+  "click .events-body tr": -> Session.set("selectedEvent", @_id)
   "click span.sorter": (e) ->
     key = $(e.target).closest("span").attr("data-key")
     sortKey = Session.get("eventSortKey")
@@ -140,21 +139,18 @@ Template.eventRow.rendered = ->
 Template.eventRow.events =
   "click .action-event-mapview": (e) ->
     e.preventDefault()
-
+    # Clicking the row should already select the event
     # This automatically switches the tab view
     Mapper.switchTab "map"
-    Mapper.selectEvent @_id
 
   "click .action-event-locate": (e) ->
-    # TODO In the future, bring to map edit interface
     Events.update @_id,
       $set:
         location: [13410000, 1104000] # in the ocean near philippines
-
+    # Clicking the row already selects the event
     Mapper.switchTab "map"
     # TODO show a message to do something with this
     # TODO does this require a flush? Doesn't seem like it...
-    Mapper.selectEvent @_id
 
   "dblclick tr": edit
 

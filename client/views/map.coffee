@@ -1,7 +1,7 @@
 @Mapper = @Mapper || {}
 
 # OpenLayers config - set this externally at some point
-extent = [11700000, 525000, 15700000, 2450000] # Philippines
+extent = [11700000, 525000, 15600000, 2450000] # Philippines
 
 resolutions = [19567.87923828125, 9783.939619140625,
                4891.9698095703125, 2445.9849047851562, 1222.9924523925781,
@@ -167,22 +167,6 @@ Template.map.rendered = ->
 
       displayPopup(selectedFeature || feature)
 
-  vectorLayer.events.on
-    "featureselected": (e) ->
-      displayPopup(e.feature)
-      selectedFeature = e.feature
-    "featureunselected": ->
-      selectedFeature = null
-      hidePopup()
-
-  # Register external helpers
-  Mapper.selectEvent = (id) ->
-    feature = vectorLayer.getFeatureById(id)
-    return unless feature
-    selectControl.unselectAll()
-    map.zoomToMaxExtent()
-    selectControl.select(feature)
-
   # Order of hover and select control matters
   map.addControl(hoverControl)
   hoverControl.activate()
@@ -195,12 +179,8 @@ Template.map.rendered = ->
 
   map.zoomToMaxExtent()
 
-  # Get all markers
-  markers = Events.find
-    location: {$exists: true}
-
   # Observe for changes to markers (first run draws initial)
-  @query = markers.observeChanges
+  @query = Events.find(location: {$exists: true}).observeChanges
     added: (id, fields) ->
       point = new OpenLayers.Geometry.Point(fields.location[0], fields.location[1])
       feature = new OpenLayers.Feature.Vector(point)
@@ -224,6 +204,35 @@ Template.map.rendered = ->
       # Clean up a possibly displayed popup for this
       hidePopup() if selectedFeature is feature
       vectorLayer.destroyFeatures [feature]
+
+  ###
+    Vector Layer events.
+    Set or unset selected feature before setting the session variable;
+    It determines if we should zoom or not.
+  ###
+  vectorLayer.events.on
+    "featureselected": (e) ->
+      displayPopup(e.feature)
+      selectedFeature = e.feature
+      Session.set("selectedEvent", selectedFeature.id)
+    "featureunselected": (e) ->
+      selectedFeature = null
+      hidePopup()
+      # Only set selected event to null if we unselected via the map
+      sessionSelected = Deps.nonreactive -> Session.get("selectedEvent")
+      Session.set("selectedEvent", null) if sessionSelected is e.feature.id
+
+  # Watch for outside event selection
+  # TODO stop this computation when the template unloads (but only loads once so w/e)
+  Deps.autorun ->
+    id = Session.get("selectedEvent")
+    return unless id
+    feature = vectorLayer.getFeatureById(id)
+    return if selectedFeature is feature # Don't select/zoom if we already selected this
+    selectControl.unselectAll()
+    return unless feature # Unselect if the event exists but is not on map
+    selectControl.select(feature)
+    map.zoomToMaxExtent()
 
 Template.map.destroyed = ->
   # Tear down observe query
