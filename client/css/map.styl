@@ -1,6 +1,15 @@
+@import 'nib'
+
 // Fix for bootstrap crapping on openlayers
 #map img
     max-width: none
+
+.olControlLayerSwitcher .layersDiv
+  border-radius: 10px 0 0 10px;
+  opacity: 0.75;
+
+.olControlLayerSwitcher .layersDiv label
+  display: inline // Cancel bootstrap styling
 
 .olControlMousePosition
     color: #FFFFFF

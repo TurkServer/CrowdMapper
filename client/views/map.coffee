@@ -1,7 +1,7 @@
 @Mapper = @Mapper || {}
 
-# OpenLayers config - set this externally at some point
-extent = [11700000, 525000, 15600000, 2450000] # Philippines
+extent = Meteor.settings.public.map.extent
+bingAPIKey = Meteor.settings.public.map.bingAPIKey
 
 resolutions = [19567.87923828125, 9783.939619140625,
                4891.9698095703125, 2445.9849047851562, 1222.9924523925781,
@@ -60,23 +60,27 @@ Template.map.rendered = ->
   # Don't re-render map due to reactive sub-regions triggering this
   return if @map
 
-  console.log "starting map render"
-
-#  mapLayer = new OpenLayers.Layer.OSM("Simple OSM Map");
-  mapLayer = new OpenLayers.Layer.Bing
-    name: "Bing Map"
-    type: "Road" # "AerialWithLabels"
-    key: "AtsCXPry0QFxHVXRBJDXPVVy88GhE6tTwtW61SNJoVl8AYwcNce_UsO3VZ3lGT3Q"
+  politicalMapLayer = new OpenLayers.Layer.Bing
+    name: "Political Map"
+    type: "Road"
+    key: bingAPIKey
     # Fix for the pink tiles and cross-origin errors
     tileOptions: { crossOriginKeyword: 'anonymous'}
     # transitionEffect: null
 
-  vectorLayer = new OpenLayers.Layer.Vector "Vector Layer",
+  satelliteMapLayer = new OpenLayers.Layer.Bing
+    name: "Satellite Map"
+    type: "AerialWithLabels"
+    key: bingAPIKey
+    tileOptions: { crossOriginKeyword: 'anonymous'}
+
+  vectorLayer = new OpenLayers.Layer.Vector "Event Markers",
     styleMap: @styleMap
+    displayInLayerSwitcher: false # https://github.com/openlayers/openlayers/blob/master/lib/OpenLayers/Control/LayerSwitcher.js#L289
 
   map = new OpenLayers.Map 'map',
     # center: new OpenLayers.LonLat(0, 0)
-    layers: [mapLayer, vectorLayer]
+    layers: [politicalMapLayer, satelliteMapLayer, vectorLayer]
     maxExtent: extent
     restrictedExtent: extent
     resolutions: resolutions
