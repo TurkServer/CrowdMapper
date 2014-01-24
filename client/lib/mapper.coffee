@@ -14,3 +14,6 @@ Mapper.switchTab = (page) ->
 
 Mapper.highlightEvents = -> $("#events").addClass("highlighted")
 Mapper.unhighlightEvents = -> $("#events").removeClass("highlighted")
+
+Mapper.highlightMap = -> $("#map").addClass("highlighted")
+Mapper.unhighlightMap = -> $("#map").removeClass("highlighted")

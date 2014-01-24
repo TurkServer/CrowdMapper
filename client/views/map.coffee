@@ -87,22 +87,18 @@ Template.map.rendered = ->
     serverResolutions: serverResolutions
     theme: null # don't attempt to load theme from default path
     controls: [
+      new OpenLayers.Control.LayerSwitcher( ascending: false ),
+      new OpenLayers.Control.KeyboardDefaults(),
+      new OpenLayers.Control.MousePosition
+        numDigits: 2
+        displayProjection: new OpenLayers.Projection("EPSG:4326")
       new OpenLayers.Control.Navigation(),
-      new OpenLayers.Control.PanZoomBar()
+      new OpenLayers.Control.OverviewMap
+        mapOptions: {theme: null} # again, don't load theme
+      new OpenLayers.Control.PanZoomBar(),
     ]
 
   @map = map
-
-  map.addControl new OpenLayers.Control.MousePosition
-    numDigits: 2
-    displayProjection: new OpenLayers.Projection("EPSG:4326")
-
-  map.addControl(new OpenLayers.Control.LayerSwitcher({'ascending':false}));
-  map.addControl(new OpenLayers.Control.OverviewMap
-    mapOptions:
-      theme: null # again, don't load theme
-  )
-  map.addControl(new OpenLayers.Control.KeyboardDefaults());
 
   popup = null
   selectedFeature = null
@@ -131,7 +127,7 @@ Template.map.rendered = ->
     # XXX Don't try to optimize this because it gets un-reactive when taken off the page anyway
     popup.contentDiv.appendChild Meteor.render -> Template.mapPopup Events.findOne(feature.id)
 
-    map.addPopup(popup, true) # Kick out any old popups for good measure
+    map.addPopup(popup, true) # Second argument - kick out any old popups for good measure
 
     # Resize popup to fit contents
     # Of course, this won't affect reactive updates but those are unlikely to trigger huge size changes
@@ -140,6 +136,9 @@ Template.map.rendered = ->
   hidePopup = ->
     map.removePopup(popup) if popup
 
+  placeControl = new OpenLayers.Control.Click
+    trigger: (e) -> console.log "blah", e
+
   # Allow hovering over stuff
   hoverControl = new OpenLayers.Control.SelectFeature vectorLayer,
     hover: true
@@ -147,12 +146,8 @@ Template.map.rendered = ->
     renderIntent: "hover"
     eventListeners:
 #      beforefeaturehighlighted: (e) -> console.log e
-      featurehighlighted: (e) ->
-        return if selectedFeature
-        displayPopup(e.feature)
-      featureunhighlighted: ->
-        return if selectedFeature
-        hidePopup()
+      featurehighlighted: (e) -> displayPopup(e.feature) unless selectedFeature
+      featureunhighlighted: -> hidePopup() unless selectedFeature
 
   # Select control that manually triggers updates
   selectControl = new OpenLayers.Control.SelectFeature vectorLayer,
@@ -170,6 +165,9 @@ Template.map.rendered = ->
         $set: { location: [point.x, point.y] }
 
       displayPopup(selectedFeature || feature)
+
+  map.addControl(placeControl)
+  placeControl.activate()
 
   # Order of hover and select control matters
   map.addControl(hoverControl)
