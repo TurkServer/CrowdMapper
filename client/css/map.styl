@@ -25,11 +25,14 @@
 
 // Allow tweet tags to extend outside popups
 .olPopup
-    overflow: visible !important
+  overflow: visible !important
+  border-radius: 5px
+  box-shadow 0px 0px 3px 3px rgba(0, 0, 0, 0.3);
 
 .olPopup > div
-    overflow: visible !important
+  overflow: visible !important
 
 .olPopupContent
-    overflow: visible !important
-    display: block
+  overflow: visible !important
+  display: block
+  max-width: 300px // Stop the popups from rendering too wide

@@ -215,7 +215,9 @@ Template.map.rendered = ->
       feature = vectorLayer.getFeatureById(id)
       return unless feature
       # Clean up a possibly displayed popup for this
-      hidePopup() if selectedFeature is feature
+      if selectedFeature is feature
+        selectedFeature = null
+        hidePopup()
       vectorLayer.destroyFeatures [feature]
 
   ###
