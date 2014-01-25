@@ -137,7 +137,14 @@ Template.map.rendered = ->
     map.removePopup(popup) if popup
 
   placeControl = new OpenLayers.Control.Click
-    trigger: (e) -> console.log "blah", e
+    trigger: (e) ->
+      lonlat = map.getLonLatFromPixel(e.xy)
+      id = Session.get("placingEvent")
+      Session.set("placingEvent", undefined) # Also deactivates the control
+      return unless id
+      Events.update id,
+        $set:
+          location: [lonlat.lon, lonlat.lat]
 
   # Allow hovering over stuff
   hoverControl = new OpenLayers.Control.SelectFeature vectorLayer,
@@ -166,8 +173,7 @@ Template.map.rendered = ->
 
       displayPopup(selectedFeature || feature)
 
-  map.addControl(placeControl)
-  placeControl.activate()
+  map.addControl(placeControl) # but don't activate till we need to place an event
 
   # Order of hover and select control matters
   map.addControl(hoverControl)
@@ -188,6 +194,11 @@ Template.map.rendered = ->
       feature = new OpenLayers.Feature.Vector(point)
       feature.id = id
       vectorLayer.addFeatures([feature])
+      # Show popup for this feature if it's selected
+      # TODO takes two clicks to select something after this
+      if Session.equals("selectedEvent", id)
+        selectControl.unselectAll()
+        selectControl.select(feature)
 
     changed: (id, fields) ->
       feature = vectorLayer.getFeatureById(id)
@@ -236,9 +247,21 @@ Template.map.rendered = ->
     selectControl.select(feature)
     map.zoomToMaxExtent()
 
+  # Watch for event placing, this sets the crosshair using CSS
+  Deps.autorun ->
+    if Session.get("placingEvent")
+      placeControl.activate()
+    else
+      placeControl.deactivate()
+
 Template.map.destroyed = ->
   # Tear down observe query
   @query?.stop()
+
+Template.mapPopup.events =
+  "click .action-event-unmap": ->
+    Events.update @_id,
+      $unset: location: null
 
 # TODO this is just a workaround but don't hardcode fields in future
 Template.mapPopup.dereference = (key, value) ->

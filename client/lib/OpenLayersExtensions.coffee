@@ -10,6 +10,8 @@ Meteor.startup ->
     }
     initialize: (options) ->
       @handlerOptions = OpenLayers.Util.extend({}, @defaultHandlerOptions)
-      OpenLayers.Control.prototype.initialize.apply(@, arguments)
+      OpenLayers.Control::initialize.apply(@, arguments)
       @handler = new OpenLayers.Handler.Click(@, {'click': @trigger}, @handlerOptions)
       return # This is super important or it breaks
+    # Give this an explicit name so we can use its active class: .olControlClickActive
+    CLASS_NAME: "OpenLayers.Control.Click"

@@ -12,8 +12,19 @@ Mapper.switchTab = (page) ->
   # TODO why is this necessary? Should not be since the above should trigger it.
   Session.set("taskView", page)
 
-Mapper.highlightEvents = -> $("#events").addClass("highlighted")
-Mapper.unhighlightEvents = -> $("#events").removeClass("highlighted")
+Mapper.highlightEvents = ->
+  $("#events").addClass("highlighted")
+  Session.set("guidanceMessage", "Drop on an event below to attach this tweet.")
+Mapper.unhighlightEvents = ->
+  $("#events").removeClass("highlighted")
+  Session.set("guidanceMessage", undefined)
 
-Mapper.highlightMap = -> $("#map").addClass("highlighted")
-Mapper.unhighlightMap = -> $("#map").removeClass("highlighted")
+# Highlighting and unhighlighting map can run automatically from a placing event
+Deps.autorun ->
+  id = Session.get("placingEvent")
+  if id
+    $("#map").addClass("highlighted")
+    Session.set("guidanceMessage", "Click to set a location for this event on the map.")
+  else
+    $("#map").removeClass("highlighted")
+    Session.set("guidanceMessage", undefined)

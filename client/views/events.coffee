@@ -144,13 +144,15 @@ Template.eventRow.events =
     Mapper.switchTab "map"
 
   "click .action-event-locate": (e) ->
-    Events.update @_id,
-      $set:
-        location: [13410000, 1104000] # in the ocean near philippines
-    # Clicking the row already selects the event
-    Mapper.switchTab "map"
-    # TODO show a message to do something with this
-    # TODO does this require a flush? Doesn't seem like it...
+    Session.set("placingEvent", @_id)
+    Mapper.switchTab("map")
+    e.stopPropagation() # So the below handler can do its work
+
+    # Cancel event placement and go back to events if clicking randomly
+    $("body").one "click", ->
+      if Session.get("placingEvent")
+        Mapper.switchTab("events")
+        Session.set("placingEvent", undefined)
 
   "dblclick tr": edit
 

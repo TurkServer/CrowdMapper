@@ -27,6 +27,7 @@
                 {{> datastream}}
             </div>
             <div class="span7 fill-height carrier stack">
+                {{> guidance}}
                 {{> pageNav}}
                 <div id="mapper-docs" class="pages">
                     {{> docs}}
@@ -42,6 +43,12 @@
                 {{> sidebar}}
             </div>
         </div>
+    </div>
+</template>
+
+<template name="guidance">
+    <div class="guidanceMessage" style="{{showStyle}}">
+        <h2 class="text-center">{{message}}</h2>
     </div>
 </template>
 

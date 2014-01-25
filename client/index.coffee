@@ -75,6 +75,9 @@ Template.mapper.rendered = ->
   return unless tab?
   $('#mapper-'+tab).addClass('active')
 
+Template.guidance.message = -> Session.get("guidanceMessage")
+Template.guidance.showStyle = -> if Session.get("guidanceMessage") then "" else "display: none"
+
 Template.pageNav.events =
   "click a": (e) -> e.preventDefault()
 
