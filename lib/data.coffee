@@ -1,8 +1,7 @@
 # Chat
 this.ChatRooms = new Meteor.Collection("chatrooms")
 
-# These two would not need to be stuffed into TurkServer
-# this.ChatUsers is separated
+# this.ChatUsers (separate file) and ChatMessages do not need to be stuffed into TurkServer
 this.ChatMessages = new Meteor.Collection("chatmessages")
 
 # Datastream
@@ -12,11 +11,19 @@ this.Datastream = new Meteor.Collection("datastream")
 this.Documents = new Meteor.Collection("documents")
 
 # Events / Map
-this.EventFields = new Meteor.Collection("eventfields")
+this.EventFields = new Meteor.Collection("eventfields") # Also not turkservered.
 this.Events = new Meteor.Collection("events")
 
 # Chat and invite notivications
-this.Notifications = new Meteor.Collection("notifications")
+this.Notifications = new Meteor.Collection("notifications") # Not turkservered since each user sees their own
+
+# Group the four main partitioned collections
+TurkServer.partitionCollection(ChatRooms)
+TurkServer.partitionCollection(Datastream)
+TurkServer.partitionCollection(Documents)
+TurkServer.partitionCollection(Events, {
+  index: { num: 1 }  # Create an index on event sequencing for efficient lookup
+})
 
 Meteor.methods
   ###

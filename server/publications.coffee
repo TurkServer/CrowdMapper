@@ -1,3 +1,5 @@
+# All of these publications check for grouping, except notifications
+
 # User status and username
 Meteor.publish "userStatus", ->
   Meteor.users.find {}, # All users (in my group)
@@ -16,7 +18,9 @@ Meteor.publish "docs", ->
 Meteor.publish "events", ->
   Events.find()
 
-# TODO: index notifications
+# This is not indexed by TurkServer
+Notifications._ensureIndex
+  user: 1
 
 Meteor.publish 'notifications', ->
   # Only publish unread notifications for this user

@@ -11,25 +11,10 @@ Meteor.publish "eventFieldData", ->
 Events._ensureIndex
   editor: 1
 
-UserStatus.on "sessionLogout", (doc) ->
-  # TODO bind groupId here or make TurkServer functionality
-  Events.update { editor: doc.userId },
+TurkServer.onDisconnect ->
+  Events.update { editor: @userId },
     $unset: { editor: null }
   , multi: true
-
-# Create an index on event sequencing for efficient lookup
-Events._ensureIndex
-  num: 1
-
-# TODO make this maxEventIdx work in TurkServer
-maxEventIdx = null
-
-Meteor.startup ->
-  maxEventIdx = Events.findOne({}, sort: {num: -1})?.num || 0
-
-  # Populate numbers for events that don't have numbers
-  Events.find(num: {$exists: false}).forEach (event) ->
-    Events.update(event._id, $set: { num: ++maxEventIdx } )
 
 Meteor.methods
   createEvent: (eventId, fields) ->
@@ -40,7 +25,8 @@ Meteor.methods
     }
 
     _.extend(obj, fields)
-    # Increment number for this event
-    obj.num = ++maxEventIdx
+    # Increment number based on highest numbered event
+    maxEventIdx = Events.findOne({}, sort: {num: -1})?.num || 0
+    obj.num = maxEventIdx + 1
 
     Events.insert(obj)

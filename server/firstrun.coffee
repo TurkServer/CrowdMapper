@@ -179,7 +179,8 @@ loadEventFields = ->
       "Zamboanga Sibugay"
     ]
 
-Meteor.startup ->
+# TODO move this function into experiment init
+TurkServer.startup ->
   return if Datastream.find().count() > 0
 
   # Load initial tweets on first start
@@ -190,4 +191,3 @@ Meteor.startup ->
   return if EventFields.find().count() > 0
 
   loadEventFields()
-

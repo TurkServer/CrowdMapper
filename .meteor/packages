@@ -17,19 +17,17 @@ x-editable-bootstrap
 user-status
 bootboxjs
 publish-with-relations
-accounts-testing
 sharejs
 autocomplete
 tutorials
 jqueryui
-
+turkserver
 # Can be used to download OpenLayers files
 build-fetcher
 
-# turkserver
-
+# For testing if we are not using turkserver
+# accounts-testing
 # For parsing input files
 csv
-
 # Only for running OL straight from unbuilt source
 # openlayers

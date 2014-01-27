@@ -74,7 +74,7 @@ Meteor.publish "chatstate", (room)  ->
     }]
 
 # Clear all users stored in chatrooms on start
-Meteor.startup ->
+TurkServer.startup ->
   ChatRooms.update {},
     $set:
       {users: 0}
