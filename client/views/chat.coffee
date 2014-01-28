@@ -111,7 +111,8 @@ Template.messageBox.messages = ->
     room: Session.get("room")
 
 # These usernames are nonreactive because find does not use any reactive variables
-Template.messageItem.username = -> Meteor.users.findOne(@userId).username
+Template.messageItem.username = ->
+  Meteor.users.findOne(@userId)?.username || @userId
 
 userRegex = new RegExp('(^|\\b|\\s)(@[\\w.]+)($|\\b|\\s)','g')
 tweetRegex = new RegExp('(^|\\b|\\s)(![\\d]+)($|\\b|\\s)','g')

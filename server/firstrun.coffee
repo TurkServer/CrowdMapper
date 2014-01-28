@@ -191,3 +191,10 @@ Meteor.startup ->
   return if EventFields.find().count() > 0
 
   loadEventFields()
+
+Meteor.startup ->
+  # Random test code to group existing users
+  Meteor.users.find().forEach (user) ->
+    return if user.admin
+    return if user?.turkserver?.group
+    TurkServer.Experiment.addUser("taq4fC7rmcD2MT55b", user._id)

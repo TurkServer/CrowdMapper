@@ -10,15 +10,19 @@ Deps.autorun ->
   Mapper.processSources()
   @stop()
 
-Meteor.subscribe("chatrooms")
-# Chat messages are subscribed to individually
+handles = []
 
-Meteor.subscribe("userStatus")
-
-Meteor.subscribe("datastream")
-Meteor.subscribe("docs")
-
-Meteor.subscribe("events")
+Deps.autorun ->
+  group = TurkServer.group()
+  # Remember, we need to pass the group handle down to make Meteor think the subscription is different
+  handles = [
+    Meteor.subscribe("userStatus", group)
+    Meteor.subscribe("chatrooms", group) # Chat messages are subscribed to by room
+    Meteor.subscribe("datastream", group)
+    Meteor.subscribe("docs", group)
+    Meteor.subscribe("events", group)
+    fieldSub
+  ]
 
 Meteor.subscribe("notifications")
 
@@ -39,7 +43,7 @@ Router.map ->
       Before hook is buggy due to https://github.com/EventedMind/iron-router/issues/336
       So we subscribe to EventFields statically right now.
     ###
-    waitOn: fieldSub
+    waitOn: handles
     data: -> { tutorialEnabled: @params.tutorial is "tutorial" }
 
 ###
