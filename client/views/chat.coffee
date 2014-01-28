@@ -13,7 +13,7 @@ Template.chat.events =
     bootbox.prompt "Name the room", (roomName) ->
       Meteor.call "createChat", roomName if !!roomName
 
-Template.rooms.availableRooms = -> ChatRooms.find {}
+Template.rooms.availableRooms = -> ChatRooms.find({}, {sort: {name: 1}}) # For a consistent ordering
 
 Template.roomItem.active = -> Session.equals("room", @_id)
 
@@ -125,7 +125,7 @@ userFunc = (_, p1, p2) ->
   return " " + if user then Template.userPill(user) else username
 
 tweetFunc = (_, p1, p2) ->
-  tweetNum = p2.substring(1)
+  tweetNum = parseInt( p2.substring(1) )
   tweet = Datastream.findOne( {num: tweetNum} )
   return " " + if tweet then Template.tweetIconClickable(tweet) else tweetNum
 

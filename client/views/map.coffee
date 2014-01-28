@@ -131,7 +131,7 @@ Template.map.rendered = ->
 
     # Resize popup to fit contents
     # Of course, this won't affect reactive updates but those are unlikely to trigger huge size changes
-    popup.updateSize()
+    # popup.updateSize()
 
   hidePopup = ->
     map.removePopup(popup) if popup

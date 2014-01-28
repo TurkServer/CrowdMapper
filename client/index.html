@@ -12,12 +12,21 @@
     </div>
 </template>
 
+<template name="blankContainer">
+    <div class="container">
+        {{yield}}
+    </div>
+</template>
+
+<template name="awaitingLogin">
+    <div class="alert alert-info">
+        <h3>Waiting for login...</h3>
+    </div>
+</template>
+
 <template name="mapperContainer">
     {{> mapper}}
-
-    {{#if tutorialEnabled}}
-    {{tutorial options}}
-    {{/if}}
+    {{> mapperTutorial}}
 </template>
 
 <template name="mapper">
@@ -44,6 +53,12 @@
             </div>
         </div>
     </div>
+</template>
+
+<template name="mapperTutorial">
+    {{#if tutorialEnabled}}
+    {{tutorial options}}
+    {{/if}}
 </template>
 
 <template name="guidance">

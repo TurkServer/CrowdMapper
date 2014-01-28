@@ -240,8 +240,8 @@ Template.eventVoting.rendered = ->
     trigger: "hover"
     container: @firstNode # Hovering over the popover should hold it open
     content: ->
-      # No need for reactivity (Meteor.render) here since tweet does not change
-      Meteor.render -> Template.eventVotePopup Events.findOne(eventId, fields: {votes: 1})
+      Meteor.render ->
+        Template.eventVotePopup Events.findOne(eventId, fields: {votes: 1})
 
 Template.eventVoting.events =
   "click .action-event-upvote": ->

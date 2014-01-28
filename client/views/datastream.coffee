@@ -1,6 +1,6 @@
 
 Template.datastream.data = ->
-  Datastream.find({}) # , sort: {_id: 1}) # Natural order is insertion
+  Datastream.find({}, sort: {num: 1}) # Sort in increasing insertion order
 
 Template.datastream.visible = ->
   # Order in which we register reactive dependencies with short-circuit boolean matters here for efficiency

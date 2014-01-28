@@ -90,6 +90,9 @@ newdoc-height = 30px
 .events-header th
     white-space: nowrap
 
+.data-body
+  list-style: none
+
 .events-body, .data-body
     display: block
     height: 100%
@@ -137,11 +140,12 @@ tr.selected .label.label-important
     width: 71px
 
 .chopped
-    display: inline-block
-    max-width: 160px
-    overflow: hidden
-    white-space: nowrap
-    text-overflow: ellipsis
+  display: inline-block
+  font-size: 14px // Esp. necessary to cancel an input-append inheritance
+  max-width: 160px
+  overflow: hidden
+  white-space: nowrap
+  text-overflow: ellipsis
 
 .center
     float: none

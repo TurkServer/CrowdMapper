@@ -134,5 +134,7 @@ Template.tweetIconClickable.events =
       Session.set("scrollTweet", @_id)
       Session.set("selectedTweet", @_id)
 
+# Template.tweetNumbered.rendered = ->
+
 Template.eventIconClickable.events =
   "click .clickme": (e) -> showEvent(@_id)

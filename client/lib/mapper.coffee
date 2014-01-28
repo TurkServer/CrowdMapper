@@ -24,7 +24,7 @@ Deps.autorun ->
   id = Session.get("placingEvent")
   if id
     $("#map").addClass("highlighted")
-    Session.set("guidanceMessage", "Click to set a location for this event on the map.")
+    Session.set("guidanceMessage", "Click to map a location for this event.")
   else
     $("#map").removeClass("highlighted")
     Session.set("guidanceMessage", undefined)

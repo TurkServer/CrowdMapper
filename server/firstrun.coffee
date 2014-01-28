@@ -1,43 +1,3 @@
-replaceURLWithHTMLLinks = (text) ->
-  exp = /(\b(https?|ftp|file):\/\/[-A-Z0-9+&@#\/%?=~_|!:,.;]*[-A-Z0-9+&@#\/%=~_|])/ig
-  text.replace(exp, "<a href='$1' target='_blank'>$1</a>")
-
-loadDumbTweets = ->
-  Assets.getText "tweets_raw_partial.txt", (err, res) ->
-    throw err if err
-    tweets = replaceURLWithHTMLLinks(res).split("\n")
-    _.each tweets, (e, i) ->
-      return unless e # Don't insert empty string
-      Datastream.insert
-        text: e
-    console.log(tweets.length + " tweets inserted")
-
-loadCSVTweets = ->
-  # csv is exported by the csv package
-  limit = 500 # for demo purposes
-
-  Assets.getText "PabloPh_UN_cleaned.csv", (err, res) ->
-    throw err if err
-    tweets = replaceURLWithHTMLLinks(res)
-
-    csv()
-    .from.string(tweets, {
-      columns: true
-      trim: true
-    })
-    .to.array Meteor.bindEnvironment ( arr, count ) ->
-
-      i = 0
-      while i < limit
-        Datastream.insert
-          num: i # Keeps things in time order
-          text: arr[i].text
-        i++
-      console.log(i + " tweets inserted")
-
-    , (e) ->
-      Meteor._debug "Exception while reading CSV:", e
-
 loadEventFields = ->
   EventFields.insert
     "key": "type",
@@ -179,22 +139,8 @@ loadEventFields = ->
       "Zamboanga Sibugay"
     ]
 
-# TODO move this function into experiment init
-TurkServer.startup ->
-  return if Datastream.find().count() > 0
-
-  # Load initial tweets on first start
-  # loadDumbTweets()
-  loadCSVTweets()
-
 Meteor.startup ->
   return if EventFields.find().count() > 0
 
   loadEventFields()
 
-Meteor.startup ->
-  # Random test code to group existing users
-  Meteor.users.find().forEach (user) ->
-    return if user.admin
-    return if user?.turkserver?.group
-    TurkServer.Experiment.addUser("taq4fC7rmcD2MT55b", user._id)

@@ -38,13 +38,20 @@ Router.map ->
   @route('home', {path: '/'})
   @route 'mapper',
     template: 'mapperContainer'
-    path: '/mapper/:tutorial?'
+    path: '/mapper'
+    before: ->
+      unless Meteor.user()
+        @setLayout("blankContainer")
+        @render("awaitingLogin")
+        @stop()
     ###
       Before hook is buggy due to https://github.com/EventedMind/iron-router/issues/336
       So we subscribe to EventFields statically right now.
     ###
     waitOn: handles
-    data: -> { tutorialEnabled: @params.tutorial is "tutorial" }
+
+Deps.autorun ->
+  Router.go("/mapper") if TurkServer.inExperiment()
 
 ###
   Window sizing warning

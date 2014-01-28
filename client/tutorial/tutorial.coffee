@@ -11,9 +11,11 @@ joinChatroom = ->
     Session.set("room", someRoom._id) if someRoom?
 
 tutorialSteps = [
+    template: Template.tut_welcome
+  ,
     template: Template.tut_whatis
   ,    
-    template: Template.tut_experiment
+    template: Template.tut_project
   ,    
     template: Template.tut_yourtask
   ,
@@ -134,6 +136,9 @@ tutorialSteps = [
     template: Template.tut_end
 ]
 
-Template.mapperContainer.options =
+Template.mapperTutorial.tutorialEnabled = ->
+  TSConfig.findOne("treatment")?.value is "tutorial"
+
+Template.mapperTutorial.options =
   steps: tutorialSteps
   onFinish: -> Router.go("/mapper")
