@@ -28,6 +28,7 @@ Template.roomItem.events =
       return
 
     Session.set "room", @_id
+    Mapper.events.emit("chat-join")
 
   "click .action-room-delete": (e) ->
     e.preventDefault()
@@ -48,13 +49,14 @@ Template.currentChatroom.events =
     $msg = $ tmpl.find(".chat-input")
     return unless $msg.val()
 
-    Meteor.call "sendChat", Session.get("room"), $msg.val()
+    Meteor.call "sendChat", Session.get("room"), $msg.val() # Server only method
 
     $msg.val("")
     $msg.focus()
     Meteor.flush()
 
     # Auto scroll happens on messageBox render now..
+    Mapper.events.emit("chat-message")
 
 Template.currentChatroom.settings = -> {
   position: "top"

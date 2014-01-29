@@ -15,6 +15,7 @@ Template.docTabs.events =
     , (err, id) ->
       return unless id
       Session.set("document", id)
+      Mapper.events.emit("document-create")
 
   "click a": (e) ->
     e.preventDefault()

@@ -166,8 +166,7 @@ Template._editCellOpen.events =
 
 Template._editCellSelf.events =
   "click .action-event-save": (e) ->
-    Events.update @_id,
-      $unset: { editor: 1 }
+    Meteor.call "saveEvent", @_id
 
 ###
   Rendering and helpers for individual sheet cells
@@ -205,8 +204,7 @@ Template._eventCell.rendered = ->
     success: (response, newValue) =>
       result = {}
       result[@data.key] = newValue
-      Events.update @data._id,
-        $set: result
+      Meteor.call "updateEvent", @data._id, result
 
   $(@find('div.editable:not(.editable-click)')).editable('destroy').editable(settings)
 
@@ -216,8 +214,7 @@ Template._eventCellSelect.rendered = ->
     success: (response, newValue) =>
       result = {}
       result[@data.key] = parseInt(newValue) # Make sure we store an int back in the database
-      Events.update @data._id,
-        $set: result
+      Meteor.call "updateEvent", @data._id, result
     value: @data.value
     source: Mapper.sources[@data.key]
 

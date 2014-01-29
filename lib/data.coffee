@@ -30,16 +30,18 @@ Meteor.methods
     Data Methods
   ###
   dataHide: (id) ->
+    TurkServer.checkNotAdmin()
     # Can't hide tagged events
     return if not @isSimulation and Datastream.findOne(id)?.events?.length > 0
 
     Datastream.update id,
       $set: { hidden: true }
 
-    if @isSimulation
-      Mapper.events.emit("tweet-hide")
+    Mapper.events.emit("data-hide") if @isSimulation
+    return
 
   dataLink: (tweetId, eventId) ->
+    TurkServer.checkNotAdmin()
     return unless tweetId and eventId
 
     # Attach this tweet to the event
@@ -51,7 +53,11 @@ Meteor.methods
       $addToSet: { events: eventId }
       $set: { hidden: false }
 
+    Mapper.events.emit("data-link") if @isSimulation
+    return
+
   dataUnlink: (tweetId, eventId) ->
+    TurkServer.checkNotAdmin()
     return unless tweetId and eventId
 
     Events.update eventId,
@@ -59,14 +65,34 @@ Meteor.methods
 
     Datastream.update tweetId,
       $pull: { events: eventId }
+    return
 
   ###
     Event Methods
   ###
+  createEvent: (eventId, fields) ->
+    TurkServer.checkNotAdmin()
 
-  # createEvent: defined separately for server and client
+    obj = {
+      _id: eventId
+      sources: []
+    # location: undefined
+    }
+
+    _.extend(obj, fields)
+
+    # On server, increment number based on highest numbered event
+    unless @isSimulation
+      maxEventIdx = Events.findOne({}, sort: {num: -1})?.num || 0
+      obj.num = maxEventIdx + 1
+
+    Events.insert(obj)
+
+    Mapper.events.emit("event-create") if @isSimulation
+    return
 
   editEvent: (id) ->
+    TurkServer.checkNotAdmin()
     userId = Meteor.userId()
     unless userId?
       bootbox.alert("Sorry, you must be logged in to make edits.") if @isSimulation
@@ -77,10 +103,33 @@ Meteor.methods
     unless event.editor
       Events.update id,
         $set: { editor: userId }
+      Mapper.events.emit("event-edit") if @isSimulation
     else if @isSimulation and event.editor isnt userId
       bootbox.alert("Sorry, someone is already editing that event.")
 
+    return
+
+  updateEvent: (id, fields) ->
+    TurkServer.checkNotAdmin()
+    Events.update id,
+      $set: fields
+
+    if @isSimulation
+      for key of fields
+        break
+      Mapper.events.emit("event-update-" + key)
+
+    return
+
+  saveEvent: (id) ->
+    Events.update id,
+      $unset: { editor: 1 }
+
+    Mapper.events.emit("event-save") if @isSimulation
+    return
+
   deleteEvent: (id) ->
+    TurkServer.checkNotAdmin()
     event = Events.findOne(id)
 
     # Pull all tweet links
@@ -89,18 +138,23 @@ Meteor.methods
         $pull: { events: id }
 
     Events.remove(id)
+    return
 
   ###
     Chat Methods
   ###
   createChat: (roomName) ->
+    TurkServer.checkNotAdmin()
     ChatRooms.insert
       name: roomName
       users: 0
+    Mapper.events.emit("chat-create") if @isSimulation
+    return
 
   # sendChat: does extra stuff on server
 
   deleteChat: (roomId) ->
+    TurkServer.checkNotAdmin()
     if @isSimulation
       # Client stub - do a quick check
       unless ChatRooms.findOne(roomId).users is 0
@@ -112,6 +166,7 @@ Meteor.methods
       return unless ChatUsers.find(roomId: roomId).count() is 0
       ChatRooms.remove roomId
       # TODO should we delete messages? Or use them for logging...
+    return
 
   ###
     Notifications
@@ -122,3 +177,4 @@ Meteor.methods
   readNotification: (noteId) ->
     Notifications.update noteId,
       $set: {read: Date.now()}
+    return

@@ -1,6 +1,8 @@
 # The map needs to load first or openlayers complains
 @Mapper = @Mapper || {}
 
+@ChatUsers = new Meteor.Collection("chatusers")
+
 Mapper.events = new EventEmitter()
 
 Mapper.switchTab = (page) ->

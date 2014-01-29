@@ -142,9 +142,8 @@ Template.map.rendered = ->
       id = Session.get("placingEvent")
       Session.set("placingEvent", undefined) # Also deactivates the control
       return unless id
-      Events.update id,
-        $set:
-          location: [lonlat.lon, lonlat.lat]
+      Meteor.call "updateEvent", id,
+        location: [lonlat.lon, lonlat.lat]
 
   # Allow hovering over stuff
   hoverControl = new OpenLayers.Control.SelectFeature vectorLayer,
@@ -168,8 +167,8 @@ Template.map.rendered = ->
 
     onComplete: (feature, pixel) ->
       point = feature.geometry
-      Events.update { _id: feature.id },
-        $set: { location: [point.x, point.y] }
+      Meteor.call "updateEvent", feature.id,
+        location: [point.x, point.y]
 
       displayPopup(selectedFeature || feature)
 

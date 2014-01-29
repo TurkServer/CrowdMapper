@@ -25,7 +25,7 @@ tutorialSteps = [
     spot: ".datastream"
     template: Template.tut_filterdata
     require:
-      event: "tweet-hide"
+      event: "data-hide"
   ,
     spot: ".navbar"
     template: Template.tut_navbar
@@ -42,13 +42,14 @@ tutorialSteps = [
     template: Template.tut_create_event
     onLoad: ->
       Mapper.switchTab("events")
-      # buttonDiv = $("td.event-create")
-      # TODO use the position of the button instead of this hack
-      $(".events-body.scroll-vertical").scrollTop(50000)
+    require:
+      event: "event-create"
   ,
     spot: "#mapper-events"
     template: Template.tut_editevent
     onLoad: -> Mapper.switchTab("events")
+    require:
+      event: "event-edit"
   ,
     spot: ".events-header tr > th:eq(0), .events-body tr > td:nth-child(1)"
     template: Template.tut_events_index
@@ -57,22 +58,31 @@ tutorialSteps = [
     spot: ".events-header tr > th:eq(1), .events-body tr > td:nth-child(2), .datastream"
     template: Template.tut_events_sources
     onLoad: -> Mapper.switchTab("events")
+    require:
+      event: "data-link"
   ,
     spot: ".events-header tr > th:eq(2), .events-body tr > td:nth-child(3)"
     template: Template.tut_events_type
     onLoad: -> Mapper.switchTab("events")
+    require:
+      event: "event-update-type"
   ,
     spot: ".events-header tr > th:eq(3), .events-body tr > td:nth-child(4)"
     template: Template.tut_events_description
     onLoad: -> Mapper.switchTab("events")
+    require:
+      event: "event-update-description"
   ,
     spot: ".events-header tr > th:eq(4), .events-body tr > td:nth-child(5)"
     template: Template.tut_events_region
     onLoad: -> Mapper.switchTab("events")
+    require:
+      event: "event-update-region"
   ,
     spot: ".events-header tr > th:eq(5), .events-body tr > td:nth-child(6)"
     template: Template.tut_events_province
     onLoad: -> Mapper.switchTab("events")
+    # No required event here.
   ,
     spot: ".events-header tr > th:eq(6), .events-body tr > td:nth-child(7)"
     template: Template.tut_events_location
@@ -98,13 +108,23 @@ tutorialSteps = [
     template: Template.tut_editmap
     onLoad: -> Mapper.switchTab("map")
   ,
-    spot: "#mapper-map"
+    spot: ".navbar, #mapper-events"
+    template: Template.tut_maplocate
+    onLoad: -> Mapper.switchTab("events")
+    require:
+      event: "event-update-location"
+  ,
+    spot: "#mapper-events"
     template: Template.tut_maplocation
     onLoad: -> Mapper.switchTab("events")
+    require:
+      event: "event-save"
   ,
     spot: ".navbar, #mapper-docs"
     template: Template.tut_documents
     onLoad: -> Mapper.switchTab("docs")
+    require:
+      event: "document-create"
   ,
     spot: "#mapper-docs"
     template: Template.tut_editdocs
@@ -117,12 +137,16 @@ tutorialSteps = [
   ,
     spot: ".chat-overview"
     template: Template.tut_chatrooms
+    require:
+      event: "chat-create"
   ,
     spot: ".notification"
     template: Template.tut_notifications
   ,
     spot: ".chat-overview"
     template: Template.tut_joinchat
+    require:
+      event: "chat-join"
   ,
     spot: ".chat-overview, .chat-messaging"
     template: Template.tut_leavechat
@@ -130,16 +154,19 @@ tutorialSteps = [
   ,
     spot: ".chat-messaging"
     template: Template.tut_chatting
+    require:
+      event: "chat-message"
   ,
     template: Template.tut_groundrules
   ,
+    spot: ".payment"
     template: Template.tut_payment
   ,
     template: Template.tut_end
 ]
 
 Template.mapperTutorial.tutorialEnabled = ->
-  TSConfig.findOne("treatment")?.value is "tutorial"
+  TSConfig.findOne("treatment")?.value is "tutorial" and not Meteor.user()?.admin
 
 Template.mapperTutorial.options =
   steps: tutorialSteps
