@@ -54,7 +54,7 @@ loadTutorialTweets = ->
 TurkServer.initialize ->
   return if Datastream.find().count() > 0
 
-  if @treatment is "tutorial"
+  if @treatment is "tutorial" or @treatment is "recruiting"
     loadTutorialTweets()
   else
     # Load initial tweets on first start

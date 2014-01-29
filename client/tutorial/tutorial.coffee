@@ -11,164 +11,194 @@ joinChatroom = ->
     Session.set("room", someRoom._id) if someRoom?
 
 tutorialSteps = [
-    template: Template.tut_welcome
+    template: "tut_welcome"
   ,
-    template: Template.tut_whatis
+    template: "tut_whatis"
   ,    
-    template: Template.tut_project
+    template: "tut_project"
   ,    
-    template: Template.tut_yourtask
+    template: "tut_yourtask"
   ,
     spot: ".datastream"
-    template: Template.tut_datastream
+    template: "tut_datastream"
   ,
     spot: ".datastream"
-    template: Template.tut_filterdata
+    template: "tut_filterdata"
     require:
       event: "data-hide"
   ,
     spot: ".navbar"
-    template: Template.tut_navbar
+    template: "tut_navbar"
   ,
     spot: ".navbar, #mapper-events"
-    template: Template.tut_events
+    template: "tut_events"
     onLoad: -> Mapper.switchTab("events")
   ,
     spot: "#mapper-events"
-    template: Template.tut_event_description
+    template: "tut_event_description"
     onLoad: -> Mapper.switchTab("events")
   ,
     spot: ".event-create"
-    template: Template.tut_create_event
+    template: "tut_create_event"
     onLoad: ->
       Mapper.switchTab("events")
     require:
       event: "event-create"
   ,
     spot: "#mapper-events"
-    template: Template.tut_editevent
+    template: "tut_editevent"
     onLoad: -> Mapper.switchTab("events")
     require:
       event: "event-edit"
   ,
     spot: ".events-header tr > th:eq(0), .events-body tr > td:nth-child(1)"
-    template: Template.tut_events_index
+    template: "tut_events_index"
     onLoad: -> Mapper.switchTab("events")
   ,
     spot: ".events-header tr > th:eq(1), .events-body tr > td:nth-child(2), .datastream"
-    template: Template.tut_events_sources
+    template: "tut_events_sources"
     onLoad: -> Mapper.switchTab("events")
     require:
       event: "data-link"
   ,
     spot: ".events-header tr > th:eq(2), .events-body tr > td:nth-child(3)"
-    template: Template.tut_events_type
+    template: "tut_events_type"
     onLoad: -> Mapper.switchTab("events")
     require:
       event: "event-update-type"
   ,
     spot: ".events-header tr > th:eq(3), .events-body tr > td:nth-child(4)"
-    template: Template.tut_events_description
+    template: "tut_events_description"
     onLoad: -> Mapper.switchTab("events")
     require:
       event: "event-update-description"
   ,
     spot: ".events-header tr > th:eq(4), .events-body tr > td:nth-child(5)"
-    template: Template.tut_events_region
+    template: "tut_events_region"
     onLoad: -> Mapper.switchTab("events")
     require:
       event: "event-update-region"
   ,
     spot: ".events-header tr > th:eq(5), .events-body tr > td:nth-child(6)"
-    template: Template.tut_events_province
+    template: "tut_events_province"
     onLoad: -> Mapper.switchTab("events")
     # No required event here.
   ,
     spot: ".events-header tr > th:eq(6), .events-body tr > td:nth-child(7)"
-    template: Template.tut_events_location
+    template: "tut_events_location"
     onLoad: -> Mapper.switchTab("events")
   ,
     spot: ".datastream, #mapper-events"
-    template: Template.tut_addtweet
+    template: "tut_addtweet"
     onLoad: -> Mapper.switchTab("events")
   ,
     spot: ".events-header"
-    template: Template.tut_sortevent
+    template: "tut_sortevent"
     onLoad: -> Mapper.switchTab("events")
   ,
     spot: ".navbar, #mapper-map"
-    template: Template.tut_map
+    template: "tut_map"
     onLoad: -> Mapper.switchTab("map")
   ,
     spot: ".olControlPanZoomBar > *"
-    template: Template.tut_mapcontrols
+    template: "tut_mapcontrols"
     onLoad: -> Mapper.switchTab("map")
   ,
     spot: "#mapper-map"
-    template: Template.tut_editmap
+    template: "tut_editmap"
     onLoad: -> Mapper.switchTab("map")
   ,
     spot: ".navbar, #mapper-events"
-    template: Template.tut_maplocate
+    template: "tut_maplocate"
     onLoad: -> Mapper.switchTab("events")
     require:
       event: "event-update-location"
   ,
     spot: "#mapper-events"
-    template: Template.tut_maplocation
+    template: "tut_maplocation"
     onLoad: -> Mapper.switchTab("events")
     require:
       event: "event-save"
   ,
     spot: ".navbar, #mapper-docs"
-    template: Template.tut_documents
+    template: "tut_documents"
     onLoad: -> Mapper.switchTab("docs")
     require:
       event: "document-create"
   ,
     spot: "#mapper-docs"
-    template: Template.tut_editdocs
+    template: "tut_editdocs"
     onLoad: ->
       Mapper.switchTab("docs")
       openDocument()
   ,
     spot: ".user-list"
-    template: Template.tut_userlist
+    template: "tut_userlist"
   ,
     spot: ".chat-overview"
-    template: Template.tut_chatrooms
+    template: "tut_chatrooms"
     require:
       event: "chat-create"
   ,
     spot: ".notification"
-    template: Template.tut_notifications
+    template: "tut_notifications"
   ,
     spot: ".chat-overview"
-    template: Template.tut_joinchat
+    template: "tut_joinchat"
     require:
       event: "chat-join"
   ,
     spot: ".chat-overview, .chat-messaging"
-    template: Template.tut_leavechat
+    template: "tut_leavechat"
     onLoad: joinChatroom
   ,
     spot: ".chat-messaging"
-    template: Template.tut_chatting
+    template: "tut_chatting"
     require:
       event: "chat-message"
-  ,
-    template: Template.tut_groundrules
-  ,
-    spot: ".payment"
-    template: Template.tut_payment
-  ,
-    template: Template.tut_end
 ]
 
-Template.mapperTutorial.tutorialEnabled = ->
-  TSConfig.findOne("treatment")?.value is "tutorial" and not Meteor.user()?.admin
+getRecruitingSteps = ->
+  # replace templates with _recruiting if they exist
+  # Don't modify original objects to avoid errors
+  copiedSteps = $.map(tutorialSteps, (obj) -> $.extend({}, obj))
 
-Template.mapperTutorial.options =
-  steps: tutorialSteps
-  emitter: Mapper.events
-  onFinish: -> Router.go("/mapper")
+  for i, step of copiedSteps
+    recruitingTemplate = step.template + "_recruiting"
+    step.template = recruitingTemplate if Template[recruitingTemplate]
+
+  return copiedSteps.concat [
+    spot: ".payment"
+    template: "tut_payment_recruiting"
+  ,
+    template: "tut_end_recruiting"
+  ]
+  
+getTutorialSteps = ->
+  return tutorialSteps.concat [
+      template: "tut_groundrules"
+    ,
+      spot: ".payment"
+      template: "tut_payment"
+    ,
+      template: "tut_end"
+  ]
+
+Template.mapperTutorial.tutorialEnabled = ->
+  treatment = TSConfig.findOne("treatment")?.value 
+  return (treatment is "tutorial" or treatment is "recruiting") and not Meteor.user()?.admin
+
+Template.mapperTutorial.options = ->
+  treatment = TSConfig.findOne("treatment")?.value
+  
+  return {
+    steps: if treatment is "recruiting" then getRecruitingSteps() else getTutorialSteps()
+    emitter: Mapper.events
+    onFinish: -> Router.go("/mapper")
+  }
+
+# Handy function to allow the entire tutorial
+Mapper.bypassTutorial = ->
+  for i, step of tutorialSteps
+    Mapper.events.emit(step.require.event) if step?.require?.event
+  return
