@@ -161,7 +161,7 @@
 
 <template name="_editCellSelf">
     <button title="save this event" class="btn btn-mini btn-success action-event-save">
-        <i class="icon-white icon-ok"></i>Save
+        <i class="icon-white icon-check"></i>Save
     </button>
 </template>
 
@@ -177,7 +177,7 @@
 <template name="eventVoting">
     <div class="event-voting-container">
         <span class="badge {{badgeClass}}">
-            {{numVotes}} <i class="icon-white icon-thumbs-up"></i>
+            {{numVotes}} <i class="icon-white icon-ok"></i>
         </span>
     </div>
 </template>
@@ -186,22 +186,22 @@
     <div class="text-center">
     <p>
     {{#if anyVotes}}
-        Users who voted for this event:
+        Users who verified this event:
         {{#each votes}}
         {{> userPill lookupUser}}
         {{/each}}
     {{else}}
-        <i>No one has voted for this event.</i>
+        <i>No one has verified this event.</i>
     {{/if}}
     </p>
 
     {{#if iVoted}}
         <button class="btn btn-danger btn-mini action-event-unvote">
-            <i class="icon-white icon-thumbs-down"></i> Remove My Vote
+            <i class="icon-white icon-remove"></i> Unverify
         </button>
     {{else}}
         <button class="btn btn-success btn-mini action-event-upvote">
-            <i class="icon-white icon-thumbs-up"></i> Upvote
+            <i class="icon-white icon-ok"></i> Verify
         </button>
     {{/if}}
     </div>

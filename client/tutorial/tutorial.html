@@ -146,15 +146,15 @@
 </template>
 
 <template name="tut_editevent">
-    <p>You may also edit an existing event record by double-clicking or by clicking the yellow <b>Edit</b> button. You will see edits by other mappers in real-time.
+    <p>You may also edit an existing event record by double-clicking or by clicking the blue <button class="btn btn-mini btn-primary"><i class="icon-white icon-pencil"></i></button> button. You will see edits by other mappers in real-time.
 
-    <p>Only one person can edit an event record at a time, so when done, click the green <b>Save</b> button that appears.
+    <p>Only one person can edit an event record at a time, so when you're done, click the green <button class="btn btn-mini btn-success"><i class="icon-white icon-check"></i>Save</button> button to save the event.
 
     <p>
     {{#if stepCompleted}}
     <b class="text-success">You can now edit an event. Continue to the next step.</b>
     {{else}}
-    <b class="text-error">Click the edit button on the event record you just created.</b>
+    <b class="text-error">Edit the event record that you just created.</b>
     {{/if}}
 </template>
 
@@ -167,7 +167,7 @@
 <template name="tut_events_sources">
     <p>The <b>Sources</b> column shows all tweets that refer to the same event.
 
-    <p>You can attach a tweet to the event record by dragging it and dropping it on the record.
+    <p>You can attach a tweet to the event record by dragging its header and dropping it on the record.
 
     <p>
     {{#if stepCompleted}}
@@ -248,7 +248,7 @@
 
     <p>By <b>hovering your mouse over a tweet</b> that has been attached to an event, you will see its content. You can also click the small X in the popover to hide the tweet.
 
-    <p>If you can find another tweet that refers to the same event as this one, add it to the record by dragging and dropping.
+    <p><b class="text-error">If you can find another tweet that refers to the same event as this one, add it to the record by dragging and dropping.</b>
 
     <!--
     <p>This tweet has additional information about the event you just recorded.<b class="text-error">Add this tweet to the record.</b>
@@ -272,10 +272,6 @@
 
 </template>
 
-<template name="tut_editmap">
-    <p>You may hover or click on any event to view its details, and drag any event marker to change its geographical location.
-</template>
-
 <template name="tut_maplocate">
     <p>You can press the
     <button class="btn btn-mini btn-info"><i class="icon-white icon-screenshot"></i> Locate</button>
@@ -287,6 +283,12 @@
     {{else}}
     <b class="text-error">Using the location information from the tweet, place the event on the map.</b>
     {{/if}}
+</template>
+
+<template name="tut_editmap">
+    <p>When looking at the map, you may hover or click on any event to view its details, and drag any event marker to change its geographical location.
+
+    <p>As you learn more information about an event, you will be able to pinpoint its location more accurately.
 </template>
 
 <template name="tut_maplocation">
@@ -303,8 +305,16 @@
 </template>
 
 <template name="tut_verify">
-    You may also check the accuracy of the events records created by other crisis mappers.  
-    If an event record is accurate you may indicate that you verified it by clicking the check box.
+    <p>You may also check the accuracy of the events records created by other crisis mappers.
+
+    <p>If an event record is accurate you may indicate that you verified it by clicking the check box.
+
+    <p>
+    {{#if stepCompleted}}
+    <b class="text-success">You checked the event. Continue to the next step.</b>
+    {{else}}
+    <b class="text-error">Since you created this event and believe it is accurate, check it now.</b>
+    {{/if}}
 </template>
 
 <template name="tut_documents">

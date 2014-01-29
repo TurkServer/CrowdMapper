@@ -104,21 +104,27 @@ tutorialSteps = [
     template: "tut_mapcontrols"
     onLoad: -> Mapper.switchTab("map")
   ,
-    spot: "#mapper-map"
-    template: "tut_editmap"
-    onLoad: -> Mapper.switchTab("map")
-  ,
     spot: ".navbar, #mapper-events"
     template: "tut_maplocate"
     onLoad: -> Mapper.switchTab("events")
     require:
       event: "event-update-location"
   ,
+    spot: "#mapper-map"
+    template: "tut_editmap"
+    onLoad: -> Mapper.switchTab("map")
+  ,
     spot: "#mapper-events"
     template: "tut_maplocation"
     onLoad: -> Mapper.switchTab("events")
     require:
       event: "event-save"
+  ,
+    spot: "#mapper-events"
+    template: "tut_verify"
+    onLoad: -> Mapper.switchTab("events")
+    require:
+      event: "event-vote"
   ,
     spot: ".navbar, #mapper-docs"
     template: "tut_documents"

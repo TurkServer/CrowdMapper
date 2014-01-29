@@ -128,6 +128,27 @@ Meteor.methods
     Mapper.events.emit("event-save") if @isSimulation
     return
 
+  voteEvent: (id) ->
+    userId = Meteor.userId()
+    unless userId
+      bootbox.alert("You must be logged in to vote on an event.") if @isSimulation
+      return
+
+    Events.update id,
+      $addToSet: { votes: userId }
+    Mapper.events.emit("event-vote") if @isSimulation
+    return
+
+  unvoteEvent: (id) ->
+    userId = Meteor.userId()
+    unless userId
+      bootbox.alert("You must be logged in to vote on an event.") if @isSimulation
+      return
+
+    Events.update @_id,
+      $pull: { votes: userId }
+    return
+
   deleteEvent: (id) ->
     TurkServer.checkNotAdmin()
     event = Events.findOne(id)

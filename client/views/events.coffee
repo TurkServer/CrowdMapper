@@ -241,21 +241,8 @@ Template.eventVoting.rendered = ->
         Template.eventVotePopup Events.findOne(eventId, fields: {votes: 1})
 
 Template.eventVoting.events =
-  "click .action-event-upvote": ->
-    userId = Meteor.userId()
-    unless userId
-      bootbox.alert("You must be logged in to vote on an event.")
-      return
-    Events.update @_id,
-      $addToSet: { votes: userId }
-
-  "click .action-event-unvote": ->
-    userId = Meteor.userId()
-    unless userId
-      bootbox.alert("You must be logged in to vote on an event.")
-      return
-    Events.update @_id,
-      $pull: { votes: userId }
+  "click .action-event-upvote": -> Meteor.call "voteEvent", @_id
+  "click .action-event-unvote": -> Meteor.call "unvoteEvent", @_id
 
 Template.eventVoting.badgeClass = -> if @votes?.length > 0 then "badge-success" else "badge-default"
 Template.eventVoting.numVotes = -> @votes?.length || 0
