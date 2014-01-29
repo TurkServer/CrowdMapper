@@ -16,9 +16,6 @@
     "user-status": {
       "path": "../meteor-user-status"
     },
-    "accounts-testing": {
-      "path": "../meteor-accounts-testing"
-    },
     "autocomplete": {
       "path": "../meteor-autocomplete"
     },

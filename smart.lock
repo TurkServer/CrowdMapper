@@ -2,15 +2,10 @@
   "meteor": {},
   "dependencies": {
     "basePackages": {
-      "bootboxjs": {
-        "version": "3.2.2"
-      },
-      "iron-router": {
-        "version": "0.6.1"
-      },
-      "publish-with-relations": {
-        "version": "0.1.5"
-      },
+      "bootboxjs": {},
+      "iron-router": {},
+      "publish-with-relations": {},
+      "x-editable-bootstrap": {},
       "build-fetcher": {
         "path": "../meteor-build-fetcher"
       },
@@ -22,12 +17,6 @@
       },
       "user-status": {
         "path": "../meteor-user-status"
-      },
-      "accounts-testing": {
-        "path": "../meteor-accounts-testing"
-      },
-      "x-editable-bootstrap": {
-        "path": "../meteor-x-editable-bootstrap"
       },
       "autocomplete": {
         "path": "../meteor-autocomplete"
@@ -47,13 +36,18 @@
       },
       "iron-router": {
         "git": "https://github.com/EventedMind/iron-router.git",
-        "tag": "v0.6.1",
-        "commit": "4e1ee0581d68bff422a915dacb0bd30eae10fe08"
+        "tag": "v0.6.2",
+        "commit": "ce56e58b45624dce992490f3a1c10f10d3948bae"
       },
       "publish-with-relations": {
         "git": "https://github.com/erundook/meteor-publish-with-relations.git",
         "tag": "v0.1.5",
         "commit": "98213e9f056b139597c99fb9ec2884ae6be76d91"
+      },
+      "x-editable-bootstrap": {
+        "git": "https://github.com/nate-strauser/meteor-x-editable-bootstrap.git",
+        "tag": "v1.4.6.2",
+        "commit": "d3fcead1dd2302e30522e8c09d020f9a3d312cd0"
       },
       "build-fetcher": {
         "path": "../meteor-build-fetcher"
@@ -66,12 +60,6 @@
       },
       "user-status": {
         "path": "../meteor-user-status"
-      },
-      "accounts-testing": {
-        "path": "../meteor-accounts-testing"
-      },
-      "x-editable-bootstrap": {
-        "path": "../meteor-x-editable-bootstrap"
       },
       "autocomplete": {
         "path": "../meteor-autocomplete"
