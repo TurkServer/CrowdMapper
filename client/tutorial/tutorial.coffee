@@ -24,6 +24,8 @@ tutorialSteps = [
   ,
     spot: ".datastream"
     template: Template.tut_filterdata
+    require:
+      event: "tweet-hide"
   ,
     spot: ".navbar"
     template: Template.tut_navbar
@@ -141,4 +143,5 @@ Template.mapperTutorial.tutorialEnabled = ->
 
 Template.mapperTutorial.options =
   steps: tutorialSteps
+  emitter: Mapper.events
   onFinish: -> Router.go("/mapper")

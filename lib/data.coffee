@@ -36,6 +36,9 @@ Meteor.methods
     Datastream.update id,
       $set: { hidden: true }
 
+    if @isSimulation
+      Mapper.events.emit("tweet-hide")
+
   dataLink: (tweetId, eventId) ->
     return unless tweetId and eventId
 

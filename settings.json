@@ -23,5 +23,6 @@
               }
             }
         }
-    }
+    },
+    "watchRoute": "/mapper"
 }
