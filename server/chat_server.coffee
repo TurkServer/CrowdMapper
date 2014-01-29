@@ -30,33 +30,35 @@ leaveRoom = (roomId, userId) ->
 
 # publish messages and users for a room
 Meteor.publish "chatstate", (room)  ->
-  # TODO handle things properly when a user logs out and do not let logged out users subscribe...
-  userId = @userId # @_session.userId
-  return null unless userId
+  userId = @userId
+  return null unless userId # No chat for unauthenticated users
   sessionId = @_session.id
 
-  # Leave any existing room
-  existing = ChatUsers.findOne(sessionId)
-  leaveRoom(existing.roomId, existing.userId) if existing
+  # Don't update room state for admin
+  # TODO generalize this for TurkServer
+  unless Meteor.users.findOne(userId)?.admin
+    # Leave any existing room
+    existing = ChatUsers.findOne(sessionId)
+    leaveRoom(existing.roomId, existing.userId) if existing
 
-  # don't try to enter room if not in room or not logged in
-  if not room or not userId
-    ChatUsers.remove(sessionId) if existing
-    return
+    # don't try to enter room if not in room or not logged in
+    if not room or not userId
+      ChatUsers.remove(sessionId) if existing
+      return
 
-  # Enter new room
-  if existing
-    ChatUsers.update sessionId,
-      $set:
+    # Update room state - except for admin
+    if existing
+      ChatUsers.update sessionId,
+        $set:
+          userId: userId
+          roomId: room
+    else
+      ChatUsers.insert
+        _id: sessionId,
         userId: userId
         roomId: room
-  else
-    ChatUsers.insert
-      _id: sessionId,
-      userId: userId
-      roomId: room
 
-  enterRoom(room, userId)
+    enterRoom(room, userId)
 
   # publish room messages and users
   Meteor.publishWithRelations
@@ -125,9 +127,9 @@ Meteor.methods
         room: roomId
         timestamp: chatTime
 
-# Clean up any chat rooms on logout
+# Clean up any chat state when a user disconnects
 UserStatus.on "sessionLogout", (doc) ->
-  # TODO bind groupId here or make TurkServer functionality
+  # No groupId needed here because ChatUsers and ChatRooms are not partitioned
   # TODO use findAndUpdate here once supported
   existing = ChatUsers.findOne(doc.sessionId)
   leaveRoom(existing.roomId, doc.userId) if existing

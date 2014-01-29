@@ -6,7 +6,8 @@
       }
     },
     "turkserver": {
-        "adminPassword": "test"
+        "adminPassword": "test",
+        "watchRoute": "/mapper"
     },
     "sharejs": {
         "options": {
@@ -23,6 +24,5 @@
               }
             }
         }
-    },
-    "watchRoute": "/mapper"
+    }
 }

@@ -1,5 +1,5 @@
 # Send room changes to server
-# TODO this incurs a high traffic cost when switching between rooms
+# TODO this incurs a high traffic/rendering cost when switching between rooms
 Deps.autorun ->
   roomId = Session.get("room")
   Meteor.subscribe "chatstate", roomId
@@ -67,7 +67,7 @@ Template.currentChatroom.settings = -> {
       template: Template.userPill
     },
     {
-      token: '!'
+      token: '~'
       collection: Datastream
       field: "num"
       template: Template.tweetNumbered
@@ -114,25 +114,27 @@ Template.messageBox.messages = ->
 Template.messageItem.username = ->
   Meteor.users.findOne(@userId)?.username || @userId
 
+# If updating the user, also update server notification generations.
 userRegex = new RegExp('(^|\\b|\\s)(@[\\w.]+)($|\\b|\\s)','g')
-tweetRegex = new RegExp('(^|\\b|\\s)(![\\d]+)($|\\b|\\s)','g')
+tweetRegex = new RegExp('(^|\\b|\\s)(~[\\d]+)($|\\b|\\s)','g')
 eventRegex = new RegExp('(^|\\b|\\s)(#[\\d]+)($|\\b|\\s)','g')
 
 # TODO remove ugly space added below
 userFunc = (_, p1, p2) ->
   username = p2.substring(1)
   user = Meteor.users.findOne(username: username)
-  return " " + if user then Template.userPill(user) else username
+  return " " + if user then Template.userPill(user) else "@" + username
 
 tweetFunc = (_, p1, p2) ->
   tweetNum = parseInt( p2.substring(1) )
+  console.log tweetNum
   tweet = Datastream.findOne( {num: tweetNum} )
-  return " " + if tweet then Template.tweetIconClickable(tweet) else tweetNum
+  return " " + if tweet then Template.tweetIconClickable(tweet) else "~" + tweetNum
 
 eventFunc = (_, p1, p2) ->
   eventNum = parseInt( p2.substring(1) )
   event = Events.findOne( {num: eventNum} )
-  return " " + if event then Template.eventIconClickable(event) else eventNum
+  return " " + if event then Template.eventIconClickable(event) else "#" + eventNum
 
 # Replace any matched users, tweets, or events with links
 Template.messageItem.renderText = ->
