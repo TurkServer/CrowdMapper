@@ -1,1 +1,462 @@
-<!--    Tutorial phases are separated into recruiting and experiment.    In the recruiting tutorial the steps ending with _recruiting will be loaded, if they exist.    A handlebars helper {{> template}} just loads the template with that name. --><!-- Welcome --><template name="tut_welcome">    <p>Welcome to the Crisis Mapping Project, a Microsoft Corporation research project.    <p>Before beginning, you will complete a brief tutorial to familiarize yourself with the Crisis Mapper interface.    <p>You would have completed this tutorial when you registered for the Crisis Mapping Project, but this will refresh your memory.</p>    {{> tut_welcome_common}}</template><template name="tut_welcome_recruiting">    <p>This HIT is a training session for the Crisis Mapping Project, a Microsoft Corporation research project.</p>    {{> tut_welcome_common}}</template><template name="tut_welcome_common">    <p>To learn more about the team conducting this research, please visit the following links:    <ul>        <li><a href="http://research.microsoft.com/en-us/groups/oess_nyc/">http://research.microsoft.com/en-us/groups/oess_nyc/</a>        <li><a href="http://www.andrewmao.net/">http://www.andrewmao.net/</a>    </ul>    <p>For the best experience, please maximize the window containing this task or make it as large as possible.</template><!-- What is crisis mapping --><template name="tut_whatis">    <p>We are conducting a study to better understand how groups of people can work together on a crisis mapping problem.</p>    {{> tut_whatis_common}}</template><template name="tut_whatis_recruiting">    <p>The Crisis Mapping Project is a study to better understand how teams of people can work together on a crisis mapping problem.</p>    {{> tut_whatis_common}}</template><template name="tut_whatis_common">    <p>A “crisis map” is created in response to a natural or humanitarian disaster by monitoring social media for reports of events on the ground and placing them on a map.</template><!-- The project --><template name="tut_project">    <p>In this project, you will work with a team of other crisis mappers to create a crisis map for Typhoon Pablo, a Category 5 hurricane which hit the Philippines in December 2012.</p>    {{> tut_project_common}}</template><template name="tut_project_recruiting">    <p>In this tutorial, you will be shown Twitter reports from Typhoon Pablo, a Category 5 hurricane which hit the Philippines in December 2012.</p>    {{> tut_project_common}}</template><template name="tut_project_common">    <p><b>NOTE: This hurricane and the data you see is historical. This is not an actual crisis.</b></template><!-- Your task --><template name="tut_yourtask">    <p>To create the crisis map, you and your team members will be shown actual Twitter reports from Typhoon Pablo. Your team must figure out which reports describe relevant crisis events.    <p>In collaboration with your team, you must record these events describing the type of event, its description, and its location.</p>    {{> tut_yourtask_common}}</template><template name="tut_yourtask_recruiting">    <p>You will learn how to record these events describing the type of event, its description, and its location.</p>    {{> tut_yourtask_common}}</template><template name="tut_yourtask_common">    <p>Relevant reports include damage to infrastructure, reports of flooded regions, casualties, local residents that have been displaced, and evacuation centers. These should be recorded on the crisis map.    <p> Other reports are irrelevant or inaccurate and should not be recorded.</template><!-- Overview of page sections --><template name="tut_datastream">    <p>Data reports appear as Tweets in the Stream on the left.    <p><i>This tutorial shows example data. You will see actual data in the task.</i></template><template name="tut_filterdata">    <p>You should click on links to see what reports refer to, and to determine whether or not the data is relevant.    <p>You may also hide tweets that appear to be irrelevant by clicking the    <button class="btn btn-danger btn-mini"><i class="icon-white icon-remove"></i></button>    button. When you hide a tweet, it disappears for everyone.    <p>    {{#if stepCompleted}}    <b class="text-success">Great, you hid an irrelevant tweet. Continue to the next step.</b>    {{else}}    <b class="text-error">To continue, find an irrelevant tweet and hide it.</b>    {{/if}}</template><template name="tut_navbar">    <p>The navbar allows you to access the three primary ways to share information and work with others: <b>event records</b>, <b>map</b>, and <b>documents</b>.    <p>It also shows <b>notifications</b> you receive from other mappers.</template><template name="tut_events">    <p>The <b>Event Records</b> pane is the primary tool for recording events.    <p>Here you will see all of the event records you and your collaborators create.</template><template name="tut_event_description">     <p>Event records comprise several fields describing information about events.     <p>Your job is to fill in these fields for each relevant crisis event.     <p>Some information about the event can be found in the tweet itself, while other information can be found online or will require your own judgment.</template><template name="tut_create_event">    <p>Create a new event by clicking this button.    <p>    {{#if stepCompleted}}    <b class="text-success">You've created an event. Continue to the next step.</b>    {{else}}    <b class="text-error">Create a new event now.</b>    {{/if}}</template><template name="tut_editevent">    <p>You may also edit an existing event record by double-clicking or by clicking the yellow <b>Edit</b> button. You will see edits by other mappers in real-time.    <p>Only one person can edit an event record at a time, so when done, click the green <b>Save</b> button that appears.    <p>    {{#if stepCompleted}}    <b class="text-success">You can now edit an event. Continue to the next step.</b>    {{else}}    <b class="text-error">Click the edit button on the event record you just created.</b>    {{/if}}</template><template name="tut_events_index">    <p>The first column shows records numbered in the order they were created.    <p>You can use this number to coordinate with other mappers in the chat room, which we'll show later.</template><template name="tut_events_sources">    <p>The <b>Sources</b> column shows all tweets that refer to the same event.    <p>You can attach a tweet to the event record by dragging it and dropping it on the record.    <p>    {{#if stepCompleted}}    <b class="text-success">You've attached a tweet to an event. Continue to the next step.</b>    {{else}}    <b class="text-error">Drag a tweet over to the event you just created.</b>    {{/if}}</template><template name="tut_events_type">    <p>Events that are relevant for crisis mapping will fit into one of these types:    <ul>    <li>Damaged bridges</li>    <li>Damaged crops</li>    <li>Damaged hospitals/health facilities</li>    <li>Damaged housing</li>    <li>Damaged roads</li>    <li>Damaged schools</li>    <li>Damaged vehicles</li>    <li>Damaged infrastructure (other)</li>    <li>Death(s) reported</li>    <li>Displaced population</li>    <li>Evacuation center</li>    <li>Flooding</li>    </ul>    <p>    {{#if stepCompleted}}    <b class="text-success">You selected a type for an event. Continue to the next step.</b>    {{else}}    <b class="text-error">Classify the event by choosing a <i>Type</i> from the dropdown menu.</b>    {{/if}}</template><template name="tut_events_description">    <p>The <b>Description</b> column allows you to record a brief description of the event.</p>    <p>    {{#if stepCompleted}}    <b class="text-success">You described the event. Continue to the next step.</b>    {{else}}    <b class="text-error">Write something in the event's description.</b>    {{/if}}</template><template name="tut_events_region">    <p>The <b>Region</b> column shows the region where the event occurred.    <p>The Philippines has 17 administrative regions. You may need to look for regions and cities on other websites if you can't find them directly on the map.    <p>    {{#if stepCompleted}}    <b class="text-success">You selected a region. Continue to the next step.</b>    {{else}}    <b class="text-error">Add your best guess of the region from the tweet.</b>    {{/if}}</template><template name="tut_events_province">    <p>The <b>Province</b> column is the province where the event occurred.    <p>There are 80 provinces in the Philippines.    <p>If you can find the province for the tweet, enter it in now.</template><template name="tut_events_location">    <p>The <b>Location</b> column shows the latitude/longitude for the event.    <p>If an event record does not have a location yet, you will be able to place it on the map. We will show you how to do this momentarily.    <!-- <p>The tweet does not have information about the location. Leave it blank for now. --></template><template name="tut_addtweet">    <p>You may also <b>add additional tweets to existing event records</b> if they refer to the same event. You can also <b>drag tweets from one event to another</b> to correct mistakes or reorganize records.    <p>By <b>hovering your mouse over a tweet</b> that has been attached to an event, you will see its content. You can also click the small X in the popover to hide the tweet.    <p>If you can find another tweet that refers to the same event as this one, add it to the record by dragging and dropping.    <!--    <p>This tweet has additional information about the event you just recorded.<b class="text-error">Add this tweet to the record.</b>    --></template><template name="tut_sortevent">    <p>You can sort events by their data by clicking the chevrons in the event header.</template><template name="tut_map">    <p>The <b>Map</b> displays a marker for each recorded event.    <p>If no latitude/longitude has been entered for an event, the marker will not appear on the map.    <!-- the marker will appear in the sidebar. --></template><template name="tut_mapcontrols">    <p>Use these map controls to pan around the map, and zoom in and out    <p>You can also drag the map to pan, and zoom using your computer's scroll function (usually mouse wheel or multi-finger drag).</template><template name="tut_editmap">    <p>You may hover or click on any event to view its details, and drag any event marker to change its geographical location.</template><template name="tut_maplocate">    <p>You can press the    <button class="btn btn-mini btn-info"><i class="icon-white icon-screenshot"></i> Locate</button>    button to place an event on the map.    <p>    {{#if stepCompleted}}    <b class="text-success">You placed an event on the map. Continue to the next step.</b>    {{else}}    <b class="text-error">Using the location information from the tweet, place the event on the map.</b>    {{/if}}</template><template name="tut_maplocation">    <p>Notice that the latitude/longitude has automatically been updated in the event record. You may click this at any time to see the location of a mapped event.    <p>Now, select the province, if you know it, and save the record using the <button class="btn btn-mini btn-success"><i class="icon-white icon-ok"></i>Save</button> button. This will let someone else edit the event.    <p>    {{#if stepCompleted}}    <b class="text-success">You saved the event. Continue to the next step.</b>    {{else}}    <b class="text-error">Save the event now.</b>    {{/if}}</template><template name="tut_documents">    <p><b>Documents</b> are available for recording information relevant to the task but not included in event records, and are shared with everyone else.    <p>    {{#if stepCompleted}}    <b class="text-success">You created a document. Continue to the next step.</b>    {{else}}    <b class="text-error">Create a document by clicking the <button class="btn btn-primary">New Document</button> button.</b>    {{/if}}</template><template name="tut_editdocs">    <p>You can rename any document by clicking on its title and create new documents as necessary.    <p><b class="text-error">Type something in the document.</b> Other mappers will see this when they read the document.    <p><b class="text-success">When you're done typing, continue to the next step.</b></template><template name="tut_userlist">    <p>The <b>User List</b> shows team members who are currently online in <span class="label label-success">green</span>, and those who have stopped participating in <span class="label label-default">grey</span>. You are shown in <span class="label label-inverse">black</span>.    <p>When other users are online, you may <b>hover your mouse over their name</b> to invite them to chat together.</p></template><template name="tut_chatrooms">    <p>You may create and join <b>chat rooms</b> to communicate with other users. Use the <button class="btn btn-mini btn-info">New room</button> button to create a chat room.    <p>    {{#if stepCompleted}}    <b class="text-success">You created a room. Continue to the next step.</b>    {{else}}    <b class="text-error">Create a new chat room now.</b>    {{/if}}</template><template name="tut_notifications">    <p>When other users invite you to chat or mention you in a chat room, you will see notifications appear here.    <p>Click on them to go to the chat room.</template><template name="tut_joinchat">    <p> You will see a list of all chat rooms and the number of people in them, but you can only be in one chat room at a time.    <p>To join a chat room, just click on it.    <p>    {{#if stepCompleted}}    <b class="text-success">You joined a room. Continue to the next step.</b>    {{else}}    <b class="text-error">Join the chat room you just created.</b>    {{/if}}</template><template name="tut_leavechat">    <p>When you are in a chat room, you can see who else is in that room. Each chat room displays the entire history of chats in that room.    <p>To leave a chat room, you can either click on “leave” or click on another chat room, which will then become active.</template><template name="tut_chatting">    <p>When you are in a chat room, you can use special characters to notify users and reference tweets or events.    <ul>        <li>Use <b class="text-error">@</b> to mention a user by name. This will notify them.</li>        <li>Use <b class="text-error">~</b> (tilde) to reference a tweet by its number.</li>        <li>Use <b class="text-error">#</b> to reference an event by its number.</li>    </ul>    <p>When you start typing the symbols above, an automatic filtered list will appear. Mentioning tweets or events will create a clickable link for everyone.    <p>    {{#if stepCompleted}}    <b class="text-success">You know how to use the chat. Continue to the next step.</b>    {{else}}    <b class="text-error">Type something in the chat.</b> For example, to tell another user to look at the event you created, type <b>@XXXUser can you take a look at event #YYY?</b>    {{/if}}</template><!-- Final reminders --><!-- Ground rules - EXPERIMENT ONLY --><template name="tut_groundrules">    <p>The project will run for one hour.    <p>You may quit the project at any time.    <p>You may also pause your work during the project by clicking on the Pause button. You may re-enter the project at any time by clicking the Restart button.    <p>If you perform no activity for XX mins, you will be automatically paused.</template><!-- Payment --><template name="tut_payment">    <p>Your payment will be determined by how much time you personally spend working on the task, and also the overall performance of your team    <p>Your team will be competing with other teams, and your team's performance will be assessed relative to the best-performing team.    <p><b>Your compensation will be calculated as: (Minutes You Worked)/60 * [$6 + team_bonus]</b>    <p>Your team bonus will be calculated as: (Number of Valid Events Your Group Correctly Labels)/(Highest Number of Valid Events Labeled By Any team)    <p><b>If you work for the full one hour, your compensation will be no less than $6 and as much as $15, depending on your team's relative performance.</b>    <p>If you quit early or pause you will only by paid for the fraction of time you work.    <p>Thus you have an incentive both to work hard yourself and also to help your team succeed.</template><template name="tut_payment_recruiting">    <p>Thank you for participating in the Crisis Mapping Tutorial.    <p>If you wish, you may now register to participate in the Crisis Mapping Project, to be conducted in the next few weeks.    <p>The Crisis Mapping Project will run for one hour at a time and date that we will communicate to you in advance.    <p>If you work the full hour, you will be compensated <b>at least $6 and as much as $15</b>, depending on your team's performance.</template><!-- Move some of this into exit survey --><template name="tut_end">    <p>Please read and acknowledge the [terms of use] for participating in this project    <p>By clicking the checkbox below you confirm that you understand what the project is about and how and why it is being done    <p>        <label class="checkbox">            <input type="checkbox"> I have read and acknowledged the [terms of use].        </label>    <p>If you have any questions about this project, please contact Andrew Mao at <b>mao@seas.harvard.edu</b>.</template><template name="tut_end_recruiting">    <p>If you wish to participate in the Crisis Mapping Project please click the checkbox below.    <p>By clicking the checkbox you confirm that you understand what the project is about and how and why it is being done.    <p>You also confirm that we may contact you via Amazon's Mechanical Turk to notify you of the HIT in advance.    <p>        <label class="checkbox">            <input type="checkbox"> I have read and acknowledged the Crisis Mapping Project [terms of use] and wish to be notified \            of the HIT.        </label>    <p>If you have any questions about this project, please contact Andrew Mao at <b>mao@seas.harvard.edu</b>.</template>
+<!--
+    Tutorial phases are separated into recruiting and experiment.
+    In the recruiting tutorial the steps ending with _recruiting will be loaded, if they exist.
+
+    A handlebars helper {{> template}} just loads the template with that name.
+ -->
+
+<!-- Welcome -->
+
+<template name="tut_welcome">
+    <p>Welcome to the Crisis Mapping Project, a Microsoft Corporation research project.
+
+    <p>Before beginning, you will complete a brief tutorial to familiarize yourself with the Crisis Mapper interface.
+
+    <p>You would have completed this tutorial when you registered for the Crisis Mapping Project, but this will refresh your memory.</p>
+
+    {{> tut_welcome_common}}
+</template>
+
+<template name="tut_welcome_recruiting">
+    <p>This HIT is a training session for the Crisis Mapping Project, a Microsoft Corporation research project.</p>
+
+    {{> tut_welcome_common}}
+</template>
+
+<template name="tut_welcome_common">
+    <p>To learn more about the team conducting this research, please visit the following links:
+
+    <ul>
+        <li><a href="http://research.microsoft.com/en-us/groups/oess_nyc/">http://research.microsoft.com/en-us/groups/oess_nyc/</a>
+        <li><a href="http://www.andrewmao.net/">http://www.andrewmao.net/</a>
+    </ul>
+
+    <p>For the best experience, please maximize the window containing this task or make it as large as possible.
+</template>
+
+<!-- What is crisis mapping -->
+
+<template name="tut_whatis">
+    <p>We are conducting a study to better understand how groups of people can work together on a crisis mapping problem.</p>
+
+    {{> tut_whatis_common}}
+</template>
+
+<template name="tut_whatis_recruiting">
+    <p>The Crisis Mapping Project is a study to better understand how teams of people can work together on a crisis mapping problem.</p>
+
+    {{> tut_whatis_common}}
+</template>
+
+<template name="tut_whatis_common">
+    <p>A “crisis map” is created in response to a natural or humanitarian disaster by monitoring social media for reports of events on the ground and placing them on a map.
+</template>
+
+<!-- The project -->
+
+<template name="tut_project">
+    <p>In this project, you will work with a team of other crisis mappers to create a crisis map for Typhoon Pablo, a Category 5 hurricane which hit the Philippines in December 2012.</p>
+
+    {{> tut_project_common}}
+</template>
+
+<template name="tut_project_recruiting">
+    <p>In this tutorial, you will be shown Twitter reports from Typhoon Pablo, a Category 5 hurricane which hit the Philippines in December 2012.</p>
+
+    {{> tut_project_common}}
+</template>
+
+<template name="tut_project_common">
+    <p><b>NOTE: This hurricane and the data you see is historical. This is not an actual crisis.</b>
+</template>
+
+<!-- Your task -->
+
+<template name="tut_yourtask">
+    <p>To create the crisis map, you and your team members will be shown actual Twitter reports from Typhoon Pablo. Your team must figure out which reports describe relevant crisis events.
+    <p>In collaboration with your team, you must record these events describing the type of event, its description, and its location.</p>
+
+    {{> tut_yourtask_common}}
+</template>
+
+<template name="tut_yourtask_recruiting">
+    <p>You will learn how to record these events by describing the type of event, its description, and its location.</p>
+
+    {{> tut_yourtask_common}}
+</template>
+
+<template name="tut_yourtask_common">
+    <p>Relevant reports include damage to infrastructure, reports of flooded regions, casualties, local residents that have been displaced, and evacuation centers. These should be recorded on the crisis map.
+
+    <p> Other reports are irrelevant or inaccurate and should not be recorded.
+</template>
+
+<!-- Overview of page sections -->
+
+<template name="tut_datastream">
+    <p>Data reports appear as Tweets in the Stream on the left.
+
+    <p><i>This tutorial shows example data. You will see actual data in the task.</i>
+</template>
+
+<template name="tut_filterdata">
+    <p>You should click on links to see what reports refer to, and to determine whether or not the data is relevant.
+
+    <p>You may also hide tweets that appear to be irrelevant by clicking the
+    <button class="btn btn-danger btn-mini"><i class="icon-white icon-remove"></i></button>
+    button. When you hide a tweet, it disappears for everyone.
+
+    <p>
+    {{#if stepCompleted}}
+    <b class="text-success">Great, you hid an irrelevant tweet. Continue to the next step.</b>
+    {{else}}
+    <b class="text-error">To continue, find an irrelevant tweet and hide it.</b>
+    {{/if}}
+</template>
+
+<template name="tut_navbar">
+    <p>The navbar allows you to access the three primary ways to share information and work with others: <b>event records</b>, <b>map</b>, and <b>documents</b>.
+
+    <p>It also shows <b>notifications</b> you receive from other mappers.
+</template>
+
+<template name="tut_events">
+    <p>The <b>Event Records</b> pane is the primary tool for recording events.
+
+    <p>Here you will see all of the event records you and your collaborators create.
+</template>
+
+<template name="tut_event_description">
+     <p>Event records comprise several fields describing information about events.
+
+     <p>Your job is to fill in these fields for each relevant crisis event.
+
+     <p>Some information about the event can be found in the tweet itself, while other information can be found online or will require your own judgment.
+</template>
+
+<template name="tut_create_event">
+    <p>Create a new event by clicking this button.
+
+    <p>
+    {{#if stepCompleted}}
+    <b class="text-success">You've created an event. Continue to the next step.</b>
+    {{else}}
+    <b class="text-error">Create a new event now.</b>
+    {{/if}}
+</template>
+
+<template name="tut_editevent">
+    <p>You may also edit an existing event record by double-clicking or by clicking the yellow <b>Edit</b> button. You will see edits by other mappers in real-time.
+
+    <p>Only one person can edit an event record at a time, so when done, click the green <b>Save</b> button that appears.
+
+    <p>
+    {{#if stepCompleted}}
+    <b class="text-success">You can now edit an event. Continue to the next step.</b>
+    {{else}}
+    <b class="text-error">Click the edit button on the event record you just created.</b>
+    {{/if}}
+</template>
+
+<template name="tut_events_index">
+    <p>The first column shows records numbered in the order they were created.
+
+    <p>You can use this number to coordinate with other mappers in the chat room, which we'll show later.
+</template>
+
+<template name="tut_events_sources">
+    <p>The <b>Sources</b> column shows all tweets that refer to the same event.
+
+    <p>You can attach a tweet to the event record by dragging it and dropping it on the record.
+
+    <p>
+    {{#if stepCompleted}}
+    <b class="text-success">You've attached a tweet to an event. Continue to the next step.</b>
+    {{else}}
+    <b class="text-error">Drag a tweet over to the event you just created.</b>
+    {{/if}}
+</template>
+
+<template name="tut_events_type">
+    <p>Events that are relevant for crisis mapping will fit into one of these types:
+
+    <ul>
+    <li>Damaged bridges</li>
+    <li>Damaged crops</li>
+    <li>Damaged hospitals/health facilities</li>
+    <li>Damaged housing</li>
+    <li>Damaged roads</li>
+    <li>Damaged schools</li>
+    <li>Damaged vehicles</li>
+    <li>Damaged infrastructure (other)</li>
+    <li>Death(s) reported</li>
+    <li>Displaced population</li>
+    <li>Evacuation center</li>
+    <li>Flooding</li>
+    </ul>
+
+    <p>
+    {{#if stepCompleted}}
+    <b class="text-success">You selected a type for an event. Continue to the next step.</b>
+    {{else}}
+    <b class="text-error">Classify the event by choosing a <i>Type</i> from the dropdown menu.</b>
+    {{/if}}
+</template>
+
+<template name="tut_events_description">
+    <p>The <b>Description</b> column allows you to record a brief description of the event.</p>
+
+    <p>
+    {{#if stepCompleted}}
+    <b class="text-success">You described the event. Continue to the next step.</b>
+    {{else}}
+    <b class="text-error">Write something in the event's description.</b>
+    {{/if}}
+</template>
+
+<template name="tut_events_region">
+    <p>The <b>Region</b> column shows the region where the event occurred.
+
+    <p>The Philippines has 17 administrative regions. You may need to look for regions and cities on other websites if you can't find them directly on the map.
+
+    <p>
+    {{#if stepCompleted}}
+    <b class="text-success">You selected a region. Continue to the next step.</b>
+    {{else}}
+    <b class="text-error">Add your best guess of the region from the tweet.</b>
+    {{/if}}
+</template>
+
+<template name="tut_events_province">
+    <p>The <b>Province</b> column is the province where the event occurred.
+
+    <p>There are 80 provinces in the Philippines.
+
+    <p>If you can find the province for the tweet, enter it in now.
+</template>
+
+<template name="tut_events_location">
+    <p>The <b>Location</b> column shows the latitude/longitude for the event.
+
+    <p>If an event record does not have a location yet, you will be able to place it on the map. We will show you how to do this momentarily.
+
+    <!-- <p>The tweet does not have information about the location. Leave it blank for now. -->
+</template>
+
+<template name="tut_addtweet">
+    <p>You may also <b>add additional tweets to existing event records</b> if they refer to the same event. You can also <b>drag tweets from one event to another</b> to correct mistakes or reorganize records.
+
+    <p>By <b>hovering your mouse over a tweet</b> that has been attached to an event, you will see its content. You can also click the small X in the popover to hide the tweet.
+
+    <p>If you can find another tweet that refers to the same event as this one, add it to the record by dragging and dropping.
+
+    <!--
+    <p>This tweet has additional information about the event you just recorded.<b class="text-error">Add this tweet to the record.</b>
+    -->
+</template>
+
+<template name="tut_sortevent">
+    <p>You can sort events by their data by clicking the arrows in the event header.
+</template>
+
+<template name="tut_map">
+    <p>The <b>Map</b> displays a marker for each recorded event.
+
+    <p>If no latitude/longitude has been entered for an event, the marker will not appear on the map.
+
+    <!-- the marker will appear in the sidebar. -->
+</template>
+
+<template name="tut_mapcontrols">
+    <p>Use these map controls to pan around the map, and zoom in and out
+
+</template>
+
+<template name="tut_editmap">
+    <p>You may hover or click on any event to view its details, and drag any event marker to change its geographical location.
+</template>
+
+<template name="tut_maplocate">
+    <p>You can press the
+    <button class="btn btn-mini btn-info"><i class="icon-white icon-screenshot"></i> Locate</button>
+    button to place an event on the map.
+
+    <p>
+    {{#if stepCompleted}}
+    <b class="text-success">You placed an event on the map. Continue to the next step.</b>
+    {{else}}
+    <b class="text-error">Using the location information from the tweet, place the event on the map.</b>
+    {{/if}}
+</template>
+
+<template name="tut_maplocation">
+    <p>Notice that the latitude/longitude has automatically been updated in the event record. You may click this at any time to see the location of a mapped event.
+
+    <p>Now, select the province, if you know it, and save the record using the <button class="btn btn-mini btn-success"><i class="icon-white icon-ok"></i>Save</button> button. This will let someone else edit the event.
+
+    <p>
+    {{#if stepCompleted}}
+    <b class="text-success">You saved the event. Continue to the next step.</b>
+    {{else}}
+    <b class="text-error">Save the event now.</b>
+    {{/if}}
+</template>
+
+<template name="tut_verify">
+    You may also check the accuracy of the events records created by other crisis mappers.  
+    If an event record is accurate you may indicate that you verified it by clicking the check box.
+</template>
+
+<template name="tut_documents">
+    <p><b>Documents</b> are available for recording information relevant to the task but not included in event records, and are shared with everyone else.
+
+    <p>
+    {{#if stepCompleted}}
+    <b class="text-success">You created a document. Continue to the next step.</b>
+    {{else}}
+    <b class="text-error">Create a document by clicking the <button class="btn btn-primary">New Document</button> button.</b>
+    {{/if}}
+</template>
+
+<template name="tut_editdocs">
+    <p>You can rename any document by clicking on its title and create new documents as necessary.
+
+    <p><b class="text-error">Type something in the document.</b> Other mappers will see this when they read the document.
+
+    <p><b class="text-success">When you're done typing, continue to the next step.</b>
+</template>
+
+<template name="tut_userlist">
+    <p>The <b>User List</b> shows team members who are currently online in <span class="label label-success">green</span>, and those who have stopped participating in <span class="label label-default">grey</span>. You are shown in <span class="label label-inverse">black</span>.
+
+    <p>When other users are online, you may <b>hover your mouse over their name</b> to invite them to chat.</p>
+</template>
+
+<template name="tut_chatrooms">
+    <p>You may create and join <b>chat rooms</b> to communicate with other users. Use the <button class="btn btn-mini btn-info">New room</button> button to create a chat room.
+
+    <p>
+    {{#if stepCompleted}}
+    <b class="text-success">You created a room. Continue to the next step.</b>
+    {{else}}
+    <b class="text-error">Create a new chat room now.</b>
+    {{/if}}
+</template>
+
+<template name="tut_notifications">
+    <p>When other users invite you to chat or mention you in a chat room, you will see notifications appear here.
+
+    <p>Click on them to go to the chat room.
+</template>
+
+<template name="tut_joinchat">
+    <p> You will see a list of all chat rooms and the number of people in them, but you can only be in one chat room at a time.
+
+    <p>To join a chat room, just click on it.
+
+    <p>
+    {{#if stepCompleted}}
+    <b class="text-success">You joined a room. Continue to the next step.</b>
+    {{else}}
+    <b class="text-error">Join the chat room you just created.</b>
+    {{/if}}
+</template>
+
+<template name="tut_leavechat">
+    <p>When you are in a chat room, you can see who else is in that room. Each chat room displays the entire history of chats in that room.
+
+    <p>To leave a chat room, you can either click on “leave” or click on another chat room, which will then become active.
+</template>
+
+<template name="tut_chatting">
+    <p>When you are in a chat room, you can use special characters to notify users and reference tweets or events.
+
+    <ul>
+        <li>Use <b class="text-error">@</b> to mention a user by name. This will notify them.</li>
+        <li>Use <b class="text-error">~</b> (tilde) to reference a tweet by its number.</li>
+        <li>Use <b class="text-error">#</b> to reference an event by its number.</li>
+    </ul>
+
+    <p>When you start typing the symbols above, an automatic filtered list will appear. Mentioning tweets or events will create a clickable link for everyone.
+
+    <p>
+    {{#if stepCompleted}}
+    <b class="text-success">You know how to use the chat. Continue to the next step.</b>
+    {{else}}
+    <b class="text-error">Type something in the chat.</b> For example, to tell another user to look at the event you created, type <b>@XXXUser can you take a look at event #YYY?</b>
+    {{/if}}
+</template>
+
+<!-- Final reminders -->
+
+<!-- Ground rules - EXPERIMENT ONLY -->
+
+<template name="tut_groundrules">
+    <p>The project will run for one hour.
+
+    <p>You may quit the project at any time.
+
+    <p>You may also pause your work during the project by clicking on the Pause button. You may re-enter the project at any time by clicking the Restart button.
+
+    <p>If you perform no activity for XX mins, you will be automatically paused.
+</template>
+
+<!-- Payment -->
+
+<template name="tut_payment">
+    <p>Your payment will be determined by how much time you personally spend working on the task, and also the overall performance of your team
+
+    <p>Your team will be competing with other teams, and your team's performance will be assessed relative to the best-performing team.
+
+    <p><b>Your compensation will be calculated as: (Minutes You Worked)/60 * [$6 + team_bonus]</b>
+
+    <p>Your team bonus will be calculated as: (Number of Valid Events Your Group Correctly Labels)/(Highest Number of Valid Events Labeled By Any team)
+
+    <p><b>If you work for the full one hour, your compensation will be no less than $6 and as much as $15, depending on your team's relative performance.</b>
+
+    <p>If you quit early or pause you will only by paid for the fraction of time you work.
+
+    <p>Thus you have an incentive both to work hard yourself and also to help your team succeed.
+</template>
+
+<template name="tut_payment_recruiting">
+    <p>Thank you for participating in the Crisis Mapping Tutorial.
+
+    <p>If you wish, you may now register to participate in the Crisis Mapping Project, to be conducted in the next few weeks.
+
+    <p>The Crisis Mapping Project will run for one hour, at a time and date that we will communicate to you in advance.
+
+    <p>If you work the full hour, you will be compensated <b>at least $6 and as much as $15</b>, depending on your team's performance.
+</template>
+
+<!-- Move some of this into exit survey -->
+
+<template name="tut_end">
+    <p>Please read and acknowledge the [terms of use] for participating in this project
+
+    <p>By clicking the checkbox below you confirm that you understand what the project is about and how and why it is being done
+    <p>
+        <label class="checkbox">
+            <input type="checkbox"> I have read and acknowledged the [terms of use].
+        </label>
+
+    <p>If you have any questions about this project, please contact Andrew Mao at <b>mao@seas.harvard.edu</b>.
+</template>
+
+<template name="tut_end_recruiting">
+    <p>If you wish to participate in the Crisis Mapping Project please click the checkbox below.
+
+    <p>By clicking the checkbox you confirm that you understand what the project is about and how and why it is being done.
+
+    <p>You also confirm that we may contact you via Amazon's Mechanical Turk to notify you of the HIT in advance.
+
+    <p>
+        <label class="checkbox">
+            <input type="checkbox"> I have read and acknowledged the Crisis Mapping Project [terms of use] and wish to be notified
+            of the HIT.
+        </label>
+
+    <p>If you have any questions about this project, please contact Andrew Mao at <b>mao@seas.harvard.edu</b>.
+</template>
+
+
