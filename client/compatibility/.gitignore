@@ -1,3 +1,4 @@
 # Don't store minified JS files in our repo
 OpenLayers.*
 jquery-ui.*
+spin.*

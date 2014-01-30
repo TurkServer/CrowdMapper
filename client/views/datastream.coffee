@@ -1,3 +1,4 @@
+Template.datastream.loaded = -> Session.equals("dataSubReady", true)
 
 Template.datastream.data = ->
   Datastream.find({}, sort: {num: 1}) # Sort in increasing insertion order

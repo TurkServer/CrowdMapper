@@ -1,3 +1,5 @@
+Template.userList.loaded = -> Session.equals("userSubReady", true)
+
 Template.userList.users = ->
   Meteor.users.find()
 

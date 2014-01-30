@@ -6,34 +6,38 @@
     {{! We add and remove a highlighted class to this div to avoid messing with scroll}}
     <div id="events" class="shadow-outline">
     {{!-- This extra container solves the problem of the absolute div clipping shit --}}
-    <div class="scroll-vertical events-body">
-        {{! isolate this to not mess with the outer scrolling}}
-        {{#isolate}}
-        <table class="table table-condensed table-hover table-striped">
-            <thead>
-            <tr>
-                <th class="header-num vertical-nopad"></th>
-                {{#each eventFields}}
-                <th class="vertical-nopad"></th>
+    {{#if loaded}}
+        <div class="scroll-vertical events-body">
+            {{! isolate this to not mess with the outer scrolling}}
+            {{#isolate}}
+            <table class="table table-condensed table-hover table-striped">
+                <thead>
+                <tr>
+                    <th class="header-num vertical-nopad"></th>
+                    {{#each eventFields}}
+                    <th class="vertical-nopad"></th>
+                    {{/each}}
+                    <th class="vertical-nopad">{{! Sources}}</th>
+                    <th class="header-location vertical-nopad"></th>
+                    <th class="header-buttons vertical-nopad"></th>
+                </tr>
+                </thead>
+
+                <tbody>
+                {{#if noEvents}}
+                {{> emptyRow}}
+                {{/if}}
+
+                {{#each eventRecords}}
+                {{> eventRow}}
                 {{/each}}
-                <th class="vertical-nopad">{{! Sources}}</th>
-                <th class="header-location vertical-nopad"></th>
-                <th class="header-buttons vertical-nopad"></th>
-            </tr>
-            </thead>
-
-            <tbody>
-            {{#if noEvents}}
-            {{> emptyRow}}
-            {{/if}}
-
-            {{#each eventRecords}}
-            {{> eventRow}}
-            {{/each}}
-            </tbody>
-        </table>
-        {{/isolate}}
-    </div>
+                </tbody>
+            </table>
+            {{/isolate}}
+        </div>
+    {{else}}
+        {{> spinner}}
+    {{/if}}
     </div>
 
     {{> createFooter}}

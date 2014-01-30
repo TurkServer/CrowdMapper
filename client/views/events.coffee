@@ -73,6 +73,8 @@ Template.events.events =
       Session.set("eventSortKey", key)
       Session.set("eventSortOrder", 1)
 
+Template.events.loaded = -> Session.equals("eventSubReady", true)
+
 Template.events.noEvents = ->
   Events.find().count() is 0
 
@@ -132,7 +134,9 @@ Template.eventRow.rendered = ->
   if Session.equals("scrollEvent", @data._id)
     parent = $(".scroll-vertical.events-body")
     element = $(@firstNode)
-    scrollTo = parent.scrollTop() + element.position().top - parent.height()/2 + element.height()/2;
+    # FIXME: on IE this only works if we grab all these values beforehand
+    # console.log parent.scrollTop(), element.position(), parent.height(), element.height()
+    scrollTo = parent.scrollTop() + element.position().top - parent.height()/2 + element.height()/2
     parent.animate({scrollTop: scrollTo}, "slow")
     Session.set("scrollEvent", null)
 

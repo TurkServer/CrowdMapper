@@ -199,3 +199,4 @@ Meteor.methods
     Notifications.update noteId,
       $set: {read: Date.now()}
     return
+

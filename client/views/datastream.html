@@ -1,5 +1,6 @@
 <template name="datastream">
     <div class="datastream well well-nopad">
+        {{#if loaded}}
         {{!-- again, a workaround to allow the inner divs to be dragged out --}}
         <ul class="scroll-vertical data-body">
             {{#each data}}
@@ -8,6 +9,9 @@
                 {{/if}}
             {{/each}}
         </ul>
+        {{else}}
+        {{> spinner}}
+        {{/if}}
     </div>
 </template>
 

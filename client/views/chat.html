@@ -33,11 +33,15 @@
 </template>
 
 <template name="rooms">
+    {{#if loaded}}
     <ul class="nav nav-pills nav-stacked fill-height compact">
         {{#each availableRooms}}
         {{> roomItem}}
         {{/each}}
     </ul>
+    {{else}}
+    {{> spinner}}
+    {{/if}}
 </template>
 
 <template name="roomItem">
@@ -74,11 +78,15 @@
 
 <template name="messageBox">
     <div class="messages well well-nopad">
+        {{#if loaded}}
         <ul class="scroll-vertical messages-body">
             {{#each messages}}
             {{> messageItem}}
             {{/each}}
         </ul>
+        {{else}}
+        {{> spinner}}
+        {{/if}}
     </div>
 </template>
 

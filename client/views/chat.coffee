@@ -2,7 +2,13 @@
 # TODO this incurs a high traffic/rendering cost when switching between rooms
 Deps.autorun ->
   roomId = Session.get("room")
-  Meteor.subscribe "chatstate", roomId
+  handle = Meteor.subscribe "chatstate", roomId
+  Session.set("chatRoomReady", false)
+
+  Deps.autorun (c) ->
+    if handle.ready()
+      Session.set("chatRoomReady", true)
+      c.stop()
 
 Handlebars.registerHelper "currentRoom", -> Meteor.userId()? && Session.get("room")?
 
@@ -12,6 +18,8 @@ Template.chat.events =
 
     bootbox.prompt "Name the room", (roomName) ->
       Meteor.call "createChat", roomName if !!roomName
+
+Template.rooms.loaded = -> Session.equals("chatSubReady", true)
 
 Template.rooms.availableRooms = -> ChatRooms.find({}, {sort: {name: 1}}) # For a consistent ordering
 
@@ -105,12 +113,17 @@ Template.roomHeader.events =
 
 Template.messageBox.rendered = ->
   # Scroll down whenever anything happens
-  $messages = $ @find(".messages-body")
+  messages = @find(".messages-body")
+  return unless messages
+  $messages = $(messages)
   $messages.scrollTop $messages[0].scrollHeight
 
+Template.messageBox.loaded = -> Session.equals("chatRoomReady", true)
+
 Template.messageBox.messages = ->
-  ChatMessages.find
-    room: Session.get("room")
+  ChatMessages.find {},
+    # room: Session.get("room")
+    sort: {timestamp: 1}
 
 # These usernames are nonreactive because find does not use any reactive variables
 Template.messageItem.username = ->

@@ -5,24 +5,33 @@
 
 fieldSub = Meteor.subscribe("eventFieldData")
 
-Deps.autorun ->
+Deps.autorun (c) ->
   return unless fieldSub.ready()
   Mapper.processSources()
-  @stop()
+  c.stop()
 
-handles = []
+watchReady = (handle, key) ->
+  Session.set(key, false)
+  Deps.autorun (c) ->
+    if handle.ready()
+      Session.set(key, true)
+      c.stop()
 
 Deps.autorun ->
   group = TurkServer.group()
   # Remember, we need to pass the group handle down to make Meteor think the subscription is different
-  handles = [
-    Meteor.subscribe("userStatus", group)
-    Meteor.subscribe("chatrooms", group) # Chat messages are subscribed to by room
-    Meteor.subscribe("datastream", group)
-    Meteor.subscribe("docs", group)
-    Meteor.subscribe("events", group)
-    fieldSub
-  ]
+
+  userSub = Meteor.subscribe("userStatus", group)
+  chatSub = Meteor.subscribe("chatrooms", group) # Chat messages are subscribed to by room
+  dataSub = Meteor.subscribe("datastream", group)
+  docSub = Meteor.subscribe("docs", group)
+  eventSub = Meteor.subscribe("events", group)
+
+  watchReady(userSub, "userSubReady")
+  watchReady(chatSub, "chatSubReady")
+  watchReady(dataSub, "dataSubReady")
+  watchReady(docSub, "docSubReady")
+  watchReady(eventSub, "eventSubReady")
 
 Meteor.subscribe("notifications")
 
@@ -48,7 +57,7 @@ Router.map ->
       Before hook is buggy due to https://github.com/EventedMind/iron-router/issues/336
       So we subscribe to EventFields statically right now.
     ###
-    waitOn: handles
+    waitOn: fieldSub
 
 Deps.autorun ->
   Router.go("/mapper") if TurkServer.inExperiment()
@@ -79,6 +88,10 @@ Meteor.startup ->
 
   Session.set("scrollEvent", null)
   Session.set("scrollTweet", null)
+
+###
+  Templates and helpers
+###
 
 Template.mapper.rendered = ->
   # Set initial active tab when rendered

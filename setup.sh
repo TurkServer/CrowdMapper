@@ -5,3 +5,5 @@ curl -L http://dev.openlayers.org/releases/OpenLayers-2.13.1/OpenLayers.js > cli
 # below not needed since in client/compatibility
 # echo 'window.OpenLayers = OpenLayers;' >> client/lib/OpenLayers.js
 curl -L http://dev.openlayers.org/releases/OpenLayers-2.13.1/theme/default/style.css > client/compatibility/OpenLayers.css
+
+curl -L http://fgnass.github.io/spin.js/spin.min.js > client/compatibility/spin.min.js

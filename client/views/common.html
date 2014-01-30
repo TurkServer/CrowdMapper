@@ -1,9 +1,13 @@
 <template name="userList">
     <div class="well well-skinny user-list scroll-vertical">
-        Users:
-        {{#each users}}
-        {{> userPill}}
-        {{/each}}
+        {{#if loaded}}
+            Users:
+            {{#each users}}
+            {{> userPill}}
+            {{/each}}
+        {{else}}
+            {{> spinner}}
+        {{/if}}
     </div>
 </template>
 
