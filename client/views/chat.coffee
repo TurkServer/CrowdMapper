@@ -129,7 +129,6 @@ userFunc = (_, p1, p2) ->
 
 tweetFunc = (_, p1, p2) ->
   tweetNum = parseInt( p2.substring(1) )
-  console.log tweetNum
   tweet = Datastream.findOne( {num: tweetNum} )
   return " " + if tweet then Template.tweetIconClickable(tweet) else "~" + tweetNum
 
