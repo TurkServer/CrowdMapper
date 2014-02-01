@@ -50,14 +50,21 @@ Router.map ->
     path: '/mapper'
     before: ->
       unless Meteor.user()
-        @setLayout("blankContainer")
+        @setLayout("defaultContainer")
         @render("awaitingLogin")
+        @stop()
+      unless Meteor.user()?.admin or TurkServer.inExperiment()
+        @setLayout("defaultContainer")
+        @render("loadError")
         @stop()
     ###
       Before hook is buggy due to https://github.com/EventedMind/iron-router/issues/336
       So we subscribe to EventFields statically right now.
     ###
     waitOn: fieldSub
+  @route 'exitsurvey',
+    layoutTemplate: 'defaultContainer'
+    # TODO make sure we are allowed to be in here
 
 Deps.autorun ->
   Router.go("/mapper") if TurkServer.inExperiment()

@@ -12,8 +12,8 @@
     </div>
 </template>
 
-<template name="blankContainer">
-    <div class="container">
+<template name="defaultContainer">
+    <div class="container fill-height scroll-vertical">
         {{yield}}
     </div>
 </template>
@@ -21,6 +21,12 @@
 <template name="awaitingLogin">
     <div class="alert alert-info">
         <h3>Waiting for login...</h3>
+    </div>
+</template>
+
+<template name="loadError">
+    <div class="alert">
+        <h3>Error loading the task. Please try reloading this HIT from your dashboard.</h3>
     </div>
 </template>
 

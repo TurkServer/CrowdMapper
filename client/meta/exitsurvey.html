@@ -1,0 +1,21 @@
+<template name="exitsurvey">
+    <form>
+        <fieldset>
+            <legend>Please answer the questions below to submit the HIT.</legend>
+
+            <label>Were any parts of the tutorial confusing or hard to understand?</label>
+            <textarea name="understanding" placeholder="Type something…" required></textarea>
+
+            <label>Did you experience any bugs with the interface?</label>
+            <textarea name="bugs" placeholder="Type something…" required></textarea>
+
+            <span class="help-block">If you encountered any bugs, please include your operating system and browser in the description.</span>
+
+            <label class="checkbox">
+                <input type="checkbox"> I agree to be contacted for collaborative sessions with other mappers.
+            </label>
+
+            <button type="submit" class="btn">Submit</button>
+        </fieldset>
+    </form>
+</template>
