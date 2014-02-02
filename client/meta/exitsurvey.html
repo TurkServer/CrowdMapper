@@ -1,21 +1,31 @@
 <template name="exitsurvey">
-    <form>
-        <fieldset>
-            <legend>Please answer the questions below to submit the HIT.</legend>
+    <form class="well survey">
+    <fieldset>
+        <legend>Please briefly answer the questions below.</legend>
 
-            <label>Were any parts of the tutorial confusing or hard to understand?</label>
-            <textarea name="understanding" placeholder="Type something…" required></textarea>
+        <label>Were any parts of the tutorial confusing or that you didn't understand?</label>
+        <textarea name="comprehension" placeholder="Type something…" required></textarea>
 
-            <label>Did you experience any bugs with the interface?</label>
-            <textarea name="bugs" placeholder="Type something…" required></textarea>
+        <label>After the tutorial, do you feel prepared to do create a crisis mapping task together with other workers? If not, what would help you feel more comfortable with the task?</label>
+        <textarea name="prepared" placeholder="Type something…" required></textarea>
 
-            <span class="help-block">If you encountered any bugs, please include your operating system and browser in the description.</span>
+        <label>Did you experience any bugs with the interface? If so, please describe them.</label>
+        <textarea name="bugs" placeholder="Type something…" required></textarea>
 
-            <label class="checkbox">
-                <input type="checkbox"> I agree to be contacted for collaborative sessions with other mappers.
-            </label>
+        <span class="help-block">If you encountered any bugs, please include your operating system and browser in the description.</span>
+    </fieldset>
+    <fieldset>
+        <legend>Qualification for the Crisis Mapping Project</legend>
 
-            <button type="submit" class="btn">Submit</button>
-        </fieldset>
+        <span class="help-block">We plan to schedule future sessions where you will do the Crisis Mapping task with other workers, earning from $6 to $15 per hour. Please fill in the information below if you would like to gain a qualification and invitation for these tasks.</span>
+
+        <label class="checkbox">
+            <input name="contact" type="checkbox"><b>Please grant me a qualification and contact me via Amazon Mechanical Turk for future collaborative Crisis Mapping sessions with other workers.</b>
+        </label>
+
+        {{> tsTimePicker}}
+
+        <button type="submit" class="btn btn-primary">Submit HIT</button>
+    </fieldset>
     </form>
 </template>
