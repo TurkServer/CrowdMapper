@@ -37,7 +37,7 @@ Template.roomItem.events =
     e.preventDefault()
     Meteor.call("deleteChat", @_id)
 
-    # don't select chatroom - http://stackoverflow.com/questions/10407783/stop-event-propagation-in-meteor
+    # don't select chatroom (above function) - http://stackoverflow.com/questions/10407783/stop-event-propagation-in-meteor
     e.stopImmediatePropagation()
 
 Template.roomUsers.users = ->

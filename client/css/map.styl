@@ -19,9 +19,13 @@
   font-size: larger !important
   font-weight: bold
 
+// Fixes hover events on vector layer in IE
+.olLayerDiv > svg
+  pointer-events: all
+
 // HACK: remove the explicit visibility attribute on the vector layer - causes display issues in Firefox
 .olLayerDiv > svg > g
-    visibility: inherit !important
+  visibility: inherit !important
 
 // Allow tweet tags to extend outside popups
 .olPopup
@@ -31,8 +35,11 @@
 
 .olPopup > div
   overflow: visible !important
+  // position: static !important
 
+// One of the hacks below is needed to allow popovers to show outside of popups
 .olPopupContent
   overflow: visible !important
+  position: static !important
   display: block
   max-width: 300px // Stop the popups from rendering too wide
