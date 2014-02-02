@@ -10,28 +10,22 @@ Deps.autorun (c) ->
   Mapper.processSources()
   c.stop()
 
-watchReady = (handle, key) ->
+# Unsets and sets a session variable for a subscription
+watchReady = (key) ->
   Session.set(key, false)
-  Deps.autorun (c) ->
-    if handle.ready()
-      Session.set(key, true)
-      c.stop()
+  return (-> Session.set(key, true))
 
 Deps.autorun ->
   group = TurkServer.group()
   # Remember, we need to pass the group handle down to make Meteor think the subscription is different
 
-  userSub = Meteor.subscribe("userStatus", group)
-  chatSub = Meteor.subscribe("chatrooms", group) # Chat messages are subscribed to by room
-  dataSub = Meteor.subscribe("datastream", group)
-  docSub = Meteor.subscribe("docs", group)
-  eventSub = Meteor.subscribe("events", group)
+  # No need to clean up subscriptions on this autorun
 
-  watchReady(userSub, "userSubReady")
-  watchReady(chatSub, "chatSubReady")
-  watchReady(dataSub, "dataSubReady")
-  watchReady(docSub, "docSubReady")
-  watchReady(eventSub, "eventSubReady")
+  Meteor.subscribe("userStatus", group, watchReady("userSubReady"))
+  Meteor.subscribe("chatrooms", group, watchReady("chatSubReady")) # Chat messages are subscribed to by room
+  Meteor.subscribe("datastream", group, watchReady("dataSubReady"))
+  Meteor.subscribe("docs", group, watchReady("docSubReady"))
+  Meteor.subscribe("events", group, watchReady("eventSubReady"))
 
 Meteor.subscribe("notifications")
 
@@ -91,7 +85,7 @@ Meteor.startup ->
   $(window).resize checkSize
 
 Meteor.startup ->
-  Session.set("taskView", 'events')
+  Session.setDefault("taskView", 'events')
 
   Session.set("scrollEvent", null)
   Session.set("scrollTweet", null)

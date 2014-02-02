@@ -2,13 +2,8 @@
 # TODO this incurs a high traffic/rendering cost when switching between rooms
 Deps.autorun ->
   roomId = Session.get("room")
-  handle = Meteor.subscribe "chatstate", roomId
   Session.set("chatRoomReady", false)
-
-  Deps.autorun (c) ->
-    if handle.ready()
-      Session.set("chatRoomReady", true)
-      c.stop()
+  Meteor.subscribe("chatstate", roomId, -> Session.set("chatRoomReady", true))
 
 Handlebars.registerHelper "currentRoom", -> Meteor.userId()? && Session.get("room")?
 
