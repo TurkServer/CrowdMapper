@@ -1,9 +1,12 @@
 {
     "public": {
-      "map": {
-        "extent": [ 12800000, 525000, 14500000, 2450000 ],
-        "bingAPIKey": "AtsCXPry0QFxHVXRBJDXPVVy88GhE6tTwtW61SNJoVl8AYwcNce_UsO3VZ3lGT3Q"
-      }
+        "map": {
+          "extent": [ 12800000, 525000, 14500000, 2450000 ],
+          "bingAPIKey": "AtsCXPry0QFxHVXRBJDXPVVy88GhE6tTwtW61SNJoVl8AYwcNce_UsO3VZ3lGT3Q"
+        },
+        "turkserver": {
+          "watchRoute": "/mapper"
+        }
     },
     "turkserver": {
         "adminPassword": "test",
@@ -11,8 +14,7 @@
           "sandbox": true,
           "accessKeyId": "FILL_ME_IN",
           "secretAccessKey": "FILL_ME_IN_TOO"
-        },
-        "watchRoute": "/mapper"
+        }
     },
     "sharejs": {
         "options": {

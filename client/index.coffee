@@ -63,6 +63,9 @@ Router.map ->
 Deps.autorun ->
   Router.go("/mapper") if TurkServer.inExperiment()
 
+Deps.autorun ->
+  Router.go("/exitsurvey") if TurkServer.inExitSurvey()
+
 ###
   Window sizing warning
 ###
