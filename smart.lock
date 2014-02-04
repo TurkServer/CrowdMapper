@@ -6,26 +6,19 @@
       "iron-router": {},
       "publish-with-relations": {},
       "x-editable-bootstrap": {},
-      "build-fetcher": {
-        "path": "../meteor-build-fetcher"
-      },
+      "user-status": {},
+      "jqueryui": {},
       "turkserver": {
         "path": "../turkserver-meteor"
       },
       "sharejs": {
         "path": "../meteor-sharejs"
       },
-      "user-status": {
-        "path": "../meteor-user-status"
-      },
       "autocomplete": {
         "path": "../meteor-autocomplete"
       },
       "tutorials": {
         "path": "../meteor-tutorials"
-      },
-      "jqueryui": {
-        "path": "../meteor-jqueryui"
       }
     },
     "packages": {
@@ -49,8 +42,15 @@
         "tag": "v1.4.6.2",
         "commit": "d3fcead1dd2302e30522e8c09d020f9a3d312cd0"
       },
-      "build-fetcher": {
-        "path": "../meteor-build-fetcher"
+      "user-status": {
+        "git": "https://github.com/mizzao/meteor-user-status.git",
+        "tag": "v0.2.0",
+        "commit": "e18cc48440710d0ac23bd1a578974f9142226bf4"
+      },
+      "jqueryui": {
+        "git": "https://github.com/mizzao/meteor-jqueryui.git",
+        "tag": "v1.10.3r2",
+        "commit": "d54f75cfad37ff8ce6ef9ad49de55738ba921af7"
       },
       "turkserver": {
         "path": "../turkserver-meteor"
@@ -58,17 +58,16 @@
       "sharejs": {
         "path": "../meteor-sharejs"
       },
-      "user-status": {
-        "path": "../meteor-user-status"
-      },
       "autocomplete": {
         "path": "../meteor-autocomplete"
       },
       "tutorials": {
         "path": "../meteor-tutorials"
       },
-      "jqueryui": {
-        "path": "../meteor-jqueryui"
+      "build-fetcher": {
+        "git": "https://github.com/mizzao/meteor-build-fetcher.git",
+        "tag": "v0.1.0",
+        "commit": "e3813b1fc7f5c576e8e1fa4c51ae6f4687780a35"
       },
       "moment": {
         "git": "https://github.com/acreeger/meteor-moment.git",
@@ -76,7 +75,9 @@
         "commit": "8c9bc5d3fc96705057737cb9743d555417f6e551"
       },
       "collection-hooks": {
-        "path": "../meteor-collection-hooks"
+        "git": "https://github.com/matb33/meteor-collection-hooks.git",
+        "tag": "v0.6.2",
+        "commit": "29484b2110206be93b01c6d11ce06ec9208de7bd"
       }
     }
   }

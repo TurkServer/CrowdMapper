@@ -4,26 +4,19 @@
     "iron-router": {},
     "publish-with-relations": {},
     "x-editable-bootstrap": {},
-    "build-fetcher": {
-      "path": "../meteor-build-fetcher"
-    },
+    "user-status": {},
+    "jqueryui": {},
     "turkserver": {
       "path": "../turkserver-meteor"
     },
     "sharejs": {
       "path": "../meteor-sharejs"
     },
-    "user-status": {
-      "path": "../meteor-user-status"
-    },
     "autocomplete": {
       "path": "../meteor-autocomplete"
     },
     "tutorials": {
       "path": "../meteor-tutorials"
-    },
-    "jqueryui": {
-      "path": "../meteor-jqueryui"
     }
   }
 }
