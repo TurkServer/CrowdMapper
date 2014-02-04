@@ -1,6 +1,7 @@
 .idea
 Meteor
 dump.rdb
+settings-private.json
 
 .backups
 packages/*

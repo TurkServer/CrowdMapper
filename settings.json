@@ -7,6 +7,11 @@
     },
     "turkserver": {
         "adminPassword": "test",
+        "mturk": {
+          "sandbox": true,
+          "accessKeyId": "FILL_ME_IN",
+          "secretAccessKey": "FILL_ME_IN_TOO"
+        },
         "watchRoute": "/mapper"
     },
     "sharejs": {
