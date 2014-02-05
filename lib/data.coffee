@@ -318,7 +318,13 @@ Meteor.methods
 
     return
 
-  # sendChat: does extra stuff on server
+  ###
+
+  inviteChat: server only
+
+  sendChat: does extra stuff on server
+
+  ###
 
   deleteChat: (roomId) ->
     TurkServer.checkNotAdmin()

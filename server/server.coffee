@@ -40,3 +40,5 @@ Meteor.publish 'notifications', ->
 
 Meteor.methods
   "finishTutorial": ->
+    if TurkServer.treatment() is "recruiting"
+      TurkServer.finishExperiment()

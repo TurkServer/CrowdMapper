@@ -34,6 +34,7 @@ generateNewEvent = ->
     fields[key] = if val? then null else ""
 
   Meteor.call "createEvent", eventId, fields
+  Session.set "selectedEvent", eventId
 
 edit = (e) ->
   Meteor.call "editEvent", @_id
