@@ -151,8 +151,7 @@ tutorialSteps = [
   ,
     spot: ".chat-overview"
     template: "tut_joinchat"
-    require:
-      event: "chat-join"
+    # require: event: "chat-join"
   ,
     spot: ".chat-overview, .chat-messaging"
     template: "tut_leavechat"
@@ -191,11 +190,11 @@ getTutorialSteps = ->
   ]
 
 Template.mapperTutorial.tutorialEnabled = ->
-  treatment = TSConfig.findOne("treatment")?.value 
+  treatment = TurkServer.treatment()
   return (treatment is "tutorial" or treatment is "recruiting") and not Meteor.user()?.admin
 
 Template.mapperTutorial.options = ->
-  treatment = TSConfig.findOne("treatment")?.value
+  treatment = TurkServer.treatment()
   
   return {
     steps: if treatment is "recruiting" then getRecruitingSteps() else getTutorialSteps()

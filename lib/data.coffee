@@ -60,7 +60,6 @@ Meteor.methods
     # Attach this event to the tweet, unhide if necessary
     Datastream.update tweetId,
       $addToSet: { events: eventId }
-      $set: { hidden: false }
 
     if @isSimulation
       Mapper.events.emit("data-link")

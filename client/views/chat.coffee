@@ -38,7 +38,9 @@ Template.roomItem.events =
 
   "click .action-room-delete": (e) ->
     e.preventDefault()
-    Meteor.call("deleteChat", @_id)
+    roomId = @_id
+    bootbox.confirm "This will delete the chat room and its messages. Are you sure?", (res) ->
+      Meteor.call("deleteChat", roomId) if roomId
 
     # don't select chatroom (above function) - http://stackoverflow.com/questions/10407783/stop-event-propagation-in-meteor
     e.stopImmediatePropagation()

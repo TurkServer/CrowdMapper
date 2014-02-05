@@ -6,6 +6,8 @@ Template.exitsurvey.events =
       comprehension: tmpl.find("textarea[name=comprehension]").value
       prepared: tmpl.find("textarea[name=prepared]").value
       bugs: tmpl.find("textarea[name=bugs]").value
+
+    panel =
       contact: tmpl.find("input[name=contact]").checked
       times: [
         tmpl.find("select[name=pickTime1]").value
@@ -13,5 +15,6 @@ Template.exitsurvey.events =
         tmpl.find("select[name=pickTime3]").value
       ]
 
-    # TODO submit these
-    console.log(results)
+    tmpl.find("button[type=submit]").disabled = true # Prevent multiple submissions
+
+    TurkServer.submitExitSurvey(results, panel)

@@ -62,6 +62,9 @@ Meteor.publish "chatstate", (room)  ->
         roomId: room
 
     enterRoom(room, userId)
+  else
+    # Don't publish arbitrary rooms to admin
+    return unless room
 
   # publish room messages and users
   Meteor.publishWithRelations

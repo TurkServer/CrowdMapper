@@ -223,7 +223,8 @@
     {{#if stepCompleted}}
     <b class="text-success">You selected a region. Continue to the next step.</b>
     {{else}}
-    <b class="text-error">Add your best guess of the region from the tweet.</b>
+    <b class="text-error">Add your best guess of the region from the tweet you just attached.</b>
+    Hover your mouse over it to see the details.
     {{/if}}
 </template>
 
@@ -363,13 +364,6 @@
     <p> You will see a list of all chat rooms and the number of people in them, but you can only be in one chat room at a time.
 
     <p>To join a chat room, just click on it.
-
-    <p>
-    {{#if stepCompleted}}
-    <b class="text-success">You joined a room. Continue to the next step.</b>
-    {{else}}
-    <b class="text-error">Join the chat room you just created.</b>
-    {{/if}}
 </template>
 
 <template name="tut_leavechat">

@@ -17,10 +17,12 @@ watchReady = (key) ->
 
 Deps.autorun ->
   group = TurkServer.group()
-  # Remember, we need to pass the group handle down to make Meteor think the subscription is different
 
-  # No need to clean up subscriptions on this autorun
+  # Don't keep a room when going from tutorial to actual task
+  Session.set("room", undefined)
 
+  # No need to clean up subscriptions because this is a Deps.autorun
+  # We need to pass the group handle down to make Meteor think the subscription is different
   Meteor.subscribe("userStatus", group, watchReady("userSubReady"))
   Meteor.subscribe("chatrooms", group, watchReady("chatSubReady")) # Chat messages are subscribed to by room
   Meteor.subscribe("datastream", group, watchReady("dataSubReady"))
@@ -37,6 +39,7 @@ Router.configure
   notFoundTemplate: 'home'
   # loadingTemplate: 'spinner' # TODO get a spinner here
 
+# TODO move the functionality of these before functions into TurkServer
 Router.map ->
   @route('home', {path: '/'})
   @route 'mapper',
@@ -58,7 +61,11 @@ Router.map ->
     waitOn: fieldSub
   @route 'exitsurvey',
     layoutTemplate: 'defaultContainer'
-    # TODO make sure we are allowed to be in here
+    before: ->
+      unless TurkServer.inExitSurvey()
+        @setLayout("defaultContainer")
+        @render("loadError")
+        @stop()
 
 Deps.autorun ->
   Router.go("/mapper") if TurkServer.inExperiment()
@@ -72,7 +79,7 @@ Deps.autorun ->
 sizeWarningDialog = null
 
 checkSize = ->
-  bigEnough = $(window).width() > 1250 and $(window).height() > 500
+  bigEnough = $(window).width() > 1200 and $(window).height() > 500
 
   if bigEnough and sizeWarningDialog?
     sizeWarningDialog.modal("hide")
