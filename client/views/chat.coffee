@@ -12,7 +12,10 @@ Template.chat.events =
     e.preventDefault()
 
     bootbox.prompt "Name the room", (roomName) ->
-      Meteor.call "createChat", roomName if !!roomName
+      return unless !!roomName
+      Meteor.call "createChat", roomName, (err, id) ->
+        return unless id
+        Session.set "room", id
 
 Template.rooms.loaded = -> Session.equals("chatSubReady", true)
 
@@ -91,8 +94,7 @@ Template.roomHeader.rendered = ->
     success: (response, newValue) ->
       roomId = Session.get("room")
       return unless roomId
-      ChatRooms.update roomId,
-        $set: { name: newValue }
+      Meteor.call "renameChat", roomId, newValue
 
   $(@find('.editable:not(.editable-click)')).editable('destroy').editable(settings)
 

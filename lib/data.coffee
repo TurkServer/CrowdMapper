@@ -19,7 +19,9 @@ this.Notifications = new Meteor.Collection("notifications") # Not turkservered s
 
 # Group the four main partitioned collections
 TurkServer.partitionCollection(ChatRooms)
-TurkServer.partitionCollection(Datastream)
+TurkServer.partitionCollection(Datastream, {
+  index: { hidden: 1 } # Partitioning on num won't help anyway as it is sorted on client
+})
 TurkServer.partitionCollection(Documents)
 TurkServer.partitionCollection(Events, {
   index: { num: 1 }  # Create an index on event sequencing for efficient lookup
@@ -37,7 +39,14 @@ Meteor.methods
     Datastream.update id,
       $set: { hidden: true }
 
-    Mapper.events.emit("data-hide") if @isSimulation
+    if @isSimulation
+      Mapper.events.emit("data-hide")
+    else
+      @unblock()
+      TurkServer.log
+        action: "data-hide"
+        dataId: id
+
     return
 
   dataLink: (tweetId, eventId) ->
@@ -53,7 +62,15 @@ Meteor.methods
       $addToSet: { events: eventId }
       $set: { hidden: false }
 
-    Mapper.events.emit("data-link") if @isSimulation
+    if @isSimulation
+      Mapper.events.emit("data-link")
+    else
+      @unblock()
+      TurkServer.log
+        action: "data-link"
+        dataId: tweetId
+        eventId: eventId
+
     return
 
   dataUnlink: (tweetId, eventId) ->
@@ -65,6 +82,14 @@ Meteor.methods
 
     Datastream.update tweetId,
       $pull: { events: eventId }
+
+    unless @isSimulation
+      @unblock()
+      TurkServer.log
+        action: "data-unlink"
+        dataId: tweetId
+        eventId: eventId
+
     return
 
   ###
@@ -81,14 +106,20 @@ Meteor.methods
 
     _.extend(obj, fields)
 
-    # On server, increment number based on highest numbered event
+    # On server, increment number based on highest numbered event (including deleted)
     unless @isSimulation
       maxEventIdx = Events.findOne({}, sort: {num: -1})?.num || 0
       obj.num = maxEventIdx + 1
 
     Events.insert(obj)
 
-    Mapper.events.emit("event-create") if @isSimulation
+    if @isSimulation
+      Mapper.events.emit("event-create")
+    else
+      @unblock()
+      TurkServer.log
+        action: "event-create"
+        eventId: eventId
     return
 
   editEvent: (id) ->
@@ -103,7 +134,14 @@ Meteor.methods
     unless event.editor
       Events.update id,
         $set: { editor: userId }
-      Mapper.events.emit("event-edit") if @isSimulation
+      if @isSimulation
+        Mapper.events.emit("event-edit")
+      else
+        @unblock()
+        TurkServer.log
+          action: "event-edit"
+          eventId: id
+
     else if @isSimulation and event.editor isnt userId
       bootbox.alert("Sorry, someone is already editing that event.")
 
@@ -118,6 +156,12 @@ Meteor.methods
       for key of fields
         break
       Mapper.events.emit("event-update-" + key)
+    else
+      @unblock()
+      TurkServer.log
+        action: "event-update"
+        eventId: id
+        fields: fields
 
     return
 
@@ -125,10 +169,18 @@ Meteor.methods
     Events.update id,
       $unset: { editor: 1 }
 
-    Mapper.events.emit("event-save") if @isSimulation
+    if @isSimulation
+      Mapper.events.emit("event-save")
+    else
+      @unblock()
+      TurkServer.log
+        action: "event-save"
+        eventId: id
+
     return
 
   voteEvent: (id) ->
+    TurkServer.checkNotAdmin()
     userId = Meteor.userId()
     unless userId
       bootbox.alert("You must be logged in to vote on an event.") if @isSimulation
@@ -136,7 +188,15 @@ Meteor.methods
 
     Events.update id,
       $addToSet: { votes: userId }
-    Mapper.events.emit("event-vote") if @isSimulation
+
+    if @isSimulation
+      Mapper.events.emit("event-vote")
+    else
+      @unblock()
+      TurkServer.log
+        action: "event-vote"
+        eventId: id
+
     return
 
   unvoteEvent: (id) ->
@@ -145,8 +205,15 @@ Meteor.methods
       bootbox.alert("You must be logged in to vote on an event.") if @isSimulation
       return
 
-    Events.update @_id,
+    Events.update id,
       $pull: { votes: userId }
+
+    unless @isSimulation
+      @unblock()
+      TurkServer.log
+        action: "event-unvote"
+        eventId: id
+
     return
 
   deleteEvent: (id) ->
@@ -158,7 +225,63 @@ Meteor.methods
       Datastream.update tweetId,
         $pull: { events: id }
 
-    Events.remove(id)
+    # Don't actually delete event, so we retain the data and keep the number
+    Events.update id,
+      $set: {deleted: true}
+
+    unless @isSimulation
+      @unblock()
+      TurkServer.log
+        action: "event-delete"
+        eventId: id
+
+    return
+
+  ###
+    Doc Methods
+  ###
+  createDocument: (docName) ->
+    TurkServer.checkNotAdmin()
+
+    docId = Documents.insert
+      title: docName
+
+    if @isSimulation
+      Mapper.events.emit("document-create")
+    else
+      @unblock()
+      TurkServer.log
+        action: "document-create"
+        docId: docId
+        name: docName
+
+    return docId
+
+  renameDocument: (docId, newTitle) ->
+    TurkServer.checkNotAdmin()
+    Documents.update docId,
+      $set: { title: newnewTitle }
+
+    unless @isSimulation
+      @unblock()
+      TurkServer.log
+        action: "document-rename"
+        docId: docId
+        name: newTitle
+
+    return
+
+  deleteDocument: (id) ->
+    TurkServer.checkNotAdmin()
+    Documents.update id
+      $set: {deleted: true}
+
+    unless @isSimulation
+      @unblock()
+      TurkServer.log
+        action: "document-delete"
+        docId: id
+
     return
 
   ###
@@ -166,10 +289,33 @@ Meteor.methods
   ###
   createChat: (roomName) ->
     TurkServer.checkNotAdmin()
-    ChatRooms.insert
+    roomId = ChatRooms.insert
       name: roomName
       users: 0
-    Mapper.events.emit("chat-create") if @isSimulation
+
+    if @isSimulation
+      Mapper.events.emit("chat-create")
+    else
+      @unblock()
+      TurkServer.log
+        action: "chat-create"
+        room: roomId
+        name: roomName
+
+    return roomId
+
+  renameChat: (roomId, newName) ->
+    TurkServer.checkNotAdmin()
+    ChatRooms.update roomId,
+      $set: { name: newTitle }
+
+    unless @isSimulation
+      @unblock()
+      TurkServer.log
+        action: "chat-rename"
+        room: roomId
+        name: newName
+
     return
 
   # sendChat: does extra stuff on server
@@ -181,12 +327,20 @@ Meteor.methods
       unless ChatRooms.findOne(roomId).users is 0
         bootbox.alert "You can only delete empty chat rooms."
       else
-        ChatRooms.remove roomId
+        ChatRooms.update roomId,
+          $set: {deleted: true}
     else
       # Server method
       return unless ChatUsers.find(roomId: roomId).count() is 0
-      ChatRooms.remove roomId
-      # TODO should we delete messages? Or use them for logging...
+      ChatRooms.update roomId,
+        $set: {deleted: true}
+
+      # Both the rooms and the messages will be kept
+      @unblock()
+      TurkServer.log
+        action: "chat-delete"
+        room: roomId
+
     return
 
   ###
@@ -198,5 +352,6 @@ Meteor.methods
   readNotification: (noteId) ->
     Notifications.update noteId,
       $set: {read: Date.now()}
+    # This logs itself
     return
 

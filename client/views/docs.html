@@ -1,7 +1,11 @@
 <template name="docs">
     <div class="row-fluid fill-height">
         <div class="span3 fill-height carrier">
-            {{> docTabs}}
+            {{#if loaded}}
+                {{> docTabs}}
+            {{else}}
+                {{> spinner}}
+            {{/if}}
         </div>
         <div class="span9 fill-height carrier">
             {{> docCurrent}}

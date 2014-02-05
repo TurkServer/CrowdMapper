@@ -5,10 +5,11 @@
 # It will not be partitioned by TurkServer.
 ChatMessages._ensureIndex({ room: 1, timestamp: 1})
 
+# Managed by TurkServer; publish non-deleted chatrooms
 Meteor.publish "chatrooms", ->
-  ChatRooms.find()
+  ChatRooms.find(deleted: {$exists: false})
 
-# TODO store or log the enter/leave messages below
+# Generalize what we are doing below
 
 enterRoom = (roomId, userId) ->
   ChatRooms.update roomId,
@@ -18,6 +19,9 @@ enterRoom = (roomId, userId) ->
 #    event: "enter"
 #    userId: userId
 #    timestamp: Date.now()
+  TurkServer.log
+    action: "room-enter"
+    room: roomId
 
 leaveRoom = (roomId, userId) ->
   ChatRooms.update roomId,
@@ -35,7 +39,6 @@ Meteor.publish "chatstate", (room)  ->
   sessionId = @_session.id
 
   # Don't update room state for admin
-  # TODO generalize this for TurkServer
   unless Meteor.users.findOne(userId)?.admin
     # Leave any existing room
     existing = ChatUsers.findOne(sessionId)
@@ -86,6 +89,7 @@ userRegex = new RegExp('(^|\\b|\\s)(@[\\w.]+)($|\\b|\\s)','g')
 
 Meteor.methods
   inviteChat: (userId, roomId) ->
+    TurkServer.checkNotAdmin()
     myId = Meteor.userId()
     return unless myId
     # Don't invite if user is already in the same room
@@ -99,7 +103,10 @@ Meteor.methods
       room: roomId
       timestamp: Date.now()
 
+    # No need to log this, we have it
+
   sendChat: (roomId, message) ->
+    TurkServer.checkNotAdmin()
     userId = Meteor.userId()
     return unless Meteor.userId()
 

@@ -10,14 +10,17 @@ Meteor.publish "userStatus", ->
       username: 1
       status: 1
 
+# TODO we can publish deleted things for admin for watching later.
+# Publish non-deleted events, docs, and events
+
 Meteor.publish "datastream", ->
-  Datastream.find()
+  Datastream.find(hidden: {$exists: false})
 
 Meteor.publish "docs", ->
-  Documents.find()
+  Documents.find(deleted: {$exists: false})
 
 Meteor.publish "events", ->
-  Events.find()
+  Events.find(deleted: {$exists: false})
 
 ###
   These are not indexed by TurkServer
@@ -30,3 +33,10 @@ Meteor.publish 'notifications', ->
   Notifications.find
     user: this.userId
     read: {$exists: false}
+
+###
+  Methods
+###
+
+Meteor.methods
+  "finishTutorial": ->

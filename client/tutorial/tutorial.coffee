@@ -200,7 +200,7 @@ Template.mapperTutorial.options = ->
   return {
     steps: if treatment is "recruiting" then getRecruitingSteps() else getTutorialSteps()
     emitter: Mapper.events
-    onFinish: -> Router.go("/mapper")
+    onFinish: -> Meteor.call "finishTutorial"
   }
 
 # Handy function to allow the entire tutorial
