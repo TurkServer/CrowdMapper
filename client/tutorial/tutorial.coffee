@@ -1,3 +1,5 @@
+Template.tut_chatting.myusername = -> Meteor.users.findOne()?.username || "someone"
+
 openDocument = ->
   unless Session.get("document")?
     # open a doc if there is one
@@ -120,7 +122,7 @@ tutorialSteps = [
     require:
       event: "event-save"
   ,
-    spot: "#mapper-events"
+    spot: ".event-voting-container"
     template: "tut_verify"
     onLoad: -> Mapper.switchTab("events")
     require:
@@ -175,8 +177,6 @@ getRecruitingSteps = ->
   return copiedSteps.concat [
     spot: ".payment"
     template: "tut_payment_recruiting"
-  ,
-    template: "tut_end_recruiting"
   ]
   
 getTutorialSteps = ->

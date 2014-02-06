@@ -15,7 +15,7 @@
           "accessKeyId": "FILL_ME_IN",
           "secretAccessKey": "FILL_ME_IN_TOO",
           "externalUrl": "http://localhost:3000/",
-          "frameHeight": 900
+          "frameHeight": 800
         }
     },
     "sharejs": {

@@ -18,7 +18,9 @@
 </template>
 
 <template name="tut_welcome_recruiting">
-    <p>This HIT is a training session for the Crisis Mapping Project, a Microsoft Corporation research project.</p>
+    <p>This HIT is a training session for the Crisis Mapping Project, a Microsoft Research project.</p>
+
+    <p><b>You will complete this tutorial by yourself, but if you do the Crisis Mapping task later, you will complete it with a team of other workers.</b></p>
 
     {{> tut_welcome_common}}
 </template>
@@ -67,7 +69,7 @@
 </template>
 
 <template name="tut_project_common">
-    <p><b>NOTE: This hurricane and the data you see is historical. This is not an actual crisis.</b>
+    <p><b>NOTE: This hurricane and the data you see is historical. This is not an actual current crisis.</b>
 </template>
 
 <!-- Your task -->
@@ -96,7 +98,7 @@
 <template name="tut_datastream">
     <p>Data reports appear as Tweets in the Stream on the left.
 
-    <p><i>This tutorial shows example data. You will see actual data in the task.</i>
+    <p><i>This tutorial shows a few pieces of example data. You will see much more actual data in the task.</i>
 </template>
 
 <template name="tut_filterdata">
@@ -108,7 +110,7 @@
 
     <p>
     {{#if stepCompleted}}
-    <b class="text-success">Great, you hid an irrelevant tweet. Continue to the next step.</b>
+    <b class="text-success">Great, you hid a tweet. Continue to the next step.</b>
     {{else}}
     <b class="text-error">To continue, find an irrelevant tweet and hide it.</b>
     {{/if}}
@@ -224,7 +226,7 @@
     <b class="text-success">You selected a region. Continue to the next step.</b>
     {{else}}
     <b class="text-error">Add your best guess of the region from the tweet you just attached.</b>
-    Hover your mouse over it to see the details.
+    Hover your mouse over the tweet you just attached to see its text.
     {{/if}}
 </template>
 
@@ -269,8 +271,7 @@
 </template>
 
 <template name="tut_mapcontrols">
-    <p>Use these map controls to pan around the map, and zoom in and out
-
+    <p>Use these map controls to pan around the map, and zoom in and out. You can also scroll and drag with your mouse.
 </template>
 
 <template name="tut_maplocate">
@@ -308,7 +309,7 @@
 <template name="tut_verify">
     <p>You may also check the accuracy of the events records created by other crisis mappers.
 
-    <p>If an event record is accurate you may indicate that you verified it by clicking the check box.
+    <p>If an event record is accurate you may indicate that you verified it by clicking the <button class="btn btn-success btn-mini"><i class="icon-white icon-ok"></i> Verify</button> button. You can also remove your vote for an event if you think it is no longer accurate.
 
     <p>
     {{#if stepCompleted}}
@@ -340,7 +341,7 @@
 <template name="tut_userlist">
     <p>The <b>User List</b> shows team members who are currently online in <span class="label label-success">green</span>, and those who have stopped participating in <span class="label label-default">grey</span>. You are shown in <span class="label label-inverse">black</span>.
 
-    <p>When other users are online, you may <b>hover your mouse over their name</b> to invite them to chat.</p>
+    <p>When other users are online, you may <b>hover your mouse over their name to invite them to chat.</b></p>
 </template>
 
 <template name="tut_chatrooms">
@@ -387,7 +388,7 @@
     {{#if stepCompleted}}
     <b class="text-success">You know how to use the chat. Continue to the next step.</b>
     {{else}}
-    <b class="text-error">Type something in the chat.</b> For example, to tell another user to look at the event you created, type <b>@XXXUser can you take a look at event #YYY?</b>
+    <b class="text-error">Type something in the chat.</b> For example, to tell another user to look at the event you created, type <b>@{{myusername}} can you take a look at event #1?</b> You are talking to yourself here, but you will be chatting with other users in the actual task.
     {{/if}}
 </template>
 
@@ -430,7 +431,7 @@
 
     <p>The Crisis Mapping Project will run for one hour, at a time and date that we will communicate to you in advance.
 
-    <p>If you work the full hour, you will be compensated <b>at least $6 and as much as $15</b>, depending on your team's performance.
+    <p>If you work the full hour, you will be compensated <b>at least $6 and as much as $15 as a bonus</b>, depending on your team's performance.
 </template>
 
 <!-- Move some of this into exit survey -->
@@ -447,20 +448,6 @@
     <p>If you have any questions about this project, please contact Andrew Mao at <b>mao@seas.harvard.edu</b>.
 </template>
 
-<template name="tut_end_recruiting">
-    <p>If you wish to participate in the Crisis Mapping Project please click the checkbox below.
 
-    <p>By clicking the checkbox you confirm that you understand what the project is about and how and why it is being done.
-
-    <p>You also confirm that we may contact you via Amazon's Mechanical Turk to notify you of the HIT in advance.
-
-    <p>
-        <label class="checkbox">
-            <input type="checkbox"> I have read and acknowledged the Crisis Mapping Project [terms of use] and wish to be notified
-            of the HIT.
-        </label>
-
-    <p>If you have any questions about this project, please contact Andrew Mao at <b>mao@seas.harvard.edu</b>.
-</template>
 
 
