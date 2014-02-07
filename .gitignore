@@ -4,7 +4,6 @@ dump.rdb
 settings-private.json
 
 .backups
-packages/*
 
 lib-cov
 *.seed

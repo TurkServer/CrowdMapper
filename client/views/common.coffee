@@ -104,9 +104,6 @@ epsg900913 = null
 
 # Initialize these after page (OpenLayers library) loaded
 Meteor.startup ->
-  # TODO don't depend on this path to be accessible, serve it ourself
-  OpenLayers.ImgPath = "http://dev.openlayers.org/releases/OpenLayers-2.13/img/";
-
   epsg4326 = new OpenLayers.Projection("EPSG:4326")
   epsg900913 = new OpenLayers.Projection("EPSG:900913")
 

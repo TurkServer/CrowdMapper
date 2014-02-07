@@ -1,4 +1,7 @@
 Meteor.startup ->
+  # Serve the path that we added in the openlayers package
+  OpenLayers.ImgPath = "/packages/openlayers/openlayers/img/"
+
   # adapted from dev.openlayers.org/releases/OpenLayers-2.13.1/examples/click.html
   OpenLayers.Control.Click = OpenLayers.Class OpenLayers.Control,
     defaultHandlerOptions: {

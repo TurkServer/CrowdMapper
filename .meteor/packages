@@ -29,5 +29,5 @@ build-fetcher
 # accounts-testing
 # For parsing input files
 csv
-# Only for running OL straight from unbuilt source
-# openlayers
+# Pulls in the openlayers images
+openlayers
