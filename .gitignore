@@ -3,8 +3,6 @@ Meteor
 dump.rdb
 settings-private.json
 
-.backups
-
 lib-cov
 *.seed
 *.log

@@ -1,4 +1,4 @@
 #!/bin/bash
-rm -rf cmdump
-mongodump --host localhost:3002 -o cmdump
-tar cjvf cmdump.tar.bz2 cmdump/
+rm -rf .backups/cmdump
+mongodump --host localhost:3002 -o .backups/cmdump
+tar cjvf .backups/cmdump.tar.bz2 .backups/cmdump/
