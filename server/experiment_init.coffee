@@ -47,3 +47,8 @@ TurkServer.initialize ->
     # Load initial tweets on first start
     # loadDumbTweets()
     loadCSVTweets("PabloPh_UN_cleaned.csv", 500)
+
+TurkServer.onConnect ->
+  if @treatment is "tutorial" or @treatment is "recruiting"
+    # Help the poor folks who shot themselves in the foot
+    Datastream.update({}, {$unset: hidden: null}, {multi: true})
