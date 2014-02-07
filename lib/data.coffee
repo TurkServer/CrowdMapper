@@ -272,7 +272,7 @@ Meteor.methods
 
   deleteDocument: (id) ->
     TurkServer.checkNotAdmin()
-    Documents.update id
+    Documents.update id,
       $set: {deleted: true}
 
     unless @isSimulation
