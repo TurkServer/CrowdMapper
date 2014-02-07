@@ -4,7 +4,6 @@
     "basePackages": {
       "bootboxjs": {},
       "iron-router": {},
-      "publish-with-relations": {},
       "x-editable-bootstrap": {},
       "user-status": {},
       "jqueryui": {},
@@ -31,11 +30,6 @@
         "git": "https://github.com/EventedMind/iron-router.git",
         "tag": "v0.6.2",
         "commit": "ce56e58b45624dce992490f3a1c10f10d3948bae"
-      },
-      "publish-with-relations": {
-        "git": "https://github.com/erundook/meteor-publish-with-relations.git",
-        "tag": "v0.1.5",
-        "commit": "98213e9f056b139597c99fb9ec2884ae6be76d91"
       },
       "x-editable-bootstrap": {
         "git": "https://github.com/nate-strauser/meteor-x-editable-bootstrap.git",

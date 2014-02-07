@@ -16,7 +16,6 @@ iron-router
 x-editable-bootstrap
 user-status
 bootboxjs
-publish-with-relations
 sharejs
 autocomplete
 tutorials

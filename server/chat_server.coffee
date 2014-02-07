@@ -1,5 +1,12 @@
 # Don't persist the contents of this collection
-@ChatUsers = new Meteor.Collection("chatusers", {connection: null})
+@ChatUsers = new Meteor.Collection("chatusers") #, {connection: null})
+
+# Because it is in the DB, we can have this index
+ChatUsers._ensureIndex({roomId: 1})
+
+# Because this is no longer a null connection, clear it on startup
+Meteor.startup ->
+  ChatUsers.remove({})
 
 # Index chat messages by room and then by timestamp.
 # It will not be partitioned by TurkServer.
@@ -66,20 +73,10 @@ Meteor.publish "chatstate", (room)  ->
     # Don't publish arbitrary rooms to admin
     return unless room
 
-  # publish room messages and users
-  Meteor.publishWithRelations
-    handle: this,
-    collection: ChatRooms,
-    filter: room,
-    mappings: [{
-      reverse: true
-      key: 'roomId',
-      collection: ChatUsers
-    }, {
-      reverse: true,
-      key: 'room',
-      collection: ChatMessages
-    }]
+  return [
+    ChatUsers.find(roomId: room),
+    ChatMessages.find(room: room)
+  ]
 
 # Clear all users stored in chatrooms on start
 TurkServer.startup ->

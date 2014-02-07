@@ -2,7 +2,6 @@
   "packages": {
     "bootboxjs": {},
     "iron-router": {},
-    "publish-with-relations": {},
     "x-editable-bootstrap": {},
     "user-status": {},
     "jqueryui": {},
