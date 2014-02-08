@@ -259,7 +259,7 @@ Meteor.methods
   renameDocument: (docId, newTitle) ->
     TurkServer.checkNotAdmin()
     Documents.update docId,
-      $set: { title: newnewTitle }
+      $set: { title: newTitle }
 
     unless @isSimulation
       @unblock()
@@ -306,7 +306,7 @@ Meteor.methods
   renameChat: (roomId, newName) ->
     TurkServer.checkNotAdmin()
     ChatRooms.update roomId,
-      $set: { name: newTitle }
+      $set: { name: newName }
 
     unless @isSimulation
       @unblock()

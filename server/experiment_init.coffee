@@ -33,7 +33,7 @@ loadCSVTweets = (file, limit) ->
           num: i # Keeps things in time order
           text: arr[i].text
         i++
-      console.log(i + " tweets inserted")
+      # console.log(i + " tweets inserted")
 
     , (e) ->
       Meteor._debug "Exception while reading CSV:", e
@@ -51,4 +51,5 @@ TurkServer.initialize ->
 TurkServer.onConnect ->
   if @treatment is "tutorial" or @treatment is "recruiting"
     # Help the poor folks who shot themselves in the foot
+    # TODO do a more generalized restore
     Datastream.update({}, {$unset: hidden: null}, {multi: true})
