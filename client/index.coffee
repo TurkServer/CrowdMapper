@@ -87,7 +87,7 @@ checkSize = ->
     return
 
   if !bigEnough and sizeWarningDialog is null
-    sizeWarningDialog = bootbox.dialog("<h3>Your screen is not big enough for this task. Please maximize your window if possible, or use F11 to go fullscreen.</h3>")
+    sizeWarningDialog = bootbox.dialog("<h3>Your screen is not big enough for this task. Please maximize your window if possible, or use a computer with a higher-resolution screen.</h3>")
     return
 
 Meteor.startup ->
