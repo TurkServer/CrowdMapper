@@ -71,7 +71,7 @@ Template.tweetIcon.rendered = ->
   tweetId = @data
   $(@firstNode).popover
     html: true
-    placement: "right" # Otherwise it goes off the top of the screen
+    placement: "left" # Otherwise it goes off the top of the screen
     trigger: "hover"
     container: @firstNode # Hovering over the popover should hold it open
     content: ->
