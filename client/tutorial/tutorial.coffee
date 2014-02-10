@@ -1,5 +1,10 @@
 Template.tut_chatting.myusername = -> Meteor.users.findOne()?.username || "someone"
 
+editEvent = ->
+  unless Events.findOne(editor: $exists: true)
+    event = Events.findOne()
+    Meteor.call("editEvent", event._id) if event?
+
 openDocument = ->
   unless Session.get("document")?
     # open a doc if there is one
@@ -65,7 +70,9 @@ tutorialSteps = [
   ,
     spot: ".events-header tr > th:eq(2), .events-body tr > td:nth-child(3)"
     template: "tut_events_type"
-    onLoad: -> Mapper.switchTab("events")
+    onLoad: ->
+      Mapper.switchTab("events")
+      editEvent()
     require:
       event: "event-update-type"
   ,
