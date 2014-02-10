@@ -171,6 +171,8 @@
 
     <p>You can attach a tweet to the event record by dragging its <b class="text-info">blue header</b> and dropping it on the record.
 
+    <p>Once you attach the tweet to an event record, you may hover over it to see its contents.
+
     <p>
     {{#if stepCompleted}}
     <b class="text-success">You've attached a tweet to an event. Continue to the next step.</b>
@@ -203,7 +205,7 @@
     {{#if stepCompleted}}
     <b class="text-success">You selected a type for an event. Continue to the next step.</b>
     {{else}}
-    <b class="text-error">Classify the event by choosing a <i>Type</i> from the dropdown menu.</b>
+    <b class="text-error">Classify the event by clicking the <i>Type</i> field and choosing from the dropdown menu.</b>
     {{/if}}
 </template>
 
@@ -251,7 +253,7 @@
 <template name="tut_addtweet">
     <p>You may also <b>add additional tweets to existing event records</b> if they refer to the same event. You can also <b>drag tweets from one event to another</b> to correct mistakes or reorganize records.
 
-    <p>By <b>hovering your mouse over a tweet</b> that has been attached to an event, you will see its content. You can also click the small X in the popover to hide the tweet.
+    <p>If you <b>hover over an attached tweet</b> and find it to be irrelevant, you can use the <button class="btn btn-danger btn-mini"><i class="icon-white icon-remove"></i></button> to hide it.
 
     <p><b class="text-error">If you can find another tweet that refers to the same event as this one, add it to the record by dragging and dropping.</b>
 
@@ -308,9 +310,9 @@
 </template>
 
 <template name="tut_verify">
-    <p>You may also check the accuracy of the events records created by other crisis mappers.
+    <p>You may also check the accuracy of the events records created by other crisis mappers by verifying their data.
 
-    <p>If an event record is accurate you may indicate that you verified it by clicking the <button class="btn btn-success btn-mini"><i class="icon-white icon-ok"></i> Verify</button> button. You can also remove your vote for an event if you think it is no longer accurate.
+    <p>If you think an event record is accurate, you may verify it by hovering over the <span class="badge {{badgeClass}}">0 <i class="icon-white icon-ok"></i></span> area, and clicking the <button class="btn btn-success btn-mini"><i class="icon-white icon-ok"></i> Verify</button> button. You can also remove your vote for an event if you think it is no longer accurate.
 
     <p>
     {{#if stepCompleted}}
