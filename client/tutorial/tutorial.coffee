@@ -172,6 +172,13 @@ tutorialSteps = [
       event: "chat-message"
 ]
 
+Template.tut_end.events =
+  "change input[type=checkbox]": (e, tmpl) ->
+    Session.set("consentChecked", e.target.checked)
+    Mapper.events.emit("check-consent") if e.target.checked
+
+Template.tut_end.checked = -> if Session.get("consentChecked") then "checked" else ""
+
 getRecruitingSteps = ->
   # replace templates with _recruiting if they exist
   # Don't modify original objects to avoid errors
@@ -194,6 +201,8 @@ getTutorialSteps = ->
       template: "tut_payment"
     ,
       template: "tut_end"
+      require:
+        event: "check-consent"
   ]
 
 Template.mapperTutorial.tutorialEnabled = ->

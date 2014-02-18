@@ -408,9 +408,9 @@
 
     <p>You may quit the project at any time.
 
-    <p>You may also pause your work during the project by clicking on the Pause button. You may re-enter the project at any time by clicking the Restart button.
+    <p>You may also pause your work during the project by clicking on the Pause button. You may resume at any time by clicking the Resume button.
 
-    <p>If you perform no activity for XX mins, you will be automatically paused.
+    <p>If you perform no activity for 5 minutes, you will be automatically paused.
 </template>
 
 <!-- Payment -->
@@ -420,15 +420,19 @@
 
     <p>Your team will be competing with other teams, and your team's performance will be assessed relative to the best-performing team.
 
-    <p><b>Your compensation will be calculated as: (Minutes You Worked)/60 * [$6 + team_bonus]</b>
+    <p>Your compensation will be calculated as:
 
-    <p>Your team bonus will be calculated as: (Number of Valid Events Your Group Correctly Labels)/(Highest Number of Valid Events Labeled By Any team)
+    <p class="text-center"><b>(minutes you worked)/60 &times; ($6 + your team bonus)</b>
+
+    <p>Your team bonus will be calculated as:
+
+    <p class="text-center"><b>(Valid events Your team correctly records)/(Highest number of valid events labeled by any team)</b>
 
     <p><b>If you work for the full one hour, your compensation will be no less than $6 and as much as $15, depending on your team's relative performance.</b>
 
     <p>If you quit early or pause you will only by paid for the fraction of time you work.
 
-    <p>Thus you have an incentive both to work hard yourself and also to help your team succeed.
+    <p>Thus, you should not just work hard yourself, but also help your team succeed.
 </template>
 
 <template name="tut_payment_recruiting">
@@ -444,15 +448,23 @@
 <!-- Move some of this into exit survey -->
 
 <template name="tut_end">
-    <p>Please read and acknowledge the [terms of use] for participating in this project
+    <p>Please read and acknowledge the <b><a href="https://dl.dropboxusercontent.com/u/13229094/MSR%20Crisis%20Mapping%20Participation%20Consent%20Form.pdf" target="_blank">terms of use</a></b> for participating in this project.
 
-    <p>By clicking the checkbox below you confirm that you understand what the project is about and how and why it is being done
+    <p>By clicking the checkbox below you confirm that you understand what the project is about and how and why it is being done.
+
     <p>
         <label class="checkbox">
-            <input type="checkbox"> I have read and acknowledged the [terms of use].
+            <input type="checkbox" {{checked}}> I have read and acknowledged the terms of use.
         </label>
 
     <p>If you have any questions about this project, please contact Andrew Mao at <b>mao@seas.harvard.edu</b>.
+
+    <p>
+    {{#if stepCompleted}}
+    <b class="text-success">Click 'Finish' below to join a team of other workers and start crisis mapping!</b>
+    {{else}}
+    <b class="text-error">Please read and agree to the terms of use.</b>
+    {{/if}}
 </template>
 
 
