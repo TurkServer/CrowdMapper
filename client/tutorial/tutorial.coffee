@@ -26,6 +26,8 @@ tutorialSteps = [
   ,    
     template: "tut_yourtask"
   ,
+    template: "tut_goal"
+  ,
     spot: ".datastream"
     template: "tut_datastream"
   ,
