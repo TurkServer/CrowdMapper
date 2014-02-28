@@ -30,3 +30,4 @@ build-fetcher
 csv
 # Pulls in the openlayers images
 openlayers
+jquery-migrate

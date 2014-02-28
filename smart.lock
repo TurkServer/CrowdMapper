@@ -7,6 +7,7 @@
       "x-editable-bootstrap": {},
       "user-status": {},
       "jqueryui": {},
+      "jquery-migrate": {},
       "turkserver": {
         "path": "../turkserver-meteor"
       },
@@ -28,8 +29,8 @@
       },
       "iron-router": {
         "git": "https://github.com/EventedMind/iron-router.git",
-        "tag": "v0.6.2",
-        "commit": "ce56e58b45624dce992490f3a1c10f10d3948bae"
+        "tag": "v0.6.4",
+        "commit": "927bbaed1b87894fb6fb70807f74ff3a5bd89f29"
       },
       "x-editable-bootstrap": {
         "git": "https://github.com/nate-strauser/meteor-x-editable-bootstrap.git",
@@ -45,6 +46,11 @@
         "git": "https://github.com/mizzao/meteor-jqueryui.git",
         "tag": "v1.10.3r2",
         "commit": "d54f75cfad37ff8ce6ef9ad49de55738ba921af7"
+      },
+      "jquery-migrate": {
+        "git": "https://github.com/canadaduane/meteor-jquery-migrate.git",
+        "tag": "v2.0.0",
+        "commit": "636819c9de59f66410e148867b229869bb045cea"
       },
       "turkserver": {
         "path": "../turkserver-meteor"

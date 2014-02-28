@@ -5,6 +5,7 @@
     "x-editable-bootstrap": {},
     "user-status": {},
     "jqueryui": {},
+    "jquery-migrate": {},
     "turkserver": {
       "path": "../turkserver-meteor"
     },
