@@ -151,14 +151,18 @@
 <template name="eventLocation">
     <td>
         <div>
-            {{#if location}}
-            <a href="#" class="action-event-mapview" title="View on map">
-                {{{formatLocation}}}
-            </a>
+            {{#if editable}} {{! defined as a helper for location}}
+                <div data-type="longlat" data-original-title="Enter longitude and latitude:" class="editable">{{{formatLocation}}}</div>
             {{else}}
-            <button title="Place on map" class="btn btn-mini btn-info action-event-locate">
-                <i class="icon-white icon-screenshot"></i>Locate
-            </button>
+                {{#if location}}
+                <a href="#" title="View on map" class="action-event-mapview">
+                    {{{formatLocation}}}
+                </a>
+                {{else}}
+                <button title="Place on map" class="btn btn-mini btn-info action-event-locate">
+                    <i class="icon-white icon-screenshot"></i>Locate
+                </button>
+                {{/if}}
             {{/if}}
         </div>
     </td>

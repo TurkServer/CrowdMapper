@@ -26,7 +26,6 @@ Handlebars.registerHelper "eventFields", ->
   Mapper.staticFields
 
 generateNewEvent = ->
-  # TODO maybe switch to Mongo IDs at some point
   eventId = Random.id()
 
   fields = {}
@@ -212,6 +211,7 @@ Template._eventCell.rendered = ->
       Meteor.call "updateEvent", @data._id, result
 
   $(@find('div.editable:not(.editable-click)')).editable('destroy').editable(settings)
+  return
 
 Template._eventCellSelect.rendered = ->
   return unless @data.editable
@@ -224,6 +224,19 @@ Template._eventCellSelect.rendered = ->
     source: Mapper.sources[@data.key]
 
   $(@find('div.editable:not(.editable-click)')).editable('destroy').editable(settings)
+  return
+
+Template.eventLocation.rendered = ->
+  return unless @data.editor is Meteor.userId()
+  settings =
+    success: (response, newValue) =>
+      Meteor.call "updateEvent", @data._id, { location: newValue }
+    value: @data.location
+
+  $(@find('div.editable:not(.editable-click)')).editable('destroy').editable(settings)
+  return
+
+Template.eventLocation.editable = -> @editor is Meteor.userId()
 
 Handlebars.registerHelper "editCell", ->
   me = Meteor.userId()

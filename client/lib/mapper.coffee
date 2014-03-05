@@ -30,3 +30,6 @@ Deps.autorun ->
   else
     $("#map").removeClass("highlighted")
     Session.set("guidanceMessage", undefined)
+
+Mapper.extent = Meteor.settings.public.map.extent
+

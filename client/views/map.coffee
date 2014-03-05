@@ -1,6 +1,5 @@
 @Mapper = @Mapper || {}
 
-extent = Meteor.settings.public.map.extent
 bingAPIKey = Meteor.settings.public.map.bingAPIKey
 
 resolutions = [19567.87923828125, 9783.939619140625,
@@ -81,8 +80,9 @@ Template.map.rendered = ->
   map = new OpenLayers.Map 'map',
     # center: new OpenLayers.LonLat(0, 0)
     layers: [politicalMapLayer, satelliteMapLayer, vectorLayer]
-    maxExtent: extent
-    restrictedExtent: extent
+    # loaded in mapper.coffee
+    maxExtent: Mapper.extent
+    restrictedExtent: Mapper.extent
     resolutions: resolutions
     serverResolutions: serverResolutions
     theme: null # don't attempt to load theme from default path
