@@ -58,17 +58,11 @@
 
 <template name="longLatEntry">
     <div class="editable-coord">
-        <label>
-            <span>Long:</span>
-            <input type="number" name="long" class="input-mini"
-                   min="{{minLong}}" max="{{maxLong}}" step="0.01" required>
-        </label>
+        <input type="number" name="long" class="input-small"
+               min="{{minLong}}" max="{{maxLong}}" step="0.01" required>
     </div>
     <div class="editable-coord">
-        <label>
-            <span>Lat:</span>
-            <input type="number" name="lat" class="input-mini"
-                   min="{{minLat}}" max="{{maxLat}}" step="0.01" required>
-        </label>
+        <input type="number" name="lat" class="input-small"
+               min="{{minLat}}" max="{{maxLat}}" step="0.01" required>
     </div>
 </template>
