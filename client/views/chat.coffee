@@ -51,46 +51,6 @@ Template.roomUsers.users = ->
 Template.roomUsers.findUser = ->
   Meteor.users.findOne @userId
 
-Template.currentChatroom.events =
-  submit: (e, tmpl) ->
-    e.preventDefault()
-    $msg = $ tmpl.find(".chat-input")
-    return unless $msg.val()
-
-    Meteor.call "sendChat", Session.get("room"), $msg.val() # Server only method
-
-    $msg.val("")
-    $msg.focus()
-    Meteor.flush()
-
-    # Auto scroll happens on messageBox render now..
-    Mapper.events.emit("chat-message")
-
-Template.currentChatroom.settings = -> {
-  position: "top"
-  limit: 5
-  rules: [
-    {
-      token: '@'
-      collection: Meteor.users
-      field: "username"
-      template: Template.userPill
-    },
-    {
-      token: '~'
-      collection: Datastream
-      field: "num"
-      template: Template.tweetNumbered
-    },
-    {
-      token: '#'
-      collection: Events
-      field: "num"
-      template: Template.eventShort
-    }
-  ]
-}
-
 Template.roomHeader.rendered = ->
   settings =
     success: (response, newValue) ->
@@ -160,3 +120,50 @@ Template.messageItem.renderText = ->
 Template.messageItem.eventText = ->
   username = Meteor.users.findOne(@userId).username
   return username + " has " + (if @event is "enter" then "entered" else "left" ) + " the room."
+
+Template.chatInput.rendered = ->
+  $(@find(".chat-help")).popover
+    html: true
+    placement: "top"
+    trigger: "hover"
+    content: Template.chatPopover
+
+Template.chatInput.events =
+  submit: (e, tmpl) ->
+    e.preventDefault()
+    $msg = $( tmpl.find(".chat-input") )
+    return unless $msg.val()
+
+    Meteor.call "sendChat", Session.get("room"), $msg.val() # Server only method
+
+    $msg.val("")
+    $msg.focus()
+    Meteor.flush()
+
+    # Auto scroll happens on messageBox render now..
+    Mapper.events.emit("chat-message")
+
+Template.chatInput.settings = -> {
+  position: "top"
+  limit: 5
+  rules: [
+    {
+      token: '@'
+      collection: Meteor.users
+      field: "username"
+      template: Template.userPill
+    },
+    {
+      token: '~'
+      collection: Datastream
+      field: "num"
+      template: Template.tweetNumbered
+    },
+    {
+      token: '#'
+      collection: Events
+      field: "num"
+      template: Template.eventShort
+    }
+  ]
+}

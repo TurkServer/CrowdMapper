@@ -149,10 +149,12 @@ transformLongLat = (longlat) ->
 minLongLat = transformLocation([Mapper.extent[0], Mapper.extent[1]])
 maxLongLat = transformLocation([Mapper.extent[2], Mapper.extent[3]])
 
-Template.longLatEntry.minLong = minLongLat[0].toFixed(2)
-Template.longLatEntry.maxLong = maxLongLat[0].toFixed(2)
-Template.longLatEntry.minLat = minLongLat[1].toFixed(2)
-Template.longLatEntry.maxLat = maxLongLat[1].toFixed(2)
+entryPrecision = 3
+
+Template.longLatEntry.minLong = minLongLat[0].toFixed(entryPrecision)
+Template.longLatEntry.maxLong = maxLongLat[0].toFixed(entryPrecision)
+Template.longLatEntry.minLat = minLongLat[1].toFixed(entryPrecision)
+Template.longLatEntry.maxLat = maxLongLat[1].toFixed(entryPrecision)
 
 # LongLat editable
 # see http://vitalets.github.io/x-editable/assets/x-editable/inputs-ext/address/address.js
@@ -201,7 +203,7 @@ $.extend LongLat.prototype, {
 
     @method value2str(value)
   ###
-  value2str: formatLocation
+  value2str: formatLocation # This will ignore manual changes to the third decimal place.
 
   ###
     Converts string to value. Used for reading value from 'data-value' attribute.
@@ -222,8 +224,8 @@ $.extend LongLat.prototype, {
   value2input: (value) ->
     return unless value
     transformed = transformLocation(value)
-    @$input.filter('[name="long"]').val transformed[0].toFixed(2)
-    @$input.filter('[name="lat"]').val transformed[1].toFixed(2)
+    @$input.filter('[name="long"]').val transformed[0].toFixed(entryPrecision)
+    @$input.filter('[name="lat"]').val transformed[1].toFixed(entryPrecision)
     return
 
   ###
@@ -233,7 +235,7 @@ $.extend LongLat.prototype, {
   ###
   input2value: ->
     transformLongLat [
-      @$input.filter('[name="long"]').val()
+      @$input.filter('[name="long"]').val(),
       @$input.filter('[name="lat"]').val()
     ]
 

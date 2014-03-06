@@ -22,12 +22,7 @@
     {{#if currentRoom}}
         {{> roomHeader}}
         {{> messageBox}}
-        <form class="form-inline input-append compact" action="javascript:void(0)">
-            {{inputAutocomplete settings class="chat-input" placeholder="Chat..."}}
-            <button type="submit" class="btn btn-primary action-chat-send" title="Send">
-                <i class="icon-white icon-share-alt"></i>
-            </button>
-        </form>
+        {{> chatInput}}
     {{/if}}
     </div>
 </template>
@@ -98,4 +93,29 @@
     <small><span class="muted">{{eventText}}</span></small>
     {{/if}}
     </li>
+</template>
+
+<template name="chatInput">
+    <form class="form-inline compact" action="javascript:void(0)">
+        <div class="chat-button-container">
+            <button type="submit" class="btn btn-primary action-chat-send" title="Send">
+                <i class="icon-white icon-share-alt"></i>
+            </button>
+        </div>
+        <div class="chat-input-container">
+            {{inputAutocomplete settings class="chat-input" placeholder="Chat..."}}
+            <div class="chat-help">
+                <i class="icon-question-sign"></i>
+            </div>
+        </div>
+    </form>
+</template>
+
+<template name="chatPopover">
+    <div style="width: 100px">
+        <p><i>These special symbols create clickable references in chat:</i>
+        <p>Use <b class="text-error">@</b> to tag and mention a <b>user</b>.
+        <p>Use <b class="text-error">~</b> (tilde) to tag a <b>tweet</b>.
+        <p>Use <b class="text-error">#</b> to tag an <b>event</b>.
+    </div>
 </template>
