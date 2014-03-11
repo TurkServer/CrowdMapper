@@ -21,6 +21,7 @@ autocomplete
 tutorials
 jqueryui
 turkserver
+timesync
 # Can be used to download OpenLayers files
 build-fetcher
 

@@ -17,6 +17,9 @@
     },
     "tutorials": {
       "path": "../meteor-tutorials"
+    },
+    "timesync": {
+      "path": "../meteor-timesync"
     }
   }
 }

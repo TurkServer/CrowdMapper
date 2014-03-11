@@ -19,6 +19,9 @@
       },
       "tutorials": {
         "path": "../meteor-tutorials"
+      },
+      "timesync": {
+        "path": "../meteor-timesync"
       }
     },
     "packages": {
@@ -44,8 +47,8 @@
       },
       "jqueryui": {
         "git": "https://github.com/mizzao/meteor-jqueryui.git",
-        "tag": "v1.10.3r2",
-        "commit": "d54f75cfad37ff8ce6ef9ad49de55738ba921af7"
+        "tag": "v1.10.4",
+        "commit": "c75906fc9e1e19abf1ad5b2963925122ff8a0336"
       },
       "jquery-migrate": {
         "git": "https://github.com/canadaduane/meteor-jquery-migrate.git",
@@ -63,6 +66,9 @@
       },
       "tutorials": {
         "path": "../meteor-tutorials"
+      },
+      "timesync": {
+        "path": "../meteor-timesync"
       },
       "build-fetcher": {
         "git": "https://github.com/mizzao/meteor-build-fetcher.git",
