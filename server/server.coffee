@@ -8,7 +8,7 @@ Meteor.publish "userStatus", ->
   Meteor.users.find {}, # All users (in my group)
     fields:
       username: 1
-      status: 1
+      "status.online": 1 # Don't publish random other status fields
 
 # TODO we can publish deleted things for admin for watching later.
 # Publish non-deleted events, docs, and events

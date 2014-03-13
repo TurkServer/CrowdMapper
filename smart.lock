@@ -5,9 +5,11 @@
       "bootboxjs": {},
       "iron-router": {},
       "x-editable-bootstrap": {},
-      "user-status": {},
       "jqueryui": {},
       "jquery-migrate": {},
+      "user-status": {
+        "path": "../meteor-user-status"
+      },
       "turkserver": {
         "path": "../turkserver-meteor"
       },
@@ -40,11 +42,6 @@
         "tag": "v1.4.6.2",
         "commit": "d3fcead1dd2302e30522e8c09d020f9a3d312cd0"
       },
-      "user-status": {
-        "git": "https://github.com/mizzao/meteor-user-status.git",
-        "tag": "v0.2.0",
-        "commit": "e18cc48440710d0ac23bd1a578974f9142226bf4"
-      },
       "jqueryui": {
         "git": "https://github.com/mizzao/meteor-jqueryui.git",
         "tag": "v1.10.4",
@@ -54,6 +51,9 @@
         "git": "https://github.com/canadaduane/meteor-jquery-migrate.git",
         "tag": "v2.0.0",
         "commit": "636819c9de59f66410e148867b229869bb045cea"
+      },
+      "user-status": {
+        "path": "../meteor-user-status"
       },
       "turkserver": {
         "path": "../turkserver-meteor"
@@ -82,8 +82,8 @@
       },
       "collection-hooks": {
         "git": "https://github.com/matb33/meteor-collection-hooks.git",
-        "tag": "v0.6.2",
-        "commit": "29484b2110206be93b01c6d11ce06ec9208de7bd"
+        "tag": "v0.6.3",
+        "commit": "70f2598bf991cb36effd72aea2555cba96f88355"
       }
     }
   }

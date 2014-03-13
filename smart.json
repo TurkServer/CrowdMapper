@@ -3,9 +3,11 @@
     "bootboxjs": {},
     "iron-router": {},
     "x-editable-bootstrap": {},
-    "user-status": {},
     "jqueryui": {},
     "jquery-migrate": {},
+    "user-status": {
+      "path": "../meteor-user-status"
+    },
     "turkserver": {
       "path": "../turkserver-meteor"
     },
