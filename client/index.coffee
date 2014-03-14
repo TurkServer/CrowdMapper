@@ -19,7 +19,9 @@ Deps.autorun ->
   group = TurkServer.group()
 
   # Don't keep a room when going from tutorial to actual task
-  Session.set("room", undefined)
+  unless group
+    Session.set("room", undefined)
+    return # Otherwise admin will derpily subscribe to the entire set of users
 
   # No need to clean up subscriptions because this is a Deps.autorun
   # We need to pass the group handle down to make Meteor think the subscription is different
