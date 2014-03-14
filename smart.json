@@ -8,6 +8,9 @@
     "user-status": {
       "path": "../meteor-user-status"
     },
+    "collection-hooks": {
+      "path": "../meteor-collection-hooks"
+    },
     "turkserver": {
       "path": "../turkserver-meteor"
     },

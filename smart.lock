@@ -10,6 +10,9 @@
       "user-status": {
         "path": "../meteor-user-status"
       },
+      "collection-hooks": {
+        "path": "../meteor-collection-hooks"
+      },
       "turkserver": {
         "path": "../turkserver-meteor"
       },
@@ -55,6 +58,9 @@
       "user-status": {
         "path": "../meteor-user-status"
       },
+      "collection-hooks": {
+        "path": "../meteor-collection-hooks"
+      },
       "turkserver": {
         "path": "../turkserver-meteor"
       },
@@ -79,11 +85,6 @@
         "git": "https://github.com/acreeger/meteor-moment.git",
         "tag": "v2.5.1",
         "commit": "8c9bc5d3fc96705057737cb9743d555417f6e551"
-      },
-      "collection-hooks": {
-        "git": "https://github.com/matb33/meteor-collection-hooks.git",
-        "tag": "v0.6.3",
-        "commit": "70f2598bf991cb36effd72aea2555cba96f88355"
       }
     }
   }
