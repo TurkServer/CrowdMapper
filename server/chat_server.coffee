@@ -135,7 +135,7 @@ Meteor.methods
         timestamp: chatTime
 
 # Clean up any chat state when a user disconnects
-UserStatus.events.on "sessionLogout", (doc) ->
+UserStatus.events.on "connectionLogout", (doc) ->
   # No groupId needed here because ChatUsers and ChatRooms are not partitioned
   # TODO use findAndUpdate here once supported
   existing = ChatUsers.findOne(doc.sessionId)
