@@ -11,6 +11,9 @@
     "collection-hooks": {
       "path": "../meteor-collection-hooks"
     },
+    "partitioner": {
+      "path": "../meteor-partitioner"
+    },
     "turkserver": {
       "path": "../turkserver-meteor"
     },
