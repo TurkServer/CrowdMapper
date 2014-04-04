@@ -7,7 +7,6 @@ insecure
 coffeescript
 jquery
 stylus
-bootstrap
 accounts-ui
 standard-app-packages
 webapp

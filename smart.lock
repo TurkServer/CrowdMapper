@@ -2,11 +2,13 @@
   "meteor": {},
   "dependencies": {
     "basePackages": {
-      "bootboxjs": {},
       "iron-router": {},
       "x-editable-bootstrap": {},
       "jqueryui": {},
       "jquery-migrate": {},
+      "bootboxjs": {
+        "path": "../meteor-bootboxjs"
+      },
       "user-status": {
         "path": "../meteor-user-status"
       },
@@ -33,11 +35,6 @@
       }
     },
     "packages": {
-      "bootboxjs": {
-        "git": "https://github.com/TimHeckel/meteor-bootboxjs.git",
-        "tag": "v3.2.2",
-        "commit": "580adfebfa12b4d2186a80cec1109dab74ad6228"
-      },
       "iron-router": {
         "git": "https://github.com/EventedMind/iron-router.git",
         "tag": "v0.7.0",
@@ -57,6 +54,9 @@
         "git": "https://github.com/canadaduane/meteor-jquery-migrate.git",
         "tag": "v2.0.0",
         "commit": "636819c9de59f66410e148867b229869bb045cea"
+      },
+      "bootboxjs": {
+        "path": "../meteor-bootboxjs"
       },
       "user-status": {
         "path": "../meteor-user-status"
@@ -91,6 +91,11 @@
         "git": "https://github.com/mizzao/meteor-build-fetcher.git",
         "tag": "v0.1.0",
         "commit": "e3813b1fc7f5c576e8e1fa4c51ae6f4687780a35"
+      },
+      "bootstrap-3": {
+        "git": "https://github.com/mangasocial/meteor-bootstrap-3.git",
+        "tag": "v3.1.1-1",
+        "commit": "63dd38968828bb8963636df93e9a1c45e2dfe67e"
       },
       "moment": {
         "git": "https://github.com/acreeger/meteor-moment.git",
