@@ -40,11 +40,7 @@
 </template>
 
 <template name="roomItem">
-    {{#if active}}
-    <li class="active">
-    {{else}}
-    <li>
-    {{/if}}
+    <li class={{#if active}}"active"{{/if}}>
         <a href="#" class="action-room-enter">
             <span class="badge badge-inverse" title="Users in room: {{users}}">{{users}}</span>
             {{#if empty}}
@@ -113,9 +109,9 @@
 
 <template name="chatPopover">
     <div style="width: 100px">
-        <p><i>These special symbols create clickable references in chat:</i>
-        <p>Use <b class="text-error">@</b> to tag and mention a <b>user</b>.
-        <p>Use <b class="text-error">~</b> (tilde) to tag a <b>tweet</b>.
-        <p>Use <b class="text-error">#</b> to tag an <b>event</b>.
+        <p><i>These special symbols create clickable references in chat:</i></p>
+        <p>Use <b class="text-error">@</b> to tag and mention a <b>user</b>.</p>
+        <p>Use <b class="text-error">~</b> (tilde) to tag a <b>tweet</b>.</p>
+        <p>Use <b class="text-error">#</b> to tag an <b>event</b>.</p>
     </div>
 </template>
