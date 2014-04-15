@@ -261,7 +261,7 @@ $.extend LongLat.prototype, {
 }
 
 LongLat.defaults = $.extend {}, $.fn.editabletypes.abstractinput.defaults,
-  tpl: Template.longLatEntry()
+  tpl: UI.toHTML Template.longLatEntry # No reactive contents
   inputclass: ""
 
 $.fn.editabletypes.longlat = LongLat

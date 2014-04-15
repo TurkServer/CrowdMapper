@@ -47,7 +47,7 @@ Router.map ->
   @route 'mapper',
     template: 'mapperContainer'
     path: '/mapper'
-    before: ->
+    onBeforeAction: ->
       unless Meteor.user()
         @setLayout("defaultContainer")
         @render("awaitingLogin")
@@ -63,7 +63,7 @@ Router.map ->
     waitOn: fieldSub
   @route 'exitsurvey',
     layoutTemplate: 'defaultContainer'
-    before: ->
+    onBeforeAction: ->
       unless TurkServer.inExitSurvey()
         @setLayout("defaultContainer")
         @render("loadError")
