@@ -72,11 +72,14 @@ Router.map ->
         @render("loadError")
         pause()
 
-Deps.autorun ->
-  Router.go("/mapper") if TurkServer.inExperiment()
+Meteor.startup ->
+  Session.setDefault("taskView", 'events')
 
-Deps.autorun ->
-  Router.go("/exitsurvey") if TurkServer.inExitSurvey()
+  Deps.autorun ->
+    Router.go("/mapper") if TurkServer.inExperiment()
+
+  Deps.autorun ->
+    Router.go("/exitsurvey") if TurkServer.inExitSurvey()
 
 ###
   Window sizing warning
@@ -92,18 +95,14 @@ checkSize = ->
     return
 
   if !bigEnough and sizeWarningDialog is null
-    sizeWarningDialog = bootbox.dialog("<h3>Your screen is not big enough for this task. Please maximize your window if possible, or use a computer with a higher-resolution screen.</h3>")
+    sizeWarningDialog = bootbox.dialog
+      closeButton: false
+      message: "<h3>Your screen is not big enough for this task. Please maximize your window if possible, or use a computer with a higher-resolution screen.</h3>"
     return
 
 Meteor.startup ->
   checkSize()
   $(window).resize checkSize
-
-Meteor.startup ->
-  Session.setDefault("taskView", 'events')
-
-  Session.set("scrollEvent", null)
-  Session.set("scrollTweet", null)
 
 ###
   Templates and helpers

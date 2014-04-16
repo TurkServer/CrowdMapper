@@ -33,13 +33,13 @@ generateNewEvent = ->
     fields[key] = if val? then null else ""
 
   Meteor.call "createEvent", eventId, fields
-  Session.set "selectedEvent", eventId
+  Mapper.selectEvent(eventId)
 
 edit = (e) ->
   Meteor.call "editEvent", @_id
   # TODO make this less janky
   Mapper.switchTab "events"
-  Session.set("scrollEvent", @_id)
+  Mapper.scrollToEvent(@_id)
 
 # Set initial sort order on start
 Meteor.startup ->
@@ -62,7 +62,8 @@ Template.eventsHeader.iconClass = ->
     "resize-vertical"
 
 Template.eventRecords.events =
-  "click .events-body tr": -> Session.set("selectedEvent", @_id)
+  "click .events-body tr": (e, t) ->
+    Mapper.selectEvent(@_id)
   "click span.sorter": (e) ->
     key = $(e.target).closest("span").attr("data-key")
     sortKey = Session.get("eventSortKey")
@@ -100,24 +101,24 @@ Template.createFooter.events =
 acceptDrop = (draggable) ->
   # Don't accept drops from random pages
   return false unless Session.equals("taskView", 'events')
-  event = Spark.getDataContext @ # These are the only droppables on the page
+  event = UI.getElementData @ # These are the only droppables on the page
   return false unless event
-  tweet = Spark.getDataContext(draggable.context)
+  tweet = UI.getElementData(draggable.context)
   # Don't accept drops to the same event
   return false if $.inArray(event._id, tweet.events) >= 0
   return true
 
 processDrop = (event, ui) ->
-  event = Spark.getDataContext @
+  event = UI.getElementData @
   return unless event
-  tweet = Spark.getDataContext(ui.draggable.context)
+  tweet = UI.getElementData(ui.draggable.context)
   # Don't do anything if this tweet is already on this event
   return if $.inArray(event._id, tweet.events) >= 0
 
   target = ui.draggable.context
   parent = tweet
   while parent is tweet
-    parent = Spark.getDataContext(target = target.parentNode)
+    parent = UI.getElementData(target = target.parentNode)
 
   Meteor.call "dataLink", tweet._id, event._id
   # unlink from parent if it was an event
@@ -130,15 +131,6 @@ Template.eventRow.rendered = ->
     tolerance: "pointer"
     accept: acceptDrop
     drop: processDrop
-
-  if Session.equals("scrollEvent", @data._id)
-    parent = $(".scroll-vertical.events-body")
-    element = $(@firstNode)
-    # FIXME: on IE this only works if we grab all these values beforehand
-    # console.log parent.scrollTop(), element.position(), parent.height(), element.height()
-    scrollTo = parent.scrollTop() + element.position().top - parent.height()/2 + element.height()/2
-    parent.animate({scrollTop: scrollTo}, "slow")
-    Session.set("scrollEvent", null)
 
 Template.eventRow.events =
   "click .action-event-mapview": (e) ->
@@ -175,7 +167,21 @@ Template._editCellSelf.events =
 ###
   Rendering and helpers for individual sheet cells
 ###
-Handlebars.registerHelper "eventCell", (context, field) ->
+Template.eventRow.rowClass = ->
+  if @editor is Meteor.userId()
+    "info"
+  else if @editor
+    "warning"
+  else
+    ""
+
+Template.eventRow.eventCell = ->
+  if this?.type is "dropdown"
+    return Template._eventCellSelect
+  else
+    return Template._eventCell
+
+Template.eventRow.buildData = (context, field) ->
   obj = {
     _id: context._id
     key: field.key
@@ -184,24 +190,23 @@ Handlebars.registerHelper "eventCell", (context, field) ->
     editable: context.editor is Meteor.userId()
   }
 
-  # Temporarily extend the field for render, but we don't have to store it in DB :)
-  # TODO: pass the render context to the event cell
-  if field?.type is "dropdown"
-    obj.textValue = Mapper.sources[field.key][obj.value]?.text if obj.value?
-    return Template._eventCellSelect
+  if field?.type is "dropdown" and obj.value?
+    obj.textValue = Mapper.sources[field.key][obj.value]?.text
+
+  return obj
+
+# TODO properly handle other-user-editing state
+
+Template.eventRow.editCell = ->
+  me = Meteor.userId()
+  if @editor is me
+    return Template._editCellSelf
+  else if @editor?
+    return Template.userPill(Meteor.users.findOne(@editor)) + " is editing"
   else
-    return Template._eventCell
+    return Template._editCellOpen
 
-Template.eventRow.rowClass = ->
-  classes = []
-  classes.push("selected") if Session.equals("selectedEvent", @_id)
-
-  if @editor is Meteor.userId()
-    classes.push("info")
-  else if @editor
-    classes.push("warning")
-
-  return classes.join(" ")
+# TODO make sure editable-ness and un-editableness is properly handled
 
 Template._eventCell.rendered = ->
   return unless @data.editable
@@ -238,15 +243,6 @@ Template.eventLocation.rendered = ->
   return
 
 Template.eventLocation.editable = -> @editor is Meteor.userId()
-
-Handlebars.registerHelper "editCell", ->
-  me = Meteor.userId()
-  if @editor is me
-    return Template._editCellSelf
-  else if @editor?
-    return Template.userPill(Meteor.users.findOne(@editor)) + " is editing"
-  else
-    return Template._editCellOpen
 
 Template.eventVoting.rendered = ->
   eventId = @data._id

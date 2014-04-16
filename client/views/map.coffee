@@ -120,12 +120,15 @@ Template.map.rendered = ->
     else
       popup.lonlat = lonlat
       # Clear contents: see http://stackoverflow.com/questions/3955229/remove-all-child-elements-of-a-dom-node-in-javascript
+      # We need to clear any contents using jQuery
+      # to ensure that their reactive deps are cleaned up:
+      # http://docs.meteor.com/#ui_render
+      console.log popup.contentDiv
       while popup.contentDiv.firstChild
-        popup.contentDiv.removeChild popup.contentDiv.firstChild
+        $(popup.contentDiv.firstChild).remove()
 
     # Make that shit reactive
-    # XXX Don't try to optimize this because it gets un-reactive when taken off the page anyway
-    popup.contentDiv.appendChild Meteor.render -> Template.mapPopup Events.findOne(feature.id)
+    UI.insert UI.renderWithData(Template.mapPopup, Events.findOne(feature.id)), popup.contentDiv
 
     map.addPopup(popup, true) # Second argument - kick out any old popups for good measure
 
@@ -195,7 +198,7 @@ Template.map.rendered = ->
       vectorLayer.addFeatures([feature])
       # Show popup for this feature if it's selected
       # TODO takes two clicks to select something after this
-      if Session.equals("selectedEvent", id)
+      if $("#event-#{id}").hasClass("selected")
         selectControl.unselectAll()
         selectControl.select(feature)
 
@@ -228,18 +231,15 @@ Template.map.rendered = ->
     "featureselected": (e) ->
       displayPopup(e.feature)
       selectedFeature = e.feature
-      Session.set("selectedEvent", selectedFeature.id)
+      Mapper.selectEvent(selectedFeature.id)
     "featureunselected": (e) ->
       selectedFeature = null
       hidePopup()
       # Only set selected event to null if we unselected via the map
-      sessionSelected = Deps.nonreactive -> Session.get("selectedEvent")
-      Session.set("selectedEvent", null) if sessionSelected is e.feature.id
+      Mapper.selectEvent(null) if $("#event-#{e.feature.id}").hasClass("selected")
 
-  # Watch for outside event selection
-  # TODO stop this computation when the template unloads (but only loads once so w/e)
-  Deps.autorun ->
-    id = Session.get("selectedEvent")
+  # Handle outside event selection
+  Mapper.mapSelectEvent = (id) ->
     return unless id
     feature = vectorLayer.getFeatureById(id)
     return if selectedFeature is feature # Don't select/zoom if we already selected this

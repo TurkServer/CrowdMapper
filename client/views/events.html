@@ -84,21 +84,23 @@
 </template>
 
 <template name="eventRow">
-    <tr class="{{rowClass}}">
-
-        {{! TODO - if adding cell locking, need to overcome reactivity issues when adjacent changed}}
+    <tr id="event-{{_id}}" class="{{rowClass}}">
         {{> eventNum}}
 
         {{> eventSources}}
 
         {{#each eventFields}}
-            {{{ eventCell .. this }}}
+            {{#with eventCell}}
+                {{#with buildData ../.. ..}}
+                    {{> .. }}
+                {{/with}}
+            {{/with}}
         {{/each}}
 
         {{> eventLocation}}
 
         <td class="text-center">
-            <p class="compact">{{{ editCell }}}</p>
+            <p class="compact">{{> editCell }}</p>
             {{> eventVoting }}
         </td>
     </tr>
@@ -106,7 +108,7 @@
 
 <template name="eventNum">
     <td>
-        <span class="label label-important">{{num}}</span>
+        <span class="label label-danger">{{num}}</span>
     </td>
 </template>
 

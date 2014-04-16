@@ -42,16 +42,6 @@ Template.dataItem.rendered = ->
   # Only visible elements are rendered in the #each helper so no optimization to do here
   $(@firstNode).draggable dragProps
 
-  if Session.equals("scrollTweet", @data._id)
-    parent = $(".scroll-vertical.data-body")
-    element = $(@firstNode)
-    scrollTo = parent.scrollTop() + element.position().top - parent.height()/2 + element.height()/2;
-    parent.animate({scrollTop: scrollTo}, "slow")
-    Session.set("scrollTweet", null)
-
 Template.dataItem.events =
-  "click .data-cell": (e) ->
-    Session.set("selectedTweet", @_id)
+  "click .data-cell": (e, t) -> Mapper.selectData(@_id)
 
-Template.dataItem.selected = ->
-  if Session.equals("selectedTweet", @_id) then "selected" else ""

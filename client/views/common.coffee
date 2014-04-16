@@ -34,7 +34,7 @@ Template.userPill.events =
       bootbox.alert("Join a chat room first to invite someone to chat with you.")
       return
 
-    user = Spark.getDataContext(e.target)
+    user = UI.getElementData(e.target)
 
     if ChatUsers.findOne(userId: user._id)?
       bootbox.alert("You and #{user.username} are already in the same room.")
@@ -83,16 +83,16 @@ Template.tweetIcon.rendered = ->
 Template.tweetIcon.events =
   "click .action-unlink-tweet": (e) ->
     # This needs to work on both events and map
-    tweet = Spark.getDataContext(e.target)
+    tweet = UI.getElementData(e.target)
 
     # TODO Fix this horrible hack for finding the event context
-#    eventContext = Spark.getDataContext(e.target.parentNode.parentNode.parentNode.parentNode)
+#    eventContext = UI.getElementData(e.target.parentNode.parentNode.parentNode.parentNode)
 
     # This is a slightly more robust hack but with worse performance
     target = e.target
     eventContext = tweet
     while eventContext is tweet
-      eventContext = Spark.getDataContext(target = target.parentNode)
+      eventContext = UI.getElementData(target = target.parentNode)
 
     Meteor.call "dataUnlink", tweet._id, eventContext._id
 
@@ -102,9 +102,8 @@ Template.tweetIcon.events =
 showEvent = (eventId) ->
   Mapper.switchTab 'events' # Make sure we are on the event page
   # Set up a scroll event, then trigger a re-render
-  Session.set("selectedEvent", null)
-  Session.set("scrollEvent", eventId)
-  Session.set("selectedEvent", eventId)
+  Mapper.selectEvent(eventId)
+  Mapper.scrollToEvent(eventId)
 
 Template.tweetIconClickable.events =
   "click .clickme": (e) ->
@@ -115,12 +114,8 @@ Template.tweetIconClickable.events =
       eventId = @events[0]
       showEvent(eventId)
     else
-      # Scroll to tweet
-      Session.set("selectedTweet", null)
-      Session.set("scrollTweet", @_id)
-      Session.set("selectedTweet", @_id)
-
-# Template.tweetNumbered.rendered = ->
+      Mapper.selectData(@_id)
+      Mapper.scrollToData(@_id)
 
 Template.eventIconClickable.events =
   "click .clickme": (e) -> showEvent(@_id)
