@@ -47,27 +47,30 @@ Router.map ->
   @route 'mapper',
     template: 'mapperContainer'
     path: '/mapper'
-    onBeforeAction: ->
+    onBeforeAction: (pause) ->
       unless Meteor.user()
         @setLayout("defaultContainer")
         @render("awaitingLogin")
-        @stop()
+        pause()
       unless Meteor.user()?.admin or TurkServer.inExperiment()
         @setLayout("defaultContainer")
         @render("loadError")
-        @stop()
+        pause()
     ###
       Before hook is buggy due to https://github.com/EventedMind/iron-router/issues/336
       So we subscribe to EventFields statically right now.
     ###
     waitOn: fieldSub
+    action: ->
+      # Need to do this because of https://github.com/EventedMind/iron-router/issues/600
+      @setLayout(null)
+      @render()
   @route 'exitsurvey',
     layoutTemplate: 'defaultContainer'
-    onBeforeAction: ->
+    onBeforeAction: (pause) ->
       unless TurkServer.inExitSurvey()
-        @setLayout("defaultContainer")
         @render("loadError")
-        @stop()
+        pause()
 
 Deps.autorun ->
   Router.go("/mapper") if TurkServer.inExperiment()

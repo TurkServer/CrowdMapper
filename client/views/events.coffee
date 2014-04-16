@@ -61,7 +61,7 @@ Template.eventsHeader.iconClass = ->
   else
     "icon-resize-vertical"
 
-Template.events.events =
+Template.eventRecords.events =
   "click .events-body tr": -> Session.set("selectedEvent", @_id)
   "click span.sorter": (e) ->
     key = $(e.target).closest("span").attr("data-key")
@@ -73,9 +73,9 @@ Template.events.events =
       Session.set("eventSortKey", key)
       Session.set("eventSortOrder", 1)
 
-Template.events.loaded = -> Session.equals("eventSubReady", true)
+Template.eventRecords.loaded = -> Session.equals("eventSubReady", true)
 
-Template.events.noEvents = ->
+Template.eventRecords.noEvents = ->
   Events.find().count() is 0
 
 Handlebars.registerHelper "numEventCols", ->
@@ -83,7 +83,7 @@ Handlebars.registerHelper "numEventCols", ->
   # Add 1 each for index, sources, map, and buttons
   EventFields.find().count() + 4
 
-Template.events.eventRecords = ->
+Template.eventRecords.records = ->
   key = Session.get("eventSortKey")
   return Events.find() unless key
 

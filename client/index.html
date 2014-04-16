@@ -16,7 +16,7 @@
 
 <template name="defaultContainer">
     <div class="container fill-height scroll-vertical">
-        {{yield}}
+        {{> yield}}
     </div>
 </template>
 
@@ -27,7 +27,7 @@
 </template>
 
 <template name="loadError">
-    <div class="alert">
+    <div class="alert alert-warning">
         <h3>Error loading the task. Please try reloading this HIT from your dashboard.</h3>
     </div>
 </template>
@@ -51,7 +51,7 @@
                     {{> docs}}
                 </div>
                 <div id="mapper-events" class="pages">
-                    {{> events}}
+                    {{> eventRecords}}
                 </div>
                 <div id="mapper-map" class="pages">
                     {{> map}}
@@ -66,7 +66,7 @@
 
 <template name="mapperTutorial">
     {{#if tutorialEnabled}}
-    {{tutorial options}}
+    {{> tutorial options}}
     {{/if}}
 </template>
 

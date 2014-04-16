@@ -3,9 +3,9 @@
 
     <a href="#" class="dropdown-toggle {{glowClass}}" data-toggle="dropdown">
         <b>Notifications</b>
-        {{#withif notificationCount}}
+        {{#with notificationCount}}
         <span class="badge badge-important">{{this}}</span>
-        {{/withif}}
+        {{/with}}
         <b class="caret"></b>
     </a>
     <ul class="dropdown-menu">

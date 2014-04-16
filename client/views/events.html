@@ -1,6 +1,5 @@
 
-<template name="events">
-    {{! isolate this so it doesn't scroll when changing sort}}
+<template name="eventRecords">
     {{> eventsHeader}}
 
     {{! We add and remove a highlighted class to this div to avoid messing with scroll}}
@@ -9,8 +8,6 @@
     {{!-- This extra container solves the problem of the absolute div clipping shit --}}
     {{#if loaded}}
         <div class="scroll-vertical events-body">
-            {{! isolate this to not mess with the outer scrolling}}
-            {{#isolate}}
             <table class="table table-condensed table-hover table-striped">
                 <thead>
                 <tr>
@@ -29,12 +26,11 @@
                 {{> emptyRow}}
                 {{/if}}
 
-                {{#each eventRecords}}
+                {{#each records}}
                 {{> eventRow}}
                 {{/each}}
                 </tbody>
             </table>
-            {{/isolate}}
         </div>
     {{else}}
         {{> spinner}}
