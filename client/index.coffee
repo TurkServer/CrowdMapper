@@ -62,7 +62,7 @@ Router.map ->
     ###
     waitOn: fieldSub
     action: ->
-      # Need to do this because of https://github.com/EventedMind/iron-router/issues/600
+      # TODO remove this when EventedMind/iron-router#607 is merged
       @setLayout(null)
       @render()
   @route 'exitsurvey',
@@ -118,15 +118,16 @@ Template.mapper.rendered = ->
 Template.guidance.message = -> Session.get("guidanceMessage")
 Template.guidance.showStyle = -> if Session.get("guidanceMessage") then "" else "display: none"
 
+switchTab = (page) ->
+  return if Deps.nonreactive(-> Session.get("taskView")) is page
+  Session.set("taskView", page)
+
 Template.pageNav.events =
   "click a": (e) -> e.preventDefault()
-
-  "click a[data-target='docs']": ->
-    Mapper.switchTab('docs')
-  "click a[data-target='events']": ->
-    Mapper.switchTab('events')
-  "click a[data-target='map']": ->
-    Mapper.switchTab('map')
+  # These functions set the styling on the navbar as well
+  "click a[data-target='docs']": -> switchTab('docs')
+  "click a[data-target='events']": -> switchTab('events')
+  "click a[data-target='map']": -> switchTab('map')
 
 # Do the stack with jQuery to avoid slow reloads
 Deps.autorun ->

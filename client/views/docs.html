@@ -38,7 +38,7 @@
 <template name="docCurrent">
     {{#if document}}
     {{> docTitle}}
-    <button class="btn btn-danger btn-mini pull-right action-document-delete">Delete this document</button>
+    <button class="btn btn-danger btn-xs pull-right action-document-delete">Delete this document</button>
     {{sharejsAce document callback=config id="editor"}}
     {{/if}}
 </template>

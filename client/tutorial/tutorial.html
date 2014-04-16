@@ -114,7 +114,7 @@
     <p>You should click on links to see what reports refer to, and to determine whether or not the data is relevant. You may search the Internet for places and phrases mentioned in reports.</p>
 
     <p>You may also hide tweets that appear to be irrelevant by clicking the
-    <button class="btn btn-danger btn-mini"><i class="icon-white icon-remove"></i></button>
+    <button class="btn btn-danger btn-xs"><span class="glyphicon glyphicon-remove"></span></button>
     button. When you hide a tweet, it disappears for everyone.</p>
 
     <p>
@@ -159,9 +159,9 @@
 </template>
 
 <template name="tut_editevent">
-    <p>You may also edit an existing event record by double-clicking or by clicking the blue <button class="btn btn-mini btn-primary"><i class="icon-white icon-pencil"></i></button> button. You will see edits by other mappers in real-time.</p>
+    <p>You may also edit an existing event record by double-clicking or by clicking the blue <button class="btn btn-xs btn-primary"><span class="glyphicon glyphicon-remove"></span></button> button. You will see edits by other mappers in real-time.</p>
 
-    <p>Only one person can edit an event record at a time, so when you're done, click the green <button class="btn btn-mini btn-success"><i class="icon-white icon-check"></i>Save</button> button to save the event.</p>
+    <p>Only one person can edit an event record at a time, so when you're done, click the green <button class="btn btn-xs btn-success"><span class="glyphicon glyphicon-remove"></span>Save</button> button to save the event.</p>
 
     <p>
     {{#if stepCompleted}}
@@ -273,7 +273,7 @@
 <template name="tut_addtweet">
     <p>You may also <b>add additional tweets to existing event records</b> if they refer to the same event. You can also <b>drag tweets from one event to another</b> to correct mistakes or reorganize records.</p>
 
-    <p>If you <b>hover over an attached tweet</b> and find it to be irrelevant, you can use the <button class="btn btn-danger btn-mini"><i class="icon-white icon-remove"></i></button> to hide it.</p>
+    <p>If you <b>hover over an attached tweet</b> and find it to be irrelevant, you can use the <button class="btn btn-danger btn-xs"><span class="glyphicon glyphicon-remove"></span></button> to hide it.</p>
 
     <p><b class="text-error">If you can find another tweet that refers to the same event as this one, add it to the record by dragging and dropping.</b></p>
 
@@ -300,7 +300,7 @@
 
 <template name="tut_maplocate">
     <p>You can press the
-    <button class="btn btn-mini btn-info"><i class="icon-white icon-screenshot"></i> Locate</button> button to place an event on the map. You may need to search on the Internet to find a precise location for an event that you see.</p>
+    <button class="btn btn-xs btn-info"><span class="glyphicon glyphicon-screenshot"></span> Locate</button> button to place an event on the map. You may need to search on the Internet to find a precise location for an event that you see.</p>
 
     <p>
     {{#if stepCompleted}}
@@ -320,7 +320,7 @@
 <template name="tut_maplocation">
     <p>Notice that the latitude/longitude has automatically been updated in the event record. You may click this at any time to see the location of a mapped event.</p>
 
-    <p>Now, select the province, if you know it, and save the record using the <button class="btn btn-mini btn-success"><i class="icon-white icon-ok"></i>Save</button> button. This will let someone else edit the event.</p>
+    <p>Now, select the province, if you know it, and save the record using the <button class="btn btn-xs btn-success"><span class="glyphicon glyphicon-ok"></span>Save</button> button. This will let someone else edit the event.</p>
 
     <p>
     {{#if stepCompleted}}
@@ -332,9 +332,9 @@
 </template>
 
 <template name="tut_verify">
-    <p>You may also check the accuracy of the events records created by other crisis mappers by verifying their data. The <span class="badge {{badgeClass}}">0 <i class="icon-white icon-ok"></i></span> area shows that no one has verified this event yet.</p>
+    <p>You may also check the accuracy of the events records created by other crisis mappers by verifying their data. The <span class="badge {{badgeClass}}">0 <span class="glyphicon glyphicon-ok"></span></span> area shows that no one has verified this event yet.</p>
 
-    <p>If you think an event record is accurate, you may verify it by hovering over this area and clicking the <button class="btn btn-success btn-mini"><i class="icon-white icon-ok"></i> Verify</button> button. You can also remove your vote for an event if you think it is no longer accurate.</p>
+    <p>If you think an event record is accurate, you may verify it by hovering over this area and clicking the <button class="btn btn-success btn-xs"><span class="glyphicon glyphicon-ok"></span> Verify</button> button. You can also remove your vote for an event if you think it is no longer accurate.</p>
 
     <p>
     {{#if stepCompleted}}
@@ -372,7 +372,7 @@
 </template>
 
 <template name="tut_chatrooms">
-    <p>You may create and join <b>chat rooms</b> to communicate with other users. Use the <button class="btn btn-mini btn-info">New room</button> button to create a chat room.</p>
+    <p>You may create and join <b>chat rooms</b> to communicate with other users. Use the <button class="btn btn-xs btn-info">New room</button> button to create a chat room.</p>
 
     <p>
     {{#if stepCompleted}}

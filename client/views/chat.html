@@ -2,7 +2,7 @@
     <div class="row-fluid compact chat-overview">
         <div class="span8">
             <h5 class="compact">Chat Rooms:
-                <button title="Create new chat room" class="btn btn-mini btn-info pull-right action-room-create">New room</button>
+                <button title="Create new chat room" class="btn btn-xs btn-info pull-right action-room-create">New room</button>
             </h5>
             <div class="chat-rooms fill-width">
             {{> rooms}}
@@ -44,7 +44,7 @@
         <a href="#" class="action-room-enter">
             <span class="badge badge-inverse" title="Users in room: {{users}}">{{users}}</span>
             {{#if empty}}
-            <i class="icon-trash action-room-delete" title="Delete this room"></i>
+            <span class="glyphicon glyphicon-trash action-room-delete" title="Delete this room"></span>
             {{/if}}
             {{name}}
         </a>
@@ -63,7 +63,7 @@
 <template name="roomHeader">
     <h4 class="chat-header compact">
         <span class="editable" title="Rename this room">{{roomName}}</span>
-        <button type="button" class="btn btn-warning btn-mini pull-right action-room-leave">Leave</button>
+        <button type="button" class="btn btn-warning btn-xs pull-right action-room-leave">Leave</button>
     </h4>
 </template>
 
@@ -95,13 +95,13 @@
     <form class="form-inline compact" action="javascript:void(0)">
         <div class="chat-button-container">
             <button type="submit" class="btn btn-primary action-chat-send" title="Send">
-                <i class="icon-white icon-share-alt"></i>
+                <span class="glyphicon glyphicon-share-alt"></span>
             </button>
         </div>
         <div class="chat-input-container">
             {{inputAutocomplete settings class="chat-input" placeholder="Chat..."}}
             <div class="chat-help">
-                <i class="icon-question-sign"></i>
+                <span class="glyphicon glyphicon-question-sign"></span>
             </div>
         </div>
     </form>

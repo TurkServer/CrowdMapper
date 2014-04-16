@@ -5,10 +5,10 @@ Template.userList.users = ->
 
 Template.userPill.labelClass = ->
   if @_id is Meteor.userId()
-    "label-inverse"
+    "inverse"
   else if @status?.online
-    "label-success"
-  else ""
+    "success"
+  else "default"
 
 Template.userPill.rendered = ->
   # Show chat invite?

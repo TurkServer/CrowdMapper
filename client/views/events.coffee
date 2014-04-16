@@ -48,18 +48,18 @@ Meteor.startup ->
 
 Template.eventsHeader.labelClass = ->
   key = @key || "num" # FIXME: hack for the first num field
-  if Session.equals("eventSortKey", key) then "label-inverse" else ""
+  if Session.equals("eventSortKey", key) then "inverse" else "default"
 
 Template.eventsHeader.iconClass = ->
   key = @key || "num" # FIXME: hack for the first num field
   if Session.equals("eventSortKey", key)
     # TODO This is inefficient. Fix it.
     if Session.get("eventSortOrder") is 1
-      "icon-chevron-up"
+      "chevron-up"
     else
-      "icon-chevron-down"
+      "chevron-down"
   else
-    "icon-resize-vertical"
+    "resize-vertical"
 
 Template.eventRecords.events =
   "click .events-body tr": -> Session.set("selectedEvent", @_id)
@@ -185,11 +185,12 @@ Handlebars.registerHelper "eventCell", (context, field) ->
   }
 
   # Temporarily extend the field for render, but we don't have to store it in DB :)
+  # TODO: pass the render context to the event cell
   if field?.type is "dropdown"
     obj.textValue = Mapper.sources[field.key][obj.value]?.text if obj.value?
-    return Template._eventCellSelect(obj)
+    return Template._eventCellSelect
   else
-    return Template._eventCell(obj)
+    return Template._eventCell
 
 Template.eventRow.rowClass = ->
   classes = []
@@ -241,11 +242,11 @@ Template.eventLocation.editable = -> @editor is Meteor.userId()
 Handlebars.registerHelper "editCell", ->
   me = Meteor.userId()
   if @editor is me
-    return Template._editCellSelf @
+    return Template._editCellSelf
   else if @editor?
     return Template.userPill(Meteor.users.findOne(@editor)) + " is editing"
   else
-    return Template._editCellOpen @
+    return Template._editCellOpen
 
 Template.eventVoting.rendered = ->
   eventId = @data._id

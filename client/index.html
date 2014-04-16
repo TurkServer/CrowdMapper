@@ -40,11 +40,11 @@
 
 <template name="mapper">
     <div class="container-fluid compact fill-height">
-        <div class="row-fluid fill-height">
-            <div class="span2 fill-height carrier">
+        <div class="row fill-height">
+            <div class="col-sm-2 fill-height carrier">
                 {{> datastream}}
             </div>
-            <div class="span7 fill-height carrier stack">
+            <div class="col-sm-7 fill-height carrier stack">
                 {{> guidance}}
                 {{> pageNav}}
                 <div id="mapper-docs" class="pages">
@@ -57,7 +57,7 @@
                     {{> map}}
                 </div>
             </div>
-            <div class="span3 fill-height carrier">
+            <div class="col-sm-3 fill-height carrier">
                 {{> sidebar}}
             </div>
         </div>
@@ -77,32 +77,33 @@
 </template>
 
 <template name="pageNav">
-    <div class="navbar compact">
-        <div class="navbar-inner compact">
-            <ul class="nav">
-                <li>
-                    <a href="#" data-target="events" data-toggle="tab">Event Records</a>
-                </li>
-                <li class="divider-vertical"></li>
-                <li>
-                    <a href="#" data-target="map" data-toggle="tab">Map</a>
-                </li>
-                <li class="divider-vertical"></li>
-                <li>
-                    <a href="#" data-target="docs" data-toggle="tab">Documents</a>
-                </li>
-            </ul>
+    <div class="navbar navbar-default compact">
+        <ul class="nav navbar-nav">
+            <li>
+                <a href="#" data-target="events" data-toggle="tab">Event Records</a>
+            </li>
+            <li class="divider-vertical"></li>
+            <li>
+                <a href="#" data-target="map" data-toggle="tab">Map</a>
+            </li>
+            <li class="divider-vertical"></li>
+            <li>
+                <a href="#" data-target="docs" data-toggle="tab">Documents</a>
+            </li>
+        </ul>
 
-            <ul class="nav pull-right">
-                <li class="notification dropdown">
-                    {{> notifications}}
-                </li>
-                <li class="divider-vertical"></li>
-                <li class="navbar-text payment">
-                    Payment: $1.00
-                </li>
-            </ul>
-        </div>
+        <ul class="nav navbar-nav pull-right">
+            <li class="notification dropdown">
+                {{> notifications}}
+            </li>
+            <li class="divider-vertical"></li>
+            <li class="navbar-text payment">
+                Payment: $1.00
+            </li>
+            <li class="navbar-text">
+                {{tsElapsedTime}}
+            </li>
+        </ul>
     </div>
 </template>
 
