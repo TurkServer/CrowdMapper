@@ -103,6 +103,8 @@ checkSize = ->
 Meteor.startup ->
   checkSize()
   $(window).resize checkSize
+  # Ask for username once user logs in
+  TurkServer.ensureUsername()
 
 ###
   Templates and helpers
