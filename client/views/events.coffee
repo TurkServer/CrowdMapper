@@ -252,14 +252,14 @@ Template.eventVoting.rendered = ->
     trigger: "hover"
     container: @firstNode # Hovering over the popover should hold it open
     content: ->
-      Meteor.render ->
-        Template.eventVotePopup Events.findOne(eventId, fields: {votes: 1})
+      # TODO Make this properly reactive
+      UI.toHTML Template.eventVotePopup.extend data: -> Events.findOne(eventId, fields: {votes: 1})
 
 Template.eventVoting.events =
   "click .action-event-upvote": -> Meteor.call "voteEvent", @_id
   "click .action-event-unvote": -> Meteor.call "unvoteEvent", @_id
 
-Template.eventVoting.badgeClass = -> if @votes?.length > 0 then "badge-success" else "badge-default"
+Template.eventVoting.badgeClass = -> if @votes?.length > 0 then "alert-success" else ""
 Template.eventVoting.numVotes = -> @votes?.length || 0
 
 Template.eventVotePopup.anyVotes = -> @votes?.length > 0

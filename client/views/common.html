@@ -1,5 +1,5 @@
 <template name="userList">
-    <div class="well well-skinny user-list scroll-vertical">
+    <div class="well well-skinny user-list bigger-labels data-labels scroll-vertical">
         {{#if loaded}}
             Users:
             {{#each users}}
@@ -12,7 +12,9 @@
 </template>
 
 <template name="userPill">
-    <span class="label label-{{labelClass}}">{{username}}</span>
+    <div class="user-pill-container">
+        <span class="label label-{{labelClass}}">{{username}}</span>
+    </div>
 </template>
 
 <template name="userInvitePopup">
@@ -21,7 +23,7 @@
 
 <template name="tweetIcon">
     <div class="tweet-icon-container">
-        <span class="label label-info">
+        <span class="label label-primary">
             <span class="glyphicon glyphicon-tag"></span>{{num}}
         </span>
     </div>
@@ -48,11 +50,11 @@
 </template>
 
 <template name="eventIconClickable">
-    <span class="label label-important clickme">{{num}}</span>
+    <span class="label label-danger clickme">{{num}}</span>
 </template>
 
 <template name="eventShort">
-    <span class="label label-important">{{num}}</span>
+    <span class="label label-danger">{{num}}</span>
     <span class="chopped">{{description}}</span>
 </template>
 

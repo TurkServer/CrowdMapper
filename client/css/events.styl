@@ -1,0 +1,65 @@
+#mapper-events table
+  border-collapse: collapse;
+  border-spacing: 0;
+  table-layout: fixed
+  // word-wrap: normal
+  word-wrap: break-word
+
+.events-header.table, .events-body > .table
+  margin-bottom: 0
+
+// Don't allow table headers to wrap - They are also sized small to help with this
+.events-header th
+  white-space: nowrap
+
+.header-num
+  width: 45px
+
+.header-buttons, .header-location
+  width: 71px
+
+.data-body
+  list-style: none
+
+.events-body, .data-body
+  display: block
+  height: 100%
+  width: 100%;
+
+/*
+  Table row CSS
+*/
+
+shadow-color = rgba(0,0,0,0.5)
+shadow = 14px
+-shadow = - shadow
+blur = 4px
+spread = -10px
+
+tr.selected > td
+  box-shadow:
+    0 shadow blur spread shadow-color inset,
+    0 -shadow blur spread shadow-color inset
+
+// Since we have to, make the top left and bottom right corners the dark overlapping ones
+tr.selected > td:first-child
+  box-shadow:
+    shadow -shadow blur spread shadow-color inset,
+    0 shadow blur spread shadow-color inset
+
+tr.selected > td:last-child
+  box-shadow:
+    0 -shadow blur spread shadow-color inset,
+    -shadow shadow blur spread shadow-color inset
+
+// Make the selected event black
+tr.selected .label.label-danger
+  background-color: #333333
+
+.table-condensed th.vertical-nopad
+  padding-top: 0px
+  padding-bottom: 0px
+
+.editable-coord
+  display: block
+  margin-bottom: 5px

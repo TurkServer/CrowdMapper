@@ -56,8 +56,6 @@ Template.map.created = ->
 
 # Initialize map
 Template.map.rendered = ->
-  # Don't re-render map due to reactive sub-regions triggering this
-  return if @map
 
   politicalMapLayer = new OpenLayers.Layer.Bing
     name: "Political Map"
@@ -98,8 +96,6 @@ Template.map.rendered = ->
       new OpenLayers.Control.PanZoomBar(),
     ]
 
-  @map = map
-
   popup = null
   selectedFeature = null
 
@@ -123,11 +119,11 @@ Template.map.rendered = ->
       # We need to clear any contents using jQuery
       # to ensure that their reactive deps are cleaned up:
       # http://docs.meteor.com/#ui_render
-      console.log popup.contentDiv
       while popup.contentDiv.firstChild
         $(popup.contentDiv.firstChild).remove()
 
     # Make that shit reactive
+    # TODO this displays the static results of the first findOne
     UI.insert UI.renderWithData(Template.mapPopup, Events.findOne(feature.id)), popup.contentDiv
 
     map.addPopup(popup, true) # Second argument - kick out any old popups for good measure

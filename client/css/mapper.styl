@@ -15,13 +15,6 @@
   width: 100%
   height: 100%
 
-table
-    border-collapse: collapse;
-    border-spacing: 0;
-    table-layout: fixed
-    // word-wrap: normal
-    word-wrap: break-word
-
 @keyframes glow {
   to {
     text-shadow: 0 0 10px red;
@@ -31,13 +24,29 @@ table
 .notification > a.glowing
   animation: glow .5s infinite alternate;
 
+.bigger-labels .label
+  font-size: 85%
+
+.data-labels .label
+  // http://stackoverflow.com/q/11126685/586086
+  display: inline-block
+  padding: 3px 5px
+
 .user-list
+  display: block
   height: 80px
   max-height: 80px
 
-.chat-overview
-  height: 172px
-  max-height: 172px
+.user-pill-container, .tweet-icon-container
+  border-radius: .25em // To match the label inside, so shadow is round
+  display: inline-block
+  margin-bottom: 1px
+
+.tweet-icon-container .label
+  cursor: move
+
+.tweet-icon-container .popover
+  max-width: 250px
 
 .shadow-outline, #editor
   box-shadow 0px 0px 5px 5px rgba(0, 0, 0, 0.2);
@@ -86,61 +95,10 @@ newdoc-height = 30px
   bottom: 0px
   right: 0px
 
-.events-header.table, .events-body > .table
-    margin-bottom: 0
-
-// Don't allow table headers to wrap - They are also sized small to help with this
-.events-header th
-    white-space: nowrap
-
-.data-body
-  list-style: none
-
-.events-body, .data-body
-    display: block
-    height: 100%
-    width: 100%;
-
-shadow-color = rgba(0,0,0,0.5)
-shadow = 14px
--shadow = - shadow
-blur = 4px
-spread = -10px
-
-tr.selected > td
-    box-shadow:
-        0 shadow blur spread shadow-color inset,
-        0 -shadow blur spread shadow-color inset
-
-// Since we have to, make the top left and bottom right corners the dark overlapping ones
-tr.selected > td:first-child
-    box-shadow:
-        shadow -shadow blur spread shadow-color inset,
-        0 shadow blur spread shadow-color inset
-
-tr.selected > td:last-child
-    box-shadow:
-        0 -shadow blur spread shadow-color inset,
-        -shadow shadow blur spread shadow-color inset
-
-// Make the selected event black
-tr.selected .label.label-important
-  background-color: #333333
-
-.table-condensed th.vertical-nopad
-    padding-top: 0px
-    padding-bottom: 0px
-
 .action-document-new
     position: absolute
     height: newdoc-height
     bottom: 0px
-
-.header-num
-    width: 45px
-
-.header-buttons, .header-location
-    width: 71px
 
 .chopped
   display: inline-block
@@ -158,7 +116,3 @@ tr.selected .label.label-important
 
 .clickme
     cursor: pointer
-
-.editable-coord
-  display: block
-  margin-bottom: 5px

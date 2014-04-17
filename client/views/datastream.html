@@ -2,7 +2,7 @@
     <div class="datastream well well-nopad">
         {{#if loaded}}
         {{!-- again, a workaround to allow the inner divs to be dragged out --}}
-        <ul class="scroll-vertical data-body">
+        <ul class="scroll-vertical data-body bigger-labels">
             {{#each data}}
                 {{#if visible}}
                 {{> dataItem}}
@@ -17,7 +17,7 @@
 
 <template name="dataItem">
     <li id="data-{{_id}}" class="data-cell">
-        <span class="label label-info"><span class="glyphicon glyphicon-tag"></span>{{num}}</span>
+        <span class="label label-primary"><span class="glyphicon glyphicon-tag"></span>{{num}}</span>
         <span class="data-text">{{{text}}}</span>
         <button class="btn btn-danger btn-xs data-cell-icon action-data-hide"
                 title="Hide this tweet">

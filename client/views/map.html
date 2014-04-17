@@ -3,17 +3,19 @@
 </template>
 
 <template name="mapPopup">
+    <div class="bigger-labels data-labels">
     {{! XXX this needs some major display reformatting}}
+    <strong class="pull-right">({{{formatLocation}}})</strong>
 
     <strong class="text-error">{{dereference "type" type}}</strong>
     <br>
     <small>{{description}}</small>
     <br>
-    <strong><small>{{dereference "province" province}}</small></strong>
-    <br>
-    <em><small>{{dereference "region" region}}</small></em>
-    <br>
-    <strong>{{{formatLocation}}}</strong>
+    <small>
+        <strong>{{dereference "province" province}}</strong>
+         -
+        <em>{{dereference "region" region}}</em>
+    </small>
 
     <p>
     {{#each sources}}
@@ -25,4 +27,5 @@
     <button title="Remove from map" class="btn btn-xs btn-warning action-event-unmap">
         <span class="glyphicon glyphicon-remove"></span> Unmap
     </button>
+    </div>
 </template>

@@ -1,10 +1,9 @@
 
 <template name="notifications">
-
     <a href="#" class="dropdown-toggle {{glowClass}}" data-toggle="dropdown">
         <b>Notifications</b>
         {{#with notificationCount}}
-        <span class="badge badge-important">{{this}}</span>
+        <span class="badge alert-danger">{{this}}</span>
         {{/with}}
         <b class="caret"></b>
     </a>
@@ -17,7 +16,6 @@
         <li><a><i>No notifications.</i></a></li>
         {{/if}}
     </ul>
-
 </template>
 
 <template name="_inviteNotification">

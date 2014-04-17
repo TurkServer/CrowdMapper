@@ -11,16 +11,19 @@ Template.userPill.labelClass = ->
   else "default"
 
 Template.userPill.rendered = ->
-  # Show chat invite?
-  if @data.status?.online and @data._id isnt Meteor.userId()
-    $(@firstNode).popover
-      html: true
-      placement: "bottom"
-      trigger: "hover"
-      container: @firstNode
-      content: ->
-        # Also no reactive here
-        Template.userInvitePopup()
+  $(@firstNode).popover
+    html: true
+    placement: "auto right"
+    trigger: "hover"
+    container: @firstNode
+    content: =>
+      # Grab updated data
+      user = UI.getElementData(@firstNode)
+      # Check if we should show chat invite
+      if user.status?.online and user._id isnt Meteor.userId()
+        return UI.toHTML Template.userInvitePopup
+      else
+        return null
 
 Template.userPill.events =
   "click .action-chat-invite": (e) ->
@@ -71,12 +74,12 @@ Template.tweetIcon.rendered = ->
   tweetId = @data
   $(@firstNode).popover
     html: true
-    placement: "left" # Otherwise it goes off the top of the screen
+    placement: "auto right" # Otherwise it goes off the top of the screen
     trigger: "hover"
     container: @firstNode # Hovering over the popover should hold it open
     content: ->
-      # No need for reactivity (Meteor.render) here since tweet does not change
-      Template.tweetPopup Datastream.findOne(tweetId)
+      # No need for reactivity here since tweet does not change
+      UI.toHTML Template.tweetPopup.extend data: -> Datastream.findOne(tweetId)
 
   $(@firstNode).draggable(tweetIconDragProps)
 
