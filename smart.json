@@ -1,9 +1,11 @@
 {
   "packages": {
     "iron-router": {},
-    "x-editable-bootstrap": {},
     "jqueryui": {},
     "jquery-migrate": {},
+    "x-editable-bootstrap": {
+      "path": "../meteor-x-editable-bootstrap"
+    },
     "bootboxjs": {
       "path": "../meteor-bootboxjs"
     },

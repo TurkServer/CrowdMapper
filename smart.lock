@@ -3,9 +3,11 @@
   "dependencies": {
     "basePackages": {
       "iron-router": {},
-      "x-editable-bootstrap": {},
       "jqueryui": {},
       "jquery-migrate": {},
+      "x-editable-bootstrap": {
+        "path": "../meteor-x-editable-bootstrap"
+      },
       "bootboxjs": {
         "path": "../meteor-bootboxjs"
       },
@@ -40,11 +42,6 @@
         "tag": "v0.7.1",
         "commit": "d1ffb3f06ea4c112132b030f2eb1a70b81675ecb"
       },
-      "x-editable-bootstrap": {
-        "git": "https://github.com/nate-strauser/meteor-x-editable-bootstrap.git",
-        "tag": "v1.4.6.2",
-        "commit": "d3fcead1dd2302e30522e8c09d020f9a3d312cd0"
-      },
       "jqueryui": {
         "git": "https://github.com/mizzao/meteor-jqueryui.git",
         "tag": "v1.10.4",
@@ -54,6 +51,9 @@
         "git": "https://github.com/canadaduane/meteor-jquery-migrate.git",
         "tag": "v2.0.0",
         "commit": "636819c9de59f66410e148867b229869bb045cea"
+      },
+      "x-editable-bootstrap": {
+        "path": "../meteor-x-editable-bootstrap"
       },
       "bootboxjs": {
         "path": "../meteor-bootboxjs"
