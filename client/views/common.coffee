@@ -86,18 +86,11 @@ Template.tweetIcon.rendered = ->
 Template.tweetIcon.events =
   "click .action-unlink-tweet": (e) ->
     # This needs to work on both events and map
+    # both the table row and the popup are .event-record
     tweet = UI.getElementData(e.target)
+    event = UI.getElementData $(e.target).closest(".event-record")[0]
 
-    # TODO Fix this horrible hack for finding the event context
-#    eventContext = UI.getElementData(e.target.parentNode.parentNode.parentNode.parentNode)
-
-    # This is a slightly more robust hack but with worse performance
-    target = e.target
-    eventContext = tweet
-    while eventContext is tweet
-      eventContext = UI.getElementData(target = target.parentNode)
-
-    Meteor.call "dataUnlink", tweet._id, eventContext._id
+    Meteor.call "dataUnlink", tweet._id, event._id
 
     # Hide this if it's not tagged somewhere
     Meteor.call "dataHide", tweet._id

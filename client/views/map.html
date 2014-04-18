@@ -3,10 +3,10 @@
 </template>
 
 <template name="mapPopup">
-    <div class="bigger-labels data-labels">
+    <div class="event-record bigger-labels data-labels">
     {{! XXX this needs some major display reformatting}}
     <strong class="pull-right">({{{formatLocation}}})</strong>
-
+    <span class="label label-danger">{{num}}</span>
     <strong class="text-error">{{dereference "type" type}}</strong>
     <br>
     <small>{{description}}</small>
@@ -23,7 +23,7 @@
     {{/each}}
     </p>
 
-    {{{ editCell }}}
+    {{> editCell }}
     <button title="Remove from map" class="btn btn-xs btn-warning action-event-unmap">
         <span class="glyphicon glyphicon-remove"></span> Unmap
     </button>

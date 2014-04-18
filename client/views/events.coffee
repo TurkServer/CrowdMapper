@@ -37,7 +37,6 @@ generateNewEvent = ->
 
 edit = (e) ->
   Meteor.call "editEvent", @_id
-  # TODO make this less janky
   Mapper.switchTab "events"
   Mapper.scrollToEvent(@_id)
 
@@ -195,9 +194,9 @@ Template.eventRow.buildData = (context, field) ->
 
   return obj
 
+# This is used in both table row and map popup
 # TODO properly handle other-user-editing state
-
-Template.eventRow.editCell = ->
+UI.registerHelper "editCell", ->
   me = Meteor.userId()
   if @editor is me
     return Template._editCellSelf

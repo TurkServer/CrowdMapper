@@ -107,20 +107,19 @@ Template.map.rendered = ->
         lonlat,
         null, # Popup size - defaults to 200x200 or use autoSize; needed for FramedCloud due to bug
         null, # The HTML
-      { # The anchor
-        size: new OpenLayers.Size(0, 0)
-        offset: new OpenLayers.Pixel(0, -36)
-      }
+        { # The anchor
+          size: new OpenLayers.Size(0, 0)
+          offset: new OpenLayers.Pixel(0, -36)
+        }
       )
+
       popup.autoSize = true # Prob won't work without specifying HTML
     else
       popup.lonlat = lonlat
-      # Clear contents: see http://stackoverflow.com/questions/3955229/remove-all-child-elements-of-a-dom-node-in-javascript
       # We need to clear any contents using jQuery
-      # to ensure that their reactive deps are cleaned up:
-      # http://docs.meteor.com/#ui_render
-      while popup.contentDiv.firstChild
-        $(popup.contentDiv.firstChild).remove()
+      # to ensure that their reactive (?) deps are cleaned up:
+      # https://github.com/meteor/meteor/issues/2031#issuecomment-40511526
+      $(popup.contentDiv).empty() if popup.contentDiv.firstChild
 
     # Make that shit reactive
     # TODO this displays the static results of the first findOne
@@ -192,7 +191,7 @@ Template.map.rendered = ->
       feature = new OpenLayers.Feature.Vector(point)
       feature.id = id
       vectorLayer.addFeatures([feature])
-      # Show popup for this feature if it's selected
+      # Show popup for this feature if it's selected (i.e. we just placed it)
       # TODO takes two clicks to select something after this
       if $("#event-#{id}").hasClass("selected")
         selectControl.unselectAll()

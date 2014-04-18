@@ -39,7 +39,7 @@ Meteor.subscribe("notifications")
 
 Router.configure
   notFoundTemplate: 'home'
-  # loadingTemplate: 'spinner' # TODO get a spinner here
+  loadingTemplate: 'spinner'
 
 # TODO move the functionality of these before functions into TurkServer
 Router.map ->
