@@ -4,18 +4,20 @@
 
 <template name="mapPopup">
     <div class="event-record bigger-labels data-labels">
-    {{! XXX this needs some major display reformatting}}
-    <strong class="pull-right">({{{formatLocation}}})</strong>
-    <span class="label label-danger">{{num}}</span>
-    <strong class="text-error">{{dereference "type" type}}</strong>
-    <br>
+    {{! float right before other stuff makes it on the same line }}
+
+    <div class="clearfix">
+        <strong class="pull-right">({{{formatLocation}}})</strong>
+        <span class="label label-danger">{{num}}</span>
+        <strong class="text-error">{{dereference "type" type}}</strong>
+    </div>
+
     <small>{{description}}</small>
-    <br>
-    <small>
-        <strong>{{dereference "province" province}}</strong>
-         -
-        <em>{{dereference "region" region}}</em>
-    </small>
+
+    <div class="clearfix small">
+        <em class="pull-right">{{dereference "region" region}}</em>
+        <strong class="pull-left">{{dereference "province" province}}&nbsp;</strong>
+    </div>
 
     <p>
     {{#each sources}}
