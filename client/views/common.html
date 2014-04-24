@@ -37,20 +37,21 @@
 </template>
 
 <template name="tweetIconClickable">
-    <span class="label label-info clickme">
+    <span class="label label-primary tweet-icon clickme" data-tweetid="{{_id}}">
         <span class="glyphicon glyphicon-tag"></span>{{num}}
     </span>
 </template>
 
+<!-- Tweets for autocompletion -->
 <template name="tweetNumbered">
-    <span class="label label-info">
+    <span class="label label-primary">
         <span class="glyphicon glyphicon-tag"></span>{{num}}
     </span>
     <span class="chopped">{{{text}}}</span>
 </template>
 
 <template name="eventIconClickable">
-    <span class="label label-danger clickme">{{num}}</span>
+    <span class="label label-danger event-icon clickme" data-eventid="{{_id}}">{{num}}</span>
 </template>
 
 <template name="eventShort">

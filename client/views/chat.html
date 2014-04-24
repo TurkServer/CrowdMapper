@@ -53,7 +53,7 @@
 
 <template name="roomUsers">
     <h5 class="text-center compact">In room:</h5>
-    <div class="room-users well well-skinny">
+    <div class="room-users well well-skinny bigger-labels data-labels">
         {{#each users}}
         {{> userPill findUser}}
         {{/each}}
@@ -70,7 +70,7 @@
 <template name="messageBox">
     <div class="messages well well-nopad">
         {{#if loaded}}
-        <ul class="scroll-vertical messages-body data-labels">
+        <ul class="scroll-vertical messages-body bigger-labels data-labels">
             {{#each messages}}
             {{> messageItem}}
             {{/each}}
@@ -98,8 +98,9 @@
                 <span class="glyphicon glyphicon-share-alt"></span>
             </button>
         </div>
-        <div class="chat-input-container">
-            {{inputAutocomplete settings class="chat-input" placeholder="Chat..."}}
+        <div class="chat-input-container bigger-labels data-labels">
+            {{! label classes affect autocomplete below }}
+            {{> inputAutocomplete settings=settings class="chat-input form-control" placeholder="Chat..."}}
             <div class="chat-help">
                 <span class="glyphicon glyphicon-question-sign"></span>
             </div>
@@ -110,8 +111,8 @@
 <template name="chatPopover">
     <div style="width: 100px">
         <p><i>These special symbols create clickable references in chat:</i></p>
-        <p>Use <b class="text-error">@</b> to tag and mention a <b>user</b>.</p>
-        <p>Use <b class="text-error">~</b> (tilde) to tag a <b>tweet</b>.</p>
-        <p>Use <b class="text-error">#</b> to tag an <b>event</b>.</p>
+        <p>Use <b class="text-danger">@</b> to tag and mention a <b>user</b>.</p>
+        <p>Use <b class="text-danger">~</b> (tilde) to tag a <b>tweet</b>.</p>
+        <p>Use <b class="text-danger">#</b> to tag an <b>event</b>.</p>
     </div>
 </template>

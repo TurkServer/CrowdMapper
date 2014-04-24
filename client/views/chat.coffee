@@ -70,6 +70,31 @@ Template.roomHeader.events =
 #    bootbox.confirm "Leave this room?", (value) ->
     Session.set("room", `undefined`) # if value
 
+showEvent = (eventId) ->
+  Mapper.switchTab 'events' # Make sure we are on the event page
+  # Set up a scroll event, then trigger a re-render
+  Mapper.selectEvent(eventId)
+  Mapper.scrollToEvent(eventId)
+
+Template.messageBox.events =
+  "click .tweet-icon.clickme": (e) ->
+    tweetId = $(e.target).data("tweetid") + "" # Ensure string, not integer
+    data = Datastream.findOne(tweetId)
+    return unless data
+
+    if data.hidden
+      bootbox.alert("That data has been deleted.")
+      return
+
+    if data.events? and data.events.length > 0
+      showEvent data.events[0] # Scroll to event
+    else
+      Mapper.selectData(tweetId)
+      Mapper.scrollToData(tweetId)
+
+  "click .event-icon.clickme": (e) ->
+    showEvent $(e.target).data("eventid")
+
 Template.messageBox.rendered = ->
   # Scroll down whenever anything happens
   messages = @find(".messages-body")
@@ -93,21 +118,25 @@ userRegex = new RegExp('(^|\\b|\\s)(@[\\w.]+)($|\\b|\\s)','g')
 tweetRegex = new RegExp('(^|\\b|\\s)(~[\\d]+)($|\\b|\\s)','g')
 eventRegex = new RegExp('(^|\\b|\\s)(#[\\d]+)($|\\b|\\s)','g')
 
-# TODO remove ugly space added below
+renderWithData = (kind, data) ->
+  UI.toHTML kind.extend data: -> data
+
+# TODO: remove ugly spaces added below
+# TODO: user status won't update reactively here; it just stays its initial value
 userFunc = (_, p1, p2) ->
   username = p2.substring(1)
   user = Meteor.users.findOne(username: username)
-  return " " + if user then Template.userPill(user) else "@" + username
+  return " " + if user then renderWithData(Template.userPill, user) else p2
 
 tweetFunc = (_, p1, p2) ->
   tweetNum = parseInt( p2.substring(1) )
   tweet = Datastream.findOne( {num: tweetNum} )
-  return " " + if tweet then Template.tweetIconClickable(tweet) else "~" + tweetNum
+  return " " + if tweet then renderWithData(Template.tweetIconClickable, tweet) else p2
 
 eventFunc = (_, p1, p2) ->
   eventNum = parseInt( p2.substring(1) )
   event = Events.findOne( {num: eventNum} )
-  return " " + if event then Template.eventIconClickable(event) else "#" + eventNum
+  return " " + if event then renderWithData(Template.eventIconClickable, event) else p2
 
 # Replace any matched users, tweets, or events with links
 Template.messageItem.renderText = ->
@@ -126,7 +155,7 @@ Template.chatInput.rendered = ->
     html: true
     placement: "top"
     trigger: "hover"
-    content: Template.chatPopover
+    content: UI.toHTML Template.chatPopover
 
 Template.chatInput.events =
   submit: (e, tmpl) ->

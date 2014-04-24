@@ -166,6 +166,19 @@
     </td>
 </template>
 
+<!-- Used in both table and map popup -->
+<template name="editCell">
+    {{#if editor}}
+        {{#with otherEditorUser}}
+            {{> userPill}} is editing
+        {{else}}
+            {{> _editCellSelf}}
+        {{/with}}
+    {{else}}
+        {{> _editCellOpen}}
+    {{/if}}
+</template>
+
 <template name="_editCellSelf">
     <button title="save this event" class="btn btn-xs btn-success action-event-save">
         <span class="glyphicon glyphicon-check"></span>Save

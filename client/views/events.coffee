@@ -151,6 +151,12 @@ Template.eventRow.events =
 
   "dblclick tr": edit
 
+# This is used in both table row and map popup
+Template.editCell.otherEditorUser = ->
+  if @editor? and @editor isnt Meteor.userId()
+    return Meteor.users.findOne(@editor)
+  return null
+
 Template._editCellOpen.events =
   "click .action-event-edit": edit
 
@@ -193,17 +199,6 @@ Template.eventRow.buildData = (context, field) ->
     obj.textValue = Mapper.sources[field.key][obj.value]?.text
 
   return obj
-
-# This is used in both table row and map popup
-# TODO properly handle other-user-editing state
-UI.registerHelper "editCell", ->
-  me = Meteor.userId()
-  if @editor is me
-    return Template._editCellSelf
-  else if @editor?
-    return Template.userPill(Meteor.users.findOne(@editor)) + " is editing"
-  else
-    return Template._editCellOpen
 
 # TODO make sure editable-ness and un-editableness is properly handled
 

@@ -95,27 +95,6 @@ Template.tweetIcon.events =
     # Hide this if it's not tagged somewhere
     Meteor.call "dataHide", tweet._id
 
-showEvent = (eventId) ->
-  Mapper.switchTab 'events' # Make sure we are on the event page
-  # Set up a scroll event, then trigger a re-render
-  Mapper.selectEvent(eventId)
-  Mapper.scrollToEvent(eventId)
-
-Template.tweetIconClickable.events =
-  "click .clickme": (e) ->
-    if @hidden
-      bootbox.alert("That data has been deleted.")
-    else if @events and @events.length > 0
-      # Scroll to event
-      eventId = @events[0]
-      showEvent(eventId)
-    else
-      Mapper.selectData(@_id)
-      Mapper.scrollToData(@_id)
-
-Template.eventIconClickable.events =
-  "click .clickme": (e) -> showEvent(@_id)
-
 # Mapping helpers
 epsg4326 = new OpenLayers.Projection("EPSG:4326")
 epsg900913 = new OpenLayers.Projection("EPSG:900913")
