@@ -5,12 +5,8 @@
       "iron-router": {},
       "jqueryui": {},
       "jquery-migrate": {},
-      "x-editable-bootstrap": {
-        "path": "../meteor-x-editable-bootstrap"
-      },
-      "bootboxjs": {
-        "path": "../meteor-bootboxjs"
-      },
+      "x-editable-bootstrap": {},
+      "bootboxjs": {},
       "user-status": {
         "path": "../meteor-user-status"
       },
@@ -53,10 +49,14 @@
         "commit": "636819c9de59f66410e148867b229869bb045cea"
       },
       "x-editable-bootstrap": {
-        "path": "../meteor-x-editable-bootstrap"
+        "git": "https://github.com/nate-strauser/meteor-x-editable-bootstrap.git",
+        "tag": "v1.5.1",
+        "commit": "ddb9e4523b570f88d96c4fbafa5f6883e544baf8"
       },
       "bootboxjs": {
-        "path": "../meteor-bootboxjs"
+        "git": "https://github.com/TimHeckel/meteor-bootboxjs.git",
+        "tag": "v4.2.0",
+        "commit": "2b7d18ad028d9e7b37238ecf2a8a7970735cebd1"
       },
       "user-status": {
         "path": "../meteor-user-status"

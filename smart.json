@@ -3,12 +3,8 @@
     "iron-router": {},
     "jqueryui": {},
     "jquery-migrate": {},
-    "x-editable-bootstrap": {
-      "path": "../meteor-x-editable-bootstrap"
-    },
-    "bootboxjs": {
-      "path": "../meteor-bootboxjs"
-    },
+    "x-editable-bootstrap": {},
+    "bootboxjs": {},
     "user-status": {
       "path": "../meteor-user-status"
     },
