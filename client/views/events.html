@@ -72,7 +72,7 @@
 <template name="emptyRow">
     <tr>
         <td colspan="{{numEventCols}}">
-            <h3 class="muted text-center">No events yet. Create some!</h3>
+            <h3 class="text-muted text-center">No events yet. Create some!</h3>
         </td>
     </tr>
 </template>
@@ -112,30 +112,6 @@
     </td>
 </template>
 
-<template name="_eventCell">
-    <td>
-        {{#if editable}}
-        <div data-type="text" data-original-title="Enter {{name}}" data-inputclass="input-xlarge" class="editable">
-            {{value}}
-        </div>
-        {{else}}
-        {{value}}
-        {{/if}}
-    </td>
-</template>
-
-<template name="_eventCellSelect">
-    <td>
-        {{#if editable}}
-        <div data-type="select" data-original-title="Select {{name}}" data-inputclass="input-large" class="editable">
-            {{textValue}}
-        </div>
-        {{else}}
-        {{textValue}}
-        {{/if}}
-    </td>
-</template>
-
 <template name="eventSources">
     <td>
         <div>
@@ -146,11 +122,61 @@
     </td>
 </template>
 
+<!-- Editable templates are separate for use of the rendered callback -->
+
+<template name="eventCellText">
+    <td>
+        {{#if editable}}
+        {{> eventCellTextEditable}}
+        {{else}}
+        {{value}}
+        {{/if}}
+    </td>
+</template>
+
+<template name="eventCellTextEditable">
+    <div class="editable"
+         data-autotext="never"
+         data-inputclass="input-md input-wide"
+         data-original-title="Enter {{name}}"
+         data-type="text">
+        {{#with value}}
+        {{this}}
+        {{else}}
+        <i class="text-muted">(empty)</i>
+        {{/with}}
+    </div>
+</template>
+
+<template name="eventCellSelect">
+    <td>
+        {{#if editable}}
+        {{> eventCellSelectEditable}}
+        {{else}}
+        {{textValue}}
+        {{/if}}
+    </td>
+</template>
+
+<template name="eventCellSelectEditable">
+    <div class="editable"
+         data-autotext="never"
+         data-inputclass="input-md"
+         data-original-title="Select {{name}}"
+         data-type="select">
+        {{#with textValue}}
+        {{this}}
+        {{else}}
+        <i class="text-muted">(empty)</i>
+        {{/with}}
+    </div>
+</template>
+
 <template name="eventLocation">
     <td>
         <div>
             {{#if editable}} {{! defined as a helper for location}}
-                <div data-type="longlat" data-original-title="Enter Longitude and Latitude" class="editable">{{{formatLocation}}}</div>
+                {{> eventLocationEditable}}
             {{else}}
                 {{#if location}}
                 <a href="#" title="View on map" class="action-event-mapview">
@@ -164,6 +190,12 @@
             {{/if}}
         </div>
     </td>
+</template>
+
+<template name="eventLocationEditable">
+    <div data-type="longlat" data-original-title="Enter Longitude and Latitude" class="editable">
+        {{{formatLocation}}}
+    </div>
 </template>
 
 <!-- Used in both table and map popup -->

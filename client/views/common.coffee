@@ -53,9 +53,11 @@ Handlebars.registerHelper "findTweet", -> Datastream.findOne(""+@)
 Handlebars.registerHelper "lookupUser", -> Meteor.users.findOne(""+@)
 
 cloneWithoutPopover = ->
-  # TODO: fixme don't clone the popover if there is one
-  # somehow the popover still shows up
-  return $(this).clone().remove(".popover")
+  # Remove any visible popover from the clone
+  # Note: .clone().remove('popover') does not achieve this
+  clone = $(this).clone()
+  clone.find(".popover").remove()
+  return clone
 
 tweetIconDragProps =
   addClasses: false

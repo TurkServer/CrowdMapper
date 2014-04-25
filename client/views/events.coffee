@@ -182,9 +182,9 @@ Template.eventRow.rowClass = ->
 
 Template.eventRow.eventCell = ->
   if this?.type is "dropdown"
-    return Template._eventCellSelect
+    return Template.eventCellSelect
   else
-    return Template._eventCell
+    return Template.eventCellText
 
 Template.eventRow.buildData = (context, field) ->
   obj = {
@@ -200,43 +200,45 @@ Template.eventRow.buildData = (context, field) ->
 
   return obj
 
-# TODO make sure editable-ness and un-editableness is properly handled
+# Partial implementation of the code from http://stackoverflow.com/a/23144211/586086
+# Except, we don't need to update the form content because we are the only one editing
+# Autotext is disabled so that 'Empty' is never written and breaking reactivity
 
-Template._eventCell.rendered = ->
+Template.eventCellTextEditable.rendered = ->
   return unless @data.editable
-  settings =
+  @$('div.editable').editable
+    display: ->
     success: (response, newValue) =>
       result = {}
       result[@data.key] = newValue
       Meteor.call "updateEvent", @data._id, result
-
-  $(@find('div.editable:not(.editable-click)')).editable('destroy').editable(settings)
+      return true
   return
 
-Template._eventCellSelect.rendered = ->
+Template.eventCellSelectEditable.rendered = ->
   return unless @data.editable
-  settings =
+  @$('div.editable').editable
+    display: ->
     success: (response, newValue) =>
       result = {}
       result[@data.key] = parseInt(newValue) # Make sure we store an int back in the database
       Meteor.call "updateEvent", @data._id, result
+      return true
     value: @data.value
     source: Mapper.sources[@data.key]
-
-  $(@find('div.editable:not(.editable-click)')).editable('destroy').editable(settings)
-  return
-
-Template.eventLocation.rendered = ->
-  return unless @data.editor is Meteor.userId()
-  settings =
-    success: (response, newValue) =>
-      Meteor.call "updateEvent", @data._id, { location: newValue }
-    value: @data.location
-
-  $(@find('div.editable:not(.editable-click)')).editable('destroy').editable(settings)
   return
 
 Template.eventLocation.editable = -> @editor is Meteor.userId()
+
+Template.eventLocationEditable.rendered = ->
+  return unless @data.editor is Meteor.userId()
+  @$('div.editable').editable
+    display: ->
+    success: (response, newValue) =>
+      Meteor.call "updateEvent", @data._id, { location: newValue }
+      return true
+    value: @data.location
+  return
 
 Template.eventVoting.rendered = ->
   eventId = @data._id

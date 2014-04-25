@@ -125,10 +125,12 @@ switchTab = (page) ->
 
 Template.pageNav.events =
   "click a": (e) -> e.preventDefault()
-  # These functions set the styling on the navbar as well
-  "click a[data-target='docs']": -> switchTab('docs')
-  "click a[data-target='events']": -> switchTab('events')
-  "click a[data-target='map']": -> switchTab('map')
+  # This function sets the styling on the navbar as well
+  "click a[data-toggle='tab']": (e) ->
+    if (target = $(e.target).data("target"))?
+      switchTab(target)
+    else
+      e.stopPropagation() # Avoid effect of click if no tab change
 
 # Do the stack with jQuery to avoid slow reloads
 Deps.autorun ->
