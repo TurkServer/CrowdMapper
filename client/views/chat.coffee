@@ -172,6 +172,16 @@ Template.chatInput.events =
     # Auto scroll happens on messageBox render now..
     Mapper.events.emit("chat-message")
 
+# RegExp syntax below taken from
+# https://github.com/meteor/meteor/blob/devel/packages/minimongo/selector.js
+# We use $where because we need the regex to match on a number!
+# This worked before but was removed in 0.7.1:
+# https://github.com/meteor/meteor/pull/1874#issuecomment-37074734
+# However, since it's all on the client, this will result in the same performance.
+numericMatcher = (filter) ->
+  re = new RegExp("^" + filter)
+  return { $where: -> re.test(@num) }
+
 Template.chatInput.settings = -> {
   position: "top"
   limit: 5
@@ -185,14 +195,14 @@ Template.chatInput.settings = -> {
     {
       token: '~'
       collection: Datastream
-      field: "num"
       template: Template.tweetNumbered
+      selector: numericMatcher
     },
     {
       token: '#'
       collection: Events
-      field: "num"
       template: Template.eventShort
+      selector: numericMatcher
     }
   ]
 }
