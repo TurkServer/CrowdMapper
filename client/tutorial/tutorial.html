@@ -121,7 +121,7 @@
     {{#if stepCompleted}}
     <b class="text-success">Great, you hid a tweet. Continue to the next step.</b>
     {{else}}
-    <b class="text-error">To continue, find one irrelevant tweet and hide it.</b>
+    <b class="text-danger">To continue, find one irrelevant tweet and hide it.</b>
     {{/if}}
     </p>
 </template>
@@ -153,7 +153,7 @@
     {{#if stepCompleted}}
     <b class="text-success">You've created an event. Continue to the next step.</b>
     {{else}}
-    <b class="text-error">Create a new event now.</b>
+    <b class="text-danger">Create a new event now.</b>
     {{/if}}
     </p>
 </template>
@@ -167,7 +167,7 @@
     {{#if stepCompleted}}
     <b class="text-success">You can now edit an event. Continue to the next step.</b>
     {{else}}
-    <b class="text-error">Edit the event record that you just created.</b>
+    <b class="text-danger">Edit the event record that you just created.</b>
     {{/if}}
     </p>
 </template>
@@ -189,7 +189,7 @@
     {{#if stepCompleted}}
     <b class="text-success">You've attached a tweet to an event. Continue to the next step.</b>
     {{else}}
-    <b class="text-error">Drag a tweet over to the event you just created.</b>
+    <b class="text-danger">Drag a tweet over to the event you just created.</b>
     {{/if}}
     </p>
 </template>
@@ -212,13 +212,13 @@
     <li>Flooding</li>
     </ul>
 
-    <p>When you are editing an event record, you can <b>click a field</b> to enter a value. Fields that are empty will display the text <i class="text-error">Empty</i>.</p>
+    <p>When you are editing an event record, you can <b>click a field</b> to enter a value. Fields that are empty will display the text <i class="text-danger">Empty</i>.</p>
 
     <p>
     {{#if stepCompleted}}
     <b class="text-success">You selected a type for an event. Continue to the next step.</b>
     {{else}}
-    <b class="text-error">Classify the event by clicking the <i>Type</i> field and choosing from the dropdown menu.</b>
+    <b class="text-danger">Classify the event by clicking the <i>Type</i> field and choosing from the dropdown menu.</b>
     {{/if}}
     </p>
 </template>
@@ -230,7 +230,7 @@
     {{#if stepCompleted}}
     <b class="text-success">You described the event. Continue to the next step.</b>
     {{else}}
-    <b class="text-error">Write something in the event's description.</b>
+    <b class="text-danger">Write something in the event's description.</b>
     {{/if}}
     </p>
 </template>
@@ -244,7 +244,7 @@
     {{#if stepCompleted}}
     <b class="text-success">You selected a region. Continue to the next step.</b>
     {{else}}
-    <b class="text-error">Add your best guess of the region from the tweet you just attached.</b>
+    <b class="text-danger">Add your best guess of the region from the tweet you just attached.</b>
     Hover your mouse over the tweet you just attached to see its text.
     {{/if}}
     </p>
@@ -275,10 +275,10 @@
 
     <p>If you <b>hover over an attached tweet</b> and find it to be irrelevant, you can use the <button class="btn btn-danger btn-xs"><span class="glyphicon glyphicon-remove"></span></button> to hide it.</p>
 
-    <p><b class="text-error">If you can find another tweet that refers to the same event as this one, add it to the record by dragging and dropping.</b></p>
+    <p><b class="text-danger">If you can find another tweet that refers to the same event as this one, add it to the record by dragging and dropping.</b></p>
 
     <!--
-    <p>This tweet has additional information about the event you just recorded.<b class="text-error">Add this tweet to the record.</b></p>
+    <p>This tweet has additional information about the event you just recorded.<b class="text-danger">Add this tweet to the record.</b></p>
     -->
 </template>
 
@@ -306,7 +306,7 @@
     {{#if stepCompleted}}
     <b class="text-success">You placed an event on the map. Continue to the next step.</b>
     {{else}}
-    <b class="text-error">Using the location information from the tweet, place the event on the map.</b>
+    <b class="text-danger">Using the location information from the tweet, place the event on the map.</b>
     {{/if}}
     </p>
 </template>
@@ -326,7 +326,7 @@
     {{#if stepCompleted}}
     <b class="text-success">You saved the event. Continue to the next step.</b>
     {{else}}
-    <b class="text-error">Save the event now.</b>
+    <b class="text-danger">Save the event now.</b>
     {{/if}}
     </p>
 </template>
@@ -340,7 +340,7 @@
     {{#if stepCompleted}}
     <b class="text-success">You checked the event. Continue to the next step.</b>
     {{else}}
-    <b class="text-error">Since you created this event and believe it is accurate, check it now.</b>
+    <b class="text-danger">Since you created this event and believe it is accurate, check it now.</b>
     {{/if}}
     </p>
 </template>
@@ -352,7 +352,7 @@
     {{#if stepCompleted}}
     <b class="text-success">You created a document. Continue to the next step.</b>
     {{else}}
-    <b class="text-error">Create a document by clicking the <button class="btn btn-primary">New Document</button> button.</b>
+    <b class="text-danger">Create a document by clicking the <button class="btn btn-primary">New Document</button> button.</b>
     {{/if}}
     </p>
 </template>
@@ -360,7 +360,7 @@
 <template name="tut_editdocs">
     <p>You can rename any document by clicking on its title and create new documents as necessary.</p>
 
-    <p><b class="text-error">Type something in the document.</b> Other mappers will see this when they read the document.</p>
+    <p><b class="text-danger">Type something in the document.</b> Other mappers will see this when they read the document.</p>
 
     <p><b class="text-success">When you're done typing, continue to the next step.</b></p>
 </template>
@@ -378,7 +378,7 @@
     {{#if stepCompleted}}
     <b class="text-success">You created a room. Continue to the next step.</b>
     {{else}}
-    <b class="text-error">Create a new chat room now.</b>
+    <b class="text-danger">Create a new chat room now.</b>
     {{/if}}
     </p>
 </template>
@@ -405,9 +405,9 @@
     <p>When you are in a chat room, you can use special characters to notify users and reference tweets or events.</p>
 
     <ul>
-        <li>Use <b class="text-error">@</b> to mention a user by name. This will notify them.</li>
-        <li>Use <b class="text-error">~</b> (tilde) to reference a tweet by its number.</li>
-        <li>Use <b class="text-error">#</b> to reference an event by its number.</li>
+        <li>Use <b class="text-danger">@</b> to mention a user by name. This will notify them.</li>
+        <li>Use <b class="text-danger">~</b> (tilde) to reference a tweet by its number.</li>
+        <li>Use <b class="text-danger">#</b> to reference an event by its number.</li>
     </ul>
 
     <p>When you start typing the symbols above, an automatic filtered list will appear. Mentioning tweets or events will create a clickable link for everyone.</p>
@@ -416,7 +416,7 @@
     {{#if stepCompleted}}
     <b class="text-success">You know how to use the chat. Continue to the next step.</b>
     {{else}}
-    <b class="text-error">Type something in the chat.</b> For example, to tell another user to look at the event you created, type <b>@{{myusername}} can you take a look at event #1?</b> You are talking to yourself here, but you will be chatting with other users in the actual task.
+    <b class="text-danger">Type something in the chat.</b> For example, to tell another user to look at the event you created, type <b>@{{myusername}} can you take a look at event #1?</b> You are talking to yourself here, but you will be chatting with other users in the actual task.
     {{/if}}
     </p>
 </template>
@@ -492,7 +492,7 @@
     {{#if stepCompleted}}
     <b class="text-success">Click 'Finish' below to join a team of other workers and start crisis mapping!</b>
     {{else}}
-    <b class="text-error">Please read and agree to the terms of use.</b>
+    <b class="text-danger">Please read and agree to the terms of use.</b>
     {{/if}}
     </p>
 </template>

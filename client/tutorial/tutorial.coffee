@@ -209,13 +209,13 @@ getTutorialSteps = ->
 
 Template.mapperTutorial.tutorialEnabled = ->
   treatment = TurkServer.treatment()
-  return (treatment is "tutorial" or treatment is "recruiting") and not Meteor.user()?.admin
+  return treatment?.tutorialEnabled and not Meteor.user()?.admin
 
 Template.mapperTutorial.options = ->
   treatment = TurkServer.treatment()
   
   return {
-    steps: if treatment is "recruiting" then getRecruitingSteps() else getTutorialSteps()
+    steps: if treatment?.recruitingTutorial then getRecruitingSteps() else getTutorialSteps()
     emitter: Mapper.events
     onFinish: -> Meteor.call "finishTutorial"
   }

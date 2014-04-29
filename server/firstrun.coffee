@@ -144,3 +144,13 @@ Meteor.startup ->
 
   loadEventFields()
 
+# Set up treatments
+Meteor.startup ->
+  Treatments.upsert {name: "tutorial"},
+    $set:
+      tutorialEnabled: true
+
+  Treatments.upsert {name: "recruiting"},
+    $set:
+      tutorialEnabled: true
+      recruitingTutorial: true
