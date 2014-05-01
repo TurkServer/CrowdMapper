@@ -1,14 +1,8 @@
-
 ###
   Subscriptions
 ###
 
-fieldSub = Meteor.subscribe("eventFieldData")
-
-Deps.autorun (c) ->
-  return unless fieldSub.ready()
-  Mapper.processSources()
-  c.stop()
+fieldSub = Meteor.subscribe("eventFieldData", Mapper.processSources)
 
 # Unsets and sets a session variable for a subscription
 watchReady = (key) ->
@@ -31,7 +25,7 @@ Deps.autorun ->
   Meteor.subscribe("docs", group, watchReady("docSubReady"))
   Meteor.subscribe("events", group, watchReady("eventSubReady"))
 
-Meteor.subscribe("notifications")
+Meteor.subscribe("notifications") # User specific
 
 ###
   Routing
@@ -105,6 +99,21 @@ Meteor.startup ->
   $(window).resize checkSize
   # Ask for username once user logs in
   TurkServer.ensureUsername()
+
+###
+  Idle Monitoring
+###
+Deps.autorun ->
+  return unless (treatment = TurkServer.treatment())?
+
+  if treatment?.tutorialEnabled
+    # Mostly for testing purposes
+    TurkServer.enableIdleMonitor(30000, true)
+  else
+    # 8 minute idle timer, ignore window blur
+    TurkServer.enableIdleMonitor(8 * 60 * 1000, false)
+
+  @stop() # We only enable this once
 
 ###
   Templates and helpers
