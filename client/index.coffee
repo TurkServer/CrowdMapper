@@ -69,11 +69,14 @@ Router.map ->
 Meteor.startup ->
   Session.setDefault("taskView", 'events')
 
-  Deps.autorun ->
-    Router.go("/mapper") if TurkServer.inExperiment()
+  # Defer setting up these autorun functions:
+  # https://github.com/EventedMind/iron-router/issues/639
+  Meteor.defer ->
+    Deps.autorun ->
+      Router.go("/mapper") if TurkServer.inExperiment()
 
-  Deps.autorun ->
-    Router.go("/exitsurvey") if TurkServer.inExitSurvey()
+    Deps.autorun ->
+      Router.go("/exitsurvey") if TurkServer.inExitSurvey()
 
 ###
   Window sizing warning
