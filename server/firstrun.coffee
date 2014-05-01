@@ -148,9 +148,15 @@ Meteor.startup ->
 Meteor.startup ->
   Treatments.upsert {name: "tutorial"},
     $set:
-      tutorialEnabled: true
+      tutorial: "pre_task"
+      payment: 1.00
 
   Treatments.upsert {name: "recruiting"},
     $set:
-      tutorialEnabled: true
-      recruitingTutorial: true
+      tutorial: "recruiting"
+      payment: 1.00
+
+  Treatments.upsert {name: "parallel_worlds"},
+    $set:
+      wage: 6.00
+      bonus: 9.00

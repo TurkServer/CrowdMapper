@@ -209,13 +209,18 @@ getTutorialSteps = ->
 
 Template.mapperTutorial.tutorialEnabled = ->
   treatment = TurkServer.treatment()
-  return treatment?.tutorialEnabled and not Meteor.user()?.admin
+  return treatment?.tutorial and not Meteor.user()?.admin
 
 Template.mapperTutorial.options = ->
   treatment = TurkServer.treatment()
+
+  steps = switch treatment?.tutorial
+    when "recruiting" then getRecruitingSteps()
+    when "pre_task" then getTutorialSteps()
+    else throw new Error("Unknown tutorial type: " + treatment.tutorial)
   
   return {
-    steps: if treatment?.recruitingTutorial then getRecruitingSteps() else getTutorialSteps()
+    steps: steps
     emitter: Mapper.events
     onFinish: -> Meteor.call "finishTutorial"
   }

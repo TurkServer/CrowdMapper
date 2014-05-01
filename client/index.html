@@ -97,14 +97,15 @@
                 {{> notifications}}
             </li>
             <li class="divider-vertical"></li>
-            <li class="navbar-text payment">
-                Payment: $1.00
-            </li>
-            <li class="navbar-text">
-                {{tsElapsedTime}}
-            </li>
+            {{> payment}}
         </ul>
     </div>
+</template>
+
+<template name="payment">
+    {{#with amount}}
+    <li class="navbar-text payment">Payment: {{this}}</li>
+    {{/with}}
 </template>
 
 <template name="sidebar">

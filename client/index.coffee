@@ -150,3 +150,11 @@ Deps.autorun ->
   return unless tab?
   $('.stack .pages').removeClass('active')
   $('#mapper-'+tab).addClass('active')
+
+Template.payment.amount = ->
+  return unless (treatment = TurkServer.treatment())?
+  # TODO compute actual amount based on active time
+  return switch
+    when treatment.payment? then "$" + treatment.payment.toFixed(2)
+    when treatment.wage? then "$" + treatment.wage.toFixed(2) + " per hour"
+    else undefined
