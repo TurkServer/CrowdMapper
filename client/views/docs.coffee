@@ -31,17 +31,12 @@ Template.docTab.active = ->
   @_id is Session.get("document")
 
 Template.docTitle.rendered = ->
-  settings =
+  @$(".editable").editable
+    display: ->
     success: (response, newValue) ->
       docId = Session.get("document")
       return unless document
       Meteor.call "renameDocument", docId, newValue
-
-  $(@find('.editable:not(.editable-click)')).editable('destroy').editable(settings)
-
-Template.docTitle.title = ->
-  id = Session.get("document")
-  Documents.findOne(id)?.title
 
 Template.docCurrent.document = ->
   id = Session.get("document")
@@ -61,3 +56,5 @@ Template.docCurrent.config = ->
     # Set some reasonable options on the editor
     editor.setShowPrintMargin(false)
     editor.getSession().setUseWrapMode(true)
+
+Template.docTitle.title = -> Documents.findOne(""+@)?.title

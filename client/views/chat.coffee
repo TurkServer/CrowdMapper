@@ -52,13 +52,12 @@ Template.roomUsers.findUser = ->
   Meteor.users.findOne @userId
 
 Template.roomHeader.rendered = ->
-  settings =
+  @$(".editable").editable
+    display: ->
     success: (response, newValue) ->
       roomId = Session.get("room")
       return unless roomId
       Meteor.call "renameChat", roomId, newValue
-
-  $(@find('.editable:not(.editable-click)')).editable('destroy').editable(settings)
 
 Template.roomHeader.roomName = ->
   room = ChatRooms.findOne(_id: Session.get("room"))

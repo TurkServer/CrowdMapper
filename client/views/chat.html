@@ -62,7 +62,9 @@
 
 <template name="roomHeader">
     <h4 class="chat-header compact">
-        <span class="editable" title="Rename this room">{{roomName}}</span>
+        <span class="editable"
+              data-autotext="never"
+              title="Rename this room">{{roomName}}</span>
         <button type="button" class="btn btn-warning btn-xs pull-right action-room-leave">Leave</button>
     </h4>
 </template>

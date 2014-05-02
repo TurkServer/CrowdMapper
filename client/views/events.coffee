@@ -42,8 +42,8 @@ edit = (e) ->
 
 # Set initial sort order on start
 Meteor.startup ->
-  Session.set("eventSortKey", "num")
-  Session.set("eventSortOrder", 1)
+  Session.setDefault("eventSortKey", "num")
+  Session.setDefault("eventSortOrder", 1)
 
 Template.eventsHeader.labelClass = ->
   key = @key || "num" # FIXME: hack for the first num field
@@ -64,7 +64,7 @@ Template.eventRecords.events =
   "click .events-body tr": (e, t) ->
     Mapper.selectEvent(@_id)
   "click span.sorter": (e) ->
-    key = $(e.target).closest("span").attr("data-key")
+    key = $(e.target).closest("span.sorter").data("key")
     sortKey = Session.get("eventSortKey")
     if sortKey? and key is sortKey
       # swap order of existing sort
