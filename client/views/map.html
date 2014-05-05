@@ -4,6 +4,7 @@
 
 <template name="mapPopup">
     <div class="event-record bigger-labels data-labels">
+    {{#with eventRecord}}
     {{! float right before other stuff makes it on the same line }}
 
     <div class="clearfix">
@@ -29,5 +30,6 @@
     <button title="Remove from map" class="btn btn-xs btn-warning action-event-unmap">
         <span class="glyphicon glyphicon-remove"></span> Unmap
     </button>
+    {{/with}}
     </div>
 </template>

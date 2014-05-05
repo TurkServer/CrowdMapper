@@ -4,7 +4,6 @@
     "basePackages": {
       "iron-router": {},
       "jqueryui": {},
-      "jquery-migrate": {},
       "x-editable-bootstrap": {},
       "bootboxjs": {},
       "user-status": {
@@ -42,11 +41,6 @@
         "git": "https://github.com/mizzao/meteor-jqueryui.git",
         "tag": "v1.10.4",
         "commit": "c75906fc9e1e19abf1ad5b2963925122ff8a0336"
-      },
-      "jquery-migrate": {
-        "git": "https://github.com/canadaduane/meteor-jquery-migrate.git",
-        "tag": "v2.0.0",
-        "commit": "636819c9de59f66410e148867b229869bb045cea"
       },
       "x-editable-bootstrap": {
         "git": "https://github.com/nate-strauser/meteor-x-editable-bootstrap.git",
@@ -101,6 +95,11 @@
         "git": "https://github.com/acreeger/meteor-moment.git",
         "tag": "v2.6.0",
         "commit": "26156df681750fd6e6ed77043eef32b6653ebbdf"
+      },
+      "caret-position": {
+        "git": "https://github.com/StockBase/meteor-caret-position",
+        "tag": "v2.1.0-1",
+        "commit": "53da56524a6c873c60f442093e74842d94ca94e0"
       }
     }
   }

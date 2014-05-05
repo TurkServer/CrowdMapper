@@ -119,11 +119,12 @@ Template.map.rendered = ->
       # We need to clear any contents using jQuery
       # to ensure that their reactive (?) deps are cleaned up:
       # https://github.com/meteor/meteor/issues/2031#issuecomment-40511526
-      $(popup.contentDiv).empty() if popup.contentDiv.firstChild
+      while popup.contentDiv.firstChild
+        $(popup.contentDiv.firstChild).remove()
 
     # Make that shit reactive
-    # TODO this displays the static results of the first findOne
-    UI.insert UI.renderWithData(Template.mapPopup, Events.findOne(feature.id)), popup.contentDiv
+    # TODO: the reactivity in this template is not cleaned up properly
+    UI.insert UI.renderWithData(Template.mapPopup, feature.id), popup.contentDiv
 
     map.addPopup(popup, true) # Second argument - kick out any old popups for good measure
 
@@ -258,6 +259,12 @@ Template.mapPopup.events =
   "click .action-event-unmap": ->
     Events.update @_id,
       $unset: location: null
+
+Template.mapPopup.eventRecord = ->
+  console.log "recomputing " + @
+  Events.findOne(""+@)
+
+Template.mapPopup.destroyed = -> console.log "map popup destroyed"
 
 # TODO this is just a workaround but don't hardcode fields in future
 Template.mapPopup.dereference = (key, value) ->
