@@ -146,17 +146,17 @@ Meteor.startup ->
 
 # Set up treatments
 Meteor.startup ->
-  Treatments.upsert {name: "tutorial"},
-    $set:
-      tutorial: "pre_task"
-      payment: 1.00
+  TurkServer.ensureTreatmentExists
+    name: "tutorial"
+    tutorial: "pre_task"
+    payment: 1.00
 
-  Treatments.upsert {name: "recruiting"},
-    $set:
-      tutorial: "recruiting"
-      payment: 1.00
+  TurkServer.ensureTreatmentExists
+    name: "recruiting"
+    tutorial: "recruiting"
+    payment: 1.00
 
-  Treatments.upsert {name: "parallel_worlds"},
-    $set:
-      wage: 6.00
-      bonus: 9.00
+  TurkServer.ensureTreatmentExists
+    name: "parallel_worlds"
+    wage: 6.00
+    bonus: 9.00
