@@ -97,9 +97,9 @@
         "commit": "26156df681750fd6e6ed77043eef32b6653ebbdf"
       },
       "caret-position": {
-        "git": "https://github.com/StockBase/meteor-caret-position",
-        "tag": "v2.1.0-1",
-        "commit": "53da56524a6c873c60f442093e74842d94ca94e0"
+        "git": "https://github.com/StockBase/meteor-caret-position.git",
+        "tag": "v2.1.0-3",
+        "commit": "6028cf980f62cbf72cb2ea527091a3a31f87b8a7"
       }
     }
   }

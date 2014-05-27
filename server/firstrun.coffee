@@ -160,3 +160,8 @@ Meteor.startup ->
     name: "parallel_worlds"
     wage: 6.00
     bonus: 9.00
+
+  # Create Assigner on recruiting batch, if it exists
+  if (batch = Batches.findOne(treatments: $in: [ "recruiting" ]))?
+    TurkServer.Batch.getBatch(batch._id).setAssigner(new TurkServer.Assigners.SimpleAssigner)
+    console.log "Set up assigner on recruiting batch"

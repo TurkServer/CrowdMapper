@@ -45,5 +45,6 @@ Meteor.publish 'notifications', ->
 
 Meteor.methods
   "finishTutorial": ->
-    if TurkServer.treatment() is "recruiting"
-      TurkServer.finishExperiment()
+    exp = TurkServer.Instance.currentInstance()
+    if exp.treatment()?.tutorialEnabled
+      exp.teardown()

@@ -41,7 +41,7 @@ loadCSVTweets = (file, limit) ->
 TurkServer.initialize ->
   return if Datastream.find().count() > 0
 
-  if @treatment is "tutorial" or @treatment is "recruiting"
+  if @treatment.tutorialEnabled
     loadCSVTweets("tutorial.csv", 10)
   else
     # Load initial tweets on first start

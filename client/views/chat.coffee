@@ -194,12 +194,14 @@ Template.chatInput.settings = -> {
     {
       token: '~'
       collection: Datastream
+      field: "num"
       template: Template.tweetNumbered
       selector: numericMatcher
     },
     {
       token: '#'
       collection: Events
+      field: "num"
       template: Template.eventShort
       selector: numericMatcher
     }
