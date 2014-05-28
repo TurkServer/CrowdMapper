@@ -1,7 +1,5 @@
 @Mapper = @Mapper || {}
 
-UI._allowJavascriptUrls() # Allow bing map tiles to load?
-
 bingAPIKey = Meteor.settings.public.map.bingAPIKey
 
 resolutions = [19567.87923828125, 9783.939619140625,
@@ -118,7 +116,7 @@ Template.map.rendered = ->
       popup.autoSize = true # Prob won't work without specifying HTML
     else
       popup.lonlat = lonlat
-      # We need to clear anUI._allowJavascriptUrls()y contents using jQuery
+      # We need to clear any contents using jQuery
       # to ensure that their reactive (?) deps are cleaned up:
       # https://github.com/meteor/meteor/issues/2031#issuecomment-40511526
       while popup.contentDiv.firstChild

@@ -2,9 +2,8 @@
     <div class="well well-skinny user-list bigger-labels data-labels scroll-vertical">
         {{#if loaded}}
             Users:
-            {{#each users}}
-            {{> userPill}}
-            {{/each}}
+            {{! Weirdness: see discussion at http://stackoverflow.com/q/23918439/586086 }}
+            {{#each users}}{{> userPill}}&nbsp;{{/each}}
         {{else}}
             {{> spinner}}
         {{/if}}

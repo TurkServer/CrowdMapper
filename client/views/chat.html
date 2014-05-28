@@ -40,11 +40,13 @@
 </template>
 
 <template name="roomItem">
-    <li class={{#if active}}"active"{{/if}}>
+    <li class="{{#if active}}active{{/if}}">
         <a href="#" class="action-room-enter">
             <span class="badge badge-inverse" title="Users in room: {{users}}">{{users}}</span>
             {{#if empty}}
-            <span class="glyphicon glyphicon-trash action-room-delete" title="Delete this room"></span>
+            <button class="btn btn-xs btn-danger pull-right action-room-delete" title="Delete this room">
+                <span class="glyphicon glyphicon-trash"></span>
+            </button>
             {{/if}}
             {{name}}
         </a>
@@ -54,9 +56,7 @@
 <template name="roomUsers">
     <h5 class="text-center compact">In room:</h5>
     <div class="room-users well well-skinny bigger-labels data-labels">
-        {{#each users}}
-        {{> userPill findUser}}
-        {{/each}}
+        {{#each users}}{{> userPill findUser}}&nbsp;{{/each}}
     </div>
 </template>
 

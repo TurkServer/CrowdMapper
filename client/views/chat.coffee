@@ -40,6 +40,7 @@ Template.roomItem.events =
     e.preventDefault()
     roomId = @_id
     bootbox.confirm "This will delete the chat room and its messages. Are you sure?", (res) ->
+      return unless res # Only if "yes" clicked
       Meteor.call("deleteChat", roomId) if roomId
 
     # don't select chatroom (above function) - http://stackoverflow.com/questions/10407783/stop-event-propagation-in-meteor

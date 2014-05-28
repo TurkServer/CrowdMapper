@@ -3,6 +3,9 @@
 
 @ChatUsers = new Meteor.Collection("chatusers")
 
+# Allow bing map code to be loaded by OpenLayers
+UI._allowJavascriptUrls()
+
 Mapper.events = new EventEmitter()
 
 Mapper.switchTab = (page) ->
