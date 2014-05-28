@@ -56,6 +56,7 @@ Template.map.created = ->
 
 # Initialize map
 Template.map.rendered = ->
+  mapInst = this
 
   politicalMapLayer = new OpenLayers.Layer.Bing
     name: "Political Map"
@@ -98,6 +99,7 @@ Template.map.rendered = ->
 
   popup = null
   selectedFeature = null
+  Session.set("popupEvent", undefined)
 
   displayPopup = (feature) ->
     lonlat = new OpenLayers.LonLat(feature.geometry.x, feature.geometry.y)
@@ -114,25 +116,25 @@ Template.map.rendered = ->
       )
 
       popup.autoSize = true # Prob won't work without specifying HTML
+
+      # Insert the popup template into the content div
+      # Future updates to the selected event will be accomplished by the session variable
+      UI.insert(UI.render(Template.mapPopup), popup.contentDiv)
+
+      mapInst.popup = popup
     else
       popup.lonlat = lonlat
-      # We need to clear any contents using jQuery
-      # to ensure that their reactive (?) deps are cleaned up:
-      # https://github.com/meteor/meteor/issues/2031#issuecomment-40511526
-      while popup.contentDiv.firstChild
-        $(popup.contentDiv.firstChild).remove()
-
-    # Make that shit reactive
-    # TODO: the reactivity in this template is not cleaned up properly
-    UI.insert UI.renderWithData(Template.mapPopup, feature.id), popup.contentDiv
 
     map.addPopup(popup, true) # Second argument - kick out any old popups for good measure
-
-    # Resize popup to fit contents
+    # Re-render the popup
+    Session.set("popupEvent", feature.id)
+    # Resize popup to fit contents, after visual update
     # Of course, this won't affect reactive updates but those are unlikely to trigger huge size changes
+    Deps.flush()
     popup.updateSize()
 
   hidePopup = ->
+    Session.set("popupEvent", undefined)
     map.removePopup(popup) if popup
 
   placeControl = new OpenLayers.Control.Click
@@ -245,15 +247,25 @@ Template.map.rendered = ->
     map.zoomToMaxExtent()
 
   # Watch for event placing, this sets the crosshair using CSS
-  Deps.autorun ->
+  @placingComp = Deps.autorun ->
     if Session.get("placingEvent")
       placeControl.activate()
     else
       placeControl.deactivate()
 
 Template.map.destroyed = ->
+  # We need to clear any contents using jQuery
+  # to ensure that their reactive (?) deps are cleaned up:
+  # https://github.com/meteor/meteor/issues/2031#issuecomment-40511526
+  # TODO this doesn't actually take off the reactive computation, but should only affect admin
+  if @popup
+    $(@popup.contentDiv).empty()
+    console.log "Popup elements removed"
+
   # Tear down observe query
   @query?.stop()
+  # Stop placing computation
+  @placingComp?.stop()
 
 Template.mapPopup.events =
   "click .action-event-unmap": ->
@@ -261,8 +273,9 @@ Template.mapPopup.events =
       $unset: location: null
 
 Template.mapPopup.eventRecord = ->
-  console.log "recomputing " + @
-  Events.findOne(""+@)
+  eventId = Session.get("popupEvent")
+  # console.log "recomputing " + eventId
+  return Events.findOne(eventId) if eventId?
 
 Template.mapPopup.destroyed = -> console.log "map popup destroyed"
 
