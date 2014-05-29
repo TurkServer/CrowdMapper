@@ -82,11 +82,9 @@
             <li>
                 <a href="#" data-target="events" data-toggle="tab">Event Records</a>
             </li>
-            <li class="divider-vertical"></li>
             <li>
                 <a href="#" data-target="map" data-toggle="tab">Map</a>
             </li>
-            <li class="divider-vertical"></li>
             <li>
                 <a href="#" data-target="docs" data-toggle="tab">Documents</a>
             </li>
@@ -96,16 +94,27 @@
             <li class="notification dropdown">
                 {{> notifications}}
             </li>
-            <li class="divider-vertical"></li>
-            {{> payment}}
+            {{> payment treatment}}
         </ul>
     </div>
 </template>
 
-<template name="payment">
-    {{#with amount}}
-    <li class="navbar-text payment">Payment: {{this}}</li>
-    {{/with}}
+<template name="fixedPayment">
+    <li class="navbar-text payment">Payment: {{amount}}</li>
+</template>
+
+<template name="scaledPayment">
+    <li class="payment dropdown">
+        <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+            Payment: {{amount}}
+            <span class="caret"></span>
+        </a>
+        <ul class="dropdown-menu">
+            <li>Your wage is <b>${{lowest}}</b> to <b>${{highest}}</b> per hour.</li>
+            <li>Your payment is based your time <b class="text-success">active</b>, {{tsActiveTime}}.</li>
+            <li>This excludes time you have been <b class="text-danger">disconnected</b> ({{tsDisconnectedTime}}) and time you have been <b class="text-warning">idle</b> ({{tsIdleTime}}).</li>
+        </ul>
+    </li>
 </template>
 
 <template name="sidebar">

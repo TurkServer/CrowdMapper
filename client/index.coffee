@@ -123,10 +123,14 @@ Deps.autorun ->
 ###
 
 Template.mapper.rendered = ->
-  # Set initial active tab when rendered
-  tab = Session.get('taskView')
-  return unless tab?
-  $('#mapper-'+tab).addClass('active')
+  # Set initial active tab when state changes
+  @comp = Deps.autorun ->
+    tab = Session.get('taskView')
+    return unless tab?
+    $('.stack .pages').removeClass('active')
+    $('#mapper-'+tab).addClass('active')
+
+Template.mapper.destroyed = -> @comp.stop()
 
 Template.guidance.message = -> Session.get("guidanceMessage")
 Template.guidance.showStyle = -> if Session.get("guidanceMessage") then "" else "display: none"
@@ -144,17 +148,22 @@ Template.pageNav.events =
     else
       e.stopPropagation() # Avoid effect of click if no tab change
 
-# Do the stack with jQuery to avoid slow reloads
-Deps.autorun ->
-  tab = Session.get('taskView')
-  return unless tab?
-  $('.stack .pages').removeClass('active')
-  $('#mapper-'+tab).addClass('active')
-
-Template.payment.amount = ->
-  return unless (treatment = TurkServer.treatment())?
-  # TODO compute actual amount based on active time
+Template.pageNav.payment = ->
+  return null unless (treatment = TurkServer.treatment())?
   return switch
-    when treatment.payment? then "$" + treatment.payment.toFixed(2)
-    when treatment.wage? then "$" + treatment.wage.toFixed(2) + " per hour"
-    else undefined
+    when treatment.payment? then Template.fixedPayment
+    when treatment.wage?  then Template.scaledPayment
+    else null
+
+Template.pageNav.treatment = TurkServer.treatment
+
+Template.fixedPayment.amount = -> "$" + @payment.toFixed(2)
+
+Template.scaledPayment.amount = ->
+  hours = TurkServer.Timers.activeTime() / (3600000) # millis per hour
+  lowest = (@wage * hours).toFixed(2)
+  highest = ((@wage + @bonus) * hours).toFixed(2)
+  return "$#{lowest} - $#{highest}"
+
+Template.scaledPayment.lowest = -> @wage.toFixed(2)
+Template.scaledPayment.highest = -> (@wage + @bonus).toFixed(2)
