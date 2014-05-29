@@ -19,9 +19,12 @@ Template.chat.events =
 
 Template.rooms.loaded = -> Session.equals("chatSubReady", true)
 
-Template.rooms.availableRooms = -> ChatRooms.find({}, {sort: {name: 1}}) # For a consistent ordering
+Template.rooms.availableRooms = ->
+  selector = if TurkServer.isAdmin() then {} else { deleted: {$exists: false} }
+  ChatRooms.find(selector, {sort: {name: 1}}) # For a consistent ordering
 
-Template.roomItem.active = -> Session.equals("room", @_id)
+Template.roomItem.active = -> if Session.equals("room", @_id) then "active" else ""
+Template.roomItem.deleted = -> if @deleted then "deleted" else ""
 
 Template.roomItem.empty = -> @users is 0
 
@@ -93,14 +96,15 @@ Template.messageBox.events =
       Mapper.scrollToData(tweetId)
 
   "click .event-icon.clickme": (e) ->
-    showEvent $(e.target).data("eventid")
+    eventId = $(e.target).data("eventid") + ""
+    event = Events.findOne(eventId)
+    return unless event
 
-Template.messageBox.rendered = ->
-  # Scroll down whenever anything happens
-  messages = @find(".messages-body")
-  return unless messages
-  $messages = $(messages)
-  $messages.scrollTop $messages[0].scrollHeight
+    if event.deleted
+      bootbox.alert("That event has been deleted.")
+      return
+
+    showEvent(eventId)
 
 Template.messageBox.loaded = -> Session.equals("chatRoomReady", true)
 
@@ -137,6 +141,12 @@ eventFunc = (_, p1, p2) ->
   eventNum = parseInt( p2.substring(1) )
   event = Events.findOne( {num: eventNum} )
   return " " + if event then renderWithData(Template.eventIconClickable, event) else p2
+
+# Because messages only render when inserted, we can use this to scroll the chat window
+Template.messageItem.rendered = ->
+  # Scroll down whenever anything happens
+  $messages = $(".messages-body")
+  $messages.scrollTop $messages[0].scrollHeight
 
 # Replace any matched users, tweets, or events with links
 Template.messageItem.renderText = ->
@@ -197,6 +207,7 @@ Template.chatInput.settings = -> {
       collection: Datastream
       field: "num"
       template: Template.tweetNumbered
+      filter: { hidden: $exists: false }
       selector: numericMatcher
     },
     {
@@ -204,6 +215,7 @@ Template.chatInput.settings = -> {
       collection: Events
       field: "num"
       template: Template.eventShort
+      filter: { deleted: $exists: false }
       selector: numericMatcher
     }
   ]

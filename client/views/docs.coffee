@@ -5,10 +5,11 @@ Meteor.startup ->
 Template.docs.loaded = -> Session.equals("docSubReady", true)
 
 Template.docTabs.documents = ->
-  Documents.find()
+  selector = if TurkServer.isAdmin() then {} else { deleted: {$exists: false} }
+  Documents.find(selector)
 
 Template.docTabs.noDocuments = ->
-  Documents.find().count() is 0
+  Documents.find(deleted: {$exists: false}).count() is 0
 
 Template.docTabs.events =
   "click .action-document-new": ->
@@ -27,8 +28,8 @@ Template.docTabs.events =
       action: "document-open"
       docId: @_id
 
-Template.docTab.active = ->
-  @_id is Session.get("document")
+Template.docTab.active = -> if Session.equals("document", @_id) then "active" else ""
+Template.docTab.deleted = -> if @deleted then "deleted" else ""
 
 Template.docTitle.rendered = ->
   @$(".editable").editable
@@ -38,10 +39,16 @@ Template.docTitle.rendered = ->
       return unless document
       Meteor.call "renameDocument", docId, newValue
 
-Template.docCurrent.document = ->
+Template.docCurrent.document = UI.emboxValue ->
   id = Session.get("document")
-  # Can't stay in a document if someone deletes it! Don't do reactive or this causes re-render on title change.
-  return if Documents.findOne(id, {reactive: false}) then id else undefined
+  # Can't stay in a document if someone deletes it, unless we're admin
+  selector = {_id: id}
+  selector.deleted = {$exists: false} unless TurkServer.isAdmin()
+
+  if Documents.findOne(selector)
+    return id
+  else
+    return undefined
 
 Template.docCurrent.events =
   "click .action-document-delete": ->

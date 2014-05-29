@@ -12,9 +12,9 @@ Meteor.startup ->
 # It will not be partitioned by TurkServer.
 ChatMessages._ensureIndex({ room: 1, timestamp: 1})
 
-# Managed by TurkServer; publish non-deleted chatrooms
-Meteor.publish "chatrooms", ->
-  ChatRooms.find(deleted: {$exists: false})
+# Managed by TurkServer; publish all chatrooms
+# Deleted chatrooms are filtered on the client
+Meteor.publish "chatrooms", -> ChatRooms.find()
 
 # Generalize what we are doing below
 

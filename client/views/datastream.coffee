@@ -1,16 +1,14 @@
 Template.datastream.loaded = -> Session.equals("dataSubReady", true)
 
 Template.datastream.data = ->
-  Datastream.find({}, sort: {num: 1}) # Sort in increasing insertion order
+  selector = if TurkServer.isAdmin() then {} else { hidden: {$exists: false} }
+  return Datastream.find(selector, sort: {num: 1}) # Sort in increasing insertion order
 
 Template.datastream.visible = ->
-  # Order in which we register reactive dependencies with short-circuit boolean matters here for efficiency
   if @events? and @events.length > 0
-    return false # Session.equals("data-tagged", true)
-  else if @hidden
-    return false # Session.equals("data-hidden", true)
+    return false
   else
-    return true # Session.equals("data-unfiltered", true)
+    return true
 
 Template.datastream.events =
   "click .action-data-hide": ->
@@ -45,3 +43,4 @@ Template.dataItem.rendered = ->
 Template.dataItem.events =
   "click .data-cell": (e, t) -> Mapper.selectData(@_id)
 
+Template.dataItem.hidden = -> if @hidden then "data-cell-hidden" else ""

@@ -76,7 +76,7 @@ Template.eventRecords.events =
 Template.eventRecords.loaded = -> Session.equals("eventSubReady", true)
 
 Template.eventRecords.noEvents = ->
-  Events.find().count() is 0
+  Events.find(deleted: {$exists: false}).count() is 0
 
 Handlebars.registerHelper "numEventCols", ->
   # Used for rendering whole-width rows
@@ -84,13 +84,12 @@ Handlebars.registerHelper "numEventCols", ->
   EventFields.find().count() + 4
 
 Template.eventRecords.records = ->
+  selector = if TurkServer.isAdmin() then {} else { deleted: {$exists: false} }
   key = Session.get("eventSortKey")
-  return Events.find() unless key
-
   # Secondary sort by key prevents jumping
   #  sort[key] = Session.get("eventSortOrder") || 1 if key?
   sort = [ [key, if Session.get("eventSortOrder") is -1 then "desc" else "asc"], [ "_id", "asc" ] ]
-  return Events.find {}, { sort: sort }
+  return Events.find(selector, { sort: sort })
 
 Template.createFooter.events =
   "click .action-event-new": (e) ->
@@ -173,7 +172,9 @@ Template._editCellSelf.events =
   Rendering and helpers for individual sheet cells
 ###
 Template.eventRow.rowClass = ->
-  if @editor is Meteor.userId()
+  if @deleted
+    "deleted"
+  else if @editor is Meteor.userId()
     "info"
   else if @editor
     "warning"
@@ -213,6 +214,7 @@ Template.eventCellTextEditable.rendered = ->
       result[@data.key] = newValue
       Meteor.call "updateEvent", @data._id, result
       return true
+    value: @data.value # Otherwise (empty) rendering shows up
   return
 
 Template.eventCellSelectEditable.rendered = ->

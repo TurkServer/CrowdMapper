@@ -16,7 +16,7 @@
 </template>
 
 <template name="dataItem">
-    <li id="data-{{_id}}" class="data-cell">
+    <li id="data-{{_id}}" class="data-cell {{hidden}}">
         <span class="label label-primary"><span class="glyphicon glyphicon-tag"></span>{{num}}</span>
         <span class="data-text">{{{text}}}</span>
         <button class="btn btn-danger btn-xs data-cell-icon action-data-hide"

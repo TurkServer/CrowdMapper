@@ -188,7 +188,10 @@ Template.map.rendered = ->
   map.zoomToMaxExtent()
 
   # Observe for changes to markers (first run draws initial)
-  @query = Events.find(location: {$exists: true}).observeChanges
+  @query = Events.find({
+    deleted: {$exists: false}
+    location: {$exists: true}
+  }).observeChanges
     added: (id, fields) ->
       point = new OpenLayers.Geometry.Point(fields.location[0], fields.location[1])
       feature = new OpenLayers.Feature.Vector(point)

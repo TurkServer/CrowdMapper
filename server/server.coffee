@@ -15,17 +15,14 @@ Meteor.publish "userStatus", ->
       username: 1
       status: 1
 
-# TODO we can publish deleted things for admin for watching later.
-# Publish non-deleted events, docs, and events
+# Publish all events, docs, and events, including deleted - filtering is done on the client
+# This means admins can see deleted items easily, and they still work in chat
 
-Meteor.publish "datastream", ->
-  Datastream.find(hidden: {$exists: false})
+Meteor.publish "datastream", -> Datastream.find()
 
-Meteor.publish "docs", ->
-  Documents.find(deleted: {$exists: false})
+Meteor.publish "docs", -> Documents.find()
 
-Meteor.publish "events", ->
-  Events.find(deleted: {$exists: false})
+Meteor.publish "events", -> Events.find()
 
 ###
   These are not indexed by TurkServer
