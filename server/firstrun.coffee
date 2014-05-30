@@ -149,11 +149,13 @@ Meteor.startup ->
   TurkServer.ensureTreatmentExists
     name: "tutorial"
     tutorial: "pre_task"
+    tutorialEnabled: true
     payment: 1.00
 
   TurkServer.ensureTreatmentExists
     name: "recruiting"
     tutorial: "recruiting"
+    tutorialEnabled: true
     payment: 1.00
 
   TurkServer.ensureTreatmentExists
@@ -165,3 +167,12 @@ Meteor.startup ->
   if (batch = Batches.findOne(treatments: $in: [ "recruiting" ]))?
     TurkServer.Batch.getBatch(batch._id).setAssigner(new TurkServer.Assigners.SimpleAssigner)
     console.log "Set up assigner on recruiting batch"
+
+  # Set up pilot testing batch
+  TurkServer.ensureBatchExists
+    name: "pilot testing"
+  pilotBatch = TurkServer.Batch.getBatch(Batches.findOne(name: "pilot testing")._id)
+  pilotBatch.setAssigner new TurkServer.Assigners.TutorialGroupAssigner(
+    [ "tutorial" ], [ "parallel_worlds" ]
+  )
+  console.log "Set up pilot testing assigner"
