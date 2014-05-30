@@ -2,6 +2,7 @@
 Meteor
 dump.rdb
 settings-private.json
+settings-sandbox.json
 
 lib-cov
 *.seed
