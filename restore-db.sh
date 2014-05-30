@@ -1,2 +1,2 @@
 #!/bin/bash
-mongorestore --host localhost:3002 --drop $@
+mongorestore --host localhost:3001 --drop $@

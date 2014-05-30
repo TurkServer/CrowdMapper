@@ -10,7 +10,7 @@
     <ul class="dropdown-menu">
         {{#if notificationCount}}
         {{#each notifications}}
-        {{{renderNotification}}}
+        {{> notificationTemplate }}
         {{/each}}
         {{else}}
         <li><a><i>No notifications.</i></a></li>

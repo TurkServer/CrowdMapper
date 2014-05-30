@@ -9,10 +9,11 @@ Template.notifications.glowClass = ->
 Template.notifications.notificationCount = ->
   return Notifications.find().count()
 
-Template.notifications.renderNotification = ->
+Template.notifications.notificationTemplate = ->
   switch @type
-    when "invite" then Template._inviteNotification @
-    when "mention" then Template._mentionNotification @
+    when "invite" then Template._inviteNotification
+    when "mention" then Template._mentionNotification
+    else null
 
 notifyEvents =
   'click a': (e) ->
