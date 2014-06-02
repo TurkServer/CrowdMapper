@@ -109,14 +109,16 @@ Meteor.startup ->
 Deps.autorun ->
   return unless (treatment = TurkServer.treatment())?
 
+  # Change monitoring setting whenever treatment changes
+  # The TurkServer code will automatically handle starting and stopping during an experiment
   if treatment?.tutorialEnabled
-    # Mostly for testing purposes
+    # Mostly for testing purposes during tutorial
     TurkServer.enableIdleMonitor(30000, true)
   else
     # 8 minute idle timer, ignore window blur
     TurkServer.enableIdleMonitor(8 * 60 * 1000, false)
 
-  @stop() # We only enable this once
+  return
 
 ###
   Templates and helpers
@@ -167,3 +169,4 @@ Template.scaledPayment.amount = ->
 
 Template.scaledPayment.lowest = -> @wage.toFixed(2)
 Template.scaledPayment.highest = -> (@wage + @bonus).toFixed(2)
+

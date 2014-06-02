@@ -168,6 +168,42 @@ Meteor.startup ->
     TurkServer.Batch.getBatch(batch._id).setAssigner(new TurkServer.Assigners.SimpleAssigner)
     console.log "Set up assigner on recruiting batch"
 
+    # Ensure we have a hit type on this batch
+    HITTypes.upsert {
+      batchId: batch._id,
+      Title: "Complete a tutorial for the Crisis Mapping Project"
+    }, {
+      $setOnInsert: {
+        Description: "Complete a tutorial for the Crisis Mapping Project, which takes about 10 minutes. After you complete this, you will be qualified to participate in collaborative Crisis Mapping sessions, which will pay from $6 to $15 per hour. You may see some disturbing content from natural disasters."
+        Keywords: "crisis mapping, tutorial, collaborative"
+        Reward: 1.00
+        QualificationRequirement: [
+          Qualifications.findOne({ # 95%
+            QualificationTypeId: "000000000000000000L0"
+            Comparator: "GreaterThanOrEqualTo"
+            IntegerValue: "95"
+          })._id
+          Qualifications.findOne({ # 100 HITs
+            QualificationTypeId: "00000000000000000040"
+            Comparator: "GreaterThan"
+            IntegerValue: "100"
+          })._id
+          Qualifications.findOne({ # US Worker
+            QualificationTypeId: "00000000000000000071"
+            Comparator: "EqualTo"
+            LocaleValue: "US"
+          })._id
+          Qualifications.findOne({ # Adult Worker
+            QualificationTypeId: "00000000000000000060"
+            Comparator: "EqualTo"
+            IntegerValue: "1"
+          })._id
+        ]
+        AssignmentDurationInSeconds: 43200
+        AutoApprovalDelayInSeconds: 86400
+      }
+    }
+
   # Set up pilot testing batch
   TurkServer.ensureBatchExists
     name: "pilot testing"
