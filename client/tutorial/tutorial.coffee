@@ -179,7 +179,7 @@ Template.tut_end.events =
     Session.set("consentChecked", e.target.checked)
     Mapper.events.emit("check-consent") if e.target.checked
 
-Template.tut_end.checked = -> if Session.get("consentChecked") then "checked" else ""
+Template.tut_end.checked = -> Session.get("consentChecked")
 
 getRecruitingSteps = ->
   # replace templates with _recruiting if they exist

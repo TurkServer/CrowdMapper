@@ -2,17 +2,19 @@
     <div class="datastream well well-nopad">
         {{#if loaded}}
         {{!-- again, a workaround to allow the inner divs to be dragged out --}}
-        <ul class="scroll-vertical data-body bigger-labels">
-            {{#each data}}
-                {{#if visible}}
-                {{> dataItem}}
-                {{/if}}
-            {{/each}}
-        </ul>
+        {{> dataList}}
         {{else}}
         {{> spinner}}
         {{/if}}
     </div>
+</template>
+
+<template name="dataList">
+    <ul class="scroll-vertical data-body bigger-labels">
+        {{#each data}}
+        {{> dataItem}}
+        {{/each}}
+    </ul>
 </template>
 
 <template name="dataItem">
