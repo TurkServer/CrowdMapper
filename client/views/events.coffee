@@ -34,6 +34,7 @@ generateNewEvent = ->
 
   Meteor.call "createEvent", eventId, fields
   Mapper.selectEvent(eventId)
+  return eventId
 
 edit = (e) ->
   Meteor.call "editEvent", @_id
@@ -94,7 +95,9 @@ Template.eventRecords.records = ->
 Template.createFooter.events =
   "click .action-event-new": (e) ->
     e.preventDefault()
-    generateNewEvent()
+    eventId = generateNewEvent()
+    # Edit and scroll to the event
+    edit.call({_id: eventId})
 
 acceptDrop = (draggable) ->
   # Don't accept drops from random pages
