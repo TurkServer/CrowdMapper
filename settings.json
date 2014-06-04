@@ -20,10 +20,6 @@
     },
     "sharejs": {
         "options": {
-            "db": {
-                "type": "mongo",
-                "opsCollectionPerDoc": false
-            },
             "accounts_auth": {
               "authenticate": {
                 "collection": "users",

@@ -41,15 +41,22 @@ loadCSVTweets = (file, limit) ->
 TurkServer.initialize ->
   return if Datastream.find().count() > 0
 
-  if @treatment.tutorialEnabled
+  if @instance.treatment().tutorialEnabled
     loadCSVTweets("tutorial.csv", 10)
   else
     # Load initial tweets on first start
     # loadDumbTweets()
     loadCSVTweets("PabloPh_UN_cleaned.csv", 500)
+    # Create a seed instructions document for the app
+    docId = Meteor.call("createDocument", "Instructions")
+    Assets.getText "seed-instructions.txt", (err, res) ->
+      if err?
+        console.log "Error getting document"
+        return
+      ShareJS.initializeDoc(docId, res)
 
 TurkServer.onConnect ->
-  if @treatment is "tutorial" or @treatment is "recruiting"
+  if @instance.treatment().tutorialEnabled
     # Help the poor folks who shot themselves in the foot
     # TODO do a more generalized restore
     Datastream.update({}, {$unset: hidden: null}, {multi: true})

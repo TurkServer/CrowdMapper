@@ -1,0 +1,51 @@
+These instructions briefly recap the content you went through in the tutorial. This document is editable, so you should edit and improve the instructions below to help other mappers.
+
+You and your team members will be working actual Twitter reports from Typhoon Pablo (also known as Bopha), which hit the Phillippines in December 2012. Your team must figure out which reports describe relevant crisis events, and record them with the type of event, its description, and its location. By effectively solving this problem and creating an accurate crisis map with your teammates, you can help us learn how to better respond to future natural disasters.
+
+# Data reports
+
+- Twitter reports show up on the left of the screen.
+- Click on links to see what they refer to.
+- Click the red X to hide tweets that are irrelevant.  Hidden tweets are hidden for everyone.
+
+# Event Records
+
+- Event records are the main way of recording crisis events.
+- Drag a tweet by its blue title bar to attach it as a reference to an event.
+- Drag tweets between events to reorganize them.
+- Move your mouse over a tweet to see its content.
+- Click edit to start editing the fields of an event.
+- When editing, click a field (underlined) to select or type a new value.
+- Click save when you are done editing so that someone else can edit.
+- You can edit the location field to type in a longitude and latitude directly, or use the Locate button to place it on the map visually.
+- Mouse over the check box on the right to verify an event if you have checked it.
+
+# Map 
+
+- Drag, pan, and zoom on the map to navigate.
+- Mouse over an event on the map to see a popup of its information.
+- Click to select events on the map, which will keep the popover open. 
+- Drag events on the map to change their location.
+- Switch between a satellite and political map using the '+' at the top right.
+
+# Documents
+
+- Create documents to share information with other users that does not fit in the events, map, or chat.
+- Documents can be edited simultaneously.
+
+# Users and Chat
+
+- The user list at the top right shows all users that are on your team.
+- You can join a chat room by clicking on it, or switch to another chat room.
+- You can only be in one room at a time.
+- When you are in a room, you can hover over an online user's chat to send them an invite to your room.
+- Invites will show up as notifications at the top of the screen.
+- When you mention a user in chat, a notification will also appear for them.
+- Click notifications to go to the room that they came from.
+- Use symbols to tag tweets, events, and users in the chat. Hover over the '?' in the chat input for more info.
+
+# Payment
+
+- You will be paid for the amount of time you spend on the task, plus a bonus for how well your team does.
+- If you do not do anything for several minutes, you will be put in an idle mode.
+- You will not earn anything for the time you spend while idle.

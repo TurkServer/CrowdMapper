@@ -16,10 +16,12 @@ Template.dataList.data = ->
     _.extend({}, dataSelector, { hidden: {$exists: false} })
   return Datastream.find(selector, sort: {num: 1}) # Sort in increasing insertion order
 
-
 Template.dataList.rendered = ->
   # See reference implementation at packages/ui/domrange.js
+  # TODO update this for final API of UI hooks
   parent = @firstNode
+  $parent = $(parent)
+
   parent._uihooks =
     insertElement: (node, next) ->
       parent.insertBefore(node, next)
@@ -27,21 +29,24 @@ Template.dataList.rendered = ->
       parent.insertBefore(node, next)
     removeElement: (node) ->
       $node = $(node)
-      # We need to compute these before the fadeOut, which adds display: none
+      # We need to compute these before the fadeOut, or the height will be incorrect
+      # Moreover, it is logically correct to compare the position of the node before any scrolling
+      # to the position of the viewport after any scrolling that happens during the fade (right?)
       nodeTop = node.offsetTop
-      nodeHeight = $node.height()
-      parentHeight = $(parent).height()
+      # The space we need to adjust - including top and bottom margins, if applicable
+      nodeHeight = $node.outerHeight(true)
+
       # Fade out the node, and when completed remove it and adjust the scroll height
       $node.fadeOut "slow", ->
         $(this).remove() # equiv to parent.removeChild(node) or $node.remove()
         # Adjust scroll position around the removed element, if it was above the viewport
-        if nodeTop < parent.scrollTop + parentHeight/2
+        if (nodeTop + nodeHeight/2) < (parent.scrollTop + $parent.height()/2)
           parent.scrollTop = parent.scrollTop - nodeHeight
       return
 
 Template.dataList.events =
-  "click .action-data-hide": ->
-    Meteor.call "dataHide", @_id
+  "click .data-cell": (e, t) -> Mapper.selectData(@_id)
+  "click .action-data-hide": (e) -> Meteor.call "dataHide", @_id
 
 dragHelper = ->
   # Make sure we are on events
@@ -68,8 +73,5 @@ dragProps =
 Template.dataItem.rendered = ->
   # Only visible elements are rendered in the #each helper so no optimization to do here
   $(@firstNode).draggable dragProps
-
-Template.dataItem.events =
-  "click .data-cell": (e, t) -> Mapper.selectData(@_id)
 
 Template.dataItem.hidden = -> if @hidden then "data-cell-hidden" else ""
