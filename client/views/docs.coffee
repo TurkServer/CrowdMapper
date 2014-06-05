@@ -60,6 +60,7 @@ Template.docCurrent.events =
 
 Template.docCurrent.config = ->
   (editor) ->
+    editor.setReadOnly(true) if TurkServer.isAdmin()
     # Set some reasonable options on the editor
     editor.setShowPrintMargin(false)
     editor.getSession().setUseWrapMode(true)
