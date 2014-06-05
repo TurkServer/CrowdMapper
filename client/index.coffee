@@ -138,7 +138,7 @@ Template.guidance.message = -> Session.get("guidanceMessage")
 Template.guidance.showStyle = -> if Session.get("guidanceMessage") then "" else "display: none"
 
 switchTab = (page) ->
-  return if Deps.nonreactive(-> Session.get("taskView")) is page
+  return if Deps.nonreactive(-> Session.equals("taskView", page))
   Session.set("taskView", page)
 
 Template.pageNav.events =

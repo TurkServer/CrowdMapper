@@ -220,6 +220,7 @@ Template.mapperTutorial.options = ->
     else throw new Error("Unknown tutorial type: " + treatment.tutorial)
   
   return {
+    id: "mapperTutorial"
     steps: steps
     emitter: Mapper.events
     onFinish: -> Meteor.call "finishTutorial"
