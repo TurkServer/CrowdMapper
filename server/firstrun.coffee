@@ -212,3 +212,45 @@ Meteor.startup ->
     [ "tutorial" ], [ "parallel_worlds" ]
   )
   console.log "Set up pilot testing assigner"
+
+###
+  Random scripting methods that
+  TODO need to be moved into more generalized APIs
+###
+Meteor.methods
+  "cm-assign-tutorial-quals": (qualId) ->
+    TurkServer.checkAdmin()
+    check(qualId, String)
+
+    potentialWorkers = Workers.find({
+      contact: true
+      "quals.id": $nin: [qualId]
+    }).map (w) -> w._id
+
+    console.log(potentialWorkers.length + " potential workers to assign quals")
+
+    batchId = Batches.findOne(treatments: "recruiting")._id
+
+    # Check that assignments are acceptable
+    threshold = 5
+    count = 0
+    for workerId in potentialWorkers
+      asst = Assignments.findOne({workerId, batchId})
+      unless asst?
+        console.log "Worker #{workerId} has contact=true but no assignment"
+        continue
+
+      instance = Experiments.findOne(asst.instances[0].id)
+      if (instance.endTime - instance.startTime) < threshold * 60 * 1000
+        console.log "Worker #{workerId} rushed through tutorial in under #{threshold} minutes"
+        continue
+
+      TurkServer.Util.assignQualification(workerId, qualId)
+      count++
+
+    console.log(count + " workers assigned")
+
+
+
+
+
