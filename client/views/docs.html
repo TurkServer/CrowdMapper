@@ -37,12 +37,12 @@
 
 <template name="docCurrent">
     {{#with document}}
-        {{> docTitle}}
+        {{> docTitleComponent title}}
         <button class="btn btn-danger btn-xs pull-right action-document-delete">Delete this document</button>
         {{> sharejsAce docid=this callback=config id="editor"}}
     {{/with}}
 </template>
 
 <template name="docTitle">
-    <span class="editable" title="Rename this document" data-autotext="never">{{title}}</span>
+    <span class="editable" title="Rename this document" data-autotext="never">{{this}}</span>
 </template>

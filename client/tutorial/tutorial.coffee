@@ -57,8 +57,8 @@ tutorialSteps = [
     spot: "#mapper-events"
     template: "tut_editevent"
     onLoad: -> Mapper.switchTab("events")
-    require:
-      event: "event-edit"
+#    require:
+#      event: "event-edit"
   ,
     spot: ".events-header tr > th:eq(0), .events-body tr > td:nth-child(1)"
     template: "tut_events_index"
@@ -209,7 +209,7 @@ getTutorialSteps = ->
 
 Template.mapperTutorial.tutorialEnabled = ->
   treatment = TurkServer.treatment()
-  return treatment?.tutorial and not Meteor.user()?.admin
+  return treatment?.tutorialEnabled and not Meteor.user()?.admin
 
 Template.mapperTutorial.options = ->
   treatment = TurkServer.treatment()

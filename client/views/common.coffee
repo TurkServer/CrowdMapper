@@ -95,6 +95,7 @@ Template.tweetIcon.events =
     Meteor.call "dataUnlink", tweet._id, event._id
 
     # Hide this if it's not tagged somewhere
+    # TODO: the unlink-hide process causes an unwanted scroll adjustment
     Meteor.call "dataHide", tweet._id
 
 # Mapping helpers

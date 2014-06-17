@@ -129,9 +129,13 @@ Template.map.rendered = ->
     # Re-render the popup
     Session.set("popupEvent", feature.id)
     # Resize popup to fit contents, after visual update
-    # Of course, this won't affect reactive updates but those are unlikely to trigger huge size changes
+    # Resizing won't affect reactive updates but those are unlikely to trigger huge size changes
     Deps.flush()
     popup.updateSize()
+    # Fix issues with size update on newly placed item, just in case
+    setTimeout ->
+      popup.updateSize()
+    , 0
 
   hidePopup = ->
     Session.set("popupEvent", undefined)
@@ -272,8 +276,7 @@ Template.map.destroyed = ->
 
 Template.mapPopup.events =
   "click .action-event-unmap": ->
-    Events.update @_id,
-      $unset: location: null
+    Meteor.call "unmapEvent", @_id
 
 Template.mapPopup.eventRecord = ->
   eventId = Session.get("popupEvent")

@@ -25,7 +25,7 @@ enterRoom = (roomId, userId) ->
 #    room: roomId
 #    event: "enter"
 #    userId: userId
-#    timestamp: Date.now()
+#    timestamp: new Date()
   TurkServer.log
     action: "room-enter"
     room: roomId
@@ -37,7 +37,7 @@ leaveRoom = (roomId, userId) ->
 #    room: roomId
 #    event: "leave"
 #    userId: userId
-#    timestamp: Date.now()
+#    timestamp: new Date()
 
 # publish messages and users for a room
 Meteor.publish "chatstate", (room)  ->
@@ -87,6 +87,9 @@ TurkServer.startup ->
 
 userRegex = new RegExp('(^|\\b|\\s)(@[\\w.]+)($|\\b|\\s)','g')
 
+unreadNotificationExists = (user, sender, room, type) ->
+  return Notifications.findOne({user, sender, room, type, read: {$exists: false} })?
+
 Meteor.methods
   inviteChat: (userId, roomId) ->
     TurkServer.checkNotAdmin()
@@ -95,22 +98,25 @@ Meteor.methods
     # Don't invite if user is already in the same room
     return if ChatUsers.findOne(userId: userId)?.roomId is roomId
 
-    # TODO Skip invite if this user has already invited the other user to this room
+    # Skip invite if this user already has an outstanding invitee to the other user to this room
+    return if unreadNotificationExists(userId, myId, roomId, "invite")
+
     Notifications.insert
       user: userId
       sender: myId
       type: "invite"
       room: roomId
-      timestamp: Date.now()
+      timestamp: new Date()
 
     # No need to log this, we have it
+    return
 
   sendChat: (roomId, message) ->
     TurkServer.checkNotAdmin()
     userId = Meteor.userId()
     return unless Meteor.userId()
 
-    chatTime = Date.now()
+    chatTime = new Date()
 
     obj =
       room: roomId
@@ -127,6 +133,9 @@ Meteor.methods
       return unless targetUser?
       # Don't notify if user is already in the same room
       return if ChatUsers.findOne(userId: targetUser._id)?.roomId is roomId
+
+      return if unreadNotificationExists(targetUser._id, userId, roomId, "mention")
+
       Notifications.insert
         user: targetUser._id
         sender: userId

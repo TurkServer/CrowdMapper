@@ -175,18 +175,18 @@
 <template name="eventLocation">
     <td>
         <div>
-            {{#if editable}} {{! defined as a helper for location}}
-                {{> eventLocationEditable}}
-            {{else}}
-                {{#if location}}
+            {{#if location}}
+                {{#if editable}} {{! defined as a helper for location}}
+                    {{> eventLocationEditable}}
+                {{else}}
                 <a href="#" title="View on map" class="action-event-mapview">
                     {{{formatLocation}}}
                 </a>
-                {{else}}
+                {{/if}}
+            {{else}}
                 <button title="Place on map" class="btn btn-xs btn-info action-event-locate">
                     <span class="glyphicon glyphicon-screenshot"></span> Locate
                 </button>
-                {{/if}}
             {{/if}}
         </div>
     </td>

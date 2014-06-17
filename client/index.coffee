@@ -46,7 +46,7 @@ Router.map ->
         @setLayout("defaultContainer")
         @render("awaitingLogin")
         pause()
-      unless Meteor.user()?.admin or TurkServer.inExperiment()
+      unless TurkServer.isAdmin() or TurkServer.inExperiment()
         @setLayout("defaultContainer")
         @render("loadError")
         pause()
@@ -59,17 +59,13 @@ Router.map ->
       # TODO remove this when EventedMind/iron-router#607 is merged
       @setLayout(null)
       @render()
-  @route 'exitsurvey/tutorial',
-    template: "tutorialSurvey"
+  @route 'exitsurvey',
     layoutTemplate: 'defaultContainer'
     onBeforeAction: (pause) ->
-      unless TurkServer.inExitSurvey()
+      unless TurkServer.isAdmin() or TurkServer.inExitSurvey()
+        @setLayout("defaultContainer")
         @render("loadError")
         pause()
-  @route 'exitsurvey/posttask',
-    template: "postTaskSurvey"
-    layoutTemplate: 'defaultContainer'
-    # TODO deny if not in survey
 
 Meteor.startup ->
   Session.setDefault("taskView", 'events')
@@ -80,9 +76,8 @@ Meteor.startup ->
     Deps.autorun ->
       Router.go("/mapper") if TurkServer.inExperiment()
 
-    # TODO generalize this based on batch
     Deps.autorun ->
-      Router.go("/exitsurvey/posttask") if TurkServer.inExitSurvey()
+      Router.go("/exitsurvey") if TurkServer.inExitSurvey()
 
 ###
   Window sizing warning
@@ -163,13 +158,13 @@ Template.pageNav.events =
 Template.pageNav.payment = ->
   return null unless (treatment = TurkServer.treatment())?
   return switch
-    when treatment.payment? then Template.fixedPayment
+    when treatment.payment? then Template.tutorialPayment
     when treatment.wage?  then Template.scaledPayment
     else null
 
 Template.pageNav.treatment = TurkServer.treatment
 
-Template.fixedPayment.amount = -> "$" + @payment.toFixed(2)
+Template.tutorialPayment.amount = -> "$" + @payment.toFixed(2)
 
 Template.scaledPayment.amount = ->
   hours = TurkServer.Timers.activeTime() / (3600000) # millis per hour

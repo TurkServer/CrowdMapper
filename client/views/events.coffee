@@ -239,6 +239,7 @@ Template.eventLocationEditable.rendered = ->
   return unless @data.editor is Meteor.userId()
   @$('div.editable').editable
     display: ->
+    placement: "left" # Because this is taller than other editables
     success: (response, newValue) =>
       Meteor.call "updateEvent", @data._id, { location: newValue }
       return true
@@ -247,18 +248,23 @@ Template.eventLocationEditable.rendered = ->
 
 Template.eventVoting.rendered = ->
   eventId = @data._id
-  $(@firstNode).popover
+  @votePopover = $(@firstNode).popover
     html: true
     placement: "left"
     trigger: "hover"
     container: @firstNode # Hovering over the popover should hold it open
     content: ->
-      # TODO Make this properly reactive
+      # TODO Make this properly reactive - currently just hiding it immediately
       UI.toHTML Template.eventVotePopup.extend data: -> Events.findOne(eventId, fields: {votes: 1})
 
+# 'hide' is the right thing to use here; 'destroy' disables the popover.
 Template.eventVoting.events =
-  "click .action-event-upvote": -> Meteor.call "voteEvent", @_id
-  "click .action-event-unvote": -> Meteor.call "unvoteEvent", @_id
+  "click .action-event-upvote": (e, tmpl) ->
+    Meteor.call "voteEvent", @_id
+    tmpl.votePopover.popover('hide')
+  "click .action-event-unvote": (e, tmpl) ->
+    Meteor.call "unvoteEvent", @_id
+    tmpl.votePopover.popover('hide')
 
 Template.eventVoting.badgeClass = -> if @votes?.length > 0 then "alert-success" else ""
 Template.eventVoting.numVotes = -> @votes?.length || 0

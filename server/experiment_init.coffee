@@ -29,10 +29,10 @@ loadCSVTweets = (file, limit) ->
 
       i = 0
       while i < limit and i < arr.length
+        i++
         Datastream.insert
           num: i # Keeps things in time order
           text: arr[i].text
-        i++
       # console.log(i + " tweets inserted")
 
     , (e) ->

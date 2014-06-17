@@ -1,3 +1,7 @@
+<template name="exitsurvey">
+    {{> surveyTemplate}}
+</template>
+
 <template name="tutorialSurvey">
     <form class="well survey">
     <fieldset>
@@ -44,7 +48,7 @@
 
 <template name="postTaskSurvey">
     <form class="well survey">
-        <legend>Please briefly answer the questions below.</legend>
+        <legend>Thank you for your work! Please briefly answer the questions below.</legend>
 
         <div class="form-group">
             <label>How did you approach the overall crisis mapping problem?</label>
@@ -52,7 +56,7 @@
         </div>
 
         <div class="form-group">
-            <label>Did you specialize in doing any type of work in particular?</label>
+            <label>Did you specialize in any particular type of work?</label>
             <textarea class="form-control" name="specialize" placeholder="Type something…" required></textarea>
         </div>
 

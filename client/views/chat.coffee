@@ -5,9 +5,13 @@ Deps.autorun ->
   Session.set("chatRoomReady", false)
   Meteor.subscribe("chatstate", roomId, -> Session.set("chatRoomReady", true))
 
-Handlebars.registerHelper "currentRoom", -> Meteor.userId()? && Session.get("room")?
+# This should only change if the room changes, else chat box will be re-rendering a lot
+Handlebars.registerHelper "currentRoom", ->
+  return unless Meteor.userId()?
+  # Return room only if it exists in the collection (not deleted)
+  return ChatRooms.findOne(Session.get("room"), {fields: _id: 1})?._id
 
-Template.chat.events =
+Template.chat.events
   "click .action-room-create": (e) ->
     e.preventDefault()
 
@@ -16,6 +20,20 @@ Template.chat.events =
       Meteor.call "createChat", roomName, (err, id) ->
         return unless id
         Session.set "room", id
+
+Template.currentChatroom.events
+  "click .action-room-leave": ->
+    # TODO convert this to a method call ... !
+    #    bootbox.confirm "Leave this room?", (value) ->
+    Session.set("room", undefined) # if value
+
+Template.currentChatroom.nameDoc = -> ChatRooms.findOne(""+@, {fields: name: 1})
+
+# TODO also a hack, like the docs
+Template.currentChatroom.roomHeaderComponent = ->
+  UI.Component.extend
+    kind: "mapperChatHeader",
+    render: -> Template.roomHeader
 
 Template.rooms.loaded = -> Session.equals("chatSubReady", true)
 
@@ -56,22 +74,15 @@ Template.roomUsers.findUser = ->
   Meteor.users.findOne @userId
 
 Template.roomHeader.rendered = ->
-  @$(".editable").editable
+  @editComp = @$(".editable").editable
     display: ->
     success: (response, newValue) ->
       roomId = Session.get("room")
       return unless roomId
       Meteor.call "renameChat", roomId, newValue
 
-Template.roomHeader.roomName = ->
-  room = ChatRooms.findOne(_id: Session.get("room"))
-  room and room.name
-
-Template.roomHeader.events =
-  "click .action-room-leave": ->
-    # TODO convert this to a method call ... !
-#    bootbox.confirm "Leave this room?", (value) ->
-    Session.set("room", `undefined`) # if value
+Template.roomHeader.destroyed = ->
+  @editComp.editable('destroy')
 
 showEvent = (eventId) ->
   Mapper.switchTab 'events' # Make sure we are on the event page

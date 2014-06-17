@@ -159,9 +159,13 @@
 </template>
 
 <template name="tut_editevent">
+    <p>After you create an event, you will automatically be placed in edit mode.</p>
+
     <p>You may also edit an existing event record by double-clicking or by clicking the blue <button class="btn btn-xs btn-primary"><span class="glyphicon glyphicon-pencil"></span></button> button. You will see edits by other mappers in real-time.</p>
 
     <p>Only one person can edit an event record at a time, so when you're done, click the green <button class="btn btn-xs btn-success"><span class="glyphicon glyphicon-remove"></span>Save</button> button to save the event.</p>
+
+    {{!-- Currently no edit step required, as create event automatically does it.
 
     <p>
     {{#if stepCompleted}}
@@ -170,6 +174,8 @@
     <b class="text-danger">Edit the event record that you just created.</b>
     {{/if}}
     </p>
+
+    --}}
 </template>
 
 <template name="tut_events_index">
@@ -263,7 +269,7 @@
 
     <p>If an event record does not have a location yet, you can place it on the map. We will show you how to do this momentarily.</p>
 
-    <p>If you find these numbers from a map service on the web, you can also enter them in directly while editing.</p>
+    <p>If you find these numbers from a map service on the Internet, you can use these numbers while placing or editing the event.</p>
 
     <!--
     <p>The tweet does not have information about the location. Leave it blank for now.</p>
@@ -289,9 +295,7 @@
 <template name="tut_map">
     <p>The <b>Map</b> displays a marker for each recorded event.</p>
 
-    <p>If no latitude/longitude has been entered for an event, the marker will not appear on the map.</p>
-
-    <!-- the marker will appear in the sidebar. -->
+    <p>If no longitude/latitude has been entered for an event, the marker will not appear on the map.</p>
 </template>
 
 <template name="tut_mapcontrols">
@@ -301,6 +305,8 @@
 <template name="tut_maplocate">
     <p>You can press the
     <button class="btn btn-xs btn-info"><span class="glyphicon glyphicon-screenshot"></span> Locate</button> button to place an event on the map. You may need to search on the Internet to find a precise location for an event that you see.</p>
+
+    <p>As you move your mouse over the map, note that the coordinates are shown in the <b>bottom right</b>. Use this to place the event in a precise location.</p>
 
     <p>
     {{#if stepCompleted}}
@@ -318,7 +324,7 @@
 </template>
 
 <template name="tut_maplocation">
-    <p>Notice that the latitude/longitude has automatically been updated in the event record. You may click this at any time to see the location of a mapped event.</p>
+    <p>Notice that the longitude/latitude has automatically been updated in the event record. Now, you can also edit the coordinates by clicking them directly.</p>
 
     <p>Now, select the province, if you know it, and save the record using the <button class="btn btn-xs btn-success"><span class="glyphicon glyphicon-ok"></span>Save</button> button. This will let someone else edit the event.</p>
 
@@ -329,6 +335,8 @@
     <b class="text-danger">Save the event now.</b>
     {{/if}}
     </p>
+
+    <p>Once you have saved the event, you may click its location to see it on the map.</p>
 </template>
 
 <template name="tut_verify">
@@ -346,7 +354,7 @@
 </template>
 
 <template name="tut_documents">
-    <p><b>Documents</b> are available for recording information relevant to the task but not included in event records, and are shared with everyone else.</p>
+    <p><b>Documents</b> are available for recording information relevant to the task but not included in event records. They are shared with everyone else and can be edited simultaneously.</p>
 
     <p>
     {{#if stepCompleted}}
@@ -440,7 +448,7 @@
 <template name="tut_payment">
     <p>Your payment will be determined by how much time you personally spend working on the task, and also the overall performance of your team.</p>
 
-    <p>Your team will be competing with other teams, and your team's performance will be assessed relative to the best-performing team.</p>
+    <p>Your team may be competing with other teams, and your team's performance will be measured relative to either the best-performing team or other benchmarks.</p>
 
     <p>Your compensation will be calculated as:</p>
 
@@ -456,7 +464,7 @@
 
     <p><b>If you work for the full one hour, your compensation will be no less than $6 and as much as $15, depending on your team's relative performance.</b></p>
 
-    <p>If you quit early or are idle you will only by paid for the fraction of time you work. Your payment will be updated continuously during the task.</p>
+    <p>If you quit early or are idle you will only by paid for the fraction of time you work. Your payment will be shown during the task in the highlighted region.</p>
 
     <p>Thus, you should not just work hard yourself, but also help your team succeed.</p>
 </template>

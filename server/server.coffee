@@ -26,9 +26,12 @@ Meteor.publish "events", -> Events.find()
 
 ###
   These are not indexed by TurkServer
+  We want to be able to do bulk read operations for users (targets) for a given room.
 ###
 Notifications._ensureIndex
   user: 1
+  room: 1
+  read: 1
 
 Meteor.publish 'notifications', ->
   # Only publish unread notifications for this user

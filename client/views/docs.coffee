@@ -31,14 +31,6 @@ Template.docTabs.events =
 Template.docTab.active = -> if Session.equals("document", @_id) then "active" else ""
 Template.docTab.deleted = -> if @deleted then "deleted" else ""
 
-Template.docTitle.rendered = ->
-  @$(".editable").editable
-    display: ->
-    success: (response, newValue) ->
-      docId = Session.get("document")
-      return unless document
-      Meteor.call "renameDocument", docId, newValue
-
 Template.docCurrent.document = UI.emboxValue ->
   id = Session.get("document")
   # Can't stay in a document if someone deletes it, unless we're admin
@@ -49,6 +41,27 @@ Template.docCurrent.document = UI.emboxValue ->
     return id
   else
     return undefined
+
+Template.docCurrent.title = -> Documents.findOne(""+@)?.title
+
+# TODO a hack to forcibly re-render the editable to re-render doc or title changes
+# It only works because if doc didn't change, title must have (no other fields)
+Template.docCurrent.docTitleComponent = ->
+  UI.Component.extend
+    kind: "mapperDocTitle",
+    render: -> Template.docTitle
+
+Template.docTitle.rendered = ->
+  @editComp = @$(".editable").editable
+    display: ->
+    success: (response, newValue) ->
+      docId = Session.get("document")
+      return unless document
+      Meteor.call "renameDocument", docId, newValue
+
+# This is needed to take out the editable when doc/title changes
+Template.docTitle.destroyed = ->
+  @editComp.editable("destroy")
 
 Template.docCurrent.events =
   "click .action-document-delete": ->
@@ -64,5 +77,3 @@ Template.docCurrent.config = ->
     # Set some reasonable options on the editor
     editor.setShowPrintMargin(false)
     editor.getSession().setUseWrapMode(true)
-
-Template.docTitle.title = -> Documents.findOne(""+@)?.title

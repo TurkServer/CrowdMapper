@@ -76,11 +76,11 @@ Meteor.methods
     TurkServer.checkNotAdmin()
     return unless tweetId and eventId
 
-    Events.update eventId,
-      $pull: { sources: tweetId }
-
     Datastream.update tweetId,
       $pull: { events: eventId }
+
+    Events.update eventId,
+      $pull: { sources: tweetId }
 
     unless @isSimulation
       @unblock()
@@ -161,6 +161,20 @@ Meteor.methods
         action: "event-update"
         eventId: id
         fields: fields
+
+    return
+
+  unmapEvent: (id) ->
+    TurkServer.checkNotAdmin()
+
+    Events.update id,
+      $unset: location: null
+
+    unless @isSimulation
+      @unblock()
+      TurkServer.log
+        action: "event-unmap"
+        eventId: id
 
     return
 
@@ -355,8 +369,27 @@ Meteor.methods
   # inviteChat: does stuff on server
 
   readNotification: (noteId) ->
+    now = new Date()
+
     Notifications.update noteId,
-      $set: {read: Date.now()}
+      $set: {read: now}
     # This logs itself
+
+    unless @isSimulation
+      # Mark other notifications for the same user and same room read as well
+      # but with a special flag
+      note = Notifications.findOne(noteId)
+
+      Notifications.update({
+        user: note.user,
+        room: note.room,
+        read: {$exists: false}
+      }, {
+        $set: {
+          read: now
+          implicit: true
+        }
+      }, {multi: true})
+
     return
 

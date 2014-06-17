@@ -1,4 +1,9 @@
-Template.tutorialSurvey.events =
+Template.exitsurvey.surveyTemplate = ->
+  # TODO generalize this based on batch
+  # Template.tutorialSurvey
+  return Template.postTaskSurvey
+
+Template.tutorialSurvey.events
   "submit form": (e, tmpl) ->
     e.preventDefault()
 
@@ -18,3 +23,16 @@ Template.tutorialSurvey.events =
     tmpl.find("button[type=submit]").disabled = true # Prevent multiple submissions
 
     TurkServer.submitExitSurvey(results, panel)
+
+Template.postTaskSurvey.events
+  "submit form": (e, tmpl) ->
+    e.preventDefault()
+
+    fields = [ "approach", "specialize", "teamwork", "workwith", "leadership", "bugs" ]
+
+    results = {}
+    for field in fields
+      results[field] = tmpl.find("textarea[name=#{field}]").value
+
+    tmpl.find("button[type=submit]").disabled = true # Prevent multiple submissions
+    TurkServer.submitExitSurvey(results)
