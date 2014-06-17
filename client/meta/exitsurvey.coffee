@@ -1,4 +1,4 @@
-Template.exitsurvey.events =
+Template.tutorialSurvey.events =
   "submit form": (e, tmpl) ->
     e.preventDefault()
 

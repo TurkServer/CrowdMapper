@@ -222,6 +222,8 @@ Meteor.methods
     TurkServer.checkAdmin()
     check(qualId, String)
 
+    @unblock() # This may take a while
+
     potentialWorkers = Workers.find({
       contact: true
       "quals.id": $nin: [qualId]

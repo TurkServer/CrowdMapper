@@ -59,12 +59,17 @@ Router.map ->
       # TODO remove this when EventedMind/iron-router#607 is merged
       @setLayout(null)
       @render()
-  @route 'exitsurvey',
+  @route 'exitsurvey/tutorial',
+    template: "tutorialSurvey"
     layoutTemplate: 'defaultContainer'
     onBeforeAction: (pause) ->
       unless TurkServer.inExitSurvey()
         @render("loadError")
         pause()
+  @route 'exitsurvey/posttask',
+    template: "postTaskSurvey"
+    layoutTemplate: 'defaultContainer'
+    # TODO deny if not in survey
 
 Meteor.startup ->
   Session.setDefault("taskView", 'events')
@@ -75,8 +80,9 @@ Meteor.startup ->
     Deps.autorun ->
       Router.go("/mapper") if TurkServer.inExperiment()
 
+    # TODO generalize this based on batch
     Deps.autorun ->
-      Router.go("/exitsurvey") if TurkServer.inExitSurvey()
+      Router.go("/exitsurvey/posttask") if TurkServer.inExitSurvey()
 
 ###
   Window sizing warning
@@ -123,6 +129,10 @@ Deps.autorun ->
 ###
   Templates and helpers
 ###
+
+Template.home.landingTemplate = ->
+  # TODO make this dynamic based on batch
+  Template.taskLanding
 
 Template.mapper.rendered = ->
   # Set initial active tab when state changes

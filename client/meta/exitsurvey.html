@@ -1,4 +1,4 @@
-<template name="exitsurvey">
+<template name="tutorialSurvey">
     <form class="well survey">
     <fieldset>
         <legend>Please briefly answer the questions below.</legend>
@@ -39,5 +39,44 @@
 
         <button type="submit" class="btn btn-primary">Submit HIT</button>
     </fieldset>
+    </form>
+</template>
+
+<template name="postTaskSurvey">
+    <form class="well survey">
+        <legend>Please briefly answer the questions below.</legend>
+
+        <div class="form-group">
+            <label>How did you approach the overall crisis mapping problem?</label>
+            <textarea class="form-control" name="approach" placeholder="Type something…" required></textarea>
+        </div>
+
+        <div class="form-group">
+            <label>Did you specialize in doing any type of work in particular?</label>
+            <textarea class="form-control" name="specialize" placeholder="Type something…" required></textarea>
+        </div>
+
+        <div class="form-group">
+            <label>Did your team discuss any strategies for tackling the problem? Were these strategies effective?</label>
+            <textarea class="form-control" name="teamwork" placeholder="Type something…" required></textarea>
+        </div>
+
+        <div class="form-group">
+            <label>Did you work with anyone else specifically on certain tasks?</label>
+            <textarea class="form-control" name="workwith" placeholder="Type something…" required></textarea>
+        </div>
+
+        <div class="form-group">
+            <label>Did you or anyone else take charge of organizing other team members?</label>
+            <textarea class="form-control" name="leadership" placeholder="Type something…" required></textarea>
+        </div>
+
+        <div class="form-group">
+            <label>Did you experience any bugs with the interface? If so, please describe them.</label>
+            <textarea class="form-control" name="bugs" placeholder="Type something…" required></textarea>
+            <span class="help-block">If you encountered any bugs, please include your operating system and browser in the description.</span>
+        </div>
+
+        <button type="submit" class="btn btn-primary">Submit HIT</button>
     </form>
 </template>

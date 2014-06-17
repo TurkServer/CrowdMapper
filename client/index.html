@@ -5,13 +5,23 @@
 <template name="home">
     <div class="container fill-height">
         <div class="jumbotron fill-height scroll-vertical">
-            {{> tut_welcome_recruiting}}
-
-            <p>After completing this HIT, you will gain a qualification for crisis mapping tasks where you will collaborate with other workers and earn from $6 to $15 an hour.</p>
-
-            <p>Accept the HIT to complete the tutorial, which will take about 10 minutes.</p>
+            {{> landingTemplate}}
         </div>
     </div>
+</template>
+
+<template name="taskLanding">
+    <p>This is the task for the Crisis Mapping Project.</p>
+
+    <p>Accept the HIT to join the project. You will first complete a quick tutorial, as in the previous qualification task. Then, you will join a collaborative crisis mapping session with other users, where you earn from $6 to $15 an hour as a bonus.</p>
+</template>
+
+<template name="recruitingLanding">
+    {{> tut_welcome_recruiting}}
+
+    <p>After completing this HIT, you will gain a qualification for crisis mapping tasks where you will collaborate with other workers and earn from $6 to $15 an hour.</p>
+
+    <p>Accept the HIT to complete the tutorial, which will take about 10 minutes.</p>
 </template>
 
 <template name="defaultContainer">

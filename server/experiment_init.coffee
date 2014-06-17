@@ -46,7 +46,7 @@ TurkServer.initialize ->
   else
     # Load initial tweets on first start
     # loadDumbTweets()
-    loadCSVTweets("PabloPh_UN_cleaned.csv", 500)
+    loadCSVTweets("PabloPh_UN_cm.csv", 500)
     # Create a seed instructions document for the app
     docId = Meteor.call("createDocument", "Instructions")
     Assets.getText "seed-instructions.txt", (err, res) ->
