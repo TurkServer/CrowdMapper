@@ -48,10 +48,12 @@
 
 <template name="postTaskSurvey">
     <form class="well survey">
-        <legend>Thank you for your work! Please briefly answer the questions below.</legend>
+        <legend>Thank you for your work!</legend>
+
+        <p>Please briefly answer the questions below. Your feedback will help us learn how to better respond to natural disasters in the future.</p>
 
         <div class="form-group">
-            <label>How did you approach the overall crisis mapping problem?</label>
+            <label>What was your general impression of the task, and how did you approach the overall crisis mapping problem?</label>
             <textarea class="form-control" name="approach" placeholder="Type something…" required></textarea>
         </div>
 
@@ -61,7 +63,7 @@
         </div>
 
         <div class="form-group">
-            <label>Did your team discuss any strategies for tackling the problem? Were these strategies effective?</label>
+            <label>Did your team adopt any strategies for tackling the problem? Were these strategies effective?</label>
             <textarea class="form-control" name="teamwork" placeholder="Type something…" required></textarea>
         </div>
 
@@ -76,8 +78,8 @@
         </div>
 
         <div class="form-group">
-            <label>Did you experience any bugs with the interface? If so, please describe them.</label>
-            <textarea class="form-control" name="bugs" placeholder="Type something…" required></textarea>
+            <label>Any other comments? If you ran into any bugs, please describe them here.</label>
+            <textarea class="form-control" name="misc" placeholder="Type something…" required></textarea>
             <span class="help-block">If you encountered any bugs, please include your operating system and browser in the description.</span>
         </div>
 

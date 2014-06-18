@@ -26,6 +26,16 @@ TurkServer.partitionCollection(Documents)
 TurkServer.partitionCollection(Events, {
   index: { num: 1 }  # Create an index on event sequencing for efficient lookup
 })
+###
+  We want to be able to do bulk read operations for users (targets) for a given room.
+###
+TurkServer.partitionCollection(Notifications, {
+  index: {
+    user: 1
+    room: 1
+    read: 1
+  }
+})
 
 Meteor.methods
   ###

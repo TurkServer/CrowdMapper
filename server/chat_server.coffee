@@ -94,7 +94,7 @@ Meteor.methods
   inviteChat: (userId, roomId) ->
     TurkServer.checkNotAdmin()
     myId = Meteor.userId()
-    return unless myId
+    return unless myId?
     # Don't invite if user is already in the same room
     return if ChatUsers.findOne(userId: userId)?.roomId is roomId
 
@@ -114,7 +114,7 @@ Meteor.methods
   sendChat: (roomId, message) ->
     TurkServer.checkNotAdmin()
     userId = Meteor.userId()
-    return unless Meteor.userId()
+    return unless userId?
 
     chatTime = new Date()
 

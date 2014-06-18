@@ -10,6 +10,7 @@ watchReady = (key) ->
   return (-> Session.set(key, true))
 
 Deps.autorun ->
+  # TODO only subscribe to these for the mapper route
   group = TurkServer.group()
 
   # Don't keep a room when going from tutorial to actual task
@@ -24,8 +25,8 @@ Deps.autorun ->
   Meteor.subscribe("datastream", group, watchReady("dataSubReady"))
   Meteor.subscribe("docs", group, watchReady("docSubReady"))
   Meteor.subscribe("events", group, watchReady("eventSubReady"))
-
-Meteor.subscribe("notifications") # User specific
+  # User specific, but shouldn't leak across instances
+  Meteor.subscribe("notifications", group)
 
 ###
   Routing

@@ -28,7 +28,7 @@ Template.postTaskSurvey.events
   "submit form": (e, tmpl) ->
     e.preventDefault()
 
-    fields = [ "approach", "specialize", "teamwork", "workwith", "leadership", "bugs" ]
+    fields = [ "approach", "specialize", "teamwork", "workwith", "leadership", "misc" ]
 
     results = {}
     for field in fields
