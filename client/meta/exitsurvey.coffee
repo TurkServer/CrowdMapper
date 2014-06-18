@@ -28,11 +28,15 @@ Template.postTaskSurvey.events
   "submit form": (e, tmpl) ->
     e.preventDefault()
 
+    results = {}
+    results.age = tmpl.find("input[name=age]").value
+    results.gender = tmpl.find("select[name=gender]").value
+
     fields = [ "approach", "specialize", "teamwork", "workwith", "leadership", "misc" ]
 
-    results = {}
     for field in fields
       results[field] = tmpl.find("textarea[name=#{field}]").value
 
     tmpl.find("button[type=submit]").disabled = true # Prevent multiple submissions
+    console.log results
     TurkServer.submitExitSurvey(results)

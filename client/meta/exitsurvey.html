@@ -52,6 +52,20 @@
 
         <p>Please briefly answer the questions below. Your feedback will help us learn how to better respond to natural disasters in the future.</p>
 
+        <div class="form-group col-sm-2">
+            <label>Your age:</label>
+            <input class="form-control" name="age" type="number" min="1" max="100" step="1" required>
+        </div>
+
+        <div class="form-group col-sm-2">
+            <label>Your gender:</label>
+            <select class="form-control" name="gender" required>
+                <option selected disabled></option>
+                <option value="male">Male</option>
+                <option value="female">Female</option>
+            </select>
+        </div>
+
         <div class="form-group">
             <label>What was your general impression of the task, and how did you approach the overall crisis mapping problem?</label>
             <textarea class="form-control" name="approach" placeholder="Type something…" required></textarea>
