@@ -29,7 +29,7 @@
 </template>
 
 <template name="tweetPopup">
-    {{{text}}}
+    {{{replaceURLs text}}}
     <button class="btn btn-xs btn-danger data-cell-icon action-unlink-tweet" title="Hide this tweet">
         <span class="glyphicon glyphicon-remove"></span>
     </button>
@@ -46,7 +46,7 @@
     <span class="label label-primary">
         <span class="glyphicon glyphicon-tag"></span>{{num}}
     </span>
-    <span class="chopped">{{{text}}}</span>
+    <span class="chopped">{{text}}</span>
 </template>
 
 <template name="eventIconClickable">

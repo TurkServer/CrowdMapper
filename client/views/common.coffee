@@ -1,3 +1,10 @@
+urlExp = /(\b(https?|ftp|file):\/\/[-A-Z0-9+&@#\/%?=~_|!:,.;]*[-A-Z0-9+&@#\/%=~_|])/ig
+
+UI.registerHelper "replaceURLs", (text) ->
+  # Shim so old links aren't broken, can be removed later for speed
+  return text if text.indexOf("target='_blank'>") > -1
+  text.replace(urlExp, "<a href='$1' target='_blank'>$1</a>")
+
 Template.userList.loaded = -> Session.equals("userSubReady", true)
 
 Template.userList.users = ->
