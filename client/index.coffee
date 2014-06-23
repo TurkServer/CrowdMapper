@@ -9,25 +9,6 @@ watchReady = (key) ->
   Session.set(key, false)
   return (-> Session.set(key, true))
 
-Deps.autorun ->
-  # TODO only subscribe to these for the mapper route
-  group = TurkServer.group()
-
-  # Don't keep a room when going from tutorial to actual task
-  unless group
-    Session.set("room", undefined)
-    return # Otherwise admin will derpily subscribe to the entire set of users
-
-  # No need to clean up subscriptions because this is a Deps.autorun
-  # We need to pass the group handle down to make Meteor think the subscription is different
-  Meteor.subscribe("userStatus", group, watchReady("userSubReady"))
-  Meteor.subscribe("chatrooms", group, watchReady("chatSubReady")) # Chat messages are subscribed to by room
-  Meteor.subscribe("datastream", group, watchReady("dataSubReady"))
-  Meteor.subscribe("docs", group, watchReady("docSubReady"))
-  Meteor.subscribe("events", group, watchReady("eventSubReady"))
-  # User specific, but shouldn't leak across instances
-  Meteor.subscribe("notifications", group)
-
 ###
   Routing
 ###
@@ -51,6 +32,26 @@ Router.map ->
         @setLayout("defaultContainer")
         @render("loadError")
         pause()
+
+      # TODO this isn't exactly working smoothly, figure out what is going on
+      group = TurkServer.group()
+
+      # Don't keep a room when going from tutorial to actual task
+      unless group
+        Session.set("room", undefined)
+        return # Otherwise admin will derpily subscribe to the entire set of users
+
+      # No need to clean up subscriptions because this is a Deps.autorun
+      # We need to pass the group handle down to make Meteor think the subscription is different
+      Meteor.subscribe("userStatus", group, watchReady("userSubReady"))
+      # Chat messages are subscribed to by room
+      Meteor.subscribe("chatrooms", group, watchReady("chatSubReady"))
+      Meteor.subscribe("datastream", group, watchReady("dataSubReady"))
+      Meteor.subscribe("docs", group, watchReady("docSubReady"))
+      Meteor.subscribe("events", group, watchReady("eventSubReady"))
+      # User specific, but shouldn't leak across instances
+      Meteor.subscribe("notifications", group)
+
     ###
       Before hook is buggy due to https://github.com/EventedMind/iron-router/issues/336
       So we subscribe to EventFields statically right now.

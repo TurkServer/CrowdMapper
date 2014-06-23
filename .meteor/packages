@@ -19,13 +19,11 @@ sharejs
 autocomplete
 tutorials
 jqueryui
+partitioner # So we can use the APIs directly
 turkserver
 timesync
-# Can be used to download OpenLayers files
-build-fetcher
+d3
 
-# For testing if we are not using turkserver
-# accounts-testing
 # For parsing input files
 csv
 # Pulls in the openlayers images

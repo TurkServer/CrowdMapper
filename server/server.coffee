@@ -45,6 +45,20 @@ Meteor.methods
     if exp.treatment()?.tutorialEnabled
       exp.teardown()
 
+  "getMapperData": (groupId) ->
+    TurkServer.checkAdmin()
+
+    instance =  Experiments.findOne(groupId)
+
+    roomIds = Partitioner.directOperation ->
+      ChatRooms.find(_groupId: groupId).map (room) -> room._id
+
+    users = Meteor.users.find(_id: $in: instance.users).fetch()
+    logs = Logs.find(_groupId: groupId).fetch()
+    chat = ChatMessages.find(room: $in: roomIds).fetch()
+
+    return {instance, users, logs, chat}
+
   # TODO hack-ass method that needs to be re-implemented in a more generalized way
   "computePayment": (groupId, ratio, actuallyPay) ->
     TurkServer.checkAdmin()
