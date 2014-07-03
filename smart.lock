@@ -5,7 +5,9 @@
       "iron-router": {},
       "jqueryui": {},
       "x-editable-bootstrap": {},
-      "bootboxjs": {},
+      "bootboxjs": {
+        "version": "4.2.0"
+      },
       "user-status": {
         "path": "../meteor-user-status"
       },
