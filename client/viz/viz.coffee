@@ -1,3 +1,12 @@
+preprocess = (data) ->
+  # Pre-Classify logs as "filtering/verification" vs. other
+  data.logs.forEach (entry) ->
+    switch entry.action
+      when "data-unlink", "data-hide", "event-vote", "event-unvote"
+        entry.vizType = 0
+      else
+        entry.vizType = 1
+
 Router.map ->
   @route 'viz',
     path: 'viz/:groupId'
@@ -11,14 +20,17 @@ Router.map ->
 
       Meteor.call "getMapperData", this.params.groupId, (err, res) =>
         bootbox.alert(err) if err
+
+        preprocess(res)
         this.mapperData = res
+
         @readyDep.isReady = true;
         @readyDep.changed()
 
       return {
-      ready: =>
-        @readyDep.depend()
-        return @readyDep.isReady
+        ready: =>
+          @readyDep.depend()
+          return @readyDep.isReady
       }
     data: ->
       @readyDep.depend()
@@ -30,7 +42,18 @@ Router.map ->
 
 tags = /[~@#]/
 
+Template.viz.events
+  "click nav a": (e, t) ->
+    e.preventDefault()
+    target = $(e.target).data("target")
+
+    t.$(".stack .item").removeClass("active")
+    t.$(".stack .item.#{target}").addClass("active")
+
 Template.viz.rendered = ->
+  this.$(".stack .item").removeClass("active")
+  this.$(".stack .item").first().addClass("active")
+
   console.log @data.instance
   console.log "users", @data.users
   console.log "logs", @data.logs
@@ -43,13 +66,22 @@ entryActionField = (entry) ->
     break
   return field
 
+logEntryClass = (entry) ->
+  field = entryActionField(entry) || ""
+  return "action #{entry.action || entry._meta} #{field}"
+
+chatMsgClass = (msg) ->
+  if msg.text.match(tags)
+    tagged = "tagged"
+  return "chat #{tagged}"
+
+vizPointWidth = 5
+
 Template.vizActionsOverTime.rendered = ->
   margin = {
     left: 100
     bottom: 50
   }
-
-  pointWidth = 5
 
   svg = @find("svg")
   width = $(svg).width() - margin.left
@@ -57,6 +89,7 @@ Template.vizActionsOverTime.rendered = ->
 
   chart = d3.select(svg).append("g")
     .attr("transform", "translate(#{margin.left}, 0)")
+    # TODO this is not clipping
     .attr("clip-path", "rect(0, 0, #{width}, #{height})")
 
   x = d3.scale.linear()
@@ -65,10 +98,8 @@ Template.vizActionsOverTime.rendered = ->
 
   # Create domain and labels; including a fake value for all users
   domain = (user._id for user in @data.users)
-  domain.push("all")
 
   domainLabels = (user.username for user in @data.users)
-  domainLabels.push("All")
 
   y = d3.scale.ordinal()
     .domain(domain)
@@ -79,7 +110,7 @@ Template.vizActionsOverTime.rendered = ->
   xAxis = d3.svg.axis()
     .orient("bottom")
     .scale(x)
-    .tickFormat( (date) -> new Date(date).toLocaleString() )
+    .tickFormat( (date) -> new Date(date).toLocaleTimeString() )
 
   yAxis = d3.svg.axis()
     .orient("left")
@@ -105,66 +136,27 @@ Template.vizActionsOverTime.rendered = ->
     .attr("width", width)
     .attr("height", y.rangeBand())
 
-  formatAction = (_, overriddenUserId) ->
-    this
-    .attr("class", (entry) ->
-        field = entryActionField(entry) || ""
-        return "action #{entry.action || entry._meta} #{field}"
-      )
-    .attr("y", (entry) ->
-        val = y(overriddenUserId || entry._userId)
-        # Offset filtering/verification stuff
-        switch entry.action
-          when "data-unlink", "data-hide", "event-vote", "event-unvote"
-          else
-            val += bandWidth
-        return val
-      )
-    .attr("width", pointWidth)
-    .attr("height", bandWidth)
-
   # Draw actions
   chart.selectAll(".action")
     .data(@data.logs, (entry) -> entry._id)
   .enter().append("rect")
-    .call(formatAction)
+    .attr("class", logEntryClass)
+    .attr("y", (entry) -> y(entry._userId) + entry.vizType * bandWidth)
+    .attr("width", vizPointWidth)
+    .attr("height", bandWidth)
   .append("svg:title")
     .text((d) -> d.action || d._meta)
-
-  # TODO if updating in real time, can't overload the .action class
-  chart.selectAll(".action.all")
-    .data(@data.logs, (entry) -> entry._id)
-  .enter().append("rect")
-    .call(formatAction, "all")
-  # Don't append SVG title
-
-  formatChat = (_, overriddenUserId) ->
-    this
-    .attr("class", (msg) ->
-      if msg.text.match(tags)
-        tagged = "tagged"
-      "chat #{tagged}"
-    )
-    .attr("y", (msg) ->
-        y(overriddenUserId || msg.userId) + 2*bandWidth
-      )
-    .attr("width", pointWidth)
-    .attr("height", bandWidth)
 
   # Draw chat
   chart.selectAll(".chat")
     .data(@data.chat, (msg) -> msg._id)
-  .enter()
-    .append("rect")
-    .call(formatChat)
+  .enter().append("rect")
+    .attr("class", chatMsgClass)
+    .attr("y", (msg) -> y(msg.userId) + 2*bandWidth)
+    .attr("width", vizPointWidth)
+    .attr("height", bandWidth)
   .append("svg:title")
     .text((d) -> d.text)
-
-  chart.selectAll(".chat.all")
-    .data(@data.chat, (msg) -> msg._id)
-  .enter()
-    .append("rect")
-    .call(formatChat, "all")
 
   redraw = ->
     svgX.call(xAxis)
@@ -186,7 +178,63 @@ Template.vizActionsOverTime.rendered = ->
   d3.select(svg).call(zoom)
 
 Template.vizActionPies.rendered = ->
-  # Count up actions and chat
+  margin = {
+    bottom: 20
+  }
+
+  svg = @find("svg.timeline")
+  width = $(svg).width()
+  height = $(svg).height() - margin.bottom
+
+  chart = d3.select(svg).append("g")
+
+  timeRange = [@data.instance.startTime, @data.instance.endTime]
+
+  x = d3.scale.linear()
+    .domain(timeRange)
+    .range([0, width])
+
+  y = d3.scale.ordinal()
+    .domain([0..2])
+    .rangeBands([0, height])
+
+  xAxis = d3.svg.axis()
+    .orient("bottom")
+    .scale(x)
+    .tickFormat( (date) -> new Date(date).toLocaleTimeString() )
+
+  svgX = chart.append("g")
+    .attr("class", "x axis")
+    .attr("transform", "translate(0, #{height})")
+
+  svgX.call(xAxis)
+
+  chart.selectAll(".action")
+    .data(@data.logs, (entry) -> entry._id)
+  .enter().append("rect")
+    .attr("class", logEntryClass)
+    .attr("x", (entry) -> x(entry._timestamp))
+    .attr("y", (entry) -> y(entry.vizType))
+    .attr("width", vizPointWidth)
+    .attr("height", y.rangeBand())
+
+  chart.selectAll(".chat")
+    .data(@data.chat, (msg) -> msg._id)
+  .enter().append("rect")
+    .attr("class", chatMsgClass)
+    .attr("x", (entry) -> x(entry.timestamp))
+    .attr("y", y(2))
+    .attr("width", vizPointWidth)
+    .attr("height", y.rangeBand())
+
+
+  ###
+    Draw pie SVG
+  ###
+  piesvg = @find("svg.pies")
+  pieHeight = $(piesvg).height()
+
+  # Create nest operators for counting up actions and chat
   fieldNest = d3.nest()
     .key( entryActionField )
     .rollup( (leaves) -> { count: leaves.length } )
@@ -207,30 +255,16 @@ Template.vizActionPies.rendered = ->
     .key( (msg) -> if msg.text.match(tags) then "tagged" else "undirected" )
     .rollup( (leaves) -> { count: leaves.length} )
 
-  # Merge nested actions up per user
-  data = logNest.entries(@data.logs)
+  # Create a pack layout for users
+  pack = d3.layout.pack()
+    # .sort((d) -> d.key)
+    .size([pieHeight, width])
+    .children((d) -> d.pies )
+    # .value( (d) -> d.value )
+    .padding(5)
 
-  # merge nested chat entries
-  chatData = chatNest.entries(@data.chat)
-  for record in data
-    chatRecords = _.find(chatData, (c) -> c.key is record.key)
-    continue unless chatRecords?
-    record.values = record.values.concat(chatRecords.values)
-
-  # Margin and radius
-  m = 0
-  r = 180
-
-  gs = d3.select(@find(".pies")).selectAll("svg")
-    .data(data)
-  .enter().append("svg:svg")
-    .attr("class", "viz")
-    .attr("width", (r + m) * 2)
-    .attr("height", (r + m) * 2)
-  .append("svg:g")
-    .attr("transform", "translate(#{r+m}, #{r+m})")
-
-  pies = gs.append("svg:g")
+  # Radius for per-user sunburst; arbitrary value that gets rescaled anyway
+  r = 200
 
   partition = d3.layout.partition()
     .sort(null)
@@ -244,35 +278,100 @@ Template.vizActionPies.rendered = ->
     .innerRadius((d) -> Math.sqrt(d.y) )
     .outerRadius((d) -> Math.sqrt(d.y + d.dy) );
 
-  # Create a new selection for the path inside each data
-  pies.selectAll("path")
-    .data(partition.nodes)
-  .enter().append("path")
-    .attr("class", (d) ->
-      switch
-        when d.depth is 0 then "root"
-        when d.depth is 1 and d.key is "chat" then "chat"
-        when d.depth is 1 then "action " + d.key
-        when d.depth is 2 and d.parent.key is "chat" then "chat " + d.key
-        when d.depth is 2 then "action event-update " + d.key
-    )
-    .attr("d", arc)
-    .style("fill-rule", "evenodd")
+  # Create a brush for adjusting the viewing region
+  brush = d3.svg.brush()
+    .x(x)
+    .extent(timeRange)
 
-  # Data has been modified quite a bit now and will have a value in each node
-  max = d3.max(data, (d) -> d.value)
+  gBrush = chart.append("g")
+    .attr("class", "brush")
+    .call(brush)
 
-  gs.append("svg:text")
+  gBrush.selectAll("rect")
+    .attr("height", height)
+
+  brushed = =>
+    extent = brush.extent()
+    # Merge nested actions up per user
+    filteredLogs = _.filter(@data.logs, (entry) -> extent[0] < entry._timestamp < extent[1])
+    data = logNest.entries(filteredLogs)
+
+    # merge nested chat entries
+    filteredChat = _.filter(@data.chat, (entry) -> extent[0] < entry.timestamp < extent[1])
+    chatData = chatNest.entries(filteredChat)
+
+    # Smush data together
+    for record in data
+      chatRecords = _.find(chatData, (c) -> c.key is record.key)
+      continue unless chatRecords?
+      record.values = record.values.concat(chatRecords.values)
+
+    pies = d3.select(piesvg).selectAll("g.pie")
+      .data(data, (d) -> d.key)
+
+    # Create a container for each pie along with a circle that outlines it
+    centers = pies.enter().append("g")
+      .attr("class", "pie")
+      .attr("transform", "translate(0,0)") # Default value for tweening
+
+    centers.append("g")
+      .attr("class", "center")
+      .attr("transform", "scale(1,1)") # Ditto
+    .append("circle")
+      .attr("class", "outline")
+      .attr("r", r)
+
+    # Create the centering g element and the user name text field
+    centers.append("svg:text")
+    .attr("class", "caption")
     .attr("dy", "0.35em")
     .attr("text-anchor", "middle")
-    .text((d) => _.find(@data.users, (u) -> u._id is d.key)?.username + " (#{d.value})" )
 
-  pies.attr "transform", (d) ->
-    s = Math.sqrt(d.value / max)
-    "scale(#{s}, #{s})"
+    pies.exit().remove()
 
+    # Create a new selection for the path inside each data
+    # Partition.nodes will fill in some crap for each users's data
+    nodes = pies.select("g.center").selectAll("path")
+      .data(partition.nodes)
 
+    nodes.enter().append("path")
+    nodes.exit().remove()
 
+    nodes
+      .attr("class", (d) ->
+          switch
+            when d.depth is 0 then "root"
+            when d.depth is 1 and d.key is "chat" then "chat"
+            when d.depth is 1 then "action " + d.key
+            when d.depth is 2 and d.parent.key is "chat" then "chat " + d.key
+            when d.depth is 2 then "action event-update " + d.key
+        )
+      .attr("d", arc)
+
+    text = pies.select("text.caption")
+    text.text((d) => _.find(@data.users, (u) -> u._id is d.key)?.username + " (#{d.value})" )
+
+    # Resize circles and pack to new positions
+    # Create a temporary object and then immediately discard the top level
+    pack.nodes({key: "root", pies: data})
+
+    # Recompute pie sizes and re-pack into the area
+    # Position pies based on new packed positions
+    pies.transition()
+    .attr "transform", (d) ->
+      # Use transposed packing as it seems to be more space efficient horizontally
+      return "translate(#{d.y}, #{d.x})"
+
+    pies.select("g.center").transition()
+    .attr "transform", (d) ->
+      # s = Math.sqrt(d.value / max)
+      s = d.r / 200
+      return "scale(#{s}, #{s})"
+
+  brush.on "brushend", brushed
+
+  # First draw
+  brushed()
 
 
 

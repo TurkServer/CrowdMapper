@@ -1,7 +1,24 @@
 <template name="viz">
     <div class="ts-scroll-parent">
-        {{> vizActionsOverTime }}
-        {{> vizActionPies }}
+        <nav class="navbar navbar-default compact">
+            <ul class="nav navbar-nav">
+                <li>
+                    <a href="#" data-target="time" data-toggle="tab">Actions Over Time</a>
+                </li>
+                <li>
+                    <a href="#" data-target="pies" data-toggle="tab">Action Distribution</a>
+                </li>
+            </ul>
+        </nav>
+
+        <div class="stack" style="width: 100%">
+            <div class="item time active">
+                {{> vizActionsOverTime }}
+            </div>
+            <div class="item pies active">
+                {{> vizActionPies }}
+            </div>
+        </div>
     </div>
 </template>
 
@@ -12,5 +29,9 @@
 
 <template name="vizActionPies">
     <h3>Pie Charts</h3>
-    <div class="pies"></div>
+
+    <svg class="viz timeline" width="100%" height="65"></svg>
+
+    <svg class="viz pies" width="100%" height="1200"></svg>
+
 </template>
