@@ -116,14 +116,17 @@ processDrop = (event, ui) ->
   # Don't do anything if this tweet is already on this event
   return if $.inArray(event._id, tweet.events) >= 0
 
+  # TODO replace with an appropriate use of UI._parentData
   target = ui.draggable.context
   parent = tweet
   while parent is tweet
     parent = UI.getElementData(target = target.parentNode)
 
-  Meteor.call "dataLink", tweet._id, event._id
-  # unlink from parent if it was an event
-  Meteor.call "dataUnlink", tweet._id, parent._id if parent._id
+  # Distinguish between a link and a re-drag
+  unless parent._id?
+    Meteor.call "dataLink", tweet._id, event._id
+  else # remove from parent if it was an event
+    Meteor.call "dataMove", tweet._id, parent._id, event._id
 
 Template.eventRow.rendered = ->
   $(@firstNode).droppable

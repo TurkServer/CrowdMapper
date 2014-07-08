@@ -12,25 +12,33 @@
         </nav>
 
         <div class="stack" style="width: 100%">
-            <div class="item time active">
-                {{> vizActionsOverTime }}
-            </div>
             <div class="item pies active">
                 {{> vizActionPies }}
+            </div>
+            <div class="item time active">
+                {{> vizActionsOverTime }}
             </div>
         </div>
     </div>
 </template>
 
 <template name="vizActionsOverTime">
-    <h3>Actions over time</h3>
     <svg class="viz" width="100%" height="900"></svg>
 </template>
 
 <template name="vizActionPies">
-    <h3>Pie Charts</h3>
 
     <svg class="viz timeline" width="100%" height="65"></svg>
+
+    <label class="radio-inline">
+        <input type="radio" name="pieLayout" value="aggregate" checked> Aggregate
+    </label>
+    <label class="radio-inline">
+        <input type="radio" name="pieLayout" value="sorted"> By Contribution
+    </label>
+    <label class="radio-inline">
+        <input type="radio" name="pieLayout" value="fixed"> Fixed
+    </label>
 
     <svg class="viz pies" width="100%" height="1200"></svg>
 

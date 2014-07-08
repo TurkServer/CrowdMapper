@@ -3,38 +3,52 @@ svg.viz
     fill: #dddddd
     stroke: #aaaaaa
 
-  .action
+  .pie .action
+    fill-opacity: 0.50
+
+  .pie .action.type
+    fill-opacity: 1.0
+
+  // Filtering actions
+  .action.filter, .action.data-hide
+    fill: #d62728
+
+  .action.data-link
+    fill: #9467bd
+
+  // Classification actions
+  .action.event-edit
+    fill: #1f77b4
+
+  .action.classify, .action.event-create, .action.event-update
+    fill: #bcbd22
+
+  // Location updates
+  .action.event-update.location, .action.event-update.province, .action.event-update.region
+    fill: #17becf
+
+  .action.event-save
+    fill: #2ca02c
+
+   // Verification actions
+  .action.verify, .action.event-vote
+    fill: #ff7f0e
+
+  .action.data-move, .action.event-unvote
     fill: #8c564b
 
   .action.data-unlink, .action.event-delete
     fill: #7f7f7f
 
-  .action.data-link
-    fill: #9467bd
-
-  .action.data-hide
-    fill: #d62728
-
-  .action.event-edit
-    fill: #1f77b4
-
-  .action.event-update
-    fill: #bcbd22
-
-  .action.event-update.location, .action.event-update.province, .action.event-update.region
-    fill: #17becf
-
-  .action.event-vote, .action.event-unvote
-    fill: #ff7f0e
-
-  .action.event-save
-    fill: #2ca02c
-
+  // Chat actions
   .chat
     fill: #e377c2
 
   .chat.tagged
     stroke: #000000
+
+  .chat.tagged, .chat.undirected
+    fill-opacity: 0.50
 
   path
     fill-rule: evenodd

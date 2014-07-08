@@ -54,8 +54,8 @@ Meteor.methods
       ChatRooms.find(_groupId: groupId).map (room) -> room._id
 
     users = Meteor.users.find(_id: $in: instance.users).fetch()
-    logs = Logs.find(_groupId: groupId).fetch()
-    chat = ChatMessages.find(room: $in: roomIds).fetch()
+    logs = Logs.find({_groupId: groupId}, {sort: {_timestamp: 1}}).fetch()
+    chat = ChatMessages.find({room: $in: roomIds}, {sort: {timestamp: 1}}).fetch()
 
     return {instance, users, logs, chat}
 

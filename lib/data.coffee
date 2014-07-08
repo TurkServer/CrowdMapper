@@ -101,6 +101,33 @@ Meteor.methods
 
     return
 
+  # Dragging a tweet frome one event to another
+  dataMove: (tweetId, fromEventId, toEventId) ->
+    TurkServer.checkNotAdmin()
+    check(tweetId, String)
+    check(fromEventId, String)
+    check(toEventId, String)
+
+    Events.update fromEventId,
+      $pull: { sources: tweetId }
+
+    Datastream.update tweetId,
+      $pull: { events: fromEventId }
+      $addToSet: { events: toEventId }
+
+    Events.update toEventId,
+      $addToSet: { sources: tweetId }
+
+    unless @isSimulation
+      @unblock()
+      TurkServer.log
+        action: "data-move"
+        dataId: tweetId
+        fromEventId: fromEventId
+        toEventId: toEventId
+
+    return
+
   ###
     Event Methods
   ###

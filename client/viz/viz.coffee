@@ -1,11 +1,22 @@
 preprocess = (data) ->
-  # Pre-Classify logs as "filtering/verification" vs. other
-  data.logs.forEach (entry) ->
-    switch entry.action
-      when "data-unlink", "data-hide", "event-vote", "event-unvote"
-        entry.vizType = 0
-      else
-        entry.vizType = 1
+  # data-unlink followed by data-link (in the near future) should be
+  # reclassified as a "data-move" action
+  # This won't be necessary other than for the pilot data.
+  logs = data.logs
+  i = 0
+  while i < logs.length
+    if logs[i].action is "data-unlink"
+      j = i
+      while ++j < logs.length and (j - i) < 5
+        if logs[j].action is "data-link" and logs[j].dataId is logs[i].dataId
+          logs[i].action = "data-move"
+          logs[i].fromEventId = logs[i].eventId
+          logs[i].toEventId = logs[j].eventId
+
+          delete logs[i].eventId
+          logs.splice(j, 1)
+          break
+    i++
 
 Router.map ->
   @route 'viz',
@@ -54,10 +65,23 @@ Template.viz.rendered = ->
   this.$(".stack .item").removeClass("active")
   this.$(".stack .item").first().addClass("active")
 
-  console.log @data.instance
-  console.log "users", @data.users
-  console.log "logs", @data.logs
-  console.log "chat", @data.chat
+#  console.log @data.instance
+#  console.log "users", @data.users
+#  console.log "logs", @data.logs
+#  console.log "chat", @data.chat
+
+# What overall type of action is this?
+entryActionType = (entry) ->
+  switch entry.action
+    when "data-hide", "data-link" then "filter"
+    when "event-create", "event-edit", "event-update", "event-save" then "classify"
+    when "event-vote", "event-unvote", "event-unmap", "event-delete", "data-move", "data-unlink" then "verify"
+    else ""
+
+vizType = (entry) ->
+  switch entryActionType(entry)
+    when "filter", "verify" then  0
+    else 1
 
 entryActionField = (entry) ->
   field = null
@@ -74,6 +98,15 @@ chatMsgClass = (msg) ->
   if msg.text.match(tags)
     tagged = "tagged"
   return "chat #{tagged}"
+
+# All actions in the given time range that are not meta actions
+filterLogs = (logs, extent) ->
+  _.filter logs, (entry) ->
+    extent[0] < entry._timestamp < extent[1] and not entry._meta?
+
+filterChat = (chat, extent) ->
+  _.filter chat, (entry) ->
+    extent[0] < entry.timestamp < extent[1]
 
 vizPointWidth = 5
 
@@ -141,7 +174,7 @@ Template.vizActionsOverTime.rendered = ->
     .data(@data.logs, (entry) -> entry._id)
   .enter().append("rect")
     .attr("class", logEntryClass)
-    .attr("y", (entry) -> y(entry._userId) + entry.vizType * bandWidth)
+    .attr("y", (entry) -> y(entry._userId) + vizType(entry) * bandWidth)
     .attr("width", vizPointWidth)
     .attr("height", bandWidth)
   .append("svg:title")
@@ -176,6 +209,11 @@ Template.vizActionsOverTime.rendered = ->
     .on("zoom", redraw)
 
   d3.select(svg).call(zoom)
+
+Template.vizActionPies.events
+  "change input[name=pieLayout]": (e, t) ->
+    t.layout = e.target.value
+    t.reposition()
 
 Template.vizActionPies.rendered = ->
   margin = {
@@ -214,7 +252,7 @@ Template.vizActionPies.rendered = ->
   .enter().append("rect")
     .attr("class", logEntryClass)
     .attr("x", (entry) -> x(entry._timestamp))
-    .attr("y", (entry) -> y(entry.vizType))
+    .attr("y", (entry) -> y(vizType(entry)))
     .attr("width", vizPointWidth)
     .attr("height", y.rangeBand())
 
@@ -227,7 +265,6 @@ Template.vizActionPies.rendered = ->
     .attr("width", vizPointWidth)
     .attr("height", y.rangeBand())
 
-
   ###
     Draw pie SVG
   ###
@@ -235,19 +272,14 @@ Template.vizActionPies.rendered = ->
   pieHeight = $(piesvg).height()
 
   # Create nest operators for counting up actions and chat
-  fieldNest = d3.nest()
-    .key( entryActionField )
-    .rollup( (leaves) -> { count: leaves.length } )
-
+  # Re-nest for different types of classification actions
   logNest = d3.nest()
     .key((entry) -> entry._userId)
-    .key((entry) -> entry.action)
-    .rollup( (leaves) ->
-      if leaves[0].action is "event-update"
-        # Third level nest for different types of event updates
-        return fieldNest.entries(leaves)
-      return { count: leaves.length }
-    )
+    .key( entryActionType )
+    .sortKeys(d3.ascending)
+    .key( (entry) -> entry.action + " " + (entryActionField(entry) || "")  )
+    .sortKeys(d3.ascending)
+    .rollup( (leaves) -> { count: leaves.length } )
 
   chatNest = d3.nest()
     .key( (msg) -> msg.userId )
@@ -293,12 +325,10 @@ Template.vizActionPies.rendered = ->
   brushed = =>
     extent = brush.extent()
     # Merge nested actions up per user
-    filteredLogs = _.filter(@data.logs, (entry) -> extent[0] < entry._timestamp < extent[1])
-    data = logNest.entries(filteredLogs)
+    data = logNest.entries filterLogs(@data.logs, extent)
 
     # merge nested chat entries
-    filteredChat = _.filter(@data.chat, (entry) -> extent[0] < entry.timestamp < extent[1])
-    chatData = chatNest.entries(filteredChat)
+    chatData = chatNest.entries filterChat(@data.chat, extent)
 
     # Smush data together
     for record in data
@@ -341,10 +371,9 @@ Template.vizActionPies.rendered = ->
       .attr("class", (d) ->
           switch
             when d.depth is 0 then "root"
-            when d.depth is 1 and d.key is "chat" then "chat"
-            when d.depth is 1 then "action " + d.key
+            when d.depth is 1 then "action type " + d.key
             when d.depth is 2 and d.parent.key is "chat" then "chat " + d.key
-            when d.depth is 2 then "action event-update " + d.key
+            when d.depth is 2 then "action " + d.key
         )
       .attr("d", arc)
 
@@ -355,24 +384,35 @@ Template.vizActionPies.rendered = ->
     # Create a temporary object and then immediately discard the top level
     pack.nodes({key: "root", pies: data})
 
-    # Recompute pie sizes and re-pack into the area
-    # Position pies based on new packed positions
-    pies.transition()
-    .attr "transform", (d) ->
-      # Use transposed packing as it seems to be more space efficient horizontally
-      return "translate(#{d.y}, #{d.x})"
-
-    pies.select("g.center").transition()
-    .attr "transform", (d) ->
-      # s = Math.sqrt(d.value / max)
-      s = d.r / 200
-      return "scale(#{s}, #{s})"
+    @reposition()
 
   brush.on "brushend", brushed
 
+  @reposition = =>
+    pies = d3.select(piesvg).selectAll("g.pie")
+
+    pies.select("g.center").transition()
+    .attr "transform", (d) ->
+        # s = Math.sqrt(d.value / max)
+        s = d.r / 200
+        return "scale(#{s}, #{s})"
+
+    # Leave things in whatever playout was there before if fixed
+    return if @layout is "fixed"
+
+    if @layout is "sorted"
+      # TODO implement row layout
+
+    else # Aggregate layout; default
+      # Recompute pie sizes and re-pack into the area
+      # Position pies based on new packed positions
+      pies.transition()
+      .attr "transform", (d) ->
+          # Use transposed packing as it seems to be more space efficient horizontally
+          return "translate(#{d.y}, #{d.x})"
+
   # First draw
   brushed()
-
 
 
 
