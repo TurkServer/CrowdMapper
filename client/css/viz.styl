@@ -6,6 +6,10 @@ svg.viz
   .pie .action
     fill-opacity: 0.50
 
+  // The root node, showing the user's main activity
+  .pie .action.root
+    fill-opacity: 0.3
+
   .pie .action.type
     fill-opacity: 1.0
 
@@ -53,9 +57,6 @@ svg.viz
   path
     fill-rule: evenodd
     stroke: #ffffff
-
-  path.root
-    display: none
 
   .outline
     fill: #EEEEEE

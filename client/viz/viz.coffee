@@ -1,22 +1,40 @@
 preprocess = (data) ->
-  # data-unlink followed by data-link (in the near future) should be
-  # reclassified as a "data-move" action
   # This won't be necessary other than for the pilot data.
   logs = data.logs
+
+  move_reclassify = 0
+  unlink_reclassify = 0
+
   i = 0
   while i < logs.length
     if logs[i].action is "data-unlink"
-      j = i
+      j = Math.max(i - 5, 0)
       while ++j < logs.length and (j - i) < 5
+        # data-unlink followed by data-link (in the near future) should be
+        # reclassified as a "data-move" action
         if logs[j].action is "data-link" and logs[j].dataId is logs[i].dataId
+          move_reclassify++
+
           logs[i].action = "data-move"
           logs[i].fromEventId = logs[i].eventId
           logs[i].toEventId = logs[j].eventId
 
           delete logs[i].eventId
           logs.splice(j, 1)
+
+          # If we delete a number *before* i, then don't increment
+          i-- if j < i
+          break
+        # Also splice data-hide actions caused by unlinking
+        else if logs[j].action is "data-hide" and logs[j].dataId is logs[i].dataId
+          unlink_reclassify++
+
+          logs.splice(j, 1)
+          i-- if j < i
           break
     i++
+
+  console.log "Moves re-classified: #{move_reclassify}", "Unlinks re-classified: #{unlink_reclassify}"
 
 Router.map ->
   @route 'viz',
@@ -216,6 +234,8 @@ Template.vizActionPies.events
     t.reposition()
 
 Template.vizActionPies.rendered = ->
+  @layout = "force"
+
   margin = {
     bottom: 20
   }
@@ -268,6 +288,10 @@ Template.vizActionPies.rendered = ->
   ###
     Draw pie SVG
   ###
+
+  padding = 5
+  clusterPadding = 80
+
   piesvg = @find("svg.pies")
   pieHeight = $(piesvg).height()
 
@@ -287,16 +311,31 @@ Template.vizActionPies.rendered = ->
     .key( (msg) -> if msg.text.match(tags) then "tagged" else "undirected" )
     .rollup( (leaves) -> { count: leaves.length} )
 
-  # Create a pack layout for users
+  # Create a pack layout for users. This can have a little extra overage so the
+  # circles are bigger in the force directed layout
   pack = d3.layout.pack()
-    # .sort((d) -> d.key)
-    .size([pieHeight, width])
-    .children((d) -> d.pies )
+    .sort(null)
+    .size([width, Math.min(width, 1.25 * pieHeight)])
+    # We create a one-time object to use this, but we don't want it to descend
+    # into the per-user nested data, which has the 'children' key
+    .children( (d) -> d.values unless d.children )
     # .value( (d) -> d.value )
-    .padding(5)
+    .padding(padding)
+
+  clusters = {}
+
+  clusterNest = d3.nest()
+    .key( (d) -> d.cluster )
+    .rollup (values) ->
+      # Whenever we cluster users, store the biggest user of each cluster
+      clusterUser = _.max(values, (c) -> c.value)
+      clusters[clusterUser.cluster] = clusterUser
+      # Still need to return the values themselves
+      return values
 
   # Radius for per-user sunburst; arbitrary value that gets rescaled anyway
   r = 200
+  maxRadius = 0
 
   partition = d3.layout.partition()
     .sort(null)
@@ -310,6 +349,12 @@ Template.vizActionPies.rendered = ->
     .innerRadius((d) -> Math.sqrt(d.y) )
     .outerRadius((d) -> Math.sqrt(d.y + d.dy) );
 
+  force = d3.layout.force()
+    .size([width, pieHeight])
+    # .friction(0.4) # So it's less bouncy when we are playing with time
+    .gravity(.02)
+    .charge(0)
+
   # Create a brush for adjusting the viewing region
   brush = d3.svg.brush()
     .x(x)
@@ -322,27 +367,30 @@ Template.vizActionPies.rendered = ->
   gBrush.selectAll("rect")
     .attr("height", height)
 
-  brushed = =>
+  brushed = (first) =>
     extent = brush.extent()
     # Merge nested actions up per user
-    data = logNest.entries filterLogs(@data.logs, extent)
+    oldData = @pieData
+
+    @pieData = logNest.entries filterLogs(@data.logs, extent)
 
     # merge nested chat entries
     chatData = chatNest.entries filterChat(@data.chat, extent)
 
     # Smush data together
-    for record in data
+    for record in @pieData
       chatRecords = _.find(chatData, (c) -> c.key is record.key)
       continue unless chatRecords?
       record.values = record.values.concat(chatRecords.values)
 
     pies = d3.select(piesvg).selectAll("g.pie")
-      .data(data, (d) -> d.key)
+      .data(@pieData, (d) -> d.key)
 
     # Create a container for each pie along with a circle that outlines it
     centers = pies.enter().append("g")
       .attr("class", "pie")
       .attr("transform", "translate(0,0)") # Default value for tweening
+      .call(force.drag)
 
     centers.append("g")
       .attr("class", "center")
@@ -370,7 +418,10 @@ Template.vizActionPies.rendered = ->
     nodes
       .attr("class", (d) ->
           switch
-            when d.depth is 0 then "root"
+            when d.depth is 0 # Compute the largest category and assign this to the center
+              maxChild = _.max(d.values, (c) -> c.value)
+              d.cluster = maxChild.key || null
+              "action " + maxChild.key
             when d.depth is 1 then "action type " + d.key
             when d.depth is 2 and d.parent.key is "chat" then "chat " + d.key
             when d.depth is 2 then "action " + d.key
@@ -380,39 +431,126 @@ Template.vizActionPies.rendered = ->
     text = pies.select("text.caption")
     text.text((d) => _.find(@data.users, (u) -> u._id is d.key)?.username + " (#{d.value})" )
 
-    # Resize circles and pack to new positions
+    # Resize circles and pack according to cluster
     # Create a temporary object and then immediately discard the top level
-    pack.nodes({key: "root", pies: data})
+    pack.nodes( { values: clusterNest.entries(@pieData) } )
+
+    if @layout is "force" and oldData?
+      # Use existing (x,y) positions to initialize when we keeping a force layout
+      for d in @pieData
+        if (od = _.find(oldData, (od) -> od.key is d.key ))
+          d.x = od.x
+          d.y = od.y
+        else
+          d.x = width / 2
+          d.y = pieHeight / 2
+
+    # Update size of maximum radius for collision function
+    maxRadius = d3.max(@pieData, (d) -> d.r)
+
+    # Reset data for force layout
+    force.nodes(@pieData)
 
     @reposition()
 
-  brush.on "brushend", brushed
+  ###
+  Clustered force-direct layout functions: http://bl.ocks.org/mbostock/7882658
+  ###
+
+  # Move d to be adjacent to the cluster node.
+  recluster = (alpha) ->
+    (d) ->
+      cluster = clusters[d.cluster]
+      return if cluster is d
+      x = d.x - cluster.x
+      y = d.y - cluster.y
+      l = Math.sqrt(x * x + y * y)
+      r = d.r + cluster.r
+      unless l is r
+        l = (l - r) / l * alpha
+        d.x -= (x *= l)
+        d.y -= (y *= l)
+        cluster.x += x
+        cluster.y += y
+      return
+
+  # Resolves collisions between d and all other circles.
+  collide = (alpha) =>
+    quadtree = d3.geom.quadtree(@pieData)
+    (d) ->
+      r = d.r + maxRadius + Math.max(padding, clusterPadding)
+      nx1 = d.x - r
+      nx2 = d.x + r
+      ny1 = d.y - r
+      ny2 = d.y + r
+      quadtree.visit (quad, x1, y1, x2, y2) ->
+        if quad.point and (quad.point isnt d)
+          x = d.x - quad.point.x
+          y = d.y - quad.point.y
+          l = Math.sqrt(x * x + y * y)
+          r = d.r + quad.point.r + (if d.cluster is quad.point.cluster then padding else clusterPadding)
+          if l < r
+            l = (l - r) / l * alpha
+            d.x -= x *= l
+            d.y -= y *= l
+            quad.point.x += x
+            quad.point.y += y
+        x1 > nx2 or x2 < nx1 or y1 > ny2 or y2 < ny1
+      return
+
+  tick = (e) ->
+    d3.select(piesvg).selectAll("g.pie")
+    .each(recluster(10 * e.alpha * e.alpha))
+    .each(collide(.5))
+    .attr("transform", (d) -> "translate(#{d.x}, #{d.y})")
+
+  simpleLayout = (data) ->
+    layoutMargin = 50
+    layoutPadding = 20
+    currentX = layoutMargin
+    currentY = layoutMargin
+    gap = 100
+    # Arrange circles in rows by size
+    data.sort( (a, b) -> b.r - a.r )
+    data.forEach (d) ->
+      if currentX + 2*d.r > width
+        currentX = layoutMargin
+        currentY += 2*gap + layoutMargin
+
+      gap = d.r if currentX is 0
+
+      d.x = currentX + d.r
+      d.y = currentY + (gap + d.r) / 2
+
+      currentX += 2*d.r + layoutPadding
 
   @reposition = =>
     pies = d3.select(piesvg).selectAll("g.pie")
 
-    pies.select("g.center").transition()
+    pies.select("g.center")
     .attr "transform", (d) ->
         # s = Math.sqrt(d.value / max)
         s = d.r / 200
         return "scale(#{s}, #{s})"
 
-    # Leave things in whatever playout was there before if fixed
-    return if @layout is "fixed"
+    if @layout is "force" # Force layout; default
+      force.on("tick.pies", tick)
+      force.start()
+    else
+      force.stop()
+      force.on("tick.pies", null)
 
-    if @layout is "sorted"
-      # TODO implement row layout
+      # Leave things in whatever playout was there before if fixed
+      return if @layout is "fixed"
 
-    else # Aggregate layout; default
-      # Recompute pie sizes and re-pack into the area
-      # Position pies based on new packed positions
-      pies.transition()
-      .attr "transform", (d) ->
-          # Use transposed packing as it seems to be more space efficient horizontally
-          return "translate(#{d.y}, #{d.x})"
+      if @layout is "sorted"
+        simpleLayout(@pieData)
+        pies.attr("transform", (d) -> "translate(#{d.x}, #{d.y})")
+
+  brush.on("brushend", brushed)
 
   # First draw
-  brushed()
+  brushed(true)
 
 
 

@@ -86,8 +86,10 @@ Meteor.methods
     TurkServer.checkNotAdmin()
     return unless tweetId and eventId
 
+    # TODO if multi-tagging is allowed, don't hide here
     Datastream.update tweetId,
       $pull: { events: eventId }
+      $set: { hidden: true }
 
     Events.update eventId,
       $pull: { sources: tweetId }

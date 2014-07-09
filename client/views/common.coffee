@@ -99,11 +99,9 @@ Template.tweetIcon.events =
     tweet = UI.getElementData(e.target)
     event = UI.getElementData $(e.target).closest(".event-record")[0]
 
-    Meteor.call "dataUnlink", tweet._id, event._id
-
-    # Hide this if it's not tagged somewhere
+    # The unlink function will also hide this if it's not tagged somewhere
     # TODO: the unlink-hide process causes an unwanted scroll adjustment
-    Meteor.call "dataHide", tweet._id
+    Meteor.call "dataUnlink", tweet._id, event._id
 
 # Mapping helpers
 epsg4326 = new OpenLayers.Projection("EPSG:4326")
