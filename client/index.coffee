@@ -22,7 +22,6 @@ Router.map ->
   @route('home', {path: '/'})
 
   @route 'mapper',
-    template: 'mapperContainer'
     path: '/mapper'
     onBeforeAction: (pause) ->
       unless Meteor.user()
@@ -131,6 +130,27 @@ Template.home.landingTemplate = ->
   # TODO make this dynamic based on batch
   Template.taskLanding
 
+Template.mapper.events
+  # Attach and destroy a popover when mousing over a container. 'mouseenter'
+  # only fires once when entering an element, so we use that to ensure that we
+  # get the right target.
+  "mouseenter .tweet-icon-container": (e) ->
+    container = $(e.target)
+    tweet = UI.getElementData(e.target)
+
+    container.popover({
+      html: true
+      placement: "auto right" # Otherwise it goes off the top of the screen
+      trigger: "manual"
+      container: e.target # Hovering over the popover should hold it open
+      # No need for reactivity here since tweet does not change
+      content: UI.toHTML Template.tweetPopup.extend( data: Datastream.findOne(tweet._id) )
+    }).popover("show")
+
+    container.one("mouseleave", -> container.popover("destroy") )
+
+Template.mapper.adminControls = Template.adminControls
+
 Template.mapper.rendered = ->
   # Set initial active tab when state changes
   @comp = Deps.autorun ->
@@ -141,8 +161,13 @@ Template.mapper.rendered = ->
 
 Template.mapper.destroyed = -> @comp.stop()
 
+Template.adminControls.events
+  "change input": (e, t) ->
+    Session.set("adminShowDeleted", e.target.checked)
+
+Template.adminControls.showDeleted = -> Session.equals("adminShowDeleted", true)
+
 Template.guidance.message = -> Session.get("guidanceMessage")
-Template.guidance.showStyle = -> if Session.get("guidanceMessage") then "" else "display: none"
 
 switchTab = (page) ->
   return if Deps.nonreactive(-> Session.equals("taskView", page))

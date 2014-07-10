@@ -85,7 +85,9 @@ Handlebars.registerHelper "numEventCols", ->
   EventFields.find().count() + 4
 
 Template.eventRecords.records = ->
-  selector = if TurkServer.isAdmin() then {} else { deleted: {$exists: false} }
+  selector = if TurkServer.isAdmin() and Session.equals("adminShowDeleted", true) then {}
+  else { deleted: {$exists: false} }
+
   key = Session.get("eventSortKey")
   # Secondary sort by key prevents jumping
   #  sort[key] = Session.get("eventSortOrder") || 1 if key?

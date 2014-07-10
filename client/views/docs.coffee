@@ -5,7 +5,8 @@ Meteor.startup ->
 Template.docs.loaded = -> Session.equals("docSubReady", true)
 
 Template.docTabs.documents = ->
-  selector = if TurkServer.isAdmin() then {} else { deleted: {$exists: false} }
+  selector = if TurkServer.isAdmin() and Session.equals("adminShowDeleted", true) then {}
+  else { deleted: {$exists: false} }
   Documents.find(selector)
 
 Template.docTabs.noDocuments = ->

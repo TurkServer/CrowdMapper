@@ -10,8 +10,9 @@ dataSelector = {
 }
 
 Template.dataList.data = ->
-  selector = if TurkServer.isAdmin()
-    dataSelector # Ignoring hidden values
+  selector = if TurkServer.isAdmin() and Session.equals("adminShowDeleted", true)
+    # Ignoring hidden values
+    dataSelector
   else
     _.extend({}, dataSelector, { hidden: {$exists: false} })
   return Datastream.find(selector, sort: {num: 1}) # Sort in increasing insertion order

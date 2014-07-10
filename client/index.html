@@ -42,13 +42,10 @@
     </div>
 </template>
 
-<template name="mapperContainer">
-    {{> turkserverPulldown }}
-    {{> mapper}}
-    {{> mapperTutorial}}
-</template>
-
 <template name="mapper">
+    {{> turkserverPulldown include=adminControls }}
+    {{> mapperTutorial}}
+
     <div class="container-fluid compact fill-height">
         <div class="row fill-height">
             <div class="col-sm-2 fill-height carrier">
@@ -74,6 +71,15 @@
     </div>
 </template>
 
+<template name="adminControls">
+    <div class="checkbox">
+        <label>
+            <input type="checkbox" value="" checked={{showDeleted}}>
+            Show deleted data
+        </label>
+    </div>
+</template>
+
 <template name="mapperTutorial">
     {{#if tutorialEnabled}}
     {{> tutorial options}}
@@ -81,9 +87,11 @@
 </template>
 
 <template name="guidance">
-    <div class="guidanceMessage" style="{{showStyle}}">
-        <h2 class="text-center">{{message}}</h2>
+    {{#with message}}
+    <div class="guidanceMessage">
+        <h2 class="text-center">{{this}}</h2>
     </div>
+    {{/with}}
 </template>
 
 <template name="pageNav">

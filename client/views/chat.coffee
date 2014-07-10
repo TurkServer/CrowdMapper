@@ -38,7 +38,8 @@ Template.currentChatroom.roomHeaderComponent = ->
 Template.rooms.loaded = -> Session.equals("chatSubReady", true)
 
 Template.rooms.availableRooms = ->
-  selector = if TurkServer.isAdmin() then {} else { deleted: {$exists: false} }
+  selector = if TurkServer.isAdmin() and Session.equals("adminShowDeleted", true) then {}
+  else { deleted: {$exists: false} }
   ChatRooms.find(selector, {sort: {name: 1}}) # For a consistent ordering
 
 Template.roomItem.active = -> if Session.equals("room", @_id) then "active" else ""

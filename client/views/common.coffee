@@ -80,16 +80,7 @@ tweetIconDragProps =
   zIndex: 1000
 
 Template.tweetIcon.rendered = ->
-  tweetId = @data
-  $(@firstNode).popover
-    html: true
-    placement: "auto right" # Otherwise it goes off the top of the screen
-    trigger: "hover"
-    container: @firstNode # Hovering over the popover should hold it open
-    content: ->
-      # No need for reactivity here since tweet does not change
-      UI.toHTML Template.tweetPopup.extend data: -> Datastream.findOne(tweetId)
-
+  # Popover is handled at the global level
   $(@firstNode).draggable(tweetIconDragProps)
 
 Template.tweetIcon.events =

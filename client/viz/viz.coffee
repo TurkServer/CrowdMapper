@@ -393,7 +393,7 @@ Template.vizActionPies.rendered = ->
       .call(force.drag)
 
     centers.append("g")
-      .attr("class", "center")
+      .attr("class", "scaler")
       .attr("transform", "scale(1,1)") # Ditto
     .append("circle")
       .attr("class", "outline")
@@ -409,7 +409,7 @@ Template.vizActionPies.rendered = ->
 
     # Create a new selection for the path inside each data
     # Partition.nodes will fill in some crap for each users's data
-    nodes = pies.select("g.center").selectAll("path")
+    nodes = pies.select("g.scaler").selectAll("path")
       .data(partition.nodes)
 
     nodes.enter().append("path")
@@ -433,8 +433,10 @@ Template.vizActionPies.rendered = ->
 
     # Resize circles and pack according to cluster
     # Create a temporary object and then immediately discard the top level
+    # TODO compute more consistent pie sizes when not using force layout
     pack.nodes( { values: clusterNest.entries(@pieData) } )
 
+    # TODO reduce explosion when going from non-force layout to force
     if @layout is "force" and oldData?
       # Use existing (x,y) positions to initialize when we keeping a force layout
       for d in @pieData
@@ -501,6 +503,7 @@ Template.vizActionPies.rendered = ->
   tick = (e) ->
     d3.select(piesvg).selectAll("g.pie")
     .each(recluster(10 * e.alpha * e.alpha))
+    # Don't treat collisions too harshly, causes bouncing on transitions
     .each(collide(.5))
     .attr("transform", (d) -> "translate(#{d.x}, #{d.y})")
 
@@ -517,17 +520,20 @@ Template.vizActionPies.rendered = ->
         currentX = layoutMargin
         currentY += 2*gap + layoutMargin
 
-      gap = d.r if currentX is 0
+      # Reset gap to height of first item in a new row
+      gap = d.r if currentX is layoutMargin
 
       d.x = currentX + d.r
-      d.y = currentY + (gap + d.r) / 2
+      d.y = currentY + gap
 
       currentX += 2*d.r + layoutPadding
 
   @reposition = =>
     pies = d3.select(piesvg).selectAll("g.pie")
 
-    pies.select("g.center")
+    # Resize pies smoothly
+    pies.select("g.scaler")
+    .transition()
     .attr "transform", (d) ->
         # s = Math.sqrt(d.value / max)
         s = d.r / 200
@@ -545,7 +551,9 @@ Template.vizActionPies.rendered = ->
 
       if @layout is "sorted"
         simpleLayout(@pieData)
-        pies.attr("transform", (d) -> "translate(#{d.x}, #{d.y})")
+        # Animate to new positions
+        pies.transition()
+        .attr("transform", (d) -> "translate(#{d.x}, #{d.y})")
 
   brush.on("brushend", brushed)
 
