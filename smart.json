@@ -4,6 +4,7 @@
     "jqueryui": {},
     "x-editable-bootstrap": {},
     "bootboxjs": "4.2.0",
+    "bootstrap-3": {},
     "user-status": {
       "path": "../meteor-user-status"
     },

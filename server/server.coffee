@@ -79,7 +79,7 @@ Meteor.methods
       continue unless asst.isCompleted()
 
       # Compute wage and make a message here
-      instanceData = _.find(asst.getData()?.instances, (inst) -> inst.id is groupId)
+      instanceData = _.find(asst._data()?.instances, (inst) -> inst.id is groupId)
 
       totalTime = (instanceData.leaveTime - instanceData.joinTime)
       idleTime = (instanceData.idleTime || 0)

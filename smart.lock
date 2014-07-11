@@ -8,6 +8,7 @@
       "bootboxjs": {
         "version": "4.2.0"
       },
+      "bootstrap-3": {},
       "user-status": {
         "path": "../meteor-user-status"
       },
@@ -54,6 +55,11 @@
         "tag": "v4.2.0",
         "commit": "2b7d18ad028d9e7b37238ecf2a8a7970735cebd1"
       },
+      "bootstrap-3": {
+        "git": "https://github.com/mangasocial/meteor-bootstrap-3.git",
+        "tag": "v3.2.0-1",
+        "commit": "17a63902fc6cf1096c5289d963c66cf28b474727"
+      },
       "user-status": {
         "path": "../meteor-user-status"
       },
@@ -87,11 +93,6 @@
         "git": "https://github.com/mizzao/meteor-build-fetcher.git",
         "tag": "v0.1.0",
         "commit": "e3813b1fc7f5c576e8e1fa4c51ae6f4687780a35"
-      },
-      "bootstrap-3": {
-        "git": "https://github.com/mangasocial/meteor-bootstrap-3.git",
-        "tag": "v3.1.1-1",
-        "commit": "63dd38968828bb8963636df93e9a1c45e2dfe67e"
       },
       "moment": {
         "git": "https://github.com/acreeger/meteor-moment.git",
