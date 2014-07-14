@@ -56,7 +56,6 @@ Template.map.created = ->
 
 # Initialize map
 Template.map.rendered = ->
-  mapInst = this
 
   politicalMapLayer = new OpenLayers.Layer.Bing
     name: "Political Map"
@@ -99,12 +98,11 @@ Template.map.rendered = ->
 
   popup = null
   selectedFeature = null
-  Session.set("popupEvent", undefined)
 
   displayPopup = (feature) ->
     lonlat = new OpenLayers.LonLat(feature.geometry.x, feature.geometry.y)
 
-    unless popup
+    unless popup?
       popup = new OpenLayers.Popup.Anchored("event",
         lonlat,
         null, # Popup size - defaults to 200x200 or use autoSize; needed for FramedCloud due to bug
@@ -117,29 +115,38 @@ Template.map.rendered = ->
 
       popup.autoSize = true # Prob won't work without specifying HTML
 
-      # Insert the popup template into the content div
-      # Future updates to the selected event will be accomplished by the session variable
-      UI.insert(UI.render(Template.mapPopup), popup.contentDiv)
-
-      mapInst.popup = popup
     else
+      # When going from highlighted to selected, need to empty or there will
+      # be two copies of the template inside.
+      $(popup.contentDiv).empty()
+
       popup.lonlat = lonlat
 
-    map.addPopup(popup, true) # Second argument - kick out any old popups for good measure
-    # Re-render the popup
-    Session.set("popupEvent", feature.id)
-    # Resize popup to fit contents, after visual update
+    # Insert the popup template into the content div
+    UI.insert(UI.renderWithData(Template.mapPopup, feature.id), popup.contentDiv)
+
+    # Use second argument = true to kick out any old popups for good measure
+    map.addPopup(popup) # true)
+
+    # Force re-render with Deps.flush(), then resize popup to fit contents
     # Resizing won't affect reactive updates but those are unlikely to trigger huge size changes
     Deps.flush()
     popup.updateSize()
-    # Fix issues with size update on newly placed item, just in case
+
+    # When placing events, we need an extra resize - TODO fix this
     setTimeout ->
       popup.updateSize()
     , 0
 
   hidePopup = ->
-    Session.set("popupEvent", undefined)
-    map.removePopup(popup) if popup
+    return unless popup?
+
+    # We need to clear any contents using jQuery to ensure that their reactive
+    # deps are cleaned up: http://docs.meteor.com/#ui_render
+    # See also https://trello.com/c/b2N4oDgi/111-make-map-popups-reactive-again-using-with
+    $(popup.contentDiv).empty()
+
+    map.removePopup(popup)
 
   placeControl = new OpenLayers.Control.Click
     trigger: (e) ->
@@ -261,14 +268,6 @@ Template.map.rendered = ->
       placeControl.deactivate()
 
 Template.map.destroyed = ->
-  # We need to clear any contents using jQuery
-  # to ensure that their reactive (?) deps are cleaned up:
-  # https://github.com/meteor/meteor/issues/2031#issuecomment-40511526
-  # TODO this doesn't actually take off the reactive computation, but should only affect admin
-  if @popup
-    $(@popup.contentDiv).empty()
-    console.log "Popup elements removed"
-
   # Tear down observe query
   @query?.stop()
   # Stop placing computation
@@ -278,10 +277,7 @@ Template.mapPopup.events =
   "click .action-event-unmap": ->
     Meteor.call "unmapEvent", @_id
 
-Template.mapPopup.eventRecord = ->
-  eventId = Session.get("popupEvent")
-  # console.log "recomputing " + eventId
-  return Events.findOne(eventId) if eventId?
+Template.mapPopup.eventRecord = -> return Events.findOne(""+this) if this?
 
 Template.mapPopup.destroyed = -> console.log "map popup destroyed"
 
