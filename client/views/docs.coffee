@@ -72,9 +72,12 @@ Template.docCurrent.events =
       Meteor.call "deleteDocument", id
       Session.set("document", undefined)
 
-Template.docCurrent.config = ->
-  (editor) ->
-    editor.setReadOnly(true) if TurkServer.isAdmin()
-    # Set some reasonable options on the editor
-    editor.setShowPrintMargin(false)
-    editor.getSession().setUseWrapMode(true)
+aceConfig = (ace) ->
+  ace.setReadOnly(true) if TurkServer.isAdmin()
+  # Set some reasonable options on the editor
+  ace.setShowPrintMargin(false)
+  # ace.renderer.setShowGutter(false)
+  ace.session.setUseWrapMode(true)
+  ace.session.setMode("ace/mode/markdown")
+
+Template.docCurrent.config = -> aceConfig
