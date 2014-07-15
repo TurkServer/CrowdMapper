@@ -59,29 +59,10 @@ Handlebars.registerHelper "findTweet", -> Datastream.findOne(""+@)
 
 Handlebars.registerHelper "lookupUser", -> Meteor.users.findOne(""+@)
 
-cloneWithoutPopover = ->
-  # Remove any visible popover from the clone
-  # Note: .clone().remove('popover') does not achieve this
-  clone = $(this).clone()
-  clone.find(".popover").remove()
-  return clone
-
-tweetIconDragProps =
-  addClasses: false
-  # containment: "window"
-  cursorAt: { top: 0, left: 0 }
-  distance: 5
-  handle: ".label"
-  helper: cloneWithoutPopover
-  revert: "invalid"
-  scroll: false
-  start: Mapper.highlightEvents
-  stop: Mapper.unhighlightEvents
-  zIndex: 1000
-
-Template.tweetIcon.rendered = ->
-  # Popover is handled at the global level
-  $(@firstNode).draggable(tweetIconDragProps)
+###
+  XXX tweet icon mouseover and dragging is handled at the global page level and the
+  event page level respectively
+###
 
 Template.tweetIcon.events =
   "click .action-unlink-tweet": (e) ->

@@ -42,8 +42,8 @@
       },
       "jqueryui": {
         "git": "https://github.com/mizzao/meteor-jqueryui.git",
-        "tag": "v1.10.4",
-        "commit": "c75906fc9e1e19abf1ad5b2963925122ff8a0336"
+        "tag": "v1.11.0",
+        "commit": "06194edc0bdbb28c34b3a656bf9cb6a32718b44e"
       },
       "x-editable-bootstrap": {
         "git": "https://github.com/nate-strauser/meteor-x-editable-bootstrap.git",
@@ -91,8 +91,8 @@
       },
       "build-fetcher": {
         "git": "https://github.com/mizzao/meteor-build-fetcher.git",
-        "tag": "v0.1.0",
-        "commit": "e3813b1fc7f5c576e8e1fa4c51ae6f4687780a35"
+        "tag": "v0.2.0",
+        "commit": "5202ca83277860d798c6ff2ef1d8fe1bce007d0f"
       },
       "moment": {
         "git": "https://github.com/acreeger/meteor-moment.git",

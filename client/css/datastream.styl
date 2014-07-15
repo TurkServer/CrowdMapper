@@ -19,10 +19,15 @@
   position: relative
   width: 100%
   overflow: hidden
-  margin-bottom: 3px
-  border-radius: 5px
   // border: 1px dotted #E08E79
+  margin-bottom: 3px
   border: 1px solid #CCCCCC
+
+.data-cell,
+.data-dragging
+  background: white
+  border-radius: 5px
+
 /*
 .data-cell.bolded
     background: white
@@ -44,15 +49,12 @@
 .data-cell.selected .label
   background-color: #333333
 
-.data-cell:hover
+.data-cell:hover,
+.data-dragging
   border: 1px solid #000000
 
-.data-cell.ui-draggable-dragging
-  background: white
-  // border: 1px solid #CFF09E
-
 .data-cell:hover,
-.data-cell.ui-draggable-dragging,
+.data-dragging,
 .tweet-icon-container:hover,
 .tweet-icon-container.ui-draggable-dragging
   box-shadow: 4px 4px 5px rgba(0, 0, 0, 0.4)

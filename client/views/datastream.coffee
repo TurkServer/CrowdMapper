@@ -45,35 +45,37 @@ Template.dataList.rendered = ->
           parent.scrollTop = parent.scrollTop - nodeHeight
       return
 
-Template.dataList.events =
-  "click .data-cell": (e, t) -> Mapper.selectData(@_id)
-  "click .action-data-hide": (e) -> Meteor.call "dataHide", @_id
-
-dragHelper = ->
-  # Make sure we are on events
-  Mapper.switchTab("events")
-  # Set explicit width on the clone
-  currentWidth = $(this).width()
-  return $(this).clone().width(currentWidth)
-
-# TODO enable scroll here by appending the helper to the right container
 dragProps =
-  addClasses: false
-  # cancel: ".data-text"
+  # Adding classes is okay because we activate on mouseover
+  # addClasses: false
   # containment: "window"
   cursorAt: { top: 0, left: 0 }
   distance: 5
-  handle: ".label" # the header
-  helper: dragHelper
+  # Temporarily disabled, see below
+  # handle: ".label" # the header
+  helper: Mapper.tweetDragHelper
   revert: "invalid"
   scroll: false
   # Make it really obvious where to drop these
   start: Mapper.highlightEvents
+  drag: Mapper.tweetDragScroll
   stop: Mapper.unhighlightEvents
   zIndex: 1000
 
-Template.dataItem.rendered = ->
-  # Only visible elements are rendered in the #each helper so no optimization to do here
-  $(@firstNode).draggable dragProps
+Template.dataList.events =
+  "click .data-cell": (e, t) -> Mapper.selectData(@_id)
+  "click .action-data-hide": (e) -> Meteor.call "dataHide", @_id
+  # Enable draggable when entering a tweet cell
+  "mouseenter .data-cell:not(.ui-draggable-dragging)": (e) ->
+    cell = $(e.target)
 
-Template.dataItem.hidden = -> if @hidden then "data-cell-hidden" else ""
+    # TODO remove temporary fix for jquery UI 1.11.0
+    # http://bugs.jqueryui.com/ticket/10212
+    cell.draggable(
+      $.extend({
+        handle: cell.find(".label")
+      }, dragProps)
+    )
+
+    # TODO sometimes this throws an error. Why?
+    cell.one("mouseleave", -> cell.draggable("destroy") )

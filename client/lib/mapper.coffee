@@ -43,9 +43,41 @@ Mapper.scrollToEvent = (id) ->
   parent.animate(scrollPos(element, parent), "slow")
   return
 
+Mapper.tweetDragHelper = (e) ->
+  # Get width of current item, if dragging from datastream
+  currentWidth = Math.max $(this).width(), 200
+  data = UI.getElementData(this)
+
+  # Grab tweetId either from datastream object or event tweet array
+  tweetId = data?._id || data
+  helper = $ UI.toHTML Template.tweetDragHelper.extend( data: Datastream.findOne(tweetId) )
+
+  # Make a clone of just the text of the same width
+  # Append to events-body, so it can be scrolled while dragging (see below).
+  return helper.appendTo(".events-body").width(currentWidth)
+
+# jQuery UI's scrolling doesn't quite work. So we roll our own.
+scrollSensitivity = 80
+scrollSpeed = 25
+
+Mapper.tweetDragScroll = (event, ui) ->
+  scrollParent = $(".events-body")
+  overflowOffset = scrollParent.offset()
+
+  # Don't scroll if outside the x-bounds of the event window
+  return unless overflowOffset.left < event.pageX < overflowOffset.left + scrollParent[0].offsetWidth
+
+  # Adapted from https://github.com/jquery/jquery-ui/blob/1.11.0/ui/draggable.js
+  if ((overflowOffset.top + scrollParent[0].offsetHeight) - event.pageY < scrollSensitivity)
+    scrollParent[0].scrollTop = scrollParent[0].scrollTop + scrollSpeed;
+  else if (event.pageY - overflowOffset.top < scrollSensitivity)
+    scrollParent[0].scrollTop = scrollParent[0].scrollTop - scrollSpeed;
+
 Mapper.highlightEvents = ->
+  Mapper.switchTab("events")
   $("#events").addClass("highlighted")
   Session.set("guidanceMessage", "Drop on an event below to attach this tweet.")
+
 Mapper.unhighlightEvents = ->
   $("#events").removeClass("highlighted")
   Session.set("guidanceMessage", undefined)

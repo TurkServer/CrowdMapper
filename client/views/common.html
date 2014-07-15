@@ -28,6 +28,15 @@
     </div>
 </template>
 
+<template name="tweetDragHelper">
+    <div class="data-dragging popover-content">
+        <span class="label label-primary">
+            <span class="glyphicon glyphicon-tag"></span>{{num}}
+        </span>
+        {{{replaceURLs text}}}
+    </div>
+</template>
+
 <template name="tweetPopup">
     {{{replaceURLs text}}}
     <button class="btn btn-xs btn-danger data-cell-icon action-unlink-tweet" title="Hide this tweet">

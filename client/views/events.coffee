@@ -61,6 +61,21 @@ Template.eventsHeader.iconClass = ->
   else
     "resize-vertical"
 
+tweetIconDragProps =
+  # addClasses: true
+  # containment: "window"
+  cursorAt: { top: 0, left: 0 }
+  distance: 5
+  # Temporary fix, see below
+  # handle: ".label"
+  helper: Mapper.tweetDragHelper
+  revert: "invalid"
+  scroll: false
+  start: Mapper.highlightEvents
+  drag: Mapper.tweetDragScroll
+  stop: Mapper.unhighlightEvents
+  zIndex: 1000
+
 Template.eventRecords.events =
   "click .events-body tr": (e, t) ->
     Mapper.selectEvent(@_id)
@@ -73,6 +88,18 @@ Template.eventRecords.events =
     else
       Session.set("eventSortKey", key)
       Session.set("eventSortOrder", 1)
+  "mouseenter .tweet-icon-container": (e) ->
+    container = $(e.target)
+
+    # TODO remove temporary fix for jquery UI 1.11.0
+    # http://bugs.jqueryui.com/ticket/10212
+    container.draggable(
+      $.extend({
+        handle: container.find(".label")
+      }, tweetIconDragProps)
+    )
+
+    container.one("mouseleave", -> container.draggable("destroy") )
 
 Template.eventRecords.loaded = -> Session.equals("eventSubReady", true)
 
@@ -101,29 +128,51 @@ Template.createFooter.events =
     # Edit and scroll to the event
     edit.call({_id: eventId})
 
+# This function is called for *every draggable on the page* ! So minimizing
+# the number of active draggables will speed things up significantly.
 acceptDrop = (draggable) ->
-  # Don't accept drops from random pages
+  # Don't accept drops when looking at other pages
   return false unless Session.equals("taskView", 'events')
-  event = UI.getElementData @ # These are the only droppables on the page
+  event = UI.getElementData(this) # These are the only droppables on the page
   return false unless event
   tweet = UI.getElementData(draggable.context)
-  # Don't accept drops to the same event
-  return false if $.inArray(event._id, tweet.events) >= 0
+  # Don't accept drops to the same event - check the event as it will be more
+  # up to date than the one-shot data context being used to render the helper,
+  # which may have changed.
+  return false if $.inArray(tweet._id, event.sources) >= 0
   return true
 
 processDrop = (event, ui) ->
-  event = UI.getElementData @
+  event = UI.getElementData(this)
   return unless event
 
   tweet = UI.getElementData(ui.draggable.context)
   # Don't do anything if this tweet is already on this event
-  return if $.inArray(event._id, tweet.events) >= 0
+  return if $.inArray(tweet._id, event.sources) >= 0
 
   # TODO replace with an appropriate use of UI._parentData
   target = ui.draggable.context
   parent = tweet
   while parent is tweet
     parent = UI.getElementData(target = target.parentNode)
+
+  ###
+    At this point, parent will either be a cursor (if dragged from datastream)
+    or an event (if dragged from another event). It could also be null if the
+    original draggable was removed while dragging. Possible cases:
+
+    - Tweet hidden while dragging from the datastream
+    - Tweet moved/removed or event deleted while dragging from an event
+    - Event edited while dragging, causing a re-render
+
+    TODO: handle case where event is edited so that dragging is still valid, but
+    is now rejected because the context was re-rendered
+
+    For now, we just adopt a conservative policy to prevent sync problems.
+  ###
+  if parent is null
+    bootbox.alert("The tweet was hidden or the event was edited by someone else while you were dragging. Please try dragging the tweet again.")
+    return
 
   # Distinguish between a link and a re-drag
   if parent._id?
