@@ -11,7 +11,7 @@ dataSelector = {
 
 Template.dataList.data = ->
   selector = if TurkServer.isAdmin() and Session.equals("adminShowDeleted", true)
-    # Ignoring hidden values
+    # Ignoring just tagged events values
     dataSelector
   else
     _.extend({}, dataSelector, { hidden: {$exists: false} })
@@ -56,6 +56,7 @@ dragHelper = ->
   currentWidth = $(this).width()
   return $(this).clone().width(currentWidth)
 
+# TODO enable scroll here by appending the helper to the right container
 dragProps =
   addClasses: false
   # cancel: ".data-text"

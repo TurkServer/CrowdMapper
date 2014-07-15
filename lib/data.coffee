@@ -41,12 +41,14 @@ Meteor.methods
   ###
     Data Methods
   ###
-  dataHide: (id) ->
+  dataHide: (tweetId) ->
     TurkServer.checkNotAdmin()
-    # Can't hide tagged events
-    return if not @isSimulation and Datastream.findOne(id)?.events?.length > 0
+    check(tweetId, String)
 
-    Datastream.update id,
+    # Can't hide tagged events
+    return if not @isSimulation and Datastream.findOne(tweetId)?.events?.length > 0
+
+    Datastream.update tweetId,
       $set: { hidden: true }
 
     if @isSimulation
@@ -55,13 +57,14 @@ Meteor.methods
       @unblock()
       TurkServer.log
         action: "data-hide"
-        dataId: id
+        dataId: tweetId
 
     return
 
   dataLink: (tweetId, eventId) ->
     TurkServer.checkNotAdmin()
-    return unless tweetId and eventId
+    check(tweetId, String)
+    check(eventId, String)
 
     # Attach this tweet to the event
     Events.update eventId,
@@ -84,7 +87,8 @@ Meteor.methods
 
   dataUnlink: (tweetId, eventId) ->
     TurkServer.checkNotAdmin()
-    return unless tweetId and eventId
+    check(tweetId, String)
+    check(eventId, String)
 
     # TODO if multi-tagging is allowed, don't hide here
     Datastream.update tweetId,
@@ -113,9 +117,13 @@ Meteor.methods
     Events.update fromEventId,
       $pull: { sources: tweetId }
 
+    # In order for the tweet not to show up in the datastream during this
+    # process, we need to add the new event before pulling the old one
+    Datastream.update tweetId,
+      $addToSet: { events: toEventId }
+
     Datastream.update tweetId,
       $pull: { events: fromEventId }
-      $addToSet: { events: toEventId }
 
     Events.update toEventId,
       $addToSet: { sources: tweetId }
@@ -135,6 +143,7 @@ Meteor.methods
   ###
   createEvent: (eventId, fields) ->
     TurkServer.checkNotAdmin()
+    check(eventId, String)
 
     obj = {
       _id: eventId
@@ -160,17 +169,19 @@ Meteor.methods
         eventId: eventId
     return
 
-  editEvent: (id) ->
+  editEvent: (eventId) ->
     TurkServer.checkNotAdmin()
+    check(eventId, String)
+
     userId = Meteor.userId()
     unless userId?
       bootbox.alert("Sorry, you must be logged in to make edits.") if @isSimulation
       return
 
-    event = Events.findOne(id)
+    event = Events.findOne(eventId)
 
     unless event.editor
-      Events.update id,
+      Events.update eventId,
         $set: { editor: userId }
       if @isSimulation
         Mapper.events.emit("event-edit")
@@ -178,16 +189,18 @@ Meteor.methods
         @unblock()
         TurkServer.log
           action: "event-edit"
-          eventId: id
+          eventId: eventId
 
     else if @isSimulation and event.editor isnt userId
       bootbox.alert("Sorry, someone is already editing that event.")
 
     return
 
-  updateEvent: (id, fields) ->
+  updateEvent: (eventId, fields) ->
     TurkServer.checkNotAdmin()
-    Events.update id,
+    check(eventId, String)
+
+    Events.update eventId,
       $set: fields
 
     if @isSimulation
@@ -198,27 +211,30 @@ Meteor.methods
       @unblock()
       TurkServer.log
         action: "event-update"
-        eventId: id
+        eventId: eventId
         fields: fields
 
     return
 
-  unmapEvent: (id) ->
+  unmapEvent: (eventId) ->
     TurkServer.checkNotAdmin()
+    check(eventId, String)
 
-    Events.update id,
+    Events.update eventId,
       $unset: location: null
 
     unless @isSimulation
       @unblock()
       TurkServer.log
         action: "event-unmap"
-        eventId: id
+        eventId: eventId
 
     return
 
-  saveEvent: (id) ->
-    Events.update id,
+  saveEvent: (eventId) ->
+    check(eventId, String)
+
+    Events.update eventId,
       $unset: { editor: 1 }
 
     if @isSimulation
@@ -227,18 +243,20 @@ Meteor.methods
       @unblock()
       TurkServer.log
         action: "event-save"
-        eventId: id
+        eventId: eventId
 
     return
 
-  voteEvent: (id) ->
+  voteEvent: (eventId) ->
     TurkServer.checkNotAdmin()
+    check(eventId, String)
+
     userId = Meteor.userId()
     unless userId
       bootbox.alert("You must be logged in to vote on an event.") if @isSimulation
       return
 
-    Events.update id,
+    Events.update eventId,
       $addToSet: { votes: userId }
 
     if @isSimulation
@@ -247,45 +265,51 @@ Meteor.methods
       @unblock()
       TurkServer.log
         action: "event-vote"
-        eventId: id
+        eventId: eventId
 
     return
 
-  unvoteEvent: (id) ->
+  unvoteEvent: (eventId) ->
+    check(eventId, String)
+
     userId = Meteor.userId()
+
     unless userId
       bootbox.alert("You must be logged in to vote on an event.") if @isSimulation
       return
 
-    Events.update id,
+    Events.update eventId,
       $pull: { votes: userId }
 
     unless @isSimulation
       @unblock()
       TurkServer.log
         action: "event-unvote"
-        eventId: id
+        eventId: eventId
 
     return
 
-  deleteEvent: (id) ->
+  deleteEvent: (eventId) ->
     TurkServer.checkNotAdmin()
-    event = Events.findOne(id)
+    check(eventId, String)
+
+    event = Events.findOne(eventId)
 
     # Pull all tweet links
+    # TODO: do we actually want tweets to become un-hidden?
     _.each event.sources, (tweetId) ->
       Datastream.update tweetId,
-        $pull: { events: id }
+        $pull: { events: eventId }
 
     # Don't actually delete event, so we retain the data and keep the number
-    Events.update id,
+    Events.update eventId,
       $set: {deleted: true}
 
     unless @isSimulation
       @unblock()
       TurkServer.log
         action: "event-delete"
-        eventId: id
+        eventId: eventId
 
     return
 
@@ -294,6 +318,7 @@ Meteor.methods
   ###
   createDocument: (docName) ->
     TurkServer.checkNotAdmin()
+    check(docName, String)
 
     docId = Documents.insert
       title: docName
@@ -311,6 +336,9 @@ Meteor.methods
 
   renameDocument: (docId, newTitle) ->
     TurkServer.checkNotAdmin()
+    check(docId, String)
+    check(newTitle, String)
+
     Documents.update docId,
       $set: { title: newTitle }
 
@@ -323,16 +351,18 @@ Meteor.methods
 
     return
 
-  deleteDocument: (id) ->
+  deleteDocument: (docId) ->
     TurkServer.checkNotAdmin()
-    Documents.update id,
+    check(docId, String)
+
+    Documents.update docId,
       $set: {deleted: true}
 
     unless @isSimulation
       @unblock()
       TurkServer.log
         action: "document-delete"
-        docId: id
+        docId: docId
 
     return
 
@@ -341,6 +371,8 @@ Meteor.methods
   ###
   createChat: (roomName) ->
     TurkServer.checkNotAdmin()
+    check(roomName, string)
+
     roomId = ChatRooms.insert
       name: roomName
       users: 0
@@ -358,6 +390,9 @@ Meteor.methods
 
   renameChat: (roomId, newName) ->
     TurkServer.checkNotAdmin()
+    check(roomId, String)
+    check(newName, String)
+
     ChatRooms.update roomId,
       $set: { name: newName }
 
@@ -380,6 +415,8 @@ Meteor.methods
 
   deleteChat: (roomId) ->
     TurkServer.checkNotAdmin()
+    check(roomId, String)
+
     if @isSimulation
       # Client stub - do a quick check
       unless ChatRooms.findOne(roomId).users is 0
@@ -408,6 +445,8 @@ Meteor.methods
   # inviteChat: does stuff on server
 
   readNotification: (noteId) ->
+    check(noteId, String)
+
     now = new Date()
 
     Notifications.update noteId,

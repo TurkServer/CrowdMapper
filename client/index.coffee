@@ -133,8 +133,8 @@ Template.home.landingTemplate = ->
 Template.mapper.events
   # Attach and destroy a popover when mousing over a container. 'mouseenter'
   # only fires once when entering an element, so we use that to ensure that we
-  # get the right target.
-  "mouseenter .tweet-icon-container": (e) ->
+  # get the right target. However, exclude containers being dragged.
+  "mouseenter .tweet-icon-container:not(.ui-draggable-dragging)": (e) ->
     container = $(e.target)
     tweet = UI.getElementData(e.target)
 

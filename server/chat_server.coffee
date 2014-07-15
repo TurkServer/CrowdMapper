@@ -85,6 +85,9 @@ unreadNotificationExists = (user, sender, room, type) ->
 Meteor.methods
   inviteChat: (userId, roomId) ->
     TurkServer.checkNotAdmin()
+    check(userId, String)
+    check(roomId, String)
+
     myId = Meteor.userId()
     return unless myId?
     # Don't invite if user is already in the same room
@@ -100,11 +103,14 @@ Meteor.methods
       room: roomId
       timestamp: new Date()
 
-    # No need to log this, we have it
+    # No need to log this, we have it as a notification
     return
 
   sendChat: (roomId, message) ->
     TurkServer.checkNotAdmin()
+    check(roomId, String)
+    check(message, String)
+
     userId = Meteor.userId()
     return unless userId?
 
