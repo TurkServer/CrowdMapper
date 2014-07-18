@@ -1,7 +1,7 @@
 Handlebars.registerHelper "debug", ->
   console.log arguments
 
-spinOpts =
+Meteor.Spinner.options =
   lines: 13 # The number of lines to draw
   length: 13 # The length of each line
   width: 5 # The line thickness
@@ -16,12 +16,5 @@ spinOpts =
   hwaccel: false # Whether to use hardware acceleration
   className: "spinner" # The CSS class to assign to the spinner
   zIndex: 2e9 # The z-index (defaults to 2000000000)
-  top: "auto" # Top position relative to parent in px
-  left: "auto" # Left position relative to parent in px
-
-Template.spinner.rendered = ->
-  @spinner = new Spinner(spinOpts)
-  @spinner.spin(@firstNode)
-
-Template.spinner.destroyed = ->
-  @spinner?.stop()
+  top: "50%" # Top position relative to parent in px
+  left: "50%" # Left position relative to parent in px

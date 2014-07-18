@@ -32,7 +32,8 @@ Template.docTabs.events =
 Template.docTab.active = -> if Session.equals("document", @_id) then "active" else ""
 Template.docTab.deleted = -> if @deleted then "deleted" else ""
 
-Template.docCurrent.document = UI.emboxValue ->
+# TODO: make sure this doesn't cause thrashing of the currently open document.
+Template.docCurrent.document = ->
   id = Session.get("document")
   # Can't stay in a document if someone deletes it, unless we're admin
   selector = {_id: id}

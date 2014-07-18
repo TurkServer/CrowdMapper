@@ -9,6 +9,13 @@
         "version": "4.2.0"
       },
       "bootstrap-3": {},
+      "openlayers": {
+        "version": "2.13.1"
+      },
+      "spin": {
+        "git": "https://github.com/mizzao/meteor-spin.git",
+        "branch": "master"
+      },
       "user-status": {
         "path": "../meteor-user-status"
       },
@@ -59,6 +66,16 @@
         "git": "https://github.com/mangasocial/meteor-bootstrap-3.git",
         "tag": "v3.2.0-1",
         "commit": "17a63902fc6cf1096c5289d963c66cf28b474727"
+      },
+      "openlayers": {
+        "git": "https://github.com/mizzao/meteor-openlayers.git",
+        "tag": "v2.13.1",
+        "commit": "3a7723e9b4fce9ee65e2ae239918a2fbbf3de927"
+      },
+      "spin": {
+        "git": "https://github.com/mizzao/meteor-spin.git",
+        "branch": "master",
+        "commit": "5de9abd52d7f28ffa6549642bc1c32a755be3bc2"
       },
       "user-status": {
         "path": "../meteor-user-status"

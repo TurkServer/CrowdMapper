@@ -10,7 +10,6 @@ accounts-ui
 standard-app-packages
 webapp
 iron-router
-# blaze-layout # Firefox fail
 x-editable-bootstrap
 user-status
 bootboxjs
@@ -18,6 +17,8 @@ sharejs
 autocomplete
 tutorials
 jqueryui
+spin
+
 partitioner # So we can use the APIs directly
 turkserver
 timesync

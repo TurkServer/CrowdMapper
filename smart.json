@@ -5,6 +5,10 @@
     "x-editable-bootstrap": {},
     "bootboxjs": "4.2.0",
     "bootstrap-3": {},
+    "openlayers": "2.13.1",
+    "spin": {
+      "git": "https://github.com/mizzao/meteor-spin.git"
+    },
     "user-status": {
       "path": "../meteor-user-status"
     },

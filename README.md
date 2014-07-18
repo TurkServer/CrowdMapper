@@ -7,12 +7,6 @@ This project uses [TurkServer](https://github.com/HarvardEconCS/turkserver-meteo
 
 ## Setup
 
-Download CDN files:
-
-```
-./setup.sh
-```
-
 Install smart packages via Meteorite:
 
 ```
