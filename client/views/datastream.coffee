@@ -18,32 +18,7 @@ Template.dataList.data = ->
   return Datastream.find(selector, sort: {num: 1}) # Sort in increasing insertion order
 
 Template.dataList.rendered = ->
-  # See reference implementation at packages/ui/domrange.js
-  # TODO update this for final API of UI hooks
-  parent = @firstNode
-  $parent = $(parent)
-
-  parent._uihooks =
-    insertElement: (node, next) ->
-      parent.insertBefore(node, next)
-    moveElement: (node, next) ->
-      parent.insertBefore(node, next)
-    removeElement: (node) ->
-      $node = $(node)
-      # We need to compute these before the fadeOut, or the height will be incorrect
-      # Moreover, it is logically correct to compare the position of the node before any scrolling
-      # to the position of the viewport after any scrolling that happens during the fade (right?)
-      nodeTop = node.offsetTop
-      # The space we need to adjust - including top and bottom margins, if applicable
-      nodeHeight = $node.outerHeight(true)
-
-      # Fade out the node, and when completed remove it and adjust the scroll height
-      $node.fadeOut "slow", ->
-        $(this).remove() # equiv to parent.removeChild(node) or $node.remove()
-        # Adjust scroll position around the removed element, if it was above the viewport
-        if (nodeTop + nodeHeight/2) < (parent.scrollTop + $parent.height()/2)
-          parent.scrollTop = parent.scrollTop - nodeHeight
-      return
+  AnimatedEach.attachHooks(@firstNode)
 
 dragProps =
   # Adding classes is okay because we activate on mouseover

@@ -6,6 +6,7 @@
     "bootboxjs": "4.2.0",
     "bootstrap-3": {},
     "openlayers": "2.13.1",
+    "animated-each": {},
     "spin": {
       "git": "https://github.com/mizzao/meteor-spin.git"
     },

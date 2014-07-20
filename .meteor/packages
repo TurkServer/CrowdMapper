@@ -18,6 +18,7 @@ autocomplete
 tutorials
 jqueryui
 spin
+animated-each
 
 partitioner # So we can use the APIs directly
 turkserver

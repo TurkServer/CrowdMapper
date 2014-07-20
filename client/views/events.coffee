@@ -101,7 +101,12 @@ Template.eventRecords.events =
 
     container.one("mouseleave", -> container.draggable("destroy") )
 
-Template.eventRecords.loaded = -> Session.equals("eventSubReady", true)
+Template.eventRecords.loaded = ->
+  ready = Session.equals("eventSubReady", true)
+  if ready
+    Meteor.defer ->
+      AnimatedEach.attachHooks $(".events-body table")[0]
+  return ready
 
 Template.eventRecords.noEvents = ->
   Events.find(deleted: {$exists: false}).count() is 0

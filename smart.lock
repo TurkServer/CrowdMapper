@@ -12,6 +12,7 @@
       "openlayers": {
         "version": "2.13.1"
       },
+      "animated-each": {},
       "spin": {
         "git": "https://github.com/mizzao/meteor-spin.git",
         "branch": "master"
@@ -71,6 +72,11 @@
         "git": "https://github.com/mizzao/meteor-openlayers.git",
         "tag": "v2.13.1",
         "commit": "3a7723e9b4fce9ee65e2ae239918a2fbbf3de927"
+      },
+      "animated-each": {
+        "git": "https://github.com/mizzao/meteor-animated-each.git",
+        "tag": "v0.1.0",
+        "commit": "7bd8964f6d4e436eb18e5f45c7bf99bf7b1e2cfc"
       },
       "spin": {
         "git": "https://github.com/mizzao/meteor-spin.git",
