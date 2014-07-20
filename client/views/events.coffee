@@ -76,9 +76,9 @@ tweetIconDragProps =
   stop: Mapper.unhighlightEvents
   zIndex: 1000
 
-Template.eventRecords.events =
-  "click .events-body tr": (e, t) ->
-    Mapper.selectEvent(@_id)
+Template.eventRecords.loaded = -> Session.equals("eventSubReady", true)
+
+Template.eventsHeader.events
   "click span.sorter": (e) ->
     key = $(e.target).closest("span.sorter").data("key")
     sortKey = Session.get("eventSortKey")
@@ -88,6 +88,10 @@ Template.eventRecords.events =
     else
       Session.set("eventSortKey", key)
       Session.set("eventSortOrder", 1)
+
+Template.eventsBody.events
+  "click tbody > tr": (e, t) ->
+    Mapper.selectEvent(@_id)
   "mouseenter .tweet-icon-container": (e) ->
     container = $(e.target)
 
@@ -101,14 +105,7 @@ Template.eventRecords.events =
 
     container.one("mouseleave", -> container.draggable("destroy") )
 
-Template.eventRecords.loaded = ->
-  ready = Session.equals("eventSubReady", true)
-  if ready
-    Meteor.defer ->
-      AnimatedEach.attachHooks $(".events-body table")[0]
-  return ready
-
-Template.eventRecords.noEvents = ->
+Template.eventsBody.noEvents = ->
   Events.find(deleted: {$exists: false}).count() is 0
 
 Handlebars.registerHelper "numEventCols", ->
@@ -116,7 +113,7 @@ Handlebars.registerHelper "numEventCols", ->
   # Add 1 each for index, sources, map, and buttons
   EventFields.find().count() + 4
 
-Template.eventRecords.records = ->
+Template.eventsBody.records = ->
   selector = if TurkServer.isAdmin() and Session.equals("adminShowDeleted", true) then {}
   else { deleted: {$exists: false} }
 
@@ -125,6 +122,9 @@ Template.eventRecords.records = ->
   #  sort[key] = Session.get("eventSortOrder") || 1 if key?
   sort = [ [key, if Session.get("eventSortOrder") is -1 then "desc" else "asc"], [ "_id", "asc" ] ]
   return Events.find(selector, { sort: sort })
+
+Template.eventsBody.rendered = ->
+  AnimatedEach.attachHooks this.find("table tbody")
 
 Template.createFooter.events =
   "click .action-event-new": (e) ->

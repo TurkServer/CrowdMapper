@@ -6,35 +6,13 @@
     <div id="events" class="shadow-outline">
 
     {{!-- This extra container solves the problem of the absolute div clipping shit --}}
-    {{#if loaded}}
         <div class="scroll-vertical events-body">
-            <table class="table table-condensed table-hover table-striped">
-                <thead>
-                <tr>
-                    <th class="header-num vertical-nopad"></th>
-                    {{#each eventFields}}
-                    <th class="vertical-nopad"></th>
-                    {{/each}}
-                    <th class="vertical-nopad">{{! Sources}}</th>
-                    <th class="header-location vertical-nopad"></th>
-                    <th class="header-buttons vertical-nopad"></th>
-                </tr>
-                </thead>
-
-                <tbody>
-                {{#if noEvents}}
-                {{> emptyRow}}
-                {{/if}}
-
-                {{#each records}}
-                {{> eventRow}}
-                {{/each}}
-                </tbody>
-            </table>
+            {{#if loaded}}
+            {{> eventsBody}}
+            {{else}}
+            {{> spinner}}
+            {{/if}}
         </div>
-    {{else}}
-        {{> spinner}}
-    {{/if}}
     </div>
 
     {{> createFooter}}
@@ -66,6 +44,32 @@
             <th class="header-buttons"></th>
         </tr>
         </thead>
+    </table>
+</template>
+
+<template name="eventsBody">
+    <table class="table table-condensed table-hover table-striped">
+        <thead>
+        <tr>
+            <th class="header-num vertical-nopad"></th>
+            {{#each eventFields}}
+            <th class="vertical-nopad"></th>
+            {{/each}}
+            <th class="vertical-nopad">{{! Sources}}</th>
+            <th class="header-location vertical-nopad"></th>
+            <th class="header-buttons vertical-nopad"></th>
+        </tr>
+        </thead>
+
+        <tbody>
+        {{#if noEvents}}
+        {{> emptyRow}}
+        {{/if}}
+
+        {{#each records}}
+        {{> eventRow}}
+        {{/each}}
+        </tbody>
     </table>
 </template>
 
