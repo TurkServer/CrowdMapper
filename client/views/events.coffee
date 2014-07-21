@@ -161,6 +161,11 @@ acceptDrop = (draggable) ->
   event = UI.getElementData(this) # These are the only droppables on the page
   return false unless event
   tweet = UI.getElementData(draggable.context)
+
+  # Upon a drop, data context may be lost, in which case we should not try and
+  # drop check if the tweet is part of an event, below
+  return false unless tweet?
+
   # Don't accept drops to the same event - check the event as it will be more
   # up to date than the one-shot data context being used to render the helper,
   # which may have changed.
@@ -178,29 +183,38 @@ processDrop = (event, ui) ->
   # TODO replace with an appropriate use of UI._parentData
   target = ui.draggable.context
   parent = tweet
+
+  deletedWhileDragging = false
+
   while parent is tweet
-    parent = UI.getElementData(target = target.parentNode)
+    target = target.parentNode
 
-  ###
-    At this point, parent will either be a cursor (if dragged from datastream)
-    or an event (if dragged from another event). It could also be null if the
-    original draggable was removed while dragging. Possible cases:
+    ###
+      At this point, target will either be the datastream list
+      or an event (if dragged from another event). It could also be null if the
+      original draggable was removed while dragging. Possible cases:
 
-    - Tweet hidden while dragging from the datastream
-    - Tweet moved/removed or event deleted while dragging from an event
-    - Event edited while dragging, causing a re-render
+      - Tweet hidden while dragging from the datastream
+      - Tweet moved/removed or event deleted while dragging from an event
+      - Event edited while dragging, causing a re-render
 
-    TODO: handle case where event is edited so that dragging is still valid, but
-    is now rejected because the context was re-rendered
+      TODO: handle case where event is edited so that dragging is still valid, but
+      is now rejected because the context was re-rendered
 
-    For now, we just adopt a conservative policy to prevent sync problems.
-  ###
-  if parent is null
+      For now, we just adopt a conservative policy to prevent sync problems.
+    ###
+    unless target?
+      deletedWhileDragging = true
+      break
+
+    parent = UI.getElementData(target)
+
+  if deletedWhileDragging
     bootbox.alert("The tweet was hidden or the event was edited by someone else while you were dragging. Please try dragging the tweet again.")
     return
 
   # Distinguish between a link and a re-drag
-  if parent._id?
+  if parent?._id
     # remove from parent if it was an event
     Meteor.call "dataMove", tweet._id, parent._id, event._id
   else

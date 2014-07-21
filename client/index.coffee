@@ -60,13 +60,19 @@ Router.map ->
       @setLayout(null)
       @render()
 
-  @route 'exitsurvey',
+  @route 'exitsurvey/:template?',
     layoutTemplate: 'defaultContainer'
     onBeforeAction: (pause) ->
       unless TurkServer.isAdmin() or TurkServer.inExitSurvey()
         @setLayout("defaultContainer")
         @render("loadError")
         pause()
+    action: ->
+      # Override the route, for debugging use.
+      if @params.template?
+        @render(@params.template)
+      else
+        @render("exitsurvey")
 
 Meteor.startup ->
   Session.setDefault("taskView", 'events')
