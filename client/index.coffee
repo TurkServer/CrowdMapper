@@ -144,7 +144,7 @@ Template.mapper.events
       trigger: "manual"
       container: e.target # Hovering over the popover should hold it open
       # No need for reactivity here since tweet does not change
-      content: UI.toHTML Template.tweetPopup.extend( data: Datastream.findOne(tweet._id) )
+      content: Blaze.toHTML Blaze.With Datastream.findOne(tweet._id), -> Template.tweetPopup
     }).popover("show")
 
     container.one("mouseleave", -> container.popover("destroy") )

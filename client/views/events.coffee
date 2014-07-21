@@ -317,7 +317,7 @@ Template.eventVoting.rendered = ->
     container: @firstNode # Hovering over the popover should hold it open
     content: ->
       # TODO Make this properly reactive - currently just hiding it immediately
-      UI.toHTML Template.eventVotePopup.extend data: -> Events.findOne(eventId, fields: {votes: 1})
+      Blaze.toHTML Blaze.With Events.findOne(eventId, fields: {votes: 1}), -> Template.eventVotePopup
 
 # 'hide' is the right thing to use here; 'destroy' disables the popover.
 Template.eventVoting.events =

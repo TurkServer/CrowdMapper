@@ -2,7 +2,10 @@
   "meteor": {},
   "dependencies": {
     "basePackages": {
-      "iron-router": {},
+      "iron-router": {
+        "git": "https://github.com/EventedMind/iron-router.git",
+        "branch": "devel"
+      },
       "jqueryui": {},
       "x-editable-bootstrap": {},
       "bootboxjs": {
@@ -45,8 +48,8 @@
     "packages": {
       "iron-router": {
         "git": "https://github.com/EventedMind/iron-router.git",
-        "tag": "v0.7.1",
-        "commit": "d1ffb3f06ea4c112132b030f2eb1a70b81675ecb"
+        "branch": "devel",
+        "commit": "7993938ffd3dd338688847a11724f8a982fa9d5d"
       },
       "jqueryui": {
         "git": "https://github.com/mizzao/meteor-jqueryui.git",
@@ -107,10 +110,10 @@
       "timesync": {
         "path": "../meteor-timesync"
       },
-      "blaze-layout": {
-        "git": "https://github.com/EventedMind/blaze-layout.git",
-        "tag": "v0.2.4",
-        "commit": "b40e9b0612329288d75cf52ad14a7da64bb8618f"
+      "iron-layout": {
+        "git": "https://github.com/EventedMind/iron-layout.git",
+        "tag": "v0.1.2",
+        "commit": "6a81be88ee675d747777aeb308c6d4da482d0fde"
       },
       "build-fetcher": {
         "git": "https://github.com/mizzao/meteor-build-fetcher.git",
@@ -126,6 +129,21 @@
         "git": "https://github.com/StockBase/meteor-caret-position.git",
         "tag": "v2.1.0-3",
         "commit": "6028cf980f62cbf72cb2ea527091a3a31f87b8a7"
+      },
+      "blaze-layout": {
+        "git": "https://github.com/EventedMind/blaze-layout.git",
+        "tag": "v0.2.5",
+        "commit": "273e3ab7d005d91a1a59c71bd224533b4dae2fbd"
+      },
+      "iron-core": {
+        "git": "https://github.com/EventedMind/iron-core.git",
+        "tag": "v0.1.0",
+        "commit": "978b27f987a91c8d46e557c24190cb2ed5f8b074"
+      },
+      "iron-dynamic-template": {
+        "git": "https://github.com/EventedMind/iron-dynamic-template.git",
+        "tag": "v0.1.0",
+        "commit": "10ffb22239b79789c3923354e3eaa9ba7cb2f9ca"
       }
     }
   }

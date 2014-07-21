@@ -46,12 +46,10 @@ Template.docCurrent.document = ->
 
 Template.docCurrent.title = -> Documents.findOne(""+@)?.title
 
-# TODO a hack to forcibly re-render the editable to re-render doc or title changes
+# TODO a hack to forcibly re-render the editable to re-render doc or title changes - fix on blaze-refactor
 # It only works because if doc didn't change, title must have (no other fields)
 Template.docCurrent.docTitleComponent = ->
-  UI.Component.extend
-    kind: "mapperDocTitle",
-    render: -> Template.docTitle
+  Template.docTitle
 
 Template.docTitle.rendered = ->
   @editComp = @$(".editable").editable

@@ -29,11 +29,9 @@ Template.currentChatroom.events
 
 Template.currentChatroom.nameDoc = -> ChatRooms.findOne(""+@, {fields: name: 1})
 
-# TODO also a hack, like the docs
+# TODO also a hack, like the docs - verify this works properly on blaze-refactor
 Template.currentChatroom.roomHeaderComponent = ->
-  UI.Component.extend
-    kind: "mapperChatHeader",
-    render: -> Template.roomHeader
+  Template.roomHeader
 
 Template.rooms.loaded = -> Session.equals("chatSubReady", true)
 
@@ -135,7 +133,7 @@ tweetRegex = new RegExp('(^|\\b|\\s)(~[\\d]+)($|\\b|\\s)','g')
 eventRegex = new RegExp('(^|\\b|\\s)(#[\\d]+)($|\\b|\\s)','g')
 
 renderWithData = (kind, data) ->
-  UI.toHTML kind.extend data: -> data
+  Blaze.toHTML Blaze.With data, -> kind
 
 # TODO: remove ugly spaces added below
 # TODO: user status won't update reactively here; it just stays its initial value
@@ -177,7 +175,7 @@ Template.chatInput.rendered = ->
     html: true
     placement: "top"
     trigger: "hover"
-    content: UI.toHTML Template.chatPopover
+    content: Blaze.toHTML Template.chatPopover
 
 Template.chatInput.events =
   submit: (e, tmpl) ->

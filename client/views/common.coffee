@@ -28,7 +28,7 @@ Template.userPill.rendered = ->
       user = UI.getElementData(@firstNode)
       # Check if we should show chat invite
       if user.status?.online and user._id isnt Meteor.userId()
-        return UI.toHTML Template.userInvitePopup
+        return Blaze.toHTML Template.userInvitePopup
       else
         return null
 
@@ -211,7 +211,7 @@ $.extend LongLat.prototype, {
 }
 
 LongLat.defaults = $.extend {}, $.fn.editabletypes.abstractinput.defaults,
-  tpl: UI.toHTML Template.longLatEntry # No reactive contents
+  tpl: Blaze.toHTML Template.longLatEntry # No reactive contents
   inputclass: ""
 
 $.fn.editabletypes.longlat = LongLat
