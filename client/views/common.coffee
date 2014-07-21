@@ -17,21 +17,6 @@ Template.userPill.labelClass = ->
     "success"
   else "default"
 
-Template.userPill.rendered = ->
-  $(@firstNode).popover
-    html: true
-    placement: "auto right"
-    trigger: "hover"
-    container: @firstNode
-    content: =>
-      # Grab updated data
-      user = UI.getElementData(@firstNode)
-      # Check if we should show chat invite
-      if user.status?.online and user._id isnt Meteor.userId()
-        return Blaze.toHTML Template.userInvitePopup
-      else
-        return null
-
 Template.userPill.events =
   "click .action-chat-invite": (e) ->
     myId = Meteor.userId()

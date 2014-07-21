@@ -130,6 +130,10 @@ Template.home.landingTemplate = ->
   # TODO make this dynamic based on batch
   Template.taskLanding
 
+###
+  Global level events in the mapper application - activating popovers on
+  mouseover
+###
 Template.mapper.events
   # Attach and destroy a popover when mousing over a container. 'mouseenter'
   # only fires once when entering an element, so we use that to ensure that we
@@ -145,6 +149,26 @@ Template.mapper.events
       container: e.target # Hovering over the popover should hold it open
       # No need for reactivity here since tweet does not change
       content: Blaze.toHTML Blaze.With Datastream.findOne(tweet._id), -> Template.tweetPopup
+    }).popover("show")
+
+    container.one("mouseleave", -> container.popover("destroy") )
+
+  "mouseenter .user-pill-container": (e) ->
+    container = $(e.target)
+
+    container.popover({
+      html: true
+      placement: "auto right"
+      trigger: "manual"
+      container: e.target
+      content: ->
+        # Grab updated data
+        user = UI.getElementData(e.target)
+        # Check if we should show chat invite
+        if user.status?.online and user._id isnt Meteor.userId()
+          return Blaze.toHTML Template.userInvitePopup
+        else
+          return null
     }).popover("show")
 
     container.one("mouseleave", -> container.popover("destroy") )

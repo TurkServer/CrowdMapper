@@ -92,6 +92,10 @@ Template.eventsHeader.events
 Template.eventsBody.events
   "click tbody > tr": (e, t) ->
     Mapper.selectEvent(@_id)
+
+  ###
+    The following mouseover events are scoped to the event records table only.
+  ###
   "mouseenter .tweet-icon-container": (e) ->
     container = $(e.target)
 
@@ -104,6 +108,22 @@ Template.eventsBody.events
     )
 
     container.one("mouseleave", -> container.draggable("destroy") )
+
+  "mouseenter .event-voting-container": (e) ->
+    container = $(e.target)
+
+    container.popover({
+      html: true
+      placement: "left"
+      trigger: "manual"
+      container: container # Hovering over the popover should hold it open
+      content: ->
+        event = UI.getElementData(e.target)
+        # TODO Make this properly reactive - currently just hiding it immediately after vote
+        Blaze.toHTML Blaze.With event, -> Template.eventVotePopup
+    }).popover('show')
+
+    container.one("mouseleave", -> container.popover("destroy") )
 
 Template.eventsBody.noEvents = ->
   Events.find(deleted: {$exists: false}).count() is 0
@@ -308,25 +328,14 @@ Template.eventLocationEditable.rendered = ->
     value: @data.location
   return
 
-Template.eventVoting.rendered = ->
-  eventId = @data._id
-  @votePopover = $(@firstNode).popover
-    html: true
-    placement: "left"
-    trigger: "hover"
-    container: @firstNode # Hovering over the popover should hold it open
-    content: ->
-      # TODO Make this properly reactive - currently just hiding it immediately
-      Blaze.toHTML Blaze.With Events.findOne(eventId, fields: {votes: 1}), -> Template.eventVotePopup
-
-# 'hide' is the right thing to use here; 'destroy' disables the popover.
+# We can use 'destroy' here because the popover is activated on mouseover
 Template.eventVoting.events =
   "click .action-event-upvote": (e, tmpl) ->
     Meteor.call "voteEvent", @_id
-    tmpl.votePopover.popover('hide')
+    $(e.target).closest(".event-voting-container").popover('destroy')
   "click .action-event-unvote": (e, tmpl) ->
     Meteor.call "unvoteEvent", @_id
-    tmpl.votePopover.popover('hide')
+    $(e.target).closest(".event-voting-container").popover('destroy')
 
 Template.eventVoting.badgeClass = -> if @votes?.length > 0 then "alert-success" else ""
 Template.eventVoting.numVotes = -> @votes?.length || 0
