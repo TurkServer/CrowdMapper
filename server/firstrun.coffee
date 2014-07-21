@@ -207,7 +207,13 @@ Meteor.startup ->
   # Set up pilot testing batch
   TurkServer.ensureBatchExists
     name: "pilot testing"
-  pilotBatch = TurkServer.Batch.getBatch(Batches.findOne(name: "pilot testing")._id)
+
+  pilotBatchId = Batches.findOne(name: "pilot testing")
+
+  Batches.upsert pilotBatchId,
+    $addToSet: { treatments: "parallel_worlds" }
+
+  pilotBatch = TurkServer.Batch.getBatch(pilotBatchId)
   pilotBatch.setAssigner new TurkServer.Assigners.TutorialGroupAssigner(
     [ "tutorial" ], [ "parallel_worlds" ]
   )

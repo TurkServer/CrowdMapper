@@ -293,13 +293,13 @@ Meteor.methods
     TurkServer.checkNotAdmin()
     check(eventId, String)
 
-    event = Events.findOne(eventId)
-
     # Pull all tweet links
-    # TODO: do we actually want tweets to become un-hidden?
-    _.each event.sources, (tweetId) ->
-      Datastream.update tweetId,
-        $pull: { events: eventId }
+    # TODO: If multi-linking is ever re-enabled, reset tweet state here
+
+#    event = Events.findOne(eventId)
+#    _.each event.sources, (tweetId) ->
+#      Datastream.update tweetId,
+#        $pull: { events: eventId }
 
     # Don't actually delete event, so we retain the data and keep the number
     Events.update eventId,

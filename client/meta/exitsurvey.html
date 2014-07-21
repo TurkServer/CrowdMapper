@@ -2,19 +2,29 @@
     {{> surveyTemplate}}
 </template>
 
+<template name="loadingSurvey">
+    <h1>Loading survey...</h1>
+</template>
+
 <template name="tutorialSurvey">
     <form class="well survey">
     <fieldset>
         <legend>Please briefly answer the questions below.</legend>
 
+        <div class="form-group">
         <label>Were any parts of the tutorial confusing or that you didn't understand?</label>
         <textarea class="form-control" name="comprehension" placeholder="Type something…" required></textarea>
+        </div>
 
+        <div class="form-group">
         <label>After the tutorial, do you feel prepared to do create a crisis mapping task together with other workers? If not, what would help you feel more comfortable with the task?</label>
         <textarea class="form-control" name="prepared" placeholder="Type something…" required></textarea>
+        </div>
 
+        <div class="form-group">
         <label>Did you experience any bugs with the interface? If so, please describe them.</label>
         <textarea class="form-control" name="bugs" placeholder="Type something…" required></textarea>
+        </div>
 
         <span class="help-block">If you encountered any bugs, please include your operating system and browser in the description.</span>
     </fieldset>
@@ -31,11 +41,15 @@
            You also confirm that we may contact you via Amazon's Mechanical Turk to notify you of the HIT in advance.
         </span>
 
-        <label class="checkbox">
-            <input name="contact" type="checkbox"><b>Please grant me a qualification and contact me via Amazon Mechanical Turk for collaborating on the Crisis Mapping Project with other workers.</b>
-        </label>
+        <div class="checkbox">
+            <label class="checkbox">
+                <input name="contact" type="checkbox"><b>Please grant me a qualification and contact me via Amazon Mechanical Turk for collaborating on the Crisis Mapping Project with other workers.</b>
+            </label>
+        </div>
 
+        <div class="form-group">
         {{> tsTimePicker}}
+        </div>
 
         <span class="help-block">
             If you have any questions about this project, please contact Andrew Mao at <b>mao@seas.harvard.edu</b>.

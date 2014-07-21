@@ -126,9 +126,15 @@ Deps.autorun ->
   Templates and helpers
 ###
 
+# TODO update this to use a more generalized API
 Template.home.landingTemplate = ->
-  # TODO make this dynamic based on batch
-  Template.taskLanding
+  treatments = TurkServer.batch()?.treatments
+  if _.indexOf(treatments, "recruiting") >= 0
+    Template.recruitingLanding
+  else if _.indexOf(treatments, "parallel_worlds") >= 0
+    Template.taskLanding
+  else
+    Template.loadingLanding
 
 ###
   Global level events in the mapper application - activating popovers on

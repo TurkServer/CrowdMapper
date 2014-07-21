@@ -29,7 +29,8 @@ TurkServer.initialize ->
     loadCSVTweets("tutorial.csv", 10)
   else
     # Load initial tweets on first start
-    loadCSVTweets("PabloPh_UN_cm.csv", 500)
+    # Meta-cleaned version has 1567 tweets
+    loadCSVTweets("PabloPh_UN_cm.csv", 2000)
     # Create a seed instructions document for the app
     docId = Documents.insert
       title: "Instructions"
