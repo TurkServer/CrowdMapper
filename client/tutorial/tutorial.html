@@ -20,7 +20,7 @@
 <template name="tut_welcome_recruiting">
     <p>This HIT is a training session for the Crisis Mapping Project, a Microsoft Research project.</p>
 
-    <p><b>You will complete this tutorial by yourself, but if you do the Crisis Mapping task later, you will complete it with a team of other workers.</b></p>
+    <p>You will complete this tutorial by yourself, but if you do the Crisis Mapping task later, you may be working <i>either</i> by yourself <i>or</i> with a team of other workers.</p>
 
     {{> tut_welcome_common}}
 </template>
@@ -39,13 +39,13 @@
 <!-- What is crisis mapping -->
 
 <template name="tut_whatis">
-    <p>We need your help to better understand how teams of people can work together on a crisis mapping problem.</p>
+    <p>We need your help to better understand how participants on the Internet can help produce a map of a humanitarian crisis or natural disaster.</p>
 
     {{> tut_whatis_common}}
 </template>
 
 <template name="tut_whatis_recruiting">
-    <p>The Crisis Mapping Project is a study to better understand how teams of people can work together on a crisis mapping problem.</p>
+    <p>The Crisis Mapping Project is a study to better understand how participants on the Internet can help produce a map of a humanitarian crisis or natural disaster.</p>
 
     {{> tut_whatis_common}}
 </template>
@@ -57,7 +57,7 @@
 <!-- The project -->
 
 <template name="tut_project">
-    <p>In this project, you will work with a team of other crisis mappers to create a crisis map for Typhoon Pablo, a Category 5 hurricane which hit the Philippines in December 2012.</p>
+    <p>In this project, you will work either alone or with other crisis mappers to create a crisis map for Typhoon Pablo, a Category 5 hurricane which hit the Philippines in December 2012.</p>
 
     {{> tut_project_common}}
 </template>
@@ -75,15 +75,15 @@
 <!-- Your task -->
 
 <template name="tut_yourtask">
-    <p>To create the crisis map, you and your team members will be shown actual Twitter reports from Typhoon Pablo. Your team must figure out which reports describe relevant crisis events.</p>
+    <p>To create the crisis map, you will be shown actual Twitter reports from Typhoon Pablo. You must figure out which reports describe relevant crisis events.</p>
 
-    <p>In collaboration with your team, you must record these events describing the types of events, their descriptions, and their locations.</p>
+    <p>You must record these events describing the types of events, their descriptions, and their locations.</p>
 
     {{> tut_yourtask_common}}
 </template>
 
 <template name="tut_yourtask_recruiting">
-    <p>To create the crisis map, you and your team members will be shown actual Twitter reports from Typhoon Pablo. Your team must figure out which reports describe relevant crisis events.</p>
+    <p>To create the crisis map, you will be shown actual Twitter reports from Typhoon Pablo. You must figure out which reports describe relevant crisis events.</p>
 
     <p>In this tutorial, you will learn how to record these events by describing the types of events, their descriptions, and their locations.</p>
 
@@ -94,12 +94,14 @@
     <p>Relevant reports include damage to infrastructure, reports of flooded regions, casualties, local residents that have been displaced, and evacuation centers. These should be recorded on the crisis map.</p>
 
     <p>Other reports are irrelevant or inaccurate and should not be recorded.</p>
+
+    <p><b>You may not be able to finish recording events for all of the reports. You should focus on producing accurate, verifiable records instead of partially categorized events.</b></p>
 </template>
 
 <template name="tut_goal">
-    <p>This tutorial will provide a general description of the task and explain the basic functions of the Crisis Mapping tool, but it is your job to figure out how to solve the problem.</p>
+    <p>This tutorial will provide a general description of the task and explain the basic functions of the Crisis Mapping tool, but it is your job to figure out how to best solve the problem.</p>
 
-    <p><b>By effectively solving this problem and creating an accurate crisis map with your teammates, you can help us learn how to better respond to future natural disasters.</b></p>
+    <p><b>By finding an effective way to create an accurate crisis map, you can help us learn how to better respond to future natural disasters.</b></p>
 </template>
 
 <!-- Overview of page sections -->
@@ -163,7 +165,7 @@
 
     <p>You may also edit an existing event record by double-clicking or by clicking the blue <button class="btn btn-xs btn-primary"><span class="glyphicon glyphicon-pencil"></span></button> button. You will see edits by other mappers in real-time.</p>
 
-    <p>Only one person can edit an event record at a time, so when you're done, click the green <button class="btn btn-xs btn-success"><span class="glyphicon glyphicon-remove"></span>Save</button> button to save the event.</p>
+    <p>Only one person can edit an event record at a time, so when you're done, click the green <button class="btn btn-xs btn-success"><span class="glyphicon glyphicon-check"></span>Save</button> button to save the event.</p>
 
     {{!-- Currently no edit step required, as create event automatically does it.
 
@@ -299,7 +301,11 @@
 </template>
 
 <template name="tut_mapcontrols">
-    <p>Use these map controls to pan around the map, and zoom in and out. You can also scroll and drag with your mouse.</p>
+    <p>Use these map controls to pan around the map, and zoom in and out.</p>
+
+    <p>With your mouse, you can also pan by dragging and zoom by scrolling.</p>
+
+    <p><b class="text-danger">Try navigating around the map now.</b></p>
 </template>
 
 <template name="tut_maplocate">
@@ -374,9 +380,11 @@
 </template>
 
 <template name="tut_userlist">
-    <p>The <b>User List</b> shows team members who are currently online in <span class="label label-success">green</span>, and those who have stopped participating in <span class="label label-default">grey</span>. You are shown in <span class="label label-inverse">black</span>.</p>
+    <p>The <b>User List</b> shows other team members who are currently online in <span class="label label-success">green</span>, and those who have stopped participating in <span class="label label-default">grey</span>. You are shown in <span class="label label-inverse">black</span>.</p>
 
     <p>When other users are online, you may <b>hover your mouse over their name to invite them to chat.</b></p>
+
+    <p>If you are working by yourself, you will see only your own name here.</p>
 </template>
 
 <template name="tut_chatrooms">
@@ -482,17 +490,21 @@
 <!-- Move some of this into exit survey -->
 
 <template name="tut_end">
-    <p>Please read and acknowledge the <b><a href="http://research.microsoft.com/en-us/UM/legal/MSRCrisisMapConsent031714.htm" target="_blank">terms of use</a></b> for participating in this project.</p>
+    <p>Please read and acknowledge the <b>terms of use</b> for participating in this project.</p>
+
+    <blockquote>
+        <p><a href="http://research.microsoft.com/en-us/UM/legal/MSRCrisisMapConsent031714.htm" target="_blank">Click to view the terms of use.</a></p>
+    </blockquote>
 
     <p>By clicking the checkbox below you confirm that you are at least 18 years of age, and that you understand what the project is about and how and why it is being done.</p>
 
     <p>Some tweets may contain descriptions or images of human or animal suffering, and may be disturbing to some users. If you know that you are adversely affected by this kind of content, feel free to exit the experiment. By checking the box, you also acknowledge that you accept this possibility through your participation in crisis mapping.</p>
 
-    <p>
+    <div class="checkbox">
         <label class="checkbox">
             <input type="checkbox" checked={{checked}}> I have read and acknowledged the terms of use.
         </label>
-    </p>
+    </div>
 
     <p>If you have any questions about this project, please contact Andrew Mao at <b>mao@seas.harvard.edu</b>.</p>
 

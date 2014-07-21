@@ -180,6 +180,8 @@ Template.tut_end.events =
     Mapper.events.emit("check-consent") if e.target.checked
 
 Template.tut_end.checked = -> Session.get("consentChecked")
+# Override stepComplete function on this template
+Template.tut_end.stepCompleted = Template.tut_end.checked
 
 getRecruitingSteps = ->
   # replace templates with _recruiting if they exist
