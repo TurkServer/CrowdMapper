@@ -1,4 +1,3 @@
-/publish-with-relations
 /bootboxjs
 /iron-router
 /build-fetcher
@@ -14,7 +13,6 @@
 /jquery-migrate
 /timesync
 /partitioner
-/blaze-layout
 /bootstrap-3
 /caret-position
 /spin
@@ -23,3 +21,4 @@
 /iron-layout
 /iron-core
 /iron-dynamic-template
+/blaze-layout

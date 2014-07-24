@@ -130,13 +130,11 @@ Template.map.rendered = ->
 
     # Force re-render with Deps.flush(), then resize popup to fit contents
     # Resizing won't affect reactive updates but those are unlikely to trigger huge size changes
-    Deps.flush()
-    popup.updateSize()
 
-    # When placing events, we need an extra resize - TODO fix this
-    setTimeout ->
+    # Deps.afterFlush ensures that the popup is resized after all data
+    # updates, including potentially the location itself when placing
+    Deps.afterFlush ->
       popup.updateSize()
-    , 0
 
   hidePopup = ->
     return unless popup?

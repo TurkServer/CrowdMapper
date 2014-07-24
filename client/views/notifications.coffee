@@ -21,8 +21,8 @@ notifyEvents =
     Session.set("room", this.room)
     Meteor.call "readNotification", this._id
       
-Template._inviteNotification.events = notifyEvents
-Template._mentionNotification.events = notifyEvents
+Template._inviteNotification.events(notifyEvents)
+Template._mentionNotification.events(notifyEvents)
   
 notifyUsername = ->
   Meteor.users.findOne(@sender)?.username
