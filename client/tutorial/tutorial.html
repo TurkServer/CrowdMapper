@@ -10,7 +10,7 @@
 <template name="tut_welcome">
     <p>Welcome to the Crisis Mapping Project, a Microsoft Corporation research project.</p>
 
-    <p>Before beginning, you will complete a brief tutorial to familiarize yourself with the Crisis Mapper interface.</p>
+    <p>Before beginning, you will complete a brief tutorial to familiarize yourself with the Crisis Mapping interface.</p>
 
     <p>You would have completed this tutorial when you registered for the Crisis Mapping Project, but this will refresh your memory.</p>
 
@@ -20,7 +20,7 @@
 <template name="tut_welcome_recruiting">
     <p>This HIT is a training session for the Crisis Mapping Project, a Microsoft Research project.</p>
 
-    <p><b>You will complete this tutorial by yourself, but if you do the Crisis Mapping task later, you will complete it with a team of other workers.</b></p>
+    <p><b>You will complete this tutorial by yourself, but if you do the Crisis Mapping task later, you may be working <i>either</i> by yourself <i>or</i> with a team of other workers.</b></p>
 
     {{> tut_welcome_common}}
 </template>
@@ -99,7 +99,9 @@
 <template name="tut_goal">
     <p>This tutorial will provide a general description of the task and explain the basic functions of the Crisis Mapping tool, but it is your job to figure out how to solve the problem.</p>
 
-    <p><b>By effectively solving this problem and creating an accurate crisis map with your teammates, you can help us learn how to better respond to future natural disasters.</b></p>
+    <p>By effectively solving this problem and creating an accurate crisis map with your teammates, you can help us learn how to better respond to future natural disasters.</p>
+
+    <p><b>In some cases, you may have a small team, or be the <i>only</i> person on your team, and you may not be able to finish recording events for all of the reports. You should focus on creating accurate, verifiable records over incomplete or partially categorized events.</b></p>
 </template>
 
 <!-- Overview of page sections -->
@@ -127,7 +129,7 @@
 </template>
 
 <template name="tut_navbar">
-    <p>The navbar allows you to access the three primary ways to share information and work with others: <b>event records</b>, <b>map</b>, and <b>documents</b>.</p>
+    <p>The navbar allows you to access the three primary ways to record information and work with others: <b>event records</b>, <b>map</b>, and <b>documents</b>.</p>
 
     <p>It also shows <b>notifications</b> you receive from other mappers.</p>
 </template>
@@ -163,7 +165,11 @@
 
     <p>You may also edit an existing event record by double-clicking or by clicking the blue <button class="btn btn-xs btn-primary"><span class="glyphicon glyphicon-pencil"></span></button> button. You will see edits by other mappers in real-time.</p>
 
-    <p>Only one person can edit an event record at a time, so when you're done, click the green <button class="btn btn-xs btn-success"><span class="glyphicon glyphicon-remove"></span>Save</button> button to save the event.</p>
+    <p>Only one person can edit an event record at a time, so when you're done, click the green
+        <button class="btn btn-xs btn-success">
+            <span class="glyphicon glyphicon-check"></span>Save
+        </button>
+        button to save the event.</p>
 
     {{!-- Currently no edit step required, as create event automatically does it.
 
@@ -300,6 +306,8 @@
 
 <template name="tut_mapcontrols">
     <p>Use these map controls to pan around the map, and zoom in and out. You can also scroll and drag with your mouse.</p>
+
+    <p>With your mouse, you can also pan by dragging and zoom by scrolling.</p>
 </template>
 
 <template name="tut_maplocate">
@@ -340,7 +348,7 @@
 </template>
 
 <template name="tut_verify">
-    <p>You may also check the accuracy of the events records created by other crisis mappers by verifying their data. The <span class="badge {{badgeClass}}">0 <span class="glyphicon glyphicon-ok"></span></span> area shows that no one has verified this event yet.</p>
+    <p>You may also check the accuracy of the events records created by other crisis mappers by verifying their data. The <span class="badge">0 <span class="glyphicon glyphicon-ok"></span></span> area shows that no one has verified this event yet.</p>
 
     <p>If you think an event record is accurate, you may verify it by hovering over this area and clicking the <button class="btn btn-success btn-xs"><span class="glyphicon glyphicon-ok"></span> Verify</button> button. You can also remove your vote for an event if you think it is no longer accurate.</p>
 
@@ -376,7 +384,9 @@
 <template name="tut_userlist">
     <p>The <b>User List</b> shows team members who are currently online in <span class="label label-success">green</span>, and those who have stopped participating in <span class="label label-default">grey</span>. You are shown in <span class="label label-inverse">black</span>.</p>
 
-    <p>When other users are online, you may <b>hover your mouse over their name to invite them to chat.</b></p>
+    <p>When other users are online, you may hover your mouse over their name to invite them to chat.</p>
+
+    <p><b>If you are working by yourself, you will see only your own name here.</b></p>
 </template>
 
 <template name="tut_chatrooms">
@@ -418,7 +428,7 @@
         <li>Use <b class="text-danger">#</b> to reference an event by its number.</li>
     </ul>
 
-    <p>When you start typing the symbols above, an automatic filtered list will appear. Mentioning tweets or events will create a clickable link for everyone.</p>
+    <p>When you start typing the symbols above, an automatic filtered list will appear. Mentioning these in chat will create links that you can click on to jump to the tweet or event.</p>
 
     <p>
     {{#if stepCompleted}}
@@ -448,9 +458,7 @@
 <template name="tut_payment">
     <p>Your payment will be determined by how much time you personally spend working on the task, and also the overall performance of your team.</p>
 
-    <p>Your team may be competing with other teams, and your team's performance will be measured relative to either the best-performing team or other benchmarks.</p>
-
-    <p>Your compensation will be calculated as:</p>
+    <p>Your team may be competing with other teams, and your team's performance will be measured relative to either the best-performing team or other benchmarks. Your compensation will be calculated as:</p>
 
     <blockquote>
     <p><b>(minutes you worked)/60 &times; ($6 + your team bonus)</b></p>
@@ -462,11 +470,13 @@
     <p><b>(Valid events your team correctly records)/(Highest number of valid events labeled by any team)</b></p>
     </blockquote>
 
-    <p><b>If you work for the full one hour, your compensation will be no less than $6 and as much as $15, depending on your team's relative performance.</b></p>
+    <p><b>If you work for the full one hour, your compensation will be no less than $6 and as much as $15, depending on your team's performance.</b></p>
 
-    <p>If you quit early or are idle you will only by paid for the fraction of time you work. Your payment will be shown during the task in the highlighted region.</p>
+    <p>Your payment will be shown during the task in the highlighted region. If you quit early or are idle you will only by paid for the fraction of time you work.</p>
 
     <p>Thus, you should not just work hard yourself, but also help your team succeed.</p>
+
+    <p><b>Sometimes, you may be on a team by yourself. In this case, you will be evaluated against others who are also working by themselves.</b></p>
 </template>
 
 <template name="tut_payment_recruiting">
@@ -482,17 +492,21 @@
 <!-- Move some of this into exit survey -->
 
 <template name="tut_end">
-    <p>Please read and acknowledge the <b><a href="http://research.microsoft.com/en-us/UM/legal/MSRCrisisMapConsent031714.htm" target="_blank">terms of use</a></b> for participating in this project.</p>
+    <p>Please read and acknowledge the <b>terms of use</b> for participating in this project.</p>
+
+    <blockquote>
+        <p><a href="http://research.microsoft.com/en-us/UM/legal/MSRCrisisMapConsent031714.htm" target="_blank">Click to view the terms of use.</a></p>
+    </blockquote>
 
     <p>By clicking the checkbox below you confirm that you are at least 18 years of age, and that you understand what the project is about and how and why it is being done.</p>
 
     <p>Some tweets may contain descriptions or images of human or animal suffering, and may be disturbing to some users. If you know that you are adversely affected by this kind of content, feel free to exit the experiment. By checking the box, you also acknowledge that you accept this possibility through your participation in crisis mapping.</p>
 
-    <p>
+    <div class="checkbox">
         <label class="checkbox">
             <input type="checkbox" checked={{checked}}> I have read and acknowledged the terms of use.
         </label>
-    </p>
+    </div>
 
     <p>If you have any questions about this project, please contact Andrew Mao at <b>mao@seas.harvard.edu</b>.</p>
 

@@ -208,7 +208,7 @@ Meteor.startup ->
   TurkServer.ensureBatchExists
     name: "pilot testing"
 
-  pilotBatchId = Batches.findOne(name: "pilot testing")
+  pilotBatchId = Batches.findOne(name: "pilot testing")._id
 
   Batches.upsert pilotBatchId,
     $addToSet: { treatments: "parallel_worlds" }

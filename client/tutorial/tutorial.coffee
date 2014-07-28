@@ -193,7 +193,6 @@ getRecruitingSteps = ->
     step.template = recruitingTemplate if Template[recruitingTemplate]
 
   return copiedSteps.concat [
-    spot: ".payment"
     template: "tut_payment_recruiting"
   ]
   
@@ -219,7 +218,9 @@ Template.mapperTutorial.options = ->
   steps = switch treatment?.tutorial
     when "recruiting" then getRecruitingSteps()
     when "pre_task" then getTutorialSteps()
-    else throw new Error("Unknown tutorial type: " + treatment.tutorial)
+    else
+      Meteor._debug("Unknown tutorial type: " + treatment.tutorial)
+      []
   
   return {
     id: "mapperTutorial"
@@ -228,8 +229,14 @@ Template.mapperTutorial.options = ->
     onFinish: -> Meteor.call "finishTutorial"
   }
 
-# Handy function to allow the entire tutorial
-Mapper.bypassTutorial = ->
+# Handy function to allow the entire tutorial for testing
+Mapper.bypassTutorial = (skipToEnd) ->
   for i, step of tutorialSteps
     Mapper.events.emit(step.require.event) if step?.require?.event
+
+  if skipToEnd
+    tm = UI.getElementData( $(".modal-dialog.positioned")[0])
+    # Get the tutorial manager and skip it to the end
+    tm.step = tm.steps.length - 1
+    tm.stepDep.changed()
   return
