@@ -371,7 +371,7 @@ Meteor.methods
   ###
   createChat: (roomName) ->
     TurkServer.checkNotAdmin()
-    check(roomName, string)
+    check(roomName, String)
 
     roomId = ChatRooms.insert
       name: roomName

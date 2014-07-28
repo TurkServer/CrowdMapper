@@ -17,7 +17,7 @@
 <template name="taskLanding">
     <p>This is the task for the Crisis Mapping Project.</p>
 
-    <p>Accept the HIT to participate in crisis mapping. You will first complete a quick tutorial, as in the previous qualification task. Then, you will do crisis mapping with actual crisis data, and you will earn $6 to $15 an hour based on your work.</p>
+    <p>Accept the HIT to participate in crisis mapping. You will first complete a quick tutorial, as in the previous qualification task. Then, you will create a crisis map with actual crisis data, and you will earn $6 to $15 an hour based on your work.</p>
 </template>
 
 <template name="recruitingLanding">
@@ -117,6 +117,7 @@
                 {{> notifications}}
             </li>
             {{> payment treatment}}
+            {{> help treatment }}
         </ul>
     </div>
 </template>
@@ -133,8 +134,27 @@
         </a>
         <ul class="dropdown-menu">
             <li>Your wage is <b>${{lowest}}</b> to <b>${{highest}}</b> per hour, depending on the performance of your team.</li>
+            <li class="divider"></li>
             <li>Your payment is based your time <b class="text-success">active</b>, {{tsActiveTime}}.</li>
             <li>This excludes time you have been <b class="text-danger">disconnected</b> ({{tsDisconnectedTime}}) and time you have been <b class="text-warning">idle</b> ({{tsIdleTime}}).</li>
+        </ul>
+    </li>
+</template>
+
+<template name="help">
+    <li class="help dropdown">
+        <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+            Help
+            <span class="caret"></span>
+        </a>
+        <ul class="dropdown-menu dropdown-menu-right">
+            {{#if wage}}
+            <li>You are working in a team.</li>
+            <li class="divider"></li>
+            <li>Complete as many correctly categorized events as possible. Try to fully categorize events instead of producing partial or incomplete events.</li>
+            {{else}}
+            <li>During the task, this area will show any specific instructions for your team.</li>
+            {{/if}}
         </ul>
     </li>
 </template>

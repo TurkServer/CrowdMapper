@@ -238,3 +238,5 @@ Template.scaledPayment.amount = ->
 Template.scaledPayment.lowest = -> @wage.toFixed(2)
 Template.scaledPayment.highest = -> (@wage + @bonus).toFixed(2)
 
+Template.help.rendered = ->
+  this.$(".dropdown > a").click()

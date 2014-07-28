@@ -275,7 +275,7 @@
 
     <p>If an event record does not have a location yet, you can place it on the map. We will show you how to do this momentarily.</p>
 
-    <p>If you find these numbers from a map service on the Internet, you can use these numbers while placing or editing the event.</p>
+    <p>If you find these numbers from a map service on the Internet, you can use these numbers while editing the event.</p>
 
     <!--
     <p>The tweet does not have information about the location. Leave it blank for now.</p>
@@ -308,6 +308,8 @@
     <p>Use these map controls to pan around the map, and zoom in and out. You can also scroll and drag with your mouse.</p>
 
     <p>With your mouse, you can also pan by dragging and zoom by scrolling.</p>
+
+    <p><b>This map is limited to the area around the Philippines, so you will need to first zoom in before you can pan the view.</b></p>
 </template>
 
 <template name="tut_maplocate">
@@ -334,7 +336,7 @@
 <template name="tut_maplocation">
     <p>Notice that the longitude/latitude has automatically been updated in the event record. Now, you can also edit the coordinates by clicking them directly.</p>
 
-    <p>Now, select the province, if you know it, and save the record using the <button class="btn btn-xs btn-success"><span class="glyphicon glyphicon-ok"></span>Save</button> button. This will let someone else edit the event.</p>
+    <p>Now, select the province, if you know it, and save the record using the <button class="btn btn-xs btn-success"><span class="glyphicon glyphicon-check"></span>Save</button> button. This will let someone else edit the event.</p>
 
     <p>
     {{#if stepCompleted}}
@@ -428,7 +430,9 @@
         <li>Use <b class="text-danger">#</b> to reference an event by its number.</li>
     </ul>
 
-    <p>When you start typing the symbols above, an automatic filtered list will appear. Mentioning these in chat will create links that you can click on to jump to the tweet or event.</p>
+    <p>When you start typing the symbols above, an automatic filtered list will appear.</p>
+
+    <p>Selecting an item in this list will create a link in your chat message that users can click on to jump to the tweet or event.</p>
 
     <p>
     {{#if stepCompleted}}

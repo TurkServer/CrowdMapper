@@ -223,7 +223,108 @@ Meteor.startup ->
   Random scripting methods that
   TODO need to be moved into more generalized APIs
 ###
+
+tutorialThresholdMins = 5
+tutorialThresholdMillis = tutorialThresholdMins * 60 * 1000
+
+checkTutorial = (asstRecord) ->
+  instance = TurkServer.Instance.getInstance(asstRecord.instances[0].id)
+
+  if instance.getDuration() < tutorialThresholdMillis
+    throw new Error("Worker #{asstRecord.workerId} rushed through tutorial in under #{tutorialThresholdMins} minutes in #{instance.groupId}")
+
+  startTime = Experiments.findOne(instance.groupId).startTime
+
+  # Check for very short average time between actions
+  actionIntervals = []
+  prevActionTime = null
+
+  Logs.find({
+    _groupId: instance.groupId
+    _meta: null
+  }, {
+    sort: {_timestamp: 1}
+  }).forEach (log) ->
+    if log._timestamp - startTime < 30000
+      throw new Error("Worker #{asstRecord.workerId} time to first tutorial action was less than 30 sec in #{instance.groupId}")
+    actionIntervals.push(log._timestamp - prevActionTime) if prevActionTime?
+    prevActionTime = log._timestamp
+
+  if actionIntervals.length < 10
+    throw new Error("Worker #{asstRecord.workerId} did less than 10 actions in #{instance.groupId}")
+
+  if actionIntervals.length < 18 and
+  _.filter(actionIntervals, (t) -> t < 15000).length > 0.5 * actionIntervals.length
+    throw new Error("Worker #{asstRecord.workerId} had 50% of actions under 10 sec in #{instance.groupId}")
+
+approveMessage = "Thanks for your work!"
+rejectMessage = "Sorry, it looks like you weren't paying attention during the tutorial."
+
 Meteor.methods
+  "cm-evaluate-recruiting-tutorials": (actuallyPay) ->
+    TurkServer.checkAdmin()
+    batch = Batches.findOne(treatments: "recruiting")
+
+    Assignments.find({
+      batchId: batch._id
+      status: "completed"
+      mturkStatus: $in: [null, "Submitted"]
+    }).forEach (a) ->
+
+      asst = TurkServer.Assignment.getAssignment(a._id)
+
+      if actuallyPay
+        # Make sure it's in submitted state
+        asst.refreshStatus() unless asst._data().mturkStatus
+
+      try
+        checkTutorial(a)
+        asst.approve(approveMessage) if actuallyPay
+      catch e
+        console.log e.toString()
+        asst.reject(rejectMessage) if actuallyPay
+
+  "cm-tutorial-first-action": ->
+    TurkServer.checkAdmin()
+    batch = Batches.findOne(treatments: "recruiting")
+
+    timesToFirstAction = []
+
+    Assignments.find({
+      batchId: batch._id
+      status: "completed"
+      mturkStatus: $in: [null, "Submitted"]
+    }).forEach (a) ->
+
+      groupId = a.instances[0].id
+      startTime = Experiments.findOne(groupId).startTime
+      firstAction = Logs.findOne({
+        _groupId: groupId
+        _meta: null
+      }, {
+        sort: {_timestamp: 1}
+      })._timestamp
+
+      timesToFirstAction.push(firstAction - startTime)
+
+    return timesToFirstAction
+
+  "cm-tutorial-completed-time": ->
+    TurkServer.checkAdmin()
+    batch = Batches.findOne(treatments: "recruiting")
+
+    durations = []
+
+    Assignments.find({
+      batchId: batch._id
+      status: "completed"
+      mturkStatus: $in: [null, "Submitted"]
+    }).forEach (a) ->
+
+      durations.push TurkServer.Instance.getInstance(a.instances[0].id).getDuration()
+
+    return durations
+
   "cm-assign-tutorial-quals": (qualId) ->
     TurkServer.checkAdmin()
     check(qualId, String)
@@ -240,7 +341,6 @@ Meteor.methods
     batchId = Batches.findOne(treatments: "recruiting")._id
 
     # Check that assignments are acceptable
-    threshold = 5
     count = 0
     for workerId in potentialWorkers
       asst = Assignments.findOne({workerId, batchId})
@@ -248,13 +348,13 @@ Meteor.methods
         console.log "Worker #{workerId} has contact=true but no assignment"
         continue
 
-      instance = Experiments.findOne(asst.instances[0].id)
-      if (instance.endTime - instance.startTime) < threshold * 60 * 1000
-        console.log "Worker #{workerId} rushed through tutorial in under #{threshold} minutes"
-        continue
+      try
+        checkTutorial(asst)
 
-      TurkServer.Util.assignQualification(workerId, qualId)
-      count++
+        TurkServer.Util.assignQualification(workerId, qualId)
+        count++
+      catch e
+        console.log e.toString()
 
     console.log(count + " workers assigned")
 
