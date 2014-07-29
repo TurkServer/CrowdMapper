@@ -17,7 +17,7 @@ Router.configure
   notFoundTemplate: 'home'
   loadingTemplate: 'spinner'
 
-# TODO move the functionality of these before functions into TurkServer
+# TODO move the functionality of these before functions into TurkServer by providing built-in Iron Router controllers
 Router.map ->
   @route('home', {path: '/'})
 
@@ -55,10 +55,33 @@ Router.map ->
 
       return subHandles
 
-    action: ->
-      # TODO remove this when EventedMind/iron-router#607 is merged
-      @setLayout(null)
-      @render()
+  # Route to re-play a given crisis mapping instantiation
+  @route 'replay',
+    path: '/replay/:instance'
+    template: 'mapper',
+    onBeforeAction: (pause) ->
+      pause() unless TurkServer.isAdmin()
+
+    waitOn: ->
+      Meteor.subscribe "replay", this.params.instance, ->
+        Session.set("userSubReady", true)
+        # Session.set("chatSubReady", true)
+        Session.set("dataSubReady", true)
+        # Session.set("docSubReady", true)
+        Session.set("eventSubReady", true)
+
+    onAfterAction: ->
+      # turn on auto scrolling for new events and hidden tweets
+      @dataWatcher = Datastream.find({hidden: $exists: false}).observeChanges
+        removed: (id) -> Mapper.scrollToData(id, 100)
+
+      @eventWatcher = Events.find().observeChanges
+        added: (id) ->
+          Deps.afterFlush -> Mapper.scrollToEvent(id, 100)
+
+    onStop: ->
+      @dataWatcher.stop()
+      @eventWatcher.stop()
 
   @route 'exitsurvey/:template?',
     layoutTemplate: 'defaultContainer'

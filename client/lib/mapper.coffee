@@ -23,11 +23,11 @@ Mapper.selectData = (id) ->
   $("#data-#{id}").addClass("selected") if id?
   return
 
-Mapper.scrollToData = (id) ->
+Mapper.scrollToData = (id, speed = "slow") ->
   parent = $(".scroll-vertical.data-body")
   element = $("#data-#{id}")
   return unless element.length # Can't scroll to things that aren't in datastream
-  parent.animate(scrollPos(element, parent), "slow")
+  parent.animate(scrollPos(element, parent), speed)
   return
 
 Mapper.selectEvent = (id) ->
@@ -36,11 +36,11 @@ Mapper.selectEvent = (id) ->
   $("#event-#{id}").addClass("selected") if id?
   return
 
-Mapper.scrollToEvent = (id) ->
+Mapper.scrollToEvent = (id, speed = "slow") ->
   parent = $(".scroll-vertical.events-body")
   element = $("#event-#{id}")
   return unless element.length
-  parent.animate(scrollPos(element, parent), "slow")
+  parent.animate(scrollPos(element, parent), speed)
   return
 
 Mapper.tweetDragHelper = (e) ->
