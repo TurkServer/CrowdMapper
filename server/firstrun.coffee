@@ -165,6 +165,10 @@ Meteor.startup ->
 
   # Create Assigner on recruiting batch, if it exists
   if (batch = Batches.findOne(treatments: $in: [ "recruiting" ]))?
+    # Enable re-attempts on recruiting batch if returned
+    Batches.update batch._id,
+      $set: allowReturns: true
+
     TurkServer.Batch.getBatch(batch._id).setAssigner(new TurkServer.Assigners.SimpleAssigner)
     console.log "Set up assigner on recruiting batch"
 
@@ -174,7 +178,9 @@ Meteor.startup ->
       Title: "Complete a tutorial for the Crisis Mapping Project"
     }, {
       $setOnInsert: {
-        Description: "Complete a tutorial for the Crisis Mapping Project, which takes about 10 minutes. After you complete this, you will be qualified to participate in collaborative Crisis Mapping sessions, which will pay from $6 to $15 per hour. You may see some disturbing content from natural disasters."
+        Description: "Complete a tutorial for the Crisis Mapping Project, which takes about 10 minutes. After you complete this, you will be qualified to participate in collaborative Crisis Mapping sessions, which will pay from $6 to $15 per hour. You may see some disturbing content from natural disasters.
+
+        You cannot do this HIT if you've done it before. If you accept it again, you will be asked to return it."
         Keywords: "crisis mapping, tutorial, collaborative"
         Reward: 1.00
         QualificationRequirement: [
