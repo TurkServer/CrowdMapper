@@ -2,10 +2,7 @@
   "meteor": {},
   "dependencies": {
     "basePackages": {
-      "iron-router": {
-        "git": "https://github.com/EventedMind/iron-router.git",
-        "branch": "devel"
-      },
+      "iron-router": {},
       "jqueryui": {},
       "x-editable-bootstrap": {},
       "bootboxjs": {
@@ -48,8 +45,8 @@
     "packages": {
       "iron-router": {
         "git": "https://github.com/EventedMind/iron-router.git",
-        "branch": "devel",
-        "commit": "3c0791cea23564c3eea0d6dc99570704868942b3"
+        "tag": "v0.8.1",
+        "commit": "74e867557fd9cb81173e048e5f81cf4a0a1160a8"
       },
       "jqueryui": {
         "git": "https://github.com/mizzao/meteor-jqueryui.git",
@@ -84,7 +81,7 @@
       "spin": {
         "git": "https://github.com/mizzao/meteor-spin.git",
         "branch": "master",
-        "commit": "5de9abd52d7f28ffa6549642bc1c32a755be3bc2"
+        "commit": "dcf3940881690cb95ede439b6870f7c573400e94"
       },
       "user-status": {
         "path": "../meteor-user-status"

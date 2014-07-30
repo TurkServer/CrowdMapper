@@ -1,9 +1,6 @@
 {
   "packages": {
-    "iron-router": {
-      "git": "https://github.com/EventedMind/iron-router.git",
-      "branch": "devel"
-    },
+    "iron-router": {},
     "jqueryui": {},
     "x-editable-bootstrap": {},
     "bootboxjs": "4.2.0",
