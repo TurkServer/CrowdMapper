@@ -234,6 +234,7 @@ tutorialThresholdMins = 5
 tutorialThresholdMillis = tutorialThresholdMins * 60 * 1000
 
 checkTutorial = (asstRecord) ->
+  # TODO: check for amount of time spent on exit survey
   instance = TurkServer.Instance.getInstance(asstRecord.instances[0].id)
 
   if instance.getDuration() < tutorialThresholdMillis
@@ -260,10 +261,14 @@ checkTutorial = (asstRecord) ->
     throw new Error("Worker #{asstRecord.workerId} did less than 10 actions in #{instance.groupId}")
 
   if actionIntervals.length < 18 and
-  _.filter(actionIntervals, (t) -> t < 15000).length > 0.5 * actionIntervals.length
-    throw new Error("Worker #{asstRecord.workerId} had 50% of actions under 10 sec in #{instance.groupId}")
+  _.filter(actionIntervals, (t) -> t < 20000).length > 0.75 * actionIntervals.length
+    throw new Error("Worker #{asstRecord.workerId} had 75% of actions under 20 sec in #{instance.groupId}")
 
-approveMessage = "Thanks for your work!"
+approveMessage =
+  """Thanks for doing our tutorial. Feel free to reach out to me personally if you have any questions or comments.
+
+     If you asked to be notified, we'll send you an e-mail to let you of future crisis mapping tasks, and we hope you'll join us.
+  """
 rejectMessage = "Sorry, it looks like you weren't paying attention during the tutorial."
 
 Meteor.methods
@@ -271,6 +276,7 @@ Meteor.methods
     TurkServer.checkAdmin()
     batch = Batches.findOne(treatments: "recruiting")
 
+    # TODO: move this functionality into TurkServer
     Assignments.find({
       batchId: batch._id
       status: "completed"
@@ -279,16 +285,19 @@ Meteor.methods
 
       asst = TurkServer.Assignment.getAssignment(a._id)
 
-      if actuallyPay
+      if actuallyPay and not asst._data().mturkStatus
         # Make sure it's in submitted state
-        asst.refreshStatus() unless asst._data().mturkStatus
+        return unless asst.refreshStatus() is "Submitted"
 
       try
         checkTutorial(a)
-        asst.approve(approveMessage) if actuallyPay
       catch e
         console.log e.toString()
-        asst.reject(rejectMessage) if actuallyPay
+        # We'll just let these auto-approve with no message and deny the qual later.
+        # asst.reject(rejectMessage) if actuallyPay
+        return
+
+      asst.approve(approveMessage) if actuallyPay
 
   "cm-tutorial-first-action": ->
     TurkServer.checkAdmin()
