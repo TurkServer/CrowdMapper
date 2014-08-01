@@ -57,13 +57,14 @@ Router.map ->
 
   # Route to re-play a given crisis mapping instantiation
   @route 'replay',
-    path: '/replay/:instance'
+    path: '/replay/:instance/:speed?'
     template: 'mapper',
     onBeforeAction: (pause) ->
       pause() unless TurkServer.isAdmin()
 
     waitOn: ->
-      Meteor.subscribe "replay", this.params.instance, ->
+      speed = parseFloat(this.params.speed) || 20
+      Meteor.subscribe "replay", this.params.instance, speed, ->
         Session.set("userSubReady", true)
         # Session.set("chatSubReady", true)
         Session.set("dataSubReady", true)

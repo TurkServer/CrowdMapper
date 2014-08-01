@@ -133,10 +133,9 @@
             <span class="caret"></span>
         </a>
         <ul class="dropdown-menu">
-            <li>Your wage is <b>${{lowest}}</b> to <b>${{highest}}</b> per hour, depending on the performance of your team.</li>
-            <li class="divider"></li>
-            <li>Your payment is based your time <b class="text-success">active</b>, {{tsActiveTime}}.</li>
-            <li>This excludes time you have been <b class="text-danger">disconnected</b> ({{tsDisconnectedTime}}) and time you have been <b class="text-warning">idle</b> ({{tsIdleTime}}).</li>
+            <li class="dropdown-info">Your wage is <b>${{lowest}}</b> to <b>${{highest}}</b> per hour, depending on the performance of your team.</li>
+            <li class="dropdown-info">Your payment is based your time <b class="text-success">active</b>, {{tsActiveTime}}.</li>
+            <li class="dropdown-info">This excludes time you have been <b class="text-danger">disconnected</b> ({{tsDisconnectedTime}}) and time you have been <b class="text-warning">idle</b> ({{tsIdleTime}}).</li>
         </ul>
     </li>
 </template>
@@ -149,11 +148,11 @@
         </a>
         <ul class="dropdown-menu dropdown-menu-right">
             {{#if wage}}
-            <li>You are working in a team.</li>
-            <li class="divider"></li>
-            <li>Complete as many correctly categorized events as possible. Try to fully categorize events instead of producing partial or incomplete events.</li>
+            <li class="dropdown-info">You are working in a team.</li>
+            <li class="dropdown-info">Refer to the <b>Instructions</b> document for an overview of the instructions. You should feel free to ask your teammates about anything that you don't understand.</li>
+            <li class="dropdown-info">Complete as many correctly categorized events as possible. Try to fully categorize events instead of producing partial or incomplete events.</li>
             {{else}}
-            <li>During the task, this area will show any specific instructions for your team.</li>
+            <li class="dropdown-info">During the task, this area will show any specific instructions for your team.</li>
             {{/if}}
         </ul>
     </li>

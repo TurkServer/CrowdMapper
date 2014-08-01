@@ -126,7 +126,7 @@ class ReplayHandler
     @tempData = null
     @tempEvents = null
 
-Meteor.publish "replay", (instance) ->
+Meteor.publish "replay", (instance, speed) ->
   return [] unless Meteor.users.findOne(@userId).admin
 
   replay = new ReplayHandler(instance)
@@ -135,6 +135,9 @@ Meteor.publish "replay", (instance) ->
   replay.publishData(this)
 
   this.ready()
-  replay.play(30)
+
+  speed = Math.min(30, Math.max(1, speed))
+  Meteor._debug("Starting replay at #{speed}x speed")
+  replay.play(speed)
 
   this.onStop -> replay.destroy()
