@@ -7,9 +7,7 @@
     "bootstrap-3": {},
     "openlayers": "2.13.1",
     "animated-each": {},
-    "spin": {
-      "git": "https://github.com/mizzao/meteor-spin.git"
-    },
+    "spin": "2.0.4",
     "user-status": {
       "path": "../meteor-user-status"
     },

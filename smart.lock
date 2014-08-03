@@ -14,8 +14,7 @@
       },
       "animated-each": {},
       "spin": {
-        "git": "https://github.com/mizzao/meteor-spin.git",
-        "branch": "master"
+        "version": "2.0.4"
       },
       "user-status": {
         "path": "../meteor-user-status"
@@ -45,8 +44,8 @@
     "packages": {
       "iron-router": {
         "git": "https://github.com/EventedMind/iron-router.git",
-        "tag": "v0.8.1",
-        "commit": "74e867557fd9cb81173e048e5f81cf4a0a1160a8"
+        "tag": "v0.8.2",
+        "commit": "05415a8891ea87a00fb1e2388585f2ca5a38e0da"
       },
       "jqueryui": {
         "git": "https://github.com/mizzao/meteor-jqueryui.git",
@@ -79,9 +78,9 @@
         "commit": "7bd8964f6d4e436eb18e5f45c7bf99bf7b1e2cfc"
       },
       "spin": {
-        "git": "https://github.com/mizzao/meteor-spin.git",
-        "branch": "master",
-        "commit": "dcf3940881690cb95ede439b6870f7c573400e94"
+        "git": "https://github.com/SachaG/meteor-spin.git",
+        "tag": "v2.0.4",
+        "commit": "f7b1e12a7caff1283cdb3671a393c182d0ae9862"
       },
       "user-status": {
         "path": "../meteor-user-status"
