@@ -72,6 +72,7 @@ Template.docCurrent.events =
       Session.set("document", undefined)
 
 aceConfig = (ace) ->
+  # TODO this doesn't stick since it only happens once and attach undoes it
   ace.setReadOnly(true) if TurkServer.isAdmin()
   # Set some reasonable options on the editor
   ace.setShowPrintMargin(false)

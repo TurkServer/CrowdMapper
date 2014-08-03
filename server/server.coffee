@@ -3,6 +3,13 @@
   All of these publications check for grouping, except notifications
 ###
 
+userFields = {
+  fields: {
+    username: 1
+    status: 1
+  }
+}
+
 # User status and username
 Meteor.publish "userStatus", ->
   ###
@@ -10,10 +17,7 @@ Meteor.publish "userStatus", ->
     But we need to leave it at status because otherwise we will be missing fields on the merge.
     https://github.com/meteor/meteor/issues/998
   ###
-  Meteor.users.find {}, # All users (in my group)
-    fields:
-      username: 1
-      status: 1
+  Meteor.users.find({}, userFields) # All users (in my group)
 
 # Publish all events, docs, and events, including deleted - filtering is done on the client
 # This means admins can see deleted items easily, and they still work in chat
@@ -29,6 +33,26 @@ Meteor.publish 'notifications', ->
   Notifications.find
     user: this.userId
     read: {$exists: false}
+
+# Alternate admin publication for watching, that does not block TurkServer
+Meteor.publish "adminWatch", (instance) ->
+  return [] unless Meteor.users.findOne(@userId)?.admin
+  check(instance, String)
+
+  # Hack to make sure we get both current users and past ones
+  users = Experiments.findOne(instance)?.users || []
+
+  return Partitioner.directOperation ->
+    [
+      ChatRooms.find({_groupId: instance}),
+      Meteor.users.find({$or: [
+        { _id: $in: users },
+        { "turkserver.group": instance }
+      ]}, userFields),
+      Datastream.find({_groupId: instance}),
+      Documents.find({_groupId: instance}),
+      Events.find({_groupId: instance}),
+    ]
 
 ###
   Methods
