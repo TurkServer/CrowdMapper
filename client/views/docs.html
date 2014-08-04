@@ -39,7 +39,7 @@
     {{#with document}}
         {{> docTitleComponent title}}
         <button class="btn btn-danger btn-xs pull-right action-document-delete">Delete this document</button>
-        {{> sharejsAce docid=this callback=config id="editor"}}
+        {{> sharejsAce docid=this id="editor" onRender=config onConnect=checkAdmin }}
     {{/with}}
 </template>
 

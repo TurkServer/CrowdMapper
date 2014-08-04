@@ -72,12 +72,14 @@ Template.docCurrent.events =
       Session.set("document", undefined)
 
 aceConfig = (ace) ->
-  # TODO this doesn't stick since it only happens once and attach undoes it
-  ace.setReadOnly(true) if TurkServer.isAdmin()
   # Set some reasonable options on the editor
   ace.setShowPrintMargin(false)
   # ace.renderer.setShowGutter(false)
   ace.session.setUseWrapMode(true)
   ace.session.setMode("ace/mode/markdown")
 
+aceCheckAdmin = (ace) ->
+  ace.setReadOnly(true) if TurkServer.isAdmin()
+
 Template.docCurrent.config = -> aceConfig
+Template.docCurrent.checkAdmin = -> aceCheckAdmin
