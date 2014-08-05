@@ -342,6 +342,8 @@ Template.eventLocationEditable.rendered = ->
     value: @data.location
   return
 
+# TODO fix issue with double clicking carets in location editor closing it
+
 # We can use 'destroy' here because the popover is activated on mouseover
 Template.eventVoting.events =
   "click .action-event-upvote": (e, tmpl) ->

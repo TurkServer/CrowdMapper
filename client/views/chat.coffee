@@ -29,10 +29,6 @@ Template.currentChatroom.events
 
 Template.currentChatroom.nameDoc = -> ChatRooms.findOne(""+@, {fields: name: 1})
 
-# TODO also a hack, like the docs - verify this works properly on blaze-refactor
-Template.currentChatroom.roomHeaderComponent = ->
-  Template.roomHeader
-
 Template.rooms.loaded = -> Session.equals("chatSubReady", true)
 
 Template.rooms.availableRooms = ->
@@ -73,15 +69,18 @@ Template.roomUsers.findUser = ->
   Meteor.users.findOne @userId
 
 Template.roomHeader.rendered = ->
-  @editComp = @$(".editable").editable
-    display: ->
-    success: (response, newValue) ->
-      roomId = Session.get("room")
-      return unless roomId
-      Meteor.call "renameChat", roomId, newValue
+  tmplInst = this
 
-Template.roomHeader.destroyed = ->
-  @editComp.editable('destroy')
+  this.autorun ->
+    # Trigger this whenever title changes - note only name is reactively depended on
+    Blaze.getCurrentData()
+    # Destroy old editable if it exists
+    tmplInst.$(".editable").editable("destroy").editable
+      display: ->
+      success: (response, newValue) ->
+        roomId = Session.get("room")
+        return unless roomId
+        Meteor.call "renameChat", roomId, newValue
 
 showEvent = (eventId) ->
   Mapper.switchTab 'events' # Make sure we are on the event page
@@ -95,7 +94,8 @@ Template.messageBox.events =
     data = Datastream.findOne(tweetId)
     return unless data
 
-    if data.hidden
+    # Error message if tweet is hidden, or went on a deleted event
+    if data.hidden or Events.findOne(data.events?[0])?.deleted
       bootbox.alert("That data has been deleted.")
       return
 
@@ -217,6 +217,8 @@ Template.chatInput.settings = -> {
       collection: Datastream
       field: "num"
       template: Template.tweetNumbered
+      # TODO this can select tweets attached to deleted events, but error
+      # shows up when they are clicked
       filter: { hidden: $exists: false }
       selector: numericMatcher
     },

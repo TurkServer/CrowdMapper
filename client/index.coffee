@@ -278,5 +278,17 @@ Template.scaledPayment.amount = ->
 Template.scaledPayment.lowest = -> @wage.toFixed(2)
 Template.scaledPayment.highest = -> (@wage + @bonus).toFixed(2)
 
+Template.help.teamInfo = ->
+  switch @groupSize
+    when 1 then "You are working <b>by yourself</b>. There are no other team members for this task."
+    when undefined then "You are working in a <b>team</b>."
+    else "You are working in a <b>team of #{@groupSize} members</b>."
+
+Template.help.instructionsInfo = ->
+  instr = "Refer to the <b>Instructions</b> document for an overview of the instructions."
+  if @groupSize > 1 or not @groupSize?
+    instr += "You should feel free to ask your teammates about anything that you don't understand."
+  return instr
+
 Template.help.rendered = ->
   this.$(".dropdown > a").click()

@@ -224,3 +224,30 @@ Meteor.startup ->
     [ "tutorial" ], [ "parallel_worlds" ]
   )
   console.log "Set up pilot testing assigner"
+
+  ###
+    Set up group size experiments! Yay!
+  ###
+  groupSizeBatchName = "group sizes"
+
+  TurkServer.ensureBatchExists
+    name: "group sizes"
+
+  groupSizeBatchId = Batches.findOne(name: groupSizeBatchName)._id
+
+  # Needed to trigger the right preview/exit survey
+  Batches.upsert groupSizeBatchId,
+    $addToSet: { treatments: "parallel_worlds" }
+
+  groupBatch = TurkServer.Batch.getBatch(groupSizeBatchId)
+  groupArray = [ 1, 1, 1, 1, 2, 2, 4, 4, 8, 16, 32, 16, 8, 4, 4, 2, 2, 1, 1, 1, 1 ]
+
+  groupConfigMulti =
+    TurkServer.Assigners.TutorialMultiGroupAssigner.generateConfig(
+      groupArray, [ "parallel_worlds" ])
+
+  groupBatch.setAssigner new TurkServer.Assigners.TutorialMultiGroupAssigner(
+    [ "tutorial" ], groupConfigMulti)
+
+  Meteor._debug "Set up group size assigner"
+

@@ -45,6 +45,27 @@ approveMessage =
 rejectMessage = "Sorry, it looks like you weren't paying attention during the tutorial."
 
 Meteor.methods
+
+  # For testing purposes
+  "cm-inject-fake-users": (batchId, count) ->
+    TurkServer.checkAdmin()
+    check(batchId, String)
+    check(count, Match.Integer)
+
+    for i in [1..count]
+      workerId = Random.id()
+      userId = Accounts.insertUserDoc {}, { workerId }
+      asst = TurkServer.Assignment.createAssignment
+        batchId: batchId
+        hitId: Random.id()
+        assignmentId: Random.id()
+        workerId: workerId
+        acceptTime: new Date()
+        status: "assigned"
+
+      # Throw into the assignment mechanism
+      asst._enterLobby()
+
   "cm-evaluate-recruiting-tutorials": (actuallyPay) ->
     TurkServer.checkAdmin()
     batch = Batches.findOne(treatments: "recruiting")
@@ -128,6 +149,9 @@ Meteor.methods
           value: qualValue
         }
     }).map (w) -> w._id
+
+    # TODO either update quals or do not select workers who have done the task
+    # already
 
     Meteor._debug "#{potentialWorkers.length} workers found with #{qualId} equal to #{qualValue}"
 

@@ -46,22 +46,19 @@ Template.docCurrent.document = ->
 
 Template.docCurrent.title = -> Documents.findOne(""+@)?.title
 
-# TODO a hack to forcibly re-render the editable to re-render doc or title changes - fix on blaze-refactor
-# It only works because if doc didn't change, title must have (no other fields)
-Template.docCurrent.docTitleComponent = ->
-  Template.docTitle
-
 Template.docTitle.rendered = ->
-  @editComp = @$(".editable").editable
-    display: ->
-    success: (response, newValue) ->
-      docId = Session.get("document")
-      return unless document
-      Meteor.call "renameDocument", docId, newValue
+  tmplInst = this
 
-# This is needed to take out the editable when doc/title changes
-Template.docTitle.destroyed = ->
-  @editComp.editable("destroy")
+  this.autorun ->
+    # Trigger this whenever title changes
+    title = Blaze.getCurrentData()
+    # Destroy old editable if it exists
+    tmplInst.$(".editable").editable("destroy").editable
+      display: ->
+      success: (response, newValue) ->
+        docId = Session.get("document")
+        return unless document
+        Meteor.call "renameDocument", docId, newValue
 
 Template.docCurrent.events =
   "click .action-document-delete": ->

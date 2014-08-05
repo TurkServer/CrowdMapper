@@ -147,13 +147,13 @@
             <span class="caret"></span>
         </a>
         <ul class="dropdown-menu dropdown-menu-right">
-            {{#if wage}}
-            <li class="dropdown-info">You are working in a team.</li>
-            <li class="dropdown-info">Refer to the <b>Instructions</b> document for an overview of the instructions. You should feel free to ask your teammates about anything that you don't understand.</li>
+        {{#if wage}}
+            <li class="dropdown-info">{{{ teamInfo }}}</li>
+            <li class="dropdown-info">{{{ instructionsInfo }}}</li>
             <li class="dropdown-info">Complete as many correctly categorized events as possible. Try to fully categorize events instead of producing partial or incomplete events.</li>
-            {{else}}
+        {{else}}
             <li class="dropdown-info">During the task, this area will show any specific instructions for your team.</li>
-            {{/if}}
+        {{/if}}
         </ul>
     </li>
 </template>
