@@ -218,6 +218,50 @@ Meteor.methods
 
     console.log(count + " new quals assigned")
 
+  "cm-pay-fuckup-bonus": (batchId, fromDate, toDate=new Date, actuallyPay=false) ->
+    TurkServer.checkAdmin()
+
+    paidWorkers = 0
+
+    # Find accepted assignments from the problem batch
+    Assignments.find({
+      batchId,
+      acceptTime: {
+        $gte: fromDate
+        $lte: toDate
+      },
+      endTime: null
+    }).forEach (asst) ->
+
+      paidWorkers++
+
+      prevAsst = Assignments.findOne({
+        workerId: asst.workerId,
+        submitTime: { $exists: true }
+      }, { sort: submitTime: -1 })
+
+      user = Meteor.users.findOne({workerId: prevAsst.workerId})
+      prevAsstObj = TurkServer.Assignment.getAssignment(prevAsst._id)
+
+      message =
+      """Dear #{user.username},
+
+          Thank you for taking the time to work on the crisis mapping HIT today. We experienced technical difficulties as a result of having too many simultaneous connections to our server, and so we had to shut down the HIT.
+
+          We value your time, so please accept this bonus along with our apologies for the inconvenience. We'll let you know of future opportunities to participate in the HIT.
+
+          Best regards,
+          Andrew/Sid
+      """
+
+      if actuallyPay
+        prevAsstObj.setPayment(6.00)
+        prevAsstObj.payBonus(message)
+      else
+        console.log message
+
+    console.log "#{paidWorkers} workers compensated"
+
   # TODO hack-ass method that needs to be re-implemented in a more generalized way
   "computePayment": (groupId, ratio, actuallyPay) ->
     TurkServer.checkAdmin()
