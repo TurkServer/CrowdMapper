@@ -136,6 +136,7 @@ Meteor.methods
 
   # Select random workers for a given e-mail
   "cm-select-random-email": (emailId, count, qualId, qualValue=1) ->
+    TurkServer.checkAdmin()
     check(emailId, String)
     check(count, Match.Integer)
     check(qualId, String)
@@ -153,7 +154,7 @@ Meteor.methods
     # TODO either update quals or do not select workers who have done the task
     # already
 
-    Meteor._debug "#{potentialWorkers.length} workers found with #{qualId} equal to #{qualValue}"
+    Meteor._debug "#{potentialWorkers.length} panel workers found with #{qualId} equal to #{qualValue}"
 
     selectedWorkers = _.sample(potentialWorkers, count)
 
@@ -163,25 +164,46 @@ Meteor.methods
       $set: recipients: selectedWorkers
     return
 
-  "cm-assign-tutorial-quals": (qualId) ->
+  "cm-update-quals": (qualId, actuallyAssign) ->
     TurkServer.checkAdmin()
     check(qualId, String)
 
     @unblock() # This may take a while
 
+    # First update qual value to 2 for workers who have completed batches
+    # TODO check if this case still holds after the group size experiment
+    experimentBatches = Batches.find({
+      treatments: "parallel_worlds"
+    }).map (batch) -> batch._id
+
+    qualUpdates = 0
+
+    Assignments.find({
+      batchId: { $in: experimentBatches }
+      submitTime: { $exists: true }
+    }).forEach (asst) ->
+
+      qualUpdates++
+      TurkServer.Util.assignQualification(asst.workerId, qualId, 2, false) if actuallyAssign
+
+    console.log("#{qualUpdates} workers updated to qual value 2")
+
     potentialWorkers = Workers.find({
-      contact: true
       "quals.id": $nin: [qualId]
     }).map (w) -> w._id
 
-    console.log(potentialWorkers.length + " potential workers to assign quals")
+    console.log("#{potentialWorkers.length} potential workers for new quals")
 
-    batchId = Batches.findOne(treatments: "recruiting")._id
+    recruitingBatchId = Batches.findOne(treatments: "recruiting")._id
 
     # Check that assignments are acceptable
     count = 0
     for workerId in potentialWorkers
-      asst = Assignments.findOne({workerId, batchId})
+      asst = Assignments.findOne({
+        workerId,
+        batchId: recruitingBatchId,
+        submitTime: {$exists: true}
+      })
       unless asst?
         console.log "Worker #{workerId} has contact=true but no assignment"
         continue
@@ -189,12 +211,12 @@ Meteor.methods
       try
         checkTutorial(asst)
 
-        TurkServer.Util.assignQualification(workerId, qualId)
+        TurkServer.Util.assignQualification(workerId, qualId, 1, false) if actuallyAssign
         count++
       catch e
         console.log e.toString()
 
-    console.log(count + " workers assigned")
+    console.log(count + " new quals assigned")
 
   # TODO hack-ass method that needs to be re-implemented in a more generalized way
   "computePayment": (groupId, ratio, actuallyPay) ->
