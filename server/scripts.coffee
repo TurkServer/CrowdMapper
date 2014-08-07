@@ -172,6 +172,7 @@ Meteor.methods
 
     # First update qual value to 2 for workers who have completed batches
     # TODO check if this case still holds after the group size experiment
+    # TODO don't count workers who have been in the messed up batch
     experimentBatches = Batches.find({
       treatments: "parallel_worlds"
     }).map (batch) -> batch._id

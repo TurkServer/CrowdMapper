@@ -210,28 +210,35 @@ Meteor.startup ->
       }
     }
 
-  # Set up pilot testing batch
-  TurkServer.ensureBatchExists
-    name: "pilot testing"
+  # Set up pilot testing batch - currently disabled
+  if Meteor.settings.pilot
 
-  pilotBatchId = Batches.findOne(name: "pilot testing")._id
+    TurkServer.ensureBatchExists
+      name: "pilot testing"
 
-  Batches.upsert pilotBatchId,
-    $addToSet: { treatments: "parallel_worlds" }
+    pilotBatchId = Batches.findOne(name: "pilot testing")._id
 
-  pilotBatch = TurkServer.Batch.getBatch(pilotBatchId)
-  pilotBatch.setAssigner new TurkServer.Assigners.TutorialGroupAssigner(
-    [ "tutorial" ], [ "parallel_worlds" ]
-  )
-  console.log "Set up pilot testing assigner"
+    Batches.upsert pilotBatchId,
+      $addToSet: { treatments: "parallel_worlds" }
+
+    pilotBatch = TurkServer.Batch.getBatch(pilotBatchId)
+    pilotBatch.setAssigner new TurkServer.Assigners.TutorialGroupAssigner(
+      [ "tutorial" ], [ "parallel_worlds" ]
+    )
+    console.log "Set up pilot testing assigner"
 
   ###
     Set up group size experiments! Yay!
+
+    Old group size batch was "group sizes" which we are discarding, because no
+    one got through it during this server crash.
+
+    This is the new one.
   ###
-  groupSizeBatchName = "group sizes"
+  groupSizeBatchName = "group sizes redux"
 
   TurkServer.ensureBatchExists
-    name: "group sizes"
+    name: groupSizeBatchName
 
   groupSizeBatchId = Batches.findOne(name: groupSizeBatchName)._id
 
@@ -240,14 +247,12 @@ Meteor.startup ->
     $addToSet: { treatments: "parallel_worlds" }
 
   groupBatch = TurkServer.Batch.getBatch(groupSizeBatchId)
-  groupArray = [ 1, 1, 1, 1, 2, 2, 4, 4, 8, 16, 32, 16, 8, 4, 4, 2, 2, 1, 1, 1, 1 ]
+  groupArray = [ 16, 16 ]
 
-  groupConfigMulti =
-    TurkServer.Assigners.TutorialMultiGroupAssigner.generateConfig(
-      groupArray, [ "parallel_worlds" ])
+  groupAssigner = new TurkServer.Assigners.TutorialMultiGroupAssigner(
+    [ "tutorial" ], [ "parallel_worlds" ], groupArray)
 
-  groupBatch.setAssigner new TurkServer.Assigners.TutorialMultiGroupAssigner(
-    [ "tutorial" ], groupConfigMulti)
+  groupBatch.setAssigner(groupAssigner)
 
   Meteor._debug "Set up group size assigner"
 

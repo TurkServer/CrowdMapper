@@ -63,10 +63,11 @@ Meteor.methods
     exp = TurkServer.Instance.currentInstance()
     # If finish button is mashed, this may not exist.
     unless exp?
-      Meteor._debug("Finish tutorial: instance does not exist: ", this)
+      Meteor._debug("Finish tutorial: may have already finished for ", Meteor.userId())
       return
 
     if exp.treatment()?.tutorialEnabled
+      # Don't accidentally teardown something that isn't the tutorial
       exp.teardown()
 
     return
