@@ -1,36 +1,43 @@
 {
   "packages": {
-    "iron-router": {},
-    "jqueryui": {},
-    "x-editable-bootstrap": {},
-    "bootboxjs": "4.2.0",
-    "bootstrap-3": {},
-    "openlayers": "2.13.1",
-    "animated-each": {},
-    "spin": "2.0.4",
-    "user-status": {
-      "path": "../meteor-user-status"
+    "mizzao:user-status": {
+      "path": "../mizzao:user-status"
     },
-    "collection-hooks": {
-      "path": "../meteor-collection-hooks"
+    "matb33:collection-hooks": {
+      "path": "../matb33:collection-hooks"
     },
-    "partitioner": {
-      "path": "../meteor-partitioner"
+    "mizzao:partitioner": {
+      "path": "../mizzao:partitioner"
     },
-    "turkserver": {
-      "path": "../turkserver-meteor"
+    "mizzao:turkserver": {
+      "path": "../mizzao:turkserver"
     },
-    "sharejs": {
-      "path": "../meteor-sharejs"
+    "mizzao:sharejs": {
+      "path": "../mizzao:sharejs"
     },
-    "autocomplete": {
-      "path": "../meteor-autocomplete"
+    "mizzao:autocomplete": {
+      "path": "../mizzao:autocomplete"
     },
-    "tutorials": {
-      "path": "../meteor-tutorials"
+    "mizzao:tutorials": {
+      "path": "../mizzao:tutorials"
     },
-    "timesync": {
-      "path": "../meteor-timesync"
+    "mizzao:timesync": {
+      "path": "../mizzao:timesync"
+    },
+    "mizzao:jquery-ui": {
+      "path": "../mizzao:jquery-ui"
+    },
+    "mizzao:openlayers": {
+      "path": "../mizzao:openlayers"
+    },
+    "mrt:bootstrap-3": {
+      "path": "../mrt:bootstrap-3"
+    },
+    "mrt:moment": {
+      "path": "../mrt:moment"
+    },
+    "natestrauser:x-editable-bootstrap": {
+      "path": "../natestrauser:x-editable-bootstrap"
     }
   }
 }

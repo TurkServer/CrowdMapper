@@ -9,24 +9,30 @@ stylus
 accounts-ui
 standard-app-packages
 webapp
-iron-router
-x-editable-bootstrap
-user-status
-bootboxjs
-sharejs
-autocomplete
-tutorials
-jqueryui
-spin
-animated-each
-
-partitioner # So we can use the APIs directly
-turkserver
-timesync
 d3
 
-# For parsing input files
+# Published, versioned shit
+cmather:iron-router@0.8.2
+mizzao:bootboxjs@4.2.0
+sacha:spin@2.0.4
+mizzao:animated-each@0.1.0
+
+# Pulls in the openlayers code and images
+mizzao:openlayers@2.13.1
+
+# Temporary crap that needs to be moved due to shitty migration
+mrt:bootstrap-3
+mizzao:jquery-ui
+natestrauser:x-editable-bootstrap
+
+# Development packages
+mizzao:user-status
+mizzao:sharejs
+mizzao:autocomplete
+mizzao:tutorials
+mizzao:partitioner # So we can use the APIs directly
+mizzao:turkserver
+mizzao:timesync
+
+# Local - For parsing input files
 csv
-# Pulls in the openlayers images
-openlayers
-bootstrap-3

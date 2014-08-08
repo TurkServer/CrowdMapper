@@ -2,144 +2,85 @@
   "meteor": {},
   "dependencies": {
     "basePackages": {
-      "iron-router": {},
-      "jqueryui": {},
-      "x-editable-bootstrap": {},
-      "bootboxjs": {
-        "version": "4.2.0"
+      "mizzao:user-status": {
+        "path": "../mizzao:user-status"
       },
-      "bootstrap-3": {},
-      "openlayers": {
-        "version": "2.13.1"
+      "matb33:collection-hooks": {
+        "path": "../matb33:collection-hooks"
       },
-      "animated-each": {},
-      "spin": {
-        "version": "2.0.4"
+      "mizzao:partitioner": {
+        "path": "../mizzao:partitioner"
       },
-      "user-status": {
-        "path": "../meteor-user-status"
+      "mizzao:turkserver": {
+        "path": "../mizzao:turkserver"
       },
-      "collection-hooks": {
-        "path": "../meteor-collection-hooks"
+      "mizzao:sharejs": {
+        "path": "../mizzao:sharejs"
       },
-      "partitioner": {
-        "path": "../meteor-partitioner"
+      "mizzao:autocomplete": {
+        "path": "../mizzao:autocomplete"
       },
-      "turkserver": {
-        "path": "../turkserver-meteor"
+      "mizzao:tutorials": {
+        "path": "../mizzao:tutorials"
       },
-      "sharejs": {
-        "path": "../meteor-sharejs"
+      "mizzao:timesync": {
+        "path": "../mizzao:timesync"
       },
-      "autocomplete": {
-        "path": "../meteor-autocomplete"
+      "mizzao:jquery-ui": {
+        "path": "../mizzao:jquery-ui"
       },
-      "tutorials": {
-        "path": "../meteor-tutorials"
+      "mizzao:openlayers": {
+        "path": "../mizzao:openlayers"
       },
-      "timesync": {
-        "path": "../meteor-timesync"
+      "mrt:bootstrap-3": {
+        "path": "../mrt:bootstrap-3"
+      },
+      "mrt:moment": {
+        "path": "../mrt:moment"
+      },
+      "natestrauser:x-editable-bootstrap": {
+        "path": "../natestrauser:x-editable-bootstrap"
       }
     },
     "packages": {
-      "iron-router": {
-        "git": "https://github.com/EventedMind/iron-router.git",
-        "tag": "v0.8.2",
-        "commit": "05415a8891ea87a00fb1e2388585f2ca5a38e0da"
+      "mizzao:user-status": {
+        "path": "../mizzao:user-status"
       },
-      "jqueryui": {
-        "git": "https://github.com/mizzao/meteor-jqueryui.git",
-        "tag": "v1.11.0",
-        "commit": "06194edc0bdbb28c34b3a656bf9cb6a32718b44e"
+      "matb33:collection-hooks": {
+        "path": "../matb33:collection-hooks"
       },
-      "x-editable-bootstrap": {
-        "git": "https://github.com/nate-strauser/meteor-x-editable-bootstrap.git",
-        "tag": "v1.5.1",
-        "commit": "ddb9e4523b570f88d96c4fbafa5f6883e544baf8"
+      "mizzao:partitioner": {
+        "path": "../mizzao:partitioner"
       },
-      "bootboxjs": {
-        "git": "https://github.com/TimHeckel/meteor-bootboxjs.git",
-        "tag": "v4.2.0",
-        "commit": "2b7d18ad028d9e7b37238ecf2a8a7970735cebd1"
+      "mizzao:turkserver": {
+        "path": "../mizzao:turkserver"
       },
-      "bootstrap-3": {
-        "git": "https://github.com/mangasocial/meteor-bootstrap-3.git",
-        "tag": "v3.2.0-1",
-        "commit": "17a63902fc6cf1096c5289d963c66cf28b474727"
+      "mizzao:sharejs": {
+        "path": "../mizzao:sharejs"
       },
-      "openlayers": {
-        "git": "https://github.com/mizzao/meteor-openlayers.git",
-        "tag": "v2.13.1",
-        "commit": "3a7723e9b4fce9ee65e2ae239918a2fbbf3de927"
+      "mizzao:autocomplete": {
+        "path": "../mizzao:autocomplete"
       },
-      "animated-each": {
-        "git": "https://github.com/mizzao/meteor-animated-each.git",
-        "tag": "v0.1.0",
-        "commit": "7bd8964f6d4e436eb18e5f45c7bf99bf7b1e2cfc"
+      "mizzao:tutorials": {
+        "path": "../mizzao:tutorials"
       },
-      "spin": {
-        "git": "https://github.com/SachaG/meteor-spin.git",
-        "tag": "v2.0.4",
-        "commit": "f7b1e12a7caff1283cdb3671a393c182d0ae9862"
+      "mizzao:timesync": {
+        "path": "../mizzao:timesync"
       },
-      "user-status": {
-        "path": "../meteor-user-status"
+      "mizzao:jquery-ui": {
+        "path": "../mizzao:jquery-ui"
       },
-      "collection-hooks": {
-        "path": "../meteor-collection-hooks"
+      "mizzao:openlayers": {
+        "path": "../mizzao:openlayers"
       },
-      "partitioner": {
-        "path": "../meteor-partitioner"
+      "mrt:bootstrap-3": {
+        "path": "../mrt:bootstrap-3"
       },
-      "turkserver": {
-        "path": "../turkserver-meteor"
+      "mrt:moment": {
+        "path": "../mrt:moment"
       },
-      "sharejs": {
-        "path": "../meteor-sharejs"
-      },
-      "autocomplete": {
-        "path": "../meteor-autocomplete"
-      },
-      "tutorials": {
-        "path": "../meteor-tutorials"
-      },
-      "timesync": {
-        "path": "../meteor-timesync"
-      },
-      "iron-layout": {
-        "git": "https://github.com/EventedMind/iron-layout.git",
-        "tag": "v0.2.0",
-        "commit": "4a2d53e35ba036b0c189c7ceca34be494d4c6c97"
-      },
-      "build-fetcher": {
-        "git": "https://github.com/mizzao/meteor-build-fetcher.git",
-        "tag": "v0.2.0",
-        "commit": "5202ca83277860d798c6ff2ef1d8fe1bce007d0f"
-      },
-      "moment": {
-        "git": "https://github.com/acreeger/meteor-moment.git",
-        "tag": "v2.6.0",
-        "commit": "26156df681750fd6e6ed77043eef32b6653ebbdf"
-      },
-      "caret-position": {
-        "git": "https://github.com/StockBase/meteor-caret-position.git",
-        "tag": "v2.1.0-3",
-        "commit": "6028cf980f62cbf72cb2ea527091a3a31f87b8a7"
-      },
-      "blaze-layout": {
-        "git": "https://github.com/EventedMind/blaze-layout.git",
-        "tag": "v0.2.5",
-        "commit": "273e3ab7d005d91a1a59c71bd224533b4dae2fbd"
-      },
-      "iron-core": {
-        "git": "https://github.com/EventedMind/iron-core.git",
-        "tag": "v0.2.0",
-        "commit": "0e48b5dc50d03f01025b7b900fb5ce2f13d52cad"
-      },
-      "iron-dynamic-template": {
-        "git": "https://github.com/EventedMind/iron-dynamic-template.git",
-        "tag": "v0.2.1",
-        "commit": "4dd1185c4d9d616c9abdb3f33e4a7d5a88db7e18"
+      "natestrauser:x-editable-bootstrap": {
+        "path": "../natestrauser:x-editable-bootstrap"
       }
     }
   }
