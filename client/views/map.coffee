@@ -177,8 +177,17 @@ Template.map.rendered = ->
 
     onComplete: (feature, pixel) ->
       point = feature.geometry
+      # Store pre-update location if there was an error
+      prevLocation = Events.findOne(feature.id).location
+
       Meteor.call "updateEvent", feature.id,
-        location: [point.x, point.y]
+        { location: [point.x, point.y] }, (err, res) ->
+          # Restore previous OpenLayers location if there was an error (i.e. admin dragging)
+          if err? and prevLocation?
+            feature.geometry.x = prevLocation[0]
+            feature.geometry.y = prevLocation[1]
+            # redraw the feature
+            vectorLayer.drawFeature(feature)
 
       displayPopup(selectedFeature || feature)
 

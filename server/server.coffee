@@ -40,14 +40,21 @@ Meteor.publish "adminWatch", (instance) ->
   check(instance, String)
 
   # Hack to make sure we get both current users and past ones
-  users = Experiments.findOne(instance)?.users || []
+  # TODO does not update as group is filling
+  exp = Experiments.findOne(instance)
+  treatments = exp?.treatments || []
+  users = exp?.users || []
 
   return Partitioner.directOperation ->
     [
+      # Group and treatment data
+      Experiments.find(instance),
+      Treatments.find({name: $in : treatments})
+      # Experiment data
       ChatRooms.find({_groupId: instance}),
       Meteor.users.find({$or: [
         { _id: $in: users },
-        { "turkserver.group": instance }
+        { group: instance }
       ]}, userFields),
       Datastream.find({_groupId: instance}),
       Documents.find({_groupId: instance}),

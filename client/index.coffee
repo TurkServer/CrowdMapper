@@ -237,12 +237,6 @@ Template.mapper.rendered = ->
 
 Template.mapper.destroyed = -> @comp.stop()
 
-Template.adminControls.events
-  "change input": (e, t) ->
-    Session.set("adminShowDeleted", e.target.checked)
-
-Template.adminControls.showDeleted = -> Session.equals("adminShowDeleted", true)
-
 Template.guidance.message = -> Session.get("guidanceMessage")
 
 switchTab = (page) ->

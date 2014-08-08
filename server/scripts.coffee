@@ -263,8 +263,7 @@ Meteor.methods
 
     console.log "#{paidWorkers} workers compensated"
 
-  # TODO hack-ass method that needs to be re-implemented in a more generalized way
-  "computePayment": (groupId, ratio, actuallyPay) ->
+  "cm-pay-group-bonus": (groupId, ratio, extraFeedback, actuallyPay) ->
     TurkServer.checkAdmin()
 
     exp = TurkServer.Instance.getInstance(groupId)
@@ -289,10 +288,6 @@ Meteor.methods
       idleTime = (instanceData.idleTime || 0)
       disconnectedTime = (instanceData.disconnectedTime || 0)
 
-      # TODO Temporary workaround for buggy accounting
-      idleTime = 0 if idleTime / millisPerHour > 0.2
-      disconnectedTime = 0 if disconnectedTime / millisPerHour > 0.2
-
       activeTime = totalTime - idleTime - disconnectedTime
 
       hourlyWageStr = hourlyWage.toFixed(2)
@@ -305,15 +300,27 @@ Meteor.methods
       message =
       """Dear #{user.username},
 
-          Thank you very much for participating in the crisis mapping session. We sincerely appreciate your effort and feedback.
+          Thank you very much for participating in the crisis mapping session. We sincerely appreciate your effort and feedback.\n\n
+      """
 
+      if extraFeedback?
+        message +=
+        """
+          #{extraFeedback}\n\n
+        """
+
+      message +=
+      """
           Your team earned an hourly wage of $#{hourlyWageStr}. You participated for #{activeStr}, not including idle time of #{idleStr} and disconnected time of #{discStr}. For your work, you are receiving a bonus of $#{payment.toFixed(2)}.
 
-          Please free to send me a personal message if you have any other questions about the task or your payment.
+          Please free to send me a message if you have any other questions about the task or your payment.
+
+          Sincerely,
+          Andrew & Sid
         """
 
       console.log message
-      throw new Error("The world is about to end") if payment > 11
+      throw new Error("The world is about to end") if payment > 16
 
       if (actuallyPay)
         asst.setPayment(payment)

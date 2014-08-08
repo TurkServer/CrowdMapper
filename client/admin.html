@@ -1,0 +1,30 @@
+<template name="adminControls">
+    <div class="row">
+        <div class="col-md-3">
+            <div class="checkbox">
+                <label>
+                    <input type="checkbox" value="" checked={{showDeleted}}>
+                    Show deleted data
+                </label>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <dl class="dl-horizontal">
+                <dt class="text-primary">Remaining Data</dt>
+                <dd>{{remainingData}}</dd>
+                <dt class="text-danger">Hidden Data</dt>
+                <dd>{{hiddenData}}</dd>
+                <dt class="text-success">Attached Data</dt>
+                <dd>{{attachedData}}</dd>
+            </dl>
+        </div>
+        <div class="col-md-3">
+            <dl class="dl-horizontal">
+                <dt class="text-success">Events Created</dt>
+                <dd>{{createdEvents}}</dd>
+                <dt class="text-danger">Events Deleted</dt>
+                <dd>{{deletedEvents}}</dd>
+            </dl>
+        </div>
+    </div>
+</template>
