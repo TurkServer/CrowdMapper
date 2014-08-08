@@ -28,7 +28,7 @@
                     <span class="glyphicon glyphicon-{{iconClass}}"></span>
                 </span>
             </th>
-            <th>Sources</th>
+            <th class="header-sources">Sources</th>
             {{#each eventFields}}
             <th>
                 {{name}}
@@ -37,10 +37,7 @@
                 </span>
             </th>
             {{/each}}
-
-            <th class="header-location">
-                Location
-            </th>
+            <th class="header-location">Location</th>
             <th class="header-buttons"></th>
         </tr>
         </thead>
@@ -49,17 +46,14 @@
 
 <template name="eventsBody">
     <table class="table table-condensed table-hover table-striped">
-        <thead>
-        <tr>
-            <th class="header-num vertical-nopad"></th>
-            {{#each eventFields}}
-            <th class="vertical-nopad"></th>
-            {{/each}}
-            <th class="vertical-nopad">{{! Sources}}</th>
-            <th class="header-location vertical-nopad"></th>
-            <th class="header-buttons vertical-nopad"></th>
-        </tr>
-        </thead>
+        {{! Replicate column setup above }}
+        <colgroup>
+            <col class="header-num">
+            <col class="header-sources">
+            {{#each eventFields}}<col>{{/each}}
+            <col class="header-location">
+            <col class="header-buttons">
+        </colgroup>
 
         <tbody>
         {{#if noEvents}}
