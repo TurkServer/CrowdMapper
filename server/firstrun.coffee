@@ -247,9 +247,9 @@ Meteor.startup ->
     $addToSet: { treatments: "parallel_worlds" }
 
   groupBatch = TurkServer.Batch.getBatch(groupSizeBatchId)
-  groupArray = [ 16, 16 ]
+  groupArray = [ 8, 16, 32 ]
 
-  groupAssigner = new TurkServer.Assigners.TutorialMultiGroupAssigner(
+  groupAssigner = new TurkServer.Assigners.TutorialRandomizedGroupAssigner(
     [ "tutorial" ], [ "parallel_worlds" ], groupArray)
 
   groupBatch.setAssigner(groupAssigner)

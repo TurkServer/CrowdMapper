@@ -45,7 +45,8 @@
 </template>
 
 <template name="tweetIconClickable">
-    <span class="label label-primary tweet-icon clickme" data-tweetid="{{_id}}">
+    <span class="label label-primary tweet-icon clickme" data-tweetid="{{_id}}"
+          title="Click to jump to this tweet">
         <span class="glyphicon glyphicon-tag"></span>{{num}}
     </span>
 </template>
@@ -59,7 +60,8 @@
 </template>
 
 <template name="eventIconClickable">
-    <span class="label label-danger event-icon clickme" data-eventid="{{_id}}">{{num}}</span>
+    <span class="label label-danger event-icon clickme" data-eventid="{{_id}}"
+          title="Click to jump to this event">{{num}}</span>
 </template>
 
 <template name="eventShort">

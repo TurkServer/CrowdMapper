@@ -153,6 +153,8 @@ Meteor.methods
 
     # TODO either update quals or do not select workers who have done the task
     # already
+    # TODO also do not e-mail workers who have dropped out of an experiment
+    # HIT before
 
     Meteor._debug "#{potentialWorkers.length} panel workers found with #{qualId} equal to #{qualValue}"
 
