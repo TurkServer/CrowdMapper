@@ -183,6 +183,15 @@ Meteor.methods
       batchId: { $in: experimentBatches }
       submitTime: { $exists: true }
     }).forEach (asst) ->
+      # Skip if qual is already value 2
+      return if Workers.findOne({
+        _id: asst.workerId,
+        quals: {
+          $elemMatch:
+            id: qualId,
+            value: 2
+        }
+      })?
 
       qualUpdates++
       TurkServer.Util.assignQualification(asst.workerId, qualId, 2, false) if actuallyAssign
