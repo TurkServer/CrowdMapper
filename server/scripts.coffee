@@ -142,7 +142,18 @@ Meteor.methods
     check(qualId, String)
     check(qualValue, Match.Integer)
 
+    # Exclude workers who have dropped out of an experiment HIT already
+    experimentBatch = Batches.findOne({name: "group sizes redux"})
+
+    dropouts = Assignments.find({
+      batchId: experimentBatch._id
+      status: "returned"
+    }).map (a) -> a.workerId
+
+    console.log "Excluding #{dropouts.length} workers who have dropped out before"
+
     potentialWorkers = Workers.find({
+      _id: { $nin: dropouts }
       contact: true
       quals:
         $elemMatch: {
@@ -153,10 +164,8 @@ Meteor.methods
 
     # TODO either update quals or do not select workers who have done the task
     # already
-    # TODO also do not e-mail workers who have dropped out of an experiment
-    # HIT before
 
-    Meteor._debug "#{potentialWorkers.length} panel workers found with #{qualId} equal to #{qualValue}"
+    Meteor._debug "#{potentialWorkers.length} valid workers found with #{qualId} equal to #{qualValue}"
 
     selectedWorkers = _.sample(potentialWorkers, count)
 
