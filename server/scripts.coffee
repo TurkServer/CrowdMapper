@@ -357,7 +357,7 @@ Meteor.methods
         """
 
       console.log message
-      throw new Error("The world is about to end") if payment > 16
+      throw new Error("The world is about to end") if payment > 20
 
       if (actuallyPay)
         asst.setPayment(payment)
