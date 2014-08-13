@@ -37,9 +37,14 @@ dragProps =
   stop: Mapper.unhighlightEvents
   zIndex: 1000
 
-Template.dataList.events =
+Template.dataList.events
   "click .data-cell": (e, t) -> Mapper.selectData(@_id)
-  "click .action-data-hide": (e) -> Meteor.call "dataHide", @_id
+
+  # Debounce multi-click data hides
+  "click .action-data-hide": _.debounce( (e) ->
+    Meteor.call "dataHide", @_id
+  , 750, true)
+
   # Enable draggable when entering a tweet cell
   "mouseenter .data-cell:not(.ui-draggable-dragging)": (e) ->
     cell = $(e.target)

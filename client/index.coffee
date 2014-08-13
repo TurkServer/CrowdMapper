@@ -7,6 +7,9 @@ fieldSub = Meteor.subscribe("eventFieldData", Mapper.processSources)
 # Unsets and sets a session variable for a subscription
 watchReady = (key) ->
   Session.set(key, false)
+  # TODO temporary hack for people pushing back button / Meteor re-subscribe foolishness.
+  # Show loading for at most 8 seconds. This is better than infinitely bugging out because most people seem to load the app just fine.
+  Meteor.setTimeout((-> Session.set(key, true)), 8000)
   return (-> Session.set(key, true))
 
 ###
@@ -38,6 +41,7 @@ Router.map ->
 
       group = TurkServer.group()
       # Don't keep a room when going from tutorial to actual task
+      # TODO this can be removed when the chat subscription is fixed
       unless group
         Session.set("room", undefined)
         return subHandles # Otherwise admin will derpily subscribe to the entire set of users
@@ -281,7 +285,7 @@ Template.help.teamInfo = ->
 Template.help.instructionsInfo = ->
   instr = "Refer to the <b>Instructions</b> document for an overview of the instructions."
   if @groupSize > 1 or not @groupSize?
-    instr += "You should feel free to ask your teammates about anything that you don't understand."
+    instr += " You should feel free to ask your teammates about anything that you don't understand."
   return instr
 
 Template.help.rendered = ->

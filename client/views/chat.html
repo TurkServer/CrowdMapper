@@ -1,6 +1,6 @@
 <template name="chat">
     <div class="row compact chat-overview">
-        <div class="col-xs-8">
+        <div class="col-xs-7">
             <h5 class="compact">Chat Rooms:
                 <button title="Create new chat room" class="btn btn-xs btn-info pull-right action-room-create">New room</button>
             </h5>
@@ -9,7 +9,7 @@
             </div>
         </div>
 
-        <div class="col-xs-4">
+        <div class="col-xs-5">
             {{#if currentRoom}}
             {{> roomUsers}}
             {{/if}}

@@ -1,5 +1,6 @@
 # Send room changes to server
 # TODO this incurs a high traffic/rendering cost when switching between rooms
+# TODO only subscribe to the room if found in the ChatRooms collection
 Deps.autorun ->
   roomId = Session.get("room")
   Session.set("chatRoomReady", false)

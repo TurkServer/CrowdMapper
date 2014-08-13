@@ -147,11 +147,13 @@ Template.eventsBody.rendered = ->
   AnimatedEach.attachHooks this.find("table tbody")
 
 Template.createFooter.events =
-  "click .action-event-new": (e) ->
+  # Debounce spamming event creation
+  "click .action-event-new": _.debounce( (e) ->
     e.preventDefault()
     eventId = generateNewEvent()
     # Edit and scroll to the event
     edit.call({_id: eventId})
+  , 600, true)
 
 # This function is called for *every draggable on the page* ! So minimizing
 # the number of active draggables will speed things up significantly.
