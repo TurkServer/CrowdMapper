@@ -282,9 +282,26 @@ Meteor.methods
         console.log message
 
     console.log "#{paidWorkers} workers compensated"
+    return
+
+  "cm-fix-asst-idle": (asstId, instanceId) ->
+    TurkServer.checkAdmin()
+    check(asstId, String)
+    check(instanceId, String)
+
+    Assignments.update {
+      _id: asstId,
+      "instances.id": instanceId
+    }, {
+      $unset: { "instances.$.idleTime": null }
+    }
+
+    return
 
   "cm-pay-group-bonus": (groupId, ratio, extraFeedback, actuallyPay) ->
     TurkServer.checkAdmin()
+    check(groupId, String)
+    check(ratio, Number)
 
     exp = TurkServer.Instance.getInstance(groupId)
     batch = exp.batch()
@@ -346,6 +363,6 @@ Meteor.methods
         asst.setPayment(payment)
         asst.payBonus(message)
 
-
+    return
 
 
