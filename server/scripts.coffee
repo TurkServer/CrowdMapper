@@ -284,17 +284,20 @@ Meteor.methods
     console.log "#{paidWorkers} workers compensated"
     return
 
-  "cm-fix-asst-idle": (asstId, instanceId) ->
+  "cm-fix-asst-idle": (asstId, instanceId, idleMillis) ->
     TurkServer.checkAdmin()
     check(asstId, String)
     check(instanceId, String)
 
+    modifier = if idleMillis?
+      $set: { "instances.$.idleTime": idleMillis }
+    else
+      $unset: { "instances.$.idleTime": null }
+
     Assignments.update {
       _id: asstId,
       "instances.id": instanceId
-    }, {
-      $unset: { "instances.$.idleTime": null }
-    }
+    }, modifier
 
     return
 
