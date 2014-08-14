@@ -12,8 +12,8 @@ webapp
 d3
 
 # Published, versioned shit
-cmather:iron-router@0.8.2
-mizzao:bootboxjs@4.2.0
+iron:router@>=0.9.0
+mizzao:bootboxjs@>=4.3.0
 sacha:spin@2.0.4
 mizzao:animated-each@0.1.0
 
@@ -21,7 +21,7 @@ mizzao:animated-each@0.1.0
 mizzao:openlayers@2.13.1
 
 # Temporary crap that needs to be moved due to shitty migration
-mrt:bootstrap-3
+mrt:bootstrap-3@>=3.2.0-2
 mizzao:jquery-ui
 natestrauser:x-editable-bootstrap
 
