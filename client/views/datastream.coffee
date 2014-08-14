@@ -42,6 +42,10 @@ Template.dataList.events
 
   # Debounce multi-click data hides
   "click .action-data-hide": _.debounce( (e) ->
+    # Somehow it's still possible to click hide on missing stuff. Slow machines?
+    unless @_id?
+      bootbox.alert("Couldn't hide that data. If this persists, try reloading the app.")
+      return
     Meteor.call "dataHide", @_id
   , 750, true)
 

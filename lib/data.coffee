@@ -180,6 +180,7 @@ Meteor.methods
 
     event = Events.findOne(eventId)
 
+    # TODO An edit event across an instance ending will throw a (no-op) error here.
     unless event.editor
       Events.update eventId,
         $set: { editor: userId }

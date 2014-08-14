@@ -133,24 +133,37 @@ userRegex = new RegExp('(^|\\b|\\s)(@[\\w.]+)($|\\b|\\s)','g')
 tweetRegex = new RegExp('(^|\\b|\\s)(~[\\d]+)($|\\b|\\s)','g')
 eventRegex = new RegExp('(^|\\b|\\s)(#[\\d]+)($|\\b|\\s)','g')
 
+###
+  Blaze.toHTML registers reactive dependencies, so chat messages can get
+  re-rendered with state. However, this can cause excessive CPU usage.
+
+  As a result, we use Blaze.toHTML with static data, and use very specific
+  reactive dependencies below. It has to be reactive, or if the chat loads
+  before the events/tweets then messages will be empty.
+
+  Moving the findOne functions inside the Blaze.With won't make any difference
+  below as the entire chat message has to be re-rendered anyway.
+###
 renderWithData = (kind, data) ->
   Blaze.toHTML Blaze.With data, -> kind
 
 # TODO: remove ugly spaces added below
-# TODO: user status won't update reactively here; it just stays its initial value
 userFunc = (_, p1, p2) ->
   username = p2.substring(1)
-  user = Meteor.users.findOne(username: username)
+  # userPill uses _id, username, and status
+  user = Meteor.users.findOne(username: username, {fields: {username: 1, status: 1}})
   return " " + if user then renderWithData(Template.userPill, user) else p2
 
 tweetFunc = (_, p1, p2) ->
   tweetNum = parseInt( p2.substring(1) )
-  tweet = Datastream.findOne( {num: tweetNum} )
+  # tweetIconClickable only uses _id and num
+  tweet = Datastream.findOne( {num: tweetNum}, {fields: num: 1} )
   return " " + if tweet then renderWithData(Template.tweetIconClickable, tweet) else p2
 
 eventFunc = (_, p1, p2) ->
   eventNum = parseInt( p2.substring(1) )
-  event = Events.findOne( {num: eventNum} )
+  # eventIconClickable only uses _id and num
+  event = Events.findOne( {num: eventNum}, {fields: num: 1} )
   return " " + if event then renderWithData(Template.eventIconClickable, event) else p2
 
 # Because messages only render when inserted, we can use this to scroll the chat window
