@@ -4,11 +4,19 @@
   # TODO lots of hacks here. Integrate with TurkServer APIs.
 ###
 class ReplayHandler
+  # The earliest experiment for which we changed the behavior of event deleting
+  eventDeleteChange = new Date("2014-07-29T15:28:57.242Z")
+
   sleep = Meteor._wrapAsync((time, cb) -> Meteor.setTimeout (-> cb undefined), time)
 
   constructor: (instance) ->
     @exp = Experiments.findOne(instance)
     throw new Error("nonexistent instance") unless @exp
+
+    # Do old behavior?
+    if @exp.startTime < eventDeleteChange
+      @pullDeletedEventTweets = true
+      Meteor._debug("Using old event deletion behavior.")
 
     Meteor._debug("Setting up replay for #{instance}")
 
@@ -72,6 +80,15 @@ class ReplayHandler
           $addToSet: { sources: log.dataId }
         @tempData.update log.dataId,
           $addToSet: { events: log.eventId }
+      when "data-move"
+        @tempEvents.update log.fromEventId,
+          $pull: { sources: log.dataId }
+        @tempData.update log.dataId,
+          $addToSet: { events: log.toEventId }
+        @tempData.update log.dataId,
+          $pull: { events: log.fromEventId }
+        @tempEvents.update log.toEventId,
+          $addToSet: { sources: log.dataId }
       when "data-unlink"
         @tempData.update log.dataId,
           $pull: { events: log.eventId }
@@ -102,12 +119,13 @@ class ReplayHandler
         @tempEvents.update log.eventId,
           $pull: { votes: log._userId }
       when "event-delete"
-      # TODO: in newer data, don't unhide tweets
         event = @tempEvents.findOne(log.eventId)
 
-        _.each event.sources, (dataId) =>
-          @tempData.update dataId,
-            $pull: { events: log.eventId }
+        if @pullDeletedEventTweets
+          # Only unhide tweets in old data
+          _.each event.sources, (dataId) =>
+            @tempData.update dataId,
+              $pull: { events: log.eventId }
 
         @tempEvents.update log.eventId,
           $set: { deleted: true }
@@ -127,7 +145,7 @@ class ReplayHandler
     @tempEvents = null
 
 Meteor.publish "replay", (instance, speed) ->
-  return [] unless Meteor.users.findOne(@userId).admin
+  return [] unless Meteor.users.findOne(@userId)?.admin
 
   replay = new ReplayHandler(instance)
 
