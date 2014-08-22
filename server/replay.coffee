@@ -13,12 +13,12 @@ class ReplayHandler
     @exp = Experiments.findOne(instance)
     throw new Error("nonexistent instance") unless @exp
 
+    Meteor._debug("Setting up replay for #{instance}")
+
     # Do old behavior?
     if @exp.startTime < eventDeleteChange
       @pullDeletedEventTweets = true
       Meteor._debug("Using old event deletion behavior.")
-
-    Meteor._debug("Setting up replay for #{instance}")
 
     @tempData = new Meteor.Collection(null)
     @tempEvents = new Meteor.Collection(null)
