@@ -32,11 +32,11 @@ iron:layout@0.3.0
 iron:router@0.9.0
 jquery@1.0.0
 json@1.0.0
-less@1.0.4
+less@1.0.5
 livedata@1.0.7
 localstorage@1.0.0
 logging@1.0.2
-matb33:collection-hooks@0.7.2
+matb33:collection-hooks@0.7.3
 meteor@1.0.2
 minifiers@1.0.2
 minimongo@1.0.1
@@ -72,7 +72,7 @@ spacebars-compiler@1.0.1
 spacebars@1.0.0
 srp@1.0.0
 standard-app-packages@1.0.0
-stylus@0.46.3
+stylus@1.0.3
 templating@1.0.4
 ui@1.0.0
 underscore@1.0.0
