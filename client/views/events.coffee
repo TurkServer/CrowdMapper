@@ -168,9 +168,17 @@ acceptDrop = (draggable) ->
   # drop check if the tweet is part of an event, below
   return false unless tweet?
 
-  # Don't accept drops to the same event - check the event as it will be more
-  # up to date than the one-shot data context being used to render the helper,
-  # which may have changed.
+  ###
+    Don't accept drops to the same event. There are two ways to do this:
+
+    - check the event as it will be more up to date than the one-shot data
+    context being used to render the helper, which may have changed.
+
+    - check the tweet to see if the event is attached.
+
+    TODO we need to implement something that will allow for admin cleanup of
+    multi-tagged events in the ground truth.
+  ###
   return false if $.inArray(tweet._id, event.sources) >= 0
   return true
 

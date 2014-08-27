@@ -30,11 +30,8 @@
     "mizzao:openlayers": {
       "path": "../mizzao:openlayers"
     },
-    "mrt:bootstrap-3": {
-      "path": "../mrt:bootstrap-3"
-    },
-    "mrt:moment": {
-      "path": "../mrt:moment"
+    "mizzao:bootstrap-3": {
+      "path": "../mizzao:bootstrap-3"
     },
     "natestrauser:x-editable-bootstrap": {
       "path": "../natestrauser:x-editable-bootstrap"

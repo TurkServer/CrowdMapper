@@ -21,9 +21,9 @@ mizzao:animated-each@0.1.0
 mizzao:openlayers@2.13.1
 
 # Temporary crap that needs to be moved due to shitty migration
-mrt:bootstrap-3@3.2.0-2
+mizzao:bootstrap-3
 mizzao:jquery-ui
-natestrauser:x-editable-bootstrap
+natestrauser:x-editable-bootstrap@1.5.1
 
 # Development packages
 mizzao:user-status

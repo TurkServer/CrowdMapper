@@ -37,12 +37,18 @@ TurkServer.partitionCollection(Notifications, {
   }
 })
 
+# Admin cannot edit unless it is a special ground truth instance
+checkPermissions = ->
+  return unless TurkServer.isAdmin()
+  unless TurkServer.treatment().treatments[0] is "groundtruth"
+    throw new Meteor.Error(403, "Can't edit as admin")
+
 Meteor.methods
   ###
     Data Methods
   ###
   dataHide: (tweetId) ->
-    TurkServer.checkNotAdmin()
+    checkPermissions()
     check(tweetId, String)
 
     # Can't hide tagged events
@@ -62,7 +68,7 @@ Meteor.methods
     return
 
   dataLink: (tweetId, eventId) ->
-    TurkServer.checkNotAdmin()
+    checkPermissions()
     check(tweetId, String)
     check(eventId, String)
 
@@ -86,7 +92,7 @@ Meteor.methods
     return
 
   dataUnlink: (tweetId, eventId) ->
-    TurkServer.checkNotAdmin()
+    checkPermissions()
     check(tweetId, String)
     check(eventId, String)
 
@@ -109,7 +115,7 @@ Meteor.methods
 
   # Dragging a tweet frome one event to another
   dataMove: (tweetId, fromEventId, toEventId) ->
-    TurkServer.checkNotAdmin()
+    checkPermissions()
     check(tweetId, String)
     check(fromEventId, String)
     check(toEventId, String)
@@ -142,7 +148,7 @@ Meteor.methods
     Event Methods
   ###
   createEvent: (eventId, fields) ->
-    TurkServer.checkNotAdmin()
+    checkPermissions()
     check(eventId, String)
 
     obj = {
@@ -170,7 +176,7 @@ Meteor.methods
     return
 
   editEvent: (eventId) ->
-    TurkServer.checkNotAdmin()
+    checkPermissions()
     check(eventId, String)
 
     userId = Meteor.userId()
@@ -198,7 +204,7 @@ Meteor.methods
     return
 
   updateEvent: (eventId, fields) ->
-    TurkServer.checkNotAdmin()
+    checkPermissions()
     check(eventId, String)
 
     Events.update eventId,
@@ -218,7 +224,7 @@ Meteor.methods
     return
 
   unmapEvent: (eventId) ->
-    TurkServer.checkNotAdmin()
+    checkPermissions()
     check(eventId, String)
 
     Events.update eventId,
@@ -249,7 +255,7 @@ Meteor.methods
     return
 
   voteEvent: (eventId) ->
-    TurkServer.checkNotAdmin()
+    checkPermissions()
     check(eventId, String)
 
     userId = Meteor.userId()
@@ -291,7 +297,7 @@ Meteor.methods
     return
 
   deleteEvent: (eventId) ->
-    TurkServer.checkNotAdmin()
+    checkPermissions()
     check(eventId, String)
 
     # Pull all tweet links
@@ -318,7 +324,7 @@ Meteor.methods
     Doc Methods
   ###
   createDocument: (docName) ->
-    TurkServer.checkNotAdmin()
+    checkPermissions()
     check(docName, String)
 
     docId = Documents.insert
@@ -336,7 +342,7 @@ Meteor.methods
     return docId
 
   renameDocument: (docId, newTitle) ->
-    TurkServer.checkNotAdmin()
+    checkPermissions()
     check(docId, String)
     check(newTitle, String)
 
@@ -353,7 +359,7 @@ Meteor.methods
     return
 
   deleteDocument: (docId) ->
-    TurkServer.checkNotAdmin()
+    checkPermissions()
     check(docId, String)
 
     Documents.update docId,
@@ -371,7 +377,7 @@ Meteor.methods
     Chat Methods
   ###
   createChat: (roomName) ->
-    TurkServer.checkNotAdmin()
+    checkPermissions()
     check(roomName, String)
 
     roomId = ChatRooms.insert
@@ -390,7 +396,7 @@ Meteor.methods
     return roomId
 
   renameChat: (roomId, newName) ->
-    TurkServer.checkNotAdmin()
+    checkPermissions()
     check(roomId, String)
     check(newName, String)
 
@@ -415,7 +421,7 @@ Meteor.methods
   ###
 
   deleteChat: (roomId) ->
-    TurkServer.checkNotAdmin()
+    checkPermissions()
     check(roomId, String)
 
     if @isSimulation
