@@ -59,51 +59,6 @@ Router.map ->
 
       return subHandles
 
-  # This watching does not grab treatment data, but isn't limited to one open at a time.
-  @route 'watch',
-    path: '/watch/:instance'
-    template: 'mapper',
-    onBeforeAction: (pause) ->
-      pause() unless TurkServer.isAdmin()
-    waitOn: ->
-      return unless @params.instance
-      # Need to set all these session variables to true for it to work
-      Meteor.subscribe "adminWatch", @params.instance, ->
-        Session.set("userSubReady", true)
-        Session.set("chatSubReady", true)
-        Session.set("dataSubReady", true)
-        Session.set("docSubReady", true)
-        Session.set("eventSubReady", true)
-
-  # Route to re-play a given crisis mapping instantiation
-  @route 'replay',
-    path: '/replay/:instance/:speed?'
-    template: 'mapper',
-    onBeforeAction: (pause) ->
-      pause() unless TurkServer.isAdmin()
-
-    waitOn: ->
-      speed = parseFloat(this.params.speed) || 20
-      Meteor.subscribe "replay", this.params.instance, speed, ->
-        Session.set("userSubReady", true)
-        # Session.set("chatSubReady", true)
-        Session.set("dataSubReady", true)
-        # Session.set("docSubReady", true)
-        Session.set("eventSubReady", true)
-
-    onAfterAction: ->
-      # turn on auto scrolling for new events and hidden tweets
-      @dataWatcher = Datastream.find({hidden: $exists: false}).observeChanges
-        removed: (id) -> Mapper.scrollToData(id, 100)
-
-      @eventWatcher = Events.find().observeChanges
-        added: (id) ->
-          Deps.afterFlush -> Mapper.scrollToEvent(id, 100)
-
-    onStop: ->
-      @dataWatcher.stop()
-      @eventWatcher.stop()
-
   @route 'exitsurvey/:template?',
     layoutTemplate: 'defaultContainer'
     onBeforeAction: (pause) ->

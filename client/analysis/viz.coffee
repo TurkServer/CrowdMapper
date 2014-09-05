@@ -36,39 +36,6 @@ preprocess = (data) ->
 
   console.log "Moves re-classified: #{move_reclassify}", "Unlinks re-classified: #{unlink_reclassify}"
 
-Router.map ->
-  @route 'viz',
-    path: 'viz/:groupId'
-    onBeforeAction: (pause) ->
-      unless TurkServer.isAdmin()
-        @render("loadError")
-        pause()
-    waitOn: ->
-      @readyDep = new Deps.Dependency
-      @readyDep.isReady = false;
-
-      Meteor.call "getMapperData", this.params.groupId, (err, res) =>
-        bootbox.alert(err) if err
-
-        preprocess(res)
-        this.mapperData = res
-
-        @readyDep.isReady = true;
-        @readyDep.changed()
-
-      return {
-        ready: =>
-          @readyDep.depend()
-          return @readyDep.isReady
-      }
-    data: ->
-      @readyDep.depend()
-      return this.mapperData
-    action: ->
-      if this.ready()
-
-        this.render()
-
 tags = /[~@#]/
 
 Template.viz.events
