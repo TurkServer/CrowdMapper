@@ -46,11 +46,11 @@ Mapper.scrollToEvent = (id, speed = "slow") ->
 Mapper.tweetDragHelper = (e) ->
   # Get width of current item, if dragging from datastream
   currentWidth = Math.max $(this).width(), 200
-  data = UI.getElementData(this)
+  data = Blaze.getData(this)
 
   # Grab tweetId either from datastream object or event tweet array
   tweetId = data?._id || data
-  helper = $ Blaze.toHTML Blaze.With Datastream.findOne(tweetId), -> Template.tweetDragHelper
+  helper = $ Blaze.toHTMLWithData Template.tweetDragHelper, Datastream.findOne(tweetId)
 
   # Make a clone of just the text of the same width
   # Append to events-body, so it can be scrolled while dragging (see below).

@@ -74,7 +74,7 @@ Template.roomHeader.rendered = ->
 
   this.autorun ->
     # Trigger this whenever title changes - note only name is reactively depended on
-    Blaze.getCurrentData()
+    Blaze.getData()
     # Destroy old editable if it exists
     tmplInst.$(".editable").editable("destroy").editable
       display: ->
@@ -144,27 +144,25 @@ eventRegex = new RegExp('(^|\\b|\\s)(#[\\d]+)($|\\b|\\s)','g')
   Moving the findOne functions inside the Blaze.With won't make any difference
   below as the entire chat message has to be re-rendered anyway.
 ###
-renderWithData = (kind, data) ->
-  Blaze.toHTML Blaze.With data, -> kind
 
 # TODO: remove ugly spaces added below
 userFunc = (_, p1, p2) ->
   username = p2.substring(1)
   # userPill uses _id, username, and status
   user = Meteor.users.findOne(username: username, {fields: {username: 1, status: 1}})
-  return " " + if user then renderWithData(Template.userPill, user) else p2
+  return " " + if user then Blaze.toHTMLWithData(Template.userPill, user) else p2
 
 tweetFunc = (_, p1, p2) ->
   tweetNum = parseInt( p2.substring(1) )
   # tweetIconClickable only uses _id and num
   tweet = Datastream.findOne( {num: tweetNum}, {fields: num: 1} )
-  return " " + if tweet then renderWithData(Template.tweetIconClickable, tweet) else p2
+  return " " + if tweet then Blaze.toHTMLWithData(Template.tweetIconClickable, tweet) else p2
 
 eventFunc = (_, p1, p2) ->
   eventNum = parseInt( p2.substring(1) )
   # eventIconClickable only uses _id and num
   event = Events.findOne( {num: eventNum}, {fields: num: 1} )
-  return " " + if event then renderWithData(Template.eventIconClickable, event) else p2
+  return " " + if event then Blaze.toHTMLWithData(Template.eventIconClickable, event) else p2
 
 # Because messages only render when inserted, we can use this to scroll the chat window
 Template.messageItem.rendered = ->

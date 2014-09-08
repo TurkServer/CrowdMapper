@@ -118,9 +118,9 @@ Template.eventsBody.events
       trigger: "manual"
       container: container # Hovering over the popover should hold it open
       content: ->
-        event = UI.getElementData(e.target)
+        event = Blaze.getData(e.target)
         # TODO Make this properly reactive - currently just hiding it immediately after vote
-        Blaze.toHTML Blaze.With event, -> Template.eventVotePopup
+        Blaze.toHTMLWithData Template.eventVotePopup, event
     }).popover('show')
 
     container.one("mouseleave", -> container.popover("destroy") )
@@ -160,9 +160,9 @@ Template.createFooter.events =
 acceptDrop = (draggable) ->
   # Don't accept drops when looking at other pages
   return false unless Session.equals("taskView", 'events')
-  event = UI.getElementData(this) # These are the only droppables on the page
+  event = Blaze.getData(this) # These are the only droppables on the page
   return false unless event
-  tweet = UI.getElementData(draggable.context)
+  tweet = Blaze.getData(draggable.context)
 
   # Upon a drop, data context may be lost, in which case we should not try and
   # drop check if the tweet is part of an event, below
@@ -183,14 +183,14 @@ acceptDrop = (draggable) ->
   return true
 
 processDrop = (event, ui) ->
-  event = UI.getElementData(this)
+  event = Blaze.getData(this)
   return unless event
 
-  tweet = UI.getElementData(ui.draggable.context)
+  tweet = Blaze.getData(ui.draggable.context)
   # Don't do anything if this tweet is already on this event
   return if $.inArray(tweet._id, event.sources) >= 0
 
-  # TODO replace with an appropriate use of UI._parentData
+  # TODO replace with an appropriate use of Template.parentData
   target = ui.draggable.context
   parent = tweet
 
@@ -217,7 +217,7 @@ processDrop = (event, ui) ->
       deletedWhileDragging = true
       break
 
-    parent = UI.getElementData(target)
+    parent = Blaze.getData(target)
 
   if deletedWhileDragging
     bootbox.alert("The tweet was hidden or the event was edited by someone else while you were dragging. Please try dragging the tweet again.")
@@ -295,7 +295,7 @@ Template.eventRow.eventCell = ->
   else
     return Template.eventCellText
 
-# TODO instead of ad hoc building data in the future, use either UI._parentData through the UI.dynamic, or appropriate use of {{..}}
+# TODO instead of ad hoc building data in the future, use either Template.parentData through the UI.dynamic, or appropriate use of {{..}}
 Template.eventRow.buildData = (context, field) ->
   obj = {
     _id: context._id

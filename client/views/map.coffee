@@ -123,7 +123,7 @@ Template.map.rendered = ->
       popup.lonlat = lonlat
 
     # Insert the popup template into the content div
-    UI.insert(UI.renderWithData(Template.mapPopup, feature.id), popup.contentDiv)
+    Blaze.renderWithData(Template.mapPopup, feature.id, popup.contentDiv)
 
     # Use second argument = true to kick out any old popups for good measure
     map.addPopup(popup) # true)

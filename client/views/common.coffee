@@ -29,7 +29,7 @@ Template.userPill.events =
       bootbox.alert("Join a chat room first to invite someone to chat with you.")
       return
 
-    user = UI.getElementData(e.target)
+    user = Blaze.getData(e.target)
 
     if ChatUsers.findOne(userId: user._id)?
       bootbox.alert("You and #{user.username} are already in the same room.")
@@ -53,8 +53,8 @@ Template.tweetIcon.events =
   "click .action-unlink-tweet": (e) ->
     # This needs to work on both events and map
     # both the table row and the popup are .event-record
-    tweet = UI.getElementData(e.target)
-    event = UI.getElementData $(e.target).closest(".event-record")[0]
+    tweet = Blaze.getData(e.target)
+    event = Blaze.getData $(e.target).closest(".event-record")[0]
 
     # The unlink function will also hide this if it's not tagged somewhere
     # TODO: the unlink-hide process causes an unwanted scroll adjustment

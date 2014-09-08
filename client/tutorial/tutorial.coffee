@@ -235,7 +235,7 @@ Mapper.bypassTutorial = (skipToEnd) ->
     Mapper.events.emit(step.require.event) if step?.require?.event
 
   if skipToEnd
-    tm = UI.getElementData( $(".modal-dialog.positioned")[0])
+    tm = Blaze.getData( $(".modal-dialog.positioned")[0])
     # Get the tutorial manager and skip it to the end
     tm.step = tm.steps.length - 1
     tm.stepDep.changed()

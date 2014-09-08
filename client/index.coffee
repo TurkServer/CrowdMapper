@@ -151,7 +151,7 @@ Template.mapper.events
   # get the right target. However, exclude containers being dragged.
   "mouseenter .tweet-icon-container:not(.ui-draggable-dragging)": (e) ->
     container = $(e.target)
-    tweet = UI.getElementData(e.target)
+    tweet = Blaze.getData(e.target)
 
     container.popover({
       html: true
@@ -159,7 +159,7 @@ Template.mapper.events
       trigger: "manual"
       container: e.target # Hovering over the popover should hold it open
       # No need for reactivity here since tweet does not change
-      content: Blaze.toHTML Blaze.With Datastream.findOne(tweet._id), -> Template.tweetPopup
+      content: Blaze.toHTMLWithData Template.tweetPopup, Datastream.findOne(tweet._id)
     }).popover("show")
 
     container.one("mouseleave", -> container.popover("destroy") )
@@ -174,7 +174,7 @@ Template.mapper.events
       container: e.target
       content: ->
         # Grab updated data
-        user = UI.getElementData(e.target)
+        user = Blaze.getData(e.target)
         # Check if we should show chat invite
         if user.status?.online and user._id isnt Meteor.userId()
           return Blaze.toHTML Template.userInvitePopup

@@ -51,7 +51,7 @@ Template.docTitle.rendered = ->
 
   this.autorun ->
     # Trigger this whenever title changes
-    title = Blaze.getCurrentData()
+    title = Blaze.getData()
     # Destroy old editable if it exists
     tmplInst.$(".editable").editable("destroy").editable
       display: ->
