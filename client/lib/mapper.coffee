@@ -1,7 +1,7 @@
 # The map needs to load first or openlayers complains
 @Mapper = @Mapper || {}
 
-@ChatUsers = new Meteor.Collection("chatusers")
+@ChatUsers = new Mongo.Collection("chatusers")
 
 # Allow bing map code to be loaded by OpenLayers
 UI._allowJavascriptUrls()

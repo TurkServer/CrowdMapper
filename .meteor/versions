@@ -37,7 +37,7 @@ less@1.0.7
 livedata@1.0.9
 localstorage@1.0.0
 logging@1.0.2
-matb33:collection-hooks@0.7.3
+matb33:collection-hooks@0.7.4
 meteor-platform@1.0.2
 meteor@1.0.3
 minifiers@1.0.2
@@ -75,7 +75,6 @@ sha@1.0.0
 spacebars-compiler@1.0.2
 spacebars@1.0.1
 srp@1.0.0
-standard-app-packages@1.0.1
 stylus@1.0.3
 templating@1.0.5
 tracker@1.0.2

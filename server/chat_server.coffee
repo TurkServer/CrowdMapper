@@ -1,5 +1,5 @@
 # Don't persist the contents of this collection
-@ChatUsers = new Meteor.Collection("chatusers") #, {connection: null})
+@ChatUsers = new Mongo.Collection("chatusers") #, {connection: null})
 
 # Because it is in the DB, we can have this index
 ChatUsers._ensureIndex({roomId: 1})

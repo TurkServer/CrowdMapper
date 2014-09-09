@@ -20,18 +20,18 @@ class ReplayHandler
       @pullDeletedEventTweets = true
       Meteor._debug("Using old event deletion behavior.")
 
-    @tempData = new Meteor.Collection(null)
-    @tempEvents = new Meteor.Collection(null)
+    @tempData = new Mongo.Collection(null)
+    @tempEvents = new Mongo.Collection(null)
 
   publishData: (sub) ->
     # Send fake local collection data over the wire
     # We're pretending to do the same thing as with an array of cursors
-    Meteor.Collection._publishCursor(@tempData.find(), sub, Datastream._name)
-    Meteor.Collection._publishCursor(@tempEvents.find(), sub, Events._name)
+    Mongo.Collection._publishCursor(@tempData.find(), sub, Datastream._name)
+    Mongo.Collection._publishCursor(@tempEvents.find(), sub, Events._name)
 
     userCursor = Meteor.users.find({ _id: $in: @exp.users},
       {fields: {username: 1}})
-    Meteor.Collection._publishCursor(userCursor, sub, "users")
+    Mongo.Collection._publishCursor(userCursor, sub, "users")
 
   initialize: ->
     tempData = @tempData

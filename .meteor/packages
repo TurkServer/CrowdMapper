@@ -7,7 +7,7 @@ coffeescript
 jquery
 stylus
 accounts-ui
-standard-app-packages
+meteor-platform
 webapp
 d3
 

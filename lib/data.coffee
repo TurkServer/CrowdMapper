@@ -1,21 +1,21 @@
 # Chat
-this.ChatRooms = new Meteor.Collection("chatrooms")
+this.ChatRooms = new Mongo.Collection("chatrooms")
 
 # this.ChatUsers (separate file) and ChatMessages do not need to be stuffed into TurkServer
-this.ChatMessages = new Meteor.Collection("chatmessages")
+this.ChatMessages = new Mongo.Collection("chatmessages")
 
 # Datastream
-this.Datastream = new Meteor.Collection("datastream")
+this.Datastream = new Mongo.Collection("datastream")
 
 # Docs
-this.Documents = new Meteor.Collection("documents")
+this.Documents = new Mongo.Collection("documents")
 
 # Events / Map
-this.EventFields = new Meteor.Collection("eventfields") # Also not turkservered.
-this.Events = new Meteor.Collection("events")
+this.EventFields = new Mongo.Collection("eventfields") # Also not turkservered.
+this.Events = new Mongo.Collection("events")
 
 # Chat and invite notivications
-this.Notifications = new Meteor.Collection("notifications") # Not turkservered since each user sees their own
+this.Notifications = new Mongo.Collection("notifications") # Not turkservered since each user sees their own
 
 # Group the four main partitioned collections
 TurkServer.partitionCollection(ChatRooms)

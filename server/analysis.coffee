@@ -1,13 +1,3 @@
-# For debugging query errors: https://groups.google.com/forum/#!msg/meteor-talk/dnnEseBCCiE/l_LHsw-XAWsJ
-
-#Meteor.startup ->
-#  wrappedFind = Meteor.Collection.prototype.find
-#
-#  console.log('[startup] wrapping Collection.find')
-#
-#  Meteor.Collection.prototype.find = ->
-#    console.log(this._name + '.find', JSON.stringify(arguments))
-#    return wrappedFind.apply(this, arguments)
 
 # Special groundtruth tag for these instances
 TurkServer.ensureTreatmentExists
