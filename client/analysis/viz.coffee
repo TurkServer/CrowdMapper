@@ -96,6 +96,8 @@ filterChat = (chat, extent) ->
 vizPointWidth = 5
 
 Template.vizActionsOverTime.rendered = ->
+  preprocess(this.data)
+
   margin = {
     left: 100
     bottom: 50

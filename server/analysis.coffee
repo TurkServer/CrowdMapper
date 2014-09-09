@@ -3,6 +3,15 @@
 TurkServer.ensureTreatmentExists
   name: "groundtruth"
 
+getLargeGroupExpIds = ->
+  batch = Batches.findOne({name: "group sizes redux"})
+
+  return Experiments.find({
+    batchId: batch._id
+    treatments: $in: [ "group_16", "group_32" ]
+    users: $exists: true
+  }).map (e) -> e._id
+
 Meteor.methods
   # Create and populate a world that represents the Pablo data from groups of
   # 16 and 32
@@ -34,15 +43,9 @@ Meteor.methods
     # Fake identifier for this instance to allow admin editing
     Experiments.upsert(instanceName, $set: { treatments: [ "groundtruth" ]})
 
-    batch = Batches.findOne({name: "group sizes redux"})
+    expIds = getLargeGroupExpIds()
 
-    exps = Experiments.find({
-      batchId: batch._id
-      treatments: $in: [ "group_16", "group_32" ]
-      users: $exists: true
-    }).fetch()
-
-    console.log "Found #{exps.length} experiments"
+    console.log "Found #{expIds.length} experiments"
 
     instance.bindOperation ->
       # Start with all tweets hidden. un-hide them if any group has them
@@ -65,11 +68,11 @@ Meteor.methods
 
     currentNum = 0
 
-    for exp in exps
+    for expId in expIds
       console.log "Processing #{exp._id} (#{exp.users.length})"
 
       Events.direct.find({
-        _groupId: exp._id
+        _groupId: expId
         deleted: $exists: false
       }, {
         fields: {num: 0, editor: 0}
@@ -107,3 +110,19 @@ Meteor.methods
       })
 
     console.log "done"
+
+  # Get the list of re-mapped tweet IDs in the groups of 16 and 32
+  "cm-get-group-cooccurences": ->
+    TurkServer.checkAdmin()
+
+    expIds = getLargeGroupExpIds()
+
+    console.log "Found #{expIds.length} experiments"
+
+    # Re-map tweet numbers on all non-deleted events
+    return Events.direct.find({
+      _groupId: $in: expIds
+      deleted: $exists: false
+    }).map (event) ->
+      _.map event.sources, (source) -> Datastream.direct.findOne(source).num
+

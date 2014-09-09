@@ -60,7 +60,6 @@ Router.map ->
       Meteor.call "getMapperData", this.params.groupId, (err, res) =>
         bootbox.alert(err) if err
 
-        preprocess(res)
         this.mapperData = res
 
         @readyDep.isReady = true;
@@ -87,6 +86,28 @@ Router.map ->
     path: 'overview/tagging'
     controller: AdminController
     layoutTemplate: "overviewLayout"
+    waitOn: ->
+      loaded = @loaded = new Tracker.Dependency
+      isReady = false
+
+      Meteor.call "cm-get-group-cooccurences", (err, res) =>
+        bootbox.alert(err) if err
+
+        this.occurrences = res
+
+        isReady = true
+        loaded.changed()
+
+      return {
+        ready: ->
+          loaded.depend()
+          return isReady
+      }
+    data: ->
+      @loaded.depend()
+      return this.occurrences
+    action: ->
+      this.render() if this.ready()
 
 Template.adminControls.events
   "change input": (e, t) ->
