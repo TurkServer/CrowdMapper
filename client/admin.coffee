@@ -93,7 +93,7 @@ Router.map ->
       Meteor.call "cm-get-group-cooccurences", (err, res) =>
         bootbox.alert(err) if err
 
-        this.occurrences = res
+        this.data = res
 
         isReady = true
         loaded.changed()
@@ -105,7 +105,7 @@ Router.map ->
       }
     data: ->
       @loaded.depend()
-      return this.occurrences
+      return this.data
     action: ->
       this.render() if this.ready()
 

@@ -120,9 +120,17 @@ Meteor.methods
     console.log "Found #{expIds.length} experiments"
 
     # Re-map tweet numbers on all non-deleted events
-    return Events.direct.find({
+    occurrences = Events.direct.find({
       _groupId: $in: expIds
       deleted: $exists: false
     }).map (event) ->
       _.map event.sources, (source) -> Datastream.direct.findOne(source).num
+
+    tweetText = {}
+
+    Datastream.direct.find({_groupId: expIds[0]}).forEach (e) ->
+      tweetText[e.num] = e.text
+
+    return { occurrences, tweetText }
+
 

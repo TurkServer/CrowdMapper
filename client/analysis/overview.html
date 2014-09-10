@@ -1,18 +1,23 @@
 <template name="overviewLayout">
-    <div class="container-fluid">
-        <div class="row flex">
-            <div class="col-md-2">
+    <div class="container-fluid inherit-height">
+        <div class="row flex inherit-height">
+            <div class="col-md-1">
                 <ul class="nav nav-pills nav-stacked">
                     <li><a href="{{pathFor 'overviewTagging'}}">Tagging</a></li>
                 </ul>
             </div>
-            <div class="col-md-10">
-                {{> yield}}
-            </div>
+            {{> yield}}
         </div>
     </div>
 </template>
 
 <template name="overviewTagging">
-    <svg class="viz" width="100%" height="800"></svg>
+    <div class="col-md-1">
+        <label class="checkbox">
+            <input type="checkbox" checked> Show only tweets tagged more than once
+        </label>
+    </div>
+    <div class="col-md-10">
+        <svg class="viz" width="100%" height="900"></svg>
+    </div>
 </template>
