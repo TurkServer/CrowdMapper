@@ -1,4 +1,8 @@
+skipEventSize = 20
+
 computeGraph = (occurrences, filter) ->
+  occurrences = _.filter(occurrences, (o) -> o.length <= skipEventSize)
+
   # compute number of occurrences for each tweet
   nodes = d3.nest()
     .key(Object)
@@ -21,8 +25,6 @@ computeGraph = (occurrences, filter) ->
   linkMap = {}
 
   for arr in occurrences
-    # TODO: skipping massive blocks for now
-    continue if arr.length > 35
 
     for x, i in arr
       continue unless indices[x]
@@ -128,7 +130,7 @@ Template.overviewTagging.rendered = ->
       .attr("cx", (d) -> d.x)
       .attr("cy", (d) -> d.y)
 
-  @redrawGraph(true) # With checked box
+  @redrawGraph(false) # With checked box
 
 Template.overviewTagging.events
   "change input[type=checkbox]": (e, t) ->
