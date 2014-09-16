@@ -38,18 +38,6 @@ preprocess = (data) ->
 
 tags = /[~@#]/
 
-Template.viz.events
-  "click nav a": (e, t) ->
-    e.preventDefault()
-    target = $(e.target).data("target")
-
-    t.$(".stack .item").removeClass("active")
-    t.$(".stack .item.#{target}").addClass("active")
-
-Template.viz.rendered = ->
-  this.$(".stack .item").removeClass("active")
-  this.$(".stack .item").first().addClass("active")
-
 #  console.log @data.instance
 #  console.log "users", @data.users
 #  console.log "logs", @data.logs
@@ -95,7 +83,21 @@ filterChat = (chat, extent) ->
 
 vizPointWidth = 5
 
-Template.vizActionsOverTime.rendered = ->
+
+Session.setDefault("vizType", "time")
+
+Template.viz.events
+  "click nav a": (e, t) ->
+    e.preventDefault()
+    target = $(e.target).data("target")
+
+    Session.set("vizType", target)
+
+  "change input[name=pieLayout]": (e, t) ->
+    t.layout = e.target.value
+    t.reposition()
+
+Template.viz.rendered = ->
   preprocess(this.data)
 
   margin = {
@@ -197,12 +199,7 @@ Template.vizActionsOverTime.rendered = ->
 
   d3.select(svg).call(zoom)
 
-Template.vizActionPies.events
-  "change input[name=pieLayout]": (e, t) ->
-    t.layout = e.target.value
-    t.reposition()
-
-Template.vizActionPies.rendered = ->
+Template.viz.rendered = ->
   @layout = "force"
 
   margin = {
