@@ -3,6 +3,9 @@
     "mizzao:user-status": {
       "path": "../mizzao:user-status"
     },
+    "mizzao:build-fetcher": {
+      "path": "../mizzao:build-fetcher"
+    },
     "matb33:collection-hooks": {
       "path": "../matb33:collection-hooks"
     },
