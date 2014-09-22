@@ -1,3 +1,6 @@
+# Collections for analysis
+AnalysisDatastream = new Meteor.Collection("analysis.datastream")
+AnalysisEvents = new Meteor.Collection("analysis.events")
 
 # Special groundtruth tag for these instances
 TurkServer.ensureTreatmentExists
@@ -112,6 +115,7 @@ Meteor.methods
     console.log "done"
 
   # Get the list of re-mapped tweet IDs in the groups of 16 and 32
+  # TODO this can probably just pull from the analysis collections
   "cm-get-group-cooccurences": ->
     TurkServer.checkAdmin()
 
@@ -132,5 +136,46 @@ Meteor.methods
       tweetText[e.num] = e.text
 
     return { occurrences, tweetText }
+
+  # Build the analysis events and data collection from the experimental data
+  "cm-populate-analysis-data": (force) ->
+    TurkServer.checkAdmin()
+
+    expIds = getLargeGroupExpIds()
+    console.log "Found #{expIds.length} experiments"
+
+    unless force
+      throw new Meteor.Error(400, "Events already exist") if AnalysisEvents.find().count() > 0
+      throw new Meteor.Error(400, "Datastream already exists") if AnalysisDatastream.find().count() > 0
+
+    AnalysisEvents.remove({})
+    AnalysisDatastream.remove({})
+
+    tweetNums = []
+
+    # Re-map tweet IDs to numbers on all non-deleted events
+    Events.direct.find({
+      _groupId: $in: expIds
+      deleted: $exists: false
+    }).forEach (event) ->
+      delete event._groupId
+      # We keep the _id for reference
+
+      event.sources = _.map event.sources, (source) -> Datastream.direct.findOne(source).num
+      tweetNums = _.union(tweetNums, event.sources)
+      AnalysisEvents.insert(event)
+
+    # Insert a fresh copy of tweets with numbers
+    Datastream.direct.find({_groupId: expIds[0]}).forEach (tweet) ->
+      # Search union (sorted) for this tweet
+      return if _.indexOf(tweetNums, tweet.num) < 0
+
+      delete tweet._groupId
+      delete tweet._id
+      delete tweet.events
+
+      AnalysisDatastream.insert(tweet)
+
+    return
 
 
