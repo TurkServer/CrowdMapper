@@ -81,175 +81,159 @@ filterChat = (chat, extent) ->
   _.filter chat, (entry) ->
     extent[0] < entry.timestamp < extent[1]
 
+###
+  Viz Parameters
+###
+
 vizPointWidth = 5
 
+# left and bottom margin of timelines
+leftMargin = 100
+bottomMargin = 50
 
-Session.setDefault("vizType", "time")
+class VizManager
+  constructor: (@svg, @data) ->
+    preprocess(@data)
+
+    @initTimeline()
+
+    @pieLayout = "force"
+
+  ###
+    Initialization functions
+  ###
+
+  initTimeline: ->
+    width = $(@svg).width() - leftMargin
+    height = $(@svg).height() - bottomMargin
+
+    @timeline = d3.select(@svg).append("g")
+      .attr("class", "timeline")
+      .attr("transform", "translate(#{leftMargin}, 0)")
+
+    timeRange = [@data.instance.startTime, @data.instance.endTime]
+
+    x = d3.scale.linear()
+      .domain(timeRange)
+      .range([0, width])
+
+    domain = (user._id for user in @data.users)
+
+    domainLabels = (user.username for user in @data.users)
+
+    y = d3.scale.ordinal()
+      .domain(domain)
+      .rangeBands([0, height], 0.2)
+
+    # TODO Fixed bands y
+#    y = d3.scale.ordinal()
+#      .domain([0..2])
+#      .rangeBands([0, height])
+
+    bandWidth = y.rangeBand() / 3
+
+    @timelinexAxis = d3.svg.axis()
+      .orient("bottom")
+      .scale(x)
+      .tickFormat( (date) -> new Date(date).toLocaleTimeString() )
+
+    yAxis = d3.svg.axis()
+      .orient("left")
+      .scale(y)
+      .tickValues(domainLabels)
+
+    chart.append("g")
+      .attr("class", "x axis")
+      .attr("transform", "translate(0, #{height})")
+
+    chart.append("g")
+      .attr("class", "y axis")
+      .attr("transform", "translate(0, 0)")
+      .call(yAxis)
+
+    chart = d3.select(svg).append("g")
+
+  # Draw bands encompassing user actions
+    chart.selectAll(".bands")
+      .data(y.domain())
+    .enter().append("rect")
+      .attr("class", "band")
+      .attr("y", (id) -> y(id))
+      .attr("width", width)
+      .attr("height", y.rangeBand())
+
+    # Draw actions
+    chart.selectAll(".action")
+      .data(@data.logs, (entry) -> entry._id)
+    .enter().append("rect")
+      .attr("class", logEntryClass)
+      .attr("y", (entry) -> y(entry._userId) + vizType(entry) * bandWidth)
+      # .attr("y", (entry) -> y(vizType(entry)))
+      .attr("width", vizPointWidth)
+      .attr("height", bandWidth)
+    .append("svg:title")
+      .text((d) -> d.action || d._meta)
+
+    # Draw chat
+    chart.selectAll(".chat")
+      .data(@data.chat, (msg) -> msg._id)
+    .enter().append("rect")
+      .attr("class", chatMsgClass)
+      .attr("y", (msg) -> y(msg.userId) + 2*bandWidth)
+      # .attr("y", y(2))
+      .attr("width", vizPointWidth)
+      .attr("height", bandWidth)
+    .append("svg:title")
+      .text((d) -> d.text)
+
+    # Reposition X stuff with appropriate zoom
+    @zoomTimeline()
+
+    zoom = d3.behavior.zoom()
+      .x(x)
+      .scaleExtent([1, 20])
+      .on("zoom", @zoomTimeline)
+
+    d3.select(@timeline).call(zoom)
+
+  ###
+    Redraw functions,
+    separated for different granularity of modifications
+  ###
+  zoomTimeline: =>
+    d3.select(".timeline .x.axis").call(@timelinexAxis)
+
+    @timeline.selectAll(".action")
+      .attr("x", (entry) -> x(entry._timestamp))
+
+    @timeline.selectAll(".chat")
+      .attr("x", (entry) -> x(entry.timestamp))
+
+  ###
+    Mutator functions
+  ###
+
+  setVizType: (type) ->
+    # "time" or "pies"
+
+  setPieLayout: (layout) ->
+    @pieLayout = layout
+
+    @reposition()
 
 Template.viz.events
   "click nav a": (e, t) ->
     e.preventDefault()
     target = $(e.target).data("target")
-
-    Session.set("vizType", target)
+    t.vm.setVizType(target)
 
   "change input[name=pieLayout]": (e, t) ->
-    t.layout = e.target.value
-    t.reposition()
+    t.vm.setPieLayout(e.target.value)
 
 Template.viz.rendered = ->
-  preprocess(this.data)
+  @vm = new VizManager(@find("svg"), @data)
 
-  margin = {
-    left: 100
-    bottom: 50
-  }
-
-  svg = @find("svg")
-  width = $(svg).width() - margin.left
-  height = $(svg).height() - margin.bottom
-
-  chart = d3.select(svg).append("g")
-    .attr("transform", "translate(#{margin.left}, 0)")
-    # TODO this is not clipping
-    .attr("clip-path", "rect(0, 0, #{width}, #{height})")
-
-  x = d3.scale.linear()
-    .domain([@data.instance.startTime, @data.instance.endTime])
-    .range([0, width])
-
-  # Create domain and labels; including a fake value for all users
-  domain = (user._id for user in @data.users)
-
-  domainLabels = (user.username for user in @data.users)
-
-  y = d3.scale.ordinal()
-    .domain(domain)
-    .rangeBands([0, height], 0.2)
-
-  bandWidth = y.rangeBand() / 3
-
-  xAxis = d3.svg.axis()
-    .orient("bottom")
-    .scale(x)
-    .tickFormat( (date) -> new Date(date).toLocaleTimeString() )
-
-  yAxis = d3.svg.axis()
-    .orient("left")
-    .scale(y)
-    .tickValues(domainLabels)
-
-  svgX = chart.append("g")
-    .attr("class", "x axis")
-    .attr("transform", "translate(0, #{height})")
-
-  svgY = chart.append("g")
-    .attr("class", "y axis")
-    .attr("transform", "translate(0, 0)")
-    .call(yAxis)
-
-  # Draw bands encompassing user actions
-  chart.selectAll(".bands")
-    .data(y.domain())
-  .enter()
-    .append("rect")
-    .attr("class", "band")
-    .attr("y", (id) -> y(id))
-    .attr("width", width)
-    .attr("height", y.rangeBand())
-
-  # Draw actions
-  chart.selectAll(".action")
-    .data(@data.logs, (entry) -> entry._id)
-  .enter().append("rect")
-    .attr("class", logEntryClass)
-    .attr("y", (entry) -> y(entry._userId) + vizType(entry) * bandWidth)
-    .attr("width", vizPointWidth)
-    .attr("height", bandWidth)
-  .append("svg:title")
-    .text((d) -> d.action || d._meta)
-
-  # Draw chat
-  chart.selectAll(".chat")
-    .data(@data.chat, (msg) -> msg._id)
-  .enter().append("rect")
-    .attr("class", chatMsgClass)
-    .attr("y", (msg) -> y(msg.userId) + 2*bandWidth)
-    .attr("width", vizPointWidth)
-    .attr("height", bandWidth)
-  .append("svg:title")
-    .text((d) -> d.text)
-
-  redraw = ->
-    svgX.call(xAxis)
-
-    chart.selectAll(".action")
-      .attr("x", (entry) -> x(entry._timestamp))
-
-    chart.selectAll(".chat")
-      .attr("x", (entry) -> x(entry.timestamp))
-
-  # Reposition X stuff with appropriate zoom
-  redraw()
-
-  zoom = d3.behavior.zoom()
-    .x(x)
-    .scaleExtent([1, 20])
-    .on("zoom", redraw)
-
-  d3.select(svg).call(zoom)
-
-Template.viz.rendered = ->
   @layout = "force"
-
-  margin = {
-    bottom: 20
-  }
-
-  svg = @find("svg.timeline")
-  width = $(svg).width()
-  height = $(svg).height() - margin.bottom
-
-  chart = d3.select(svg).append("g")
-
-  timeRange = [@data.instance.startTime, @data.instance.endTime]
-
-  x = d3.scale.linear()
-    .domain(timeRange)
-    .range([0, width])
-
-  y = d3.scale.ordinal()
-    .domain([0..2])
-    .rangeBands([0, height])
-
-  xAxis = d3.svg.axis()
-    .orient("bottom")
-    .scale(x)
-    .tickFormat( (date) -> new Date(date).toLocaleTimeString() )
-
-  svgX = chart.append("g")
-    .attr("class", "x axis")
-    .attr("transform", "translate(0, #{height})")
-
-  svgX.call(xAxis)
-
-  chart.selectAll(".action")
-    .data(@data.logs, (entry) -> entry._id)
-  .enter().append("rect")
-    .attr("class", logEntryClass)
-    .attr("x", (entry) -> x(entry._timestamp))
-    .attr("y", (entry) -> y(vizType(entry)))
-    .attr("width", vizPointWidth)
-    .attr("height", y.rangeBand())
-
-  chart.selectAll(".chat")
-    .data(@data.chat, (msg) -> msg._id)
-  .enter().append("rect")
-    .attr("class", chatMsgClass)
-    .attr("x", (entry) -> x(entry.timestamp))
-    .attr("y", y(2))
-    .attr("width", vizPointWidth)
-    .attr("height", y.rangeBand())
 
   ###
     Draw pie SVG
