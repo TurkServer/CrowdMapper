@@ -87,7 +87,7 @@ filterChat = (chat, extent) ->
 
 vizPointWidth = 5
 
-collapsedTimelineHeight = 100
+collapsedTimelineHeight = 70
 # left and bottom margin of timelines
 leftMargin = 90
 bottomMargin = 30
@@ -95,9 +95,8 @@ bottomMargin = 30
 # Cluster settings
 padding = 5
 clusterPadding = 80
-
 # Radius for per-user sunburst; arbitrary value that gets rescaled anyway
-r = 200
+scaleRadius = 200
 
 ###
   An attempt to prevent the visualization code from becoming spaghetti
@@ -108,11 +107,11 @@ class VizManager
 
     @initTimeline()
 
+    @initPies()
+
     # Draw the default layout, which is pies
     @pieLayout = "force"
     @setVizType("pies")
-
-    @initPies()
 
     # Draw pies
     @brushTimeline()
@@ -149,7 +148,7 @@ class VizManager
 
     @timeline.append("g")
       .attr("class", "y axis")
-      # .attr("transform", "translate(0, 0)")
+      .attr("transform", "translate(0, 0)")
 
     # Create a background for bands, grid lines, etc that appear under data
     background = @timeline.append("g")
@@ -186,23 +185,17 @@ class VizManager
     # Reposition X stuff with appropriate zoom
     @zoomTimeline()
 
-    zoom = d3.behavior.zoom()
+    @zoom = d3.behavior.zoom()
       .x(@timelineX)
       .scaleExtent([1, 20])
       .on("zoom", @zoomTimeline)
 
-    @timeline.call(zoom)
+    @timeline.call(@zoom)
 
     # Create a brush for adjusting the viewing region
     @brush = d3.svg.brush()
       .x(@timelineX)
       .extent(timeRange)
-
-    @timeline.append("g")
-      .attr("class", "brush")
-      .call(@brush)
-    .selectAll("rect") # Set initial height of brush
-      .attr("height", collapsedTimelineHeight)
 
     @brush.on("brushend", @brushTimeline)
 
@@ -257,7 +250,7 @@ class VizManager
 
     @piesPartition = d3.layout.partition()
       .sort(null)
-      .size([2 * Math.PI, r * r])
+      .size([2 * Math.PI, scaleRadius * scaleRadius])
       .children( (d) -> d.values )
       .value( (d) -> d.values?.count )
 
@@ -301,12 +294,29 @@ class VizManager
 
       @timelineYaxis.tickValues(domainLabels)
 
+      # Remove brush
+      @timeline.select("g.brush").remove()
     else
       height = collapsedTimelineHeight
 
       # Only one blob on this domain
       y.domain([0])
       @timelineYaxis.tickValues(["Everyone"])
+
+      # Draw brush
+      @timeline.append("g")
+      .attr("class", "brush")
+      .call(@brush)
+      .selectAll("rect") # Set initial height of brush
+      .attr("height", collapsedTimelineHeight)
+
+      # Reset x zoom when collapsing
+      # TODO animate this in D3 3.3 or later using zoom.event
+      @zoom.scale(1)
+      @zoom.translate([0, 0])
+      @zoomTimeline()
+      # Make sure brushed area is up to date after this re-zoom
+      @brushTimeline()
 
     y.rangeBands([0, height], 0.2)
     bandWidth = y.rangeBand() / 3
@@ -342,9 +352,15 @@ class VizManager
       .attr("y", (id) -> y(id)) # Should just be 0 -> 0 for single band
       .attr("height", y.rangeBand())
 
+    # Move sunbursts out of way
+    @sunbursts.transition().duration(tDuration)
+      .attr("transform", "translate(0, #{height})")
+
   brushTimeline: =>
-    extent = @brush.extent()
-    # TODO select largest extent if brush unselected
+    unless @brush.empty()
+      extent = @brush.extent()
+    else
+      extent = @timelineX.domain()
 
     # Merge nested actions up per user
     oldData = @pieData
@@ -374,7 +390,7 @@ class VizManager
       .attr("transform", "scale(1,1)") # Ditto
     .append("circle")
       .attr("class", "outline")
-      .attr("r", r)
+      .attr("r", scaleRadius)
 
     # Create the centering g element and the user name text field
     centers.append("svg:text")
@@ -411,21 +427,23 @@ class VizManager
 
     # Resize circles and pack according to cluster
     # Create a temporary object and then immediately discard the top level
+    # This also computes new positions for all of the pies
     # TODO compute more consistent pie sizes when not using force layout
     @piesPack.nodes( { values: @piesClusterNest.entries(@pieData) } )
 
     # TODO reduce explosion when going from non-force layout to force
     width = $(@svg).width()
 
+    # Use existing (x,y) positions to initialize when we keeping a force layout
     if @pieLayout is "force" and oldData?
-      # Use existing (x,y) positions to initialize when we keeping a force layout
       for d in @pieData
         if (od = _.find(oldData, (od) -> od.key is d.key ))
           d.x = od.x
           d.y = od.y
         else
-          d.x = width / 2
-          d.y = @pieHeight / 2
+          # For things that didn't exist before, start them in random places
+          d.x = Math.random() * width
+          d.y = Math.random() * @pieHeight
 
     # Update size of maximum radius for collision function
     @pieMaxRadius = d3.max(@pieData, (d) -> d.r)
@@ -433,7 +451,7 @@ class VizManager
     # Reset data for force layout
     @piesForce.nodes(@pieData)
 
-    @reposition()
+    @repositionPies()
 
   # Compute pie sizes and positions for simple layout
   layoutPiesSimple: ->
@@ -461,7 +479,7 @@ class VizManager
       currentX += 2*d.r + layoutPadding
 
   # Redraw pie sizes and locations
-  reposition: =>
+  repositionPies: =>
     pies = @sunbursts.selectAll("g.pie")
 
     # Resize pies smoothly
@@ -553,12 +571,11 @@ class VizManager
         @expandTimeline(true)
       else # also "pies"
         @expandTimeline(false)
-        # TODO draw pies
 
   setPieLayout: (layout) ->
     @pieLayout = layout
 
-    @reposition()
+    @repositionPies()
 
 Template.viz.events
   "click .nav a": (e, t) ->
@@ -571,11 +588,3 @@ Template.viz.events
 
 Template.viz.rendered = ->
   @vm = new VizManager(@find("svg"), @data)
-
-
-
-
-
-
-
-
