@@ -15,6 +15,47 @@ getLargeGroupExpIds = ->
     users: $exists: true
   }).map (e) -> e._id
 
+getGoldStandardExpIds = ->
+  batch = Batches.findOne({name: "group sizes redux"})
+
+  # Get the experiments that we will use to generate the gold standard
+  # This includes off-cycle treatment groups, but not buffer groups
+  return Experiments.find({
+    batchId: batch._id
+    treatments:
+      $in: [
+        "group_1", "group_2", "group_4", "group_8", "group_16", "group_32"
+      ]
+    users: $exists: true
+  }).map (e) -> e._id
+
+preparePabloInstance = (instanceName, force) ->
+
+  if Experiments.findOne(instanceName)?
+    throw new Meteor.Error(403, "aggregated instance already exists") unless force
+    # Reuse same tweets that are loaded
+    console.log ("removing old event aggregation data")
+    Events.direct.remove({_groupId: instanceName})
+    instance = TurkServer.Instance.getInstance(instanceName)
+
+  else
+    Experiments.upsert(instanceName, $set: {})
+
+    # First run, load new tweets
+    instance = TurkServer.Instance.getInstance(instanceName)
+    instance.bindOperation ->
+      Mapper.loadCSVTweets("PabloPh_UN_cm.csv", 2000)
+      console.log("Loaded new tweets")
+
+    # Sleep a moment until all tweets are loaded, before proceeding
+    sleep = Meteor._wrapAsync((time, cb) -> Meteor.setTimeout (-> cb undefined), time)
+    sleep(2000)
+
+  # Fake treatmeent identifier for this instance to allow admin editing
+  # Experiments.upsert(instanceName, $set: { treatments: [ "editable" ]})
+
+  return instance
+
 Meteor.methods
   # Create and populate a world that represents the Pablo data from groups of
   # 16 and 32
@@ -22,29 +63,7 @@ Meteor.methods
     TurkServer.checkAdmin()
 
     instanceName = "groundtruth-pablo"
-
-    if Experiments.findOne(instanceName)?
-      throw new Meteor.Error(403, "aggregated instance already exists") unless force?
-      # Reuse same tweets that are loaded
-      console.log ("removing old event aggregation data")
-      Events.direct.remove({_groupId: instanceName})
-      instance = TurkServer.Instance.getInstance(instanceName)
-
-    else
-      Experiments.upsert(instanceName, $set: {})
-
-      # First run, load new tweets
-      instance = TurkServer.Instance.getInstance(instanceName)
-      instance.bindOperation ->
-        Mapper.loadCSVTweets("PabloPh_UN_cm.csv", 2000)
-        console.log("Loaded new tweets")
-
-      # Sleep a moment until all tweets are loaded, before proceeding
-      sleep = Meteor._wrapAsync((time, cb) -> Meteor.setTimeout (-> cb undefined), time)
-      sleep(2000)
-
-    # Fake identifier for this instance to allow admin editing
-    Experiments.upsert(instanceName, $set: { treatments: [ "groundtruth" ]})
+    instance = preparePabloInstance(instanceName, force)
 
     expIds = getLargeGroupExpIds()
 
@@ -141,7 +160,7 @@ Meteor.methods
   "cm-populate-analysis-data": (force) ->
     TurkServer.checkAdmin()
 
-    expIds = getLargeGroupExpIds()
+    expIds = getGoldStandardExpIds()
     console.log "Found #{expIds.length} experiments"
 
     unless force
@@ -153,22 +172,35 @@ Meteor.methods
 
     tweetNums = []
 
+    eventCount = 0
+
     # Re-map tweet IDs to numbers on all non-deleted events
     Events.direct.find({
       _groupId: $in: expIds
       deleted: $exists: false
     }).forEach (event) ->
+      # Only take events that are mostly completed
+      # with at least one tweet, a type, region, province, and location
+      return unless event.sources?.length and event.type?
+      return unless event.region? and event.province? and event.location?
+
       delete event._groupId
       # We keep the _id for reference
 
       event.sources = _.map event.sources, (source) -> Datastream.direct.findOne(source).num
       tweetNums = _.union(tweetNums, event.sources)
+
       AnalysisEvents.insert(event)
+      eventCount++
+
+    console.log "#{eventCount} completed events for mapping"
+    console.log "#{tweetNums.length} unique tweets mapped"
 
     # Insert a fresh copy of tweets with numbers
-    Datastream.direct.find({_groupId: expIds[0]}).forEach (tweet) ->
-      # Search union (sorted) for this tweet
-      return if _.indexOf(tweetNums, tweet.num) < 0
+    Datastream.direct.find({
+      _groupId: expIds[0]
+      num: $in: tweetNums
+    }).forEach (tweet) ->
 
       delete tweet._groupId
       delete tweet._id
@@ -178,4 +210,69 @@ Meteor.methods
 
     return
 
+  "cm-clustered-pablo-gt": (force) ->
+    TurkServer.checkAdmin()
 
+    instanceName = "groundtruth-pablo"
+    instance = preparePabloInstance(instanceName, force)
+
+    instance.bindOperation ->
+      # Start with all tweets hidden. un-hide tweets in clusters
+      Datastream.update({}, {
+        $set: {hidden: true, events: []}
+      }, {multi: true})
+
+    remapSources = (sources) ->
+      for sourceNum in sources
+        Datastream.direct.findOne({_groupId: instanceName, num: sourceNum})._id
+
+    clusters = _.uniq AnalysisEvents.find({cluster: $ne: null}).map (e) -> e.cluster
+
+    currentNum = 0
+
+    for c in clusters
+      clusterEvents = AnalysisEvents.find({cluster: c}).fetch()
+      clusterTweets = AnalysisDatastream.find({cluster: c}).fetch()
+
+      numReports = clusterEvents.length
+
+      console.log """Cluster #{c}:
+        #{numReports} reports, #{clusterTweets.length} tweets"""
+
+      event = []
+
+      # Take most common type, region, and province
+      _.each ["type", "region", "province"], (field) ->
+        counts = _.countBy clusterEvents, (e) -> e[field]
+        [best, count] = _.max _.pairs(counts), _.last
+
+        caption = EventFields.findOne({key: field}).choices[best]
+        console.log "#{field} = #{caption} (#{(count/numReports*100).toFixed(2)}%)"
+        event[field] = best
+
+      # Centroid of location
+      # This is approximate cause it's on a sphere, but should be good enough
+      # https://en.wikipedia.org/wiki/Centroid#Of_a_finite_set_of_points
+      location = [0, 0]
+      _.each clusterEvents, (e) ->
+        location[0] += e.location[0]
+        location[1] += e.location[1]
+      location[0] /= numReports
+      location[1] /= numReports
+
+      event.location = location
+
+      event.sources = remapSources(_.map clusterTweets, (t) -> t.num)
+      event.num = ++currentNum
+
+      instance.bindOperation ->
+        # Insert the transformed event
+        newEventId = Events.insert(event)
+        # Push this event on to remapped tweets
+        Datastream.update({
+          _id: { $in: event.sources }
+        }, {
+          $addToSet: { events: newEventId }
+        }, {multi: true})
+
+    return
