@@ -29,6 +29,21 @@ getGoldStandardExpIds = ->
     users: $exists: true
   }).map (e) -> e._id
 
+# Centroid of location
+# This is approximate cause it's on a sphere, but should be good enough
+# https://en.wikipedia.org/wiki/Centroid#Of_a_finite_set_of_points
+getCentroid = (events) ->
+  location = [0, 0]
+
+  _.each events, (e) ->
+    location[0] += e.location[0]
+    location[1] += e.location[1]
+
+  location[0] /= events.length
+  location[1] /= events.length
+
+  return location
+
 preparePabloInstance = (instanceName, force) ->
 
   if Experiments.findOne(instanceName)?
@@ -239,28 +254,40 @@ Meteor.methods
       console.log """Cluster #{c}:
         #{numReports} reports, #{clusterTweets.length} tweets"""
 
-      event = []
+      event = {}
+
+      worstAgreement = 1.0
 
       # Take most common type, region, and province
       _.each ["type", "region", "province"], (field) ->
         counts = _.countBy clusterEvents, (e) -> e[field]
-        [best, count] = _.max _.pairs(counts), _.last
+        [ best, count ] = _.max _.pairs(counts), _.last
+
+        best = parseInt(best) # Convert it back to an integer
 
         caption = EventFields.findOne({key: field}).choices[best]
-        console.log "#{field} = #{caption} (#{(count/numReports*100).toFixed(2)}%)"
+        agreement = count / numReports
+        worstAgreement = Math.min(agreement, worstAgreement)
+
+        console.log "#{field} = #{caption} (#{(agreement*100).toFixed(2)}%)"
         event[field] = best
 
-      # Centroid of location
-      # This is approximate cause it's on a sphere, but should be good enough
-      # https://en.wikipedia.org/wiki/Centroid#Of_a_finite_set_of_points
-      location = [0, 0]
-      _.each clusterEvents, (e) ->
-        location[0] += e.location[0]
-        location[1] += e.location[1]
-      location[0] /= numReports
-      location[1] /= numReports
+      # Don't record this event if the consensus is pretty much random on any field
+      if worstAgreement < 1.0 and worstAgreement < 1/numReports + 1e-6
+        console.log "Skipping due to low agreement"
+        continue
 
-      event.location = location
+      if (centroidEvents = _.filter(clusterEvents, (e) ->
+          event.region is e.region and event.province is e.province)).length
+        event.location = getCentroid(centroidEvents)
+        console.log "Computed centroid from #{centroidEvents.length} reports"
+      else
+        centroidEvents = _.filter(clusterEvents, (e) ->
+          event.region is e.region or event.province is e.province)
+        event.location = getCentroid(centroidEvents)
+        console.log "Computed centroid from #{centroidEvents.length} reports (loose)"
+
+      # Okay, we are inserting this event. Finalize the data.
 
       event.sources = remapSources(_.map clusterTweets, (t) -> t.num)
       event.num = ++currentNum
