@@ -1,4 +1,6 @@
 # Collections for analysis
+AnalysisWorlds = new Meteor.Collection("analysis.worlds")
+
 AnalysisDatastream = new Meteor.Collection("analysis.datastream")
 AnalysisEvents = new Meteor.Collection("analysis.events")
 
@@ -170,6 +172,33 @@ Meteor.methods
       tweetText[e.num] = e.text
 
     return { occurrences, tweetText }
+
+  # Copy the experiment worlds we're interested in to a new collection for
+  # computing analysis results
+  "cm-populate-analysis-worlds": (force) ->
+    TurkServer.checkAdmin()
+
+    unless force
+      throw new Meteor.Error(400, "Worlds already exist") if AnalysisWorlds.find().count()
+
+    AnalysisWorlds.remove({})
+
+    # TODO exclude the extra long/short bus groups of 16
+    for expId in getGoldStandardExpIds()
+      exp = Experiments.findOne(expId)
+
+      # Ignore experiments where no one submitted (mostly groups of 1)
+      unless Assignments.findOne({
+        "instances.id": exp._id
+        "status": "completed"
+      })?
+        console.log "Skipping #{exp._id} as no one completed it"
+        continue
+
+      # TODO this assumes that treatments[0] is of the form "group_xx"
+      exp.nominalSize = parseInt(exp.treatments[0].substring(6))
+
+      AnalysisWorlds.insert(exp)
 
   # Build the analysis events and data collection from the experimental data
   "cm-populate-analysis-data": (force) ->
