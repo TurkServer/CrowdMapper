@@ -173,6 +173,11 @@ Meteor.methods
 
     return { occurrences, tweetText }
 
+  "cm-get-analysis-worlds": ->
+    TurkServer.checkAdmin()
+
+    return AnalysisWorlds.find().fetch()
+
   # Copy the experiment worlds we're interested in to a new collection for
   # computing analysis results
   "cm-populate-analysis-worlds": (force) ->

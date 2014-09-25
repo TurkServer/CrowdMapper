@@ -82,6 +82,7 @@ Router.map ->
     action: ->
 
   # Overview route, with access to experiments and stuff
+  # TODO reduce repetitive loading code below
   @route 'overviewTagging',
     path: 'overview/tagging'
     controller: AdminController
@@ -108,6 +109,34 @@ Router.map ->
       return this.data
     action: ->
       this.render() if this.ready()
+
+  @route 'overviewGroupPerformance',
+    path: 'overview/groupPerformance'
+    controller: AdminController
+    layoutTemplate: "overviewLayout"
+    waitOn: ->
+      loaded = @loaded = new Tracker.Dependency
+      isReady = false
+
+      Meteor.call "cm-get-analysis-worlds", (err, res) =>
+        bootbox.alert(err) if err
+
+        this.data = res
+
+        isReady = true
+        loaded.changed()
+
+      return {
+      ready: ->
+        loaded.depend()
+        return isReady
+      }
+    data: ->
+      @loaded.depend()
+      return this.data
+    action: ->
+      this.render() if this.ready()
+
 
 Template.adminControls.events
   "change input": (e, t) ->

@@ -3,7 +3,12 @@
         <div class="row flex inherit-height">
             <div class="col-md-1">
                 <ul class="nav nav-pills nav-stacked">
-                    <li><a href="{{pathFor 'overviewTagging'}}">Tagging</a></li>
+                    <li>
+                        <a href="{{pathFor 'overviewTagging'}}">Tagging</a>
+                    </li>
+                    <li>
+                        <a href="{{pathFor 'overviewGroupPerformance'}}">Group Performance</a>
+                    </li>
                 </ul>
             </div>
             {{> yield}}
@@ -19,5 +24,21 @@
     </div>
     <div class="col-md-10">
         <svg class="viz" width="100%" height="900"></svg>
+    </div>
+</template>
+
+<template name="overviewGroupPerformance">
+    <div class="col-md-1">
+        <div class="radio">
+            <label class="radio">
+                <input type="radio" name="groupScoring" value="partialCreditScore" checked> Partial Credit Scoring
+            </label>
+            <label class="radio">
+                <input type="radio" name="groupScoring" value="fullCreditScore"> Full Credit Scoring
+            </label>
+        </div>
+    </div>
+    <div class="col-md-10">
+        <svg class="viz" width="800" height="600"></svg>
     </div>
 </template>
