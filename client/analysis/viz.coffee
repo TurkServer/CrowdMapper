@@ -252,7 +252,8 @@ class VizManager
       .sort(null)
       .size([2 * Math.PI, scaleRadius * scaleRadius])
       .children( (d) -> d.values )
-      .value( (d) -> d.values?.count )
+    # Sets the value function above
+    @setPieWeighting("scaled")
 
     @piesArc = d3.svg.arc()
       .startAngle((d) -> d.x )
@@ -423,7 +424,7 @@ class VizManager
 
     text = pies.select("text.caption")
     text.text (d) =>
-      _.find(@data.users, (u) -> u._id is d.key)?.username + " (#{d.value})"
+      _.find(@data.users, (u) -> u._id is d.key)?.username + " (#{d.value.toFixed(2)})"
 
     # Resize circles and pack according to cluster
     # Create a temporary object and then immediately discard the top level
@@ -572,6 +573,26 @@ class VizManager
       else # also "pies"
         @expandTimeline(false)
 
+  setPieWeighting: (weighting) ->
+
+    sliceValue = if weighting is "scaled"
+      weights = @data.weights
+      # TODO A little bit of hacky handling here, which we should clean up
+      (d) ->
+        count = d.values?.count
+        tag = d.key.split(" ")[0]
+        # No parent at this point, unfortunately
+        if tag is "tagged" or tag is "undirected"
+          value = weights.chat * count
+        else
+          value = count * ( weights[tag] || 0)
+        # Return value in minutes
+        return value / 60000
+    else
+      (d) -> d.values?.count
+
+    @piesPartition.value(sliceValue)
+
   setPieLayout: (layout) ->
     @pieLayout = layout
 
@@ -585,6 +606,11 @@ Template.viz.events
 
   "change input[name=pieLayout]": (e, t) ->
     t.vm.setPieLayout(e.target.value)
+
+  "change input[name=pieWeight]": (e, t) ->
+    t.vm.setPieWeighting(e.target.value)
+
+    t.vm.brushTimeline()
 
 Template.viz.rendered = ->
   @vm = new VizManager(@find("svg"), @data)

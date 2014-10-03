@@ -57,7 +57,7 @@ Router.map ->
       @readyDep = new Deps.Dependency
       @readyDep.isReady = false;
 
-      Meteor.call "getMapperData", this.params.groupId, (err, res) =>
+      Meteor.call "cm-get-viz-data", this.params.groupId, (err, res) =>
         bootbox.alert(err) if err
 
         this.mapperData = res

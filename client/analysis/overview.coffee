@@ -152,15 +152,11 @@ Template.overviewGroupPerformance.rendered = ->
   colors = d3.scale.category10()
     .domain( [0...10] )
 
-  # Fix y axis to the higher value
-  maxScore = d3.max(@data, (g) -> g.partialCreditScore)
-
   x = d3.scale.linear()
     .domain([0, 33])
     .range([0, graphWidth])
 
   y = d3.scale.linear()
-    .domain([0, maxScore + 1])
     .range([graphHeight, 0])
 
   line = d3.svg.line()
@@ -176,6 +172,12 @@ Template.overviewGroupPerformance.rendered = ->
     .orient("left")
     .scale(y)
 
+  yAxisGrid = d3.svg.axis()
+    .orient("left")
+    .scale(y)
+    .tickSize(-graphWidth, 0, 0)
+    .tickFormat("")
+
   d3.select(svg).append("g")
     .attr("class", "x axis")
     .attr("transform", "translate(#{leftMargin}, #{graphHeight})")
@@ -184,12 +186,10 @@ Template.overviewGroupPerformance.rendered = ->
   d3.select(svg).append("g")
     .attr("class", "y axis")
     .attr("transform", "translate(#{leftMargin}, 0)")
-    .call(yAxis)
 
   d3.select(svg).append("g")
     .attr("class", "y grid")
     .attr("transform", "translate(#{leftMargin}, 0)")
-    .call yAxis.tickSize(-graphWidth, 0, 0).tickFormat("")
 
   graph.selectAll(".point")
     .data(@data, (g) -> g._id)
@@ -206,6 +206,19 @@ Template.overviewGroupPerformance.rendered = ->
 
   @setScoring = (field) =>
     tdur = 600
+
+    # Transition y axis
+    maxScore = d3.max(@data, (g) -> g[field])
+
+    y.domain([0, maxScore * 1.1])
+
+    d3.select(svg).selectAll(".y.axis")
+    .transition().duration(tdur)
+      .call(yAxis)
+
+    d3.select(svg).selectAll(".y.grid")
+    .transition().duration(tdur)
+      .call(yAxisGrid)
 
     # Create a nest for computing the median
     medians = d3.nest()

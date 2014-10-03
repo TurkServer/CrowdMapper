@@ -4,6 +4,8 @@ AnalysisWorlds = new Meteor.Collection("analysis.worlds")
 AnalysisDatastream = new Meteor.Collection("analysis.datastream")
 AnalysisEvents = new Meteor.Collection("analysis.events")
 
+AnalysisStats = new Meteor.Collection("analysis.stats")
+
 # Special groundtruth tag for these instances
 TurkServer.ensureTreatmentExists
   name: "groundtruth"
@@ -74,6 +76,23 @@ preparePabloInstance = (instanceName, force) ->
   return instance
 
 Meteor.methods
+  "cm-get-viz-data": (groupId) ->
+    TurkServer.checkAdmin()
+
+    # Get weights for actions
+    weights = Meteor.call("cm-get-action-weights")
+
+    instance =  Experiments.findOne(groupId)
+
+    roomIds = Partitioner.directOperation ->
+      ChatRooms.find(_groupId: groupId).map (room) -> room._id
+
+    users = Meteor.users.find(_id: $in: instance.users).fetch()
+    logs = Logs.find({_groupId: groupId}, {sort: {_timestamp: 1}}).fetch()
+    chat = ChatMessages.find({room: $in: roomIds}, {sort: {timestamp: 1}}).fetch()
+
+    return {weights, instance, users, logs, chat}
+
   # Create and populate a world that represents the Pablo data from groups of
   # 16 and 32
   "cm-aggregate-pablo-gt": (force) ->
@@ -337,3 +356,124 @@ Meteor.methods
         }, {multi: true})
 
     return
+
+  "cm-get-action-weights": (recompute) ->
+    TurkServer.checkAdmin()
+
+    if recompute or not (weights = AnalysisStats.findOne("actionWeights")?.weights)
+
+      weightArrs = {}
+      skipped = 0
+      included = 0
+      # Threshold for which we count action times.
+      # 8 minute timeout used in actual experiments.
+      forgetThresh = 8 * 60 * 1000
+
+      batchId = Batches.findOne(name: "group sizes redux")._id
+
+      for expId in getGoldStandardExpIds()
+        exp = Experiments.findOne(expId)
+
+        # All rooms for this experiment, including deleted ones
+        roomIds = ChatRooms.direct.find(_groupId: expId).map (room) -> room._id
+
+        for userId in exp.users
+          user = Meteor.users.findOne(userId)
+
+          # Did this person submit the HIT?
+          # TODO put this into a TurkServer API
+          unless Assignments.findOne({
+            workerId: user.workerId
+            batchId: batchId
+            submitTime: $exists: true
+          })?
+            skipped++
+            continue
+
+          # Get all log and chat records for this user and iterate through them
+          # TODO: consider doc edits as well.
+          logEvents = Logs.find({_groupId: expId, _userId: userId},
+            {sort: _timestamp: 1}).fetch()
+
+          chatEvents = ChatMessages.find({room: {$in: roomIds}, userId: userId},
+            {sort: {timestamp: 1}}).fetch()
+
+          lastEventTime = null
+          li = 0
+          ci = 0
+
+          while li < logEvents.length or ci < chatEvents.length
+            nextLog = logEvents[li]
+            nextChat = chatEvents[ci]
+
+            if nextLog && nextLog._timestamp < (nextChat?.timestamp || Date.now())
+              # Next event for this user is log
+              li++
+
+              continue if nextLog._meta
+
+              # Ignore first action because we don't have ramp-up info
+              # TODO: count when this person entered the room
+              actionTime = lastEventTime && (nextLog._timestamp - lastEventTime)
+
+              if actionTime < forgetThresh
+                weightArrs[nextLog.action] ?= []
+                weightArrs[nextLog.action].push(actionTime)
+
+              lastEventTime = nextLog._timestamp
+
+            else if nextChat # next event for this user is chat
+              ci++
+
+              actionTime = lastEventTime && (nextChat.timestamp - lastEventTime)
+
+              if actionTime < forgetThresh
+                weightArrs["chat"] ?= []
+                weightArrs["chat"].push(actionTime)
+
+              lastEventTime = nextChat.timestamp
+
+          unless li is logEvents.length and ci is chatEvents.length
+            console.log expId, userId
+            console.log li, logEvents.length
+            console.log ci, chatEvents.length
+            throw new Error("Did not reach end of log or chat array")
+
+          included++
+
+      # Compute average weight for each action
+      weights = {}
+
+      for k, v of weightArrs
+        weights[k] = _.reduce(v, ( (m, n) -> m + n), 0 ) / v.length
+
+      console.log "Skipped #{skipped}, included #{included} workers"
+      console.log weights
+
+      AnalysisStats.upsert "actionWeights",
+        $set: { weights }
+
+    return weights
+
+  "cm-compute-group-effort": ->
+    TurkServer.checkAdmin()
+
+    weights = Meteor.call("cm-get-action-weights")
+
+    for expId in getGoldStandardExpIds()
+      totalEffortMillis = 0
+
+      Logs.find({_groupId: expId},
+        {sort: _timestamp: 1}).forEach (log) ->
+          return if log._meta
+          totalEffortMillis += weights[log.action] || 0
+
+      roomIds = ChatRooms.direct.find(_groupId: expId).map (room) -> room._id
+
+      ChatMessages.find({room: {$in: roomIds}},
+        {sort: {timestamp: 1}}).forEach (chat) ->
+          totalEffortMillis += weights.chat
+
+      # Don't insert new worlds, we discarded some of them.
+      AnalysisWorlds.update expId,
+        $set: totalEffort: totalEffortMillis / 60000
