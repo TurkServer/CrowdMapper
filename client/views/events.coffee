@@ -46,20 +46,21 @@ Meteor.startup ->
   Session.setDefault("eventSortKey", "num")
   Session.setDefault("eventSortOrder", 1)
 
-Template.eventsHeader.labelClass = ->
-  key = @key || "num" # FIXME: hack for the first num field
-  if Session.equals("eventSortKey", key) then "inverse" else "default"
+Template.eventsHeader.helpers
+  labelClass: ->
+    key = @key || "num" # FIXME: hack for the first num field
+    if Session.equals("eventSortKey", key) then "inverse" else "default"
 
-Template.eventsHeader.iconClass = ->
-  key = @key || "num" # FIXME: hack for the first num field
-  if Session.equals("eventSortKey", key)
-    # TODO This is inefficient. Fix it.
-    if Session.get("eventSortOrder") is 1
-      "chevron-up"
+  iconClass: ->
+    key = @key || "num" # FIXME: hack for the first num field
+    if Session.equals("eventSortKey", key)
+      # TODO This is inefficient. Fix it.
+      if Session.get("eventSortOrder") is 1
+        "chevron-up"
+      else
+        "chevron-down"
     else
-      "chevron-down"
-  else
-    "resize-vertical"
+      "resize-vertical"
 
 tweetIconDragProps =
   # addClasses: true
@@ -76,7 +77,8 @@ tweetIconDragProps =
   stop: Mapper.unhighlightEvents
   zIndex: 1000
 
-Template.eventRecords.loaded = -> Session.equals("eventSubReady", true)
+Template.eventRecords.helpers
+  loaded: -> Session.equals("eventSubReady", true)
 
 Template.eventsHeader.events
   "click span.sorter": (e) ->
@@ -125,23 +127,25 @@ Template.eventsBody.events
 
     container.one("mouseleave", -> container.popover("destroy") )
 
-Template.eventsBody.noEvents = ->
-  Events.find(deleted: {$exists: false}).count() is 0
+Template.eventsBody.helpers
+  noEvents: ->
+    Events.find(deleted: {$exists: false}).count() is 0
 
 Handlebars.registerHelper "numEventCols", ->
   # Used for rendering whole-width rows
   # Add 1 each for index, sources, map, and buttons
   EventFields.find().count() + 4
 
-Template.eventsBody.records = ->
-  selector = if TurkServer.isAdmin() and Session.equals("adminShowDeleted", true) then {}
-  else { deleted: {$exists: false} }
+Template.eventsBody.helpers
+  records: ->
+    selector = if TurkServer.isAdmin() and Session.equals("adminShowDeleted", true) then {}
+    else { deleted: {$exists: false} }
 
-  key = Session.get("eventSortKey")
-  # Secondary sort by key prevents jumping
-  #  sort[key] = Session.get("eventSortOrder") || 1 if key?
-  sort = [ [key, if Session.get("eventSortOrder") is -1 then "desc" else "asc"], [ "_id", "asc" ] ]
-  return Events.find(selector, { sort: sort })
+    key = Session.get("eventSortKey")
+    # Secondary sort by key prevents jumping
+    #  sort[key] = Session.get("eventSortOrder") || 1 if key?
+    sort = [ [key, if Session.get("eventSortOrder") is -1 then "desc" else "asc"], [ "_id", "asc" ] ]
+    return Events.find(selector, { sort: sort })
 
 Template.eventsBody.rendered = ->
   AnimatedEach.attachHooks this.find("table tbody")
@@ -259,10 +263,11 @@ Template.eventRow.events =
   "dblclick tr": edit
 
 # This is used in both table row and map popup
-Template.editCell.otherEditorUser = ->
-  if @editor? and @editor isnt Meteor.userId()
-    return Meteor.users.findOne(@editor)
-  return null
+Template.editCell.helpers
+  otherEditorUser: ->
+    if @editor? and @editor isnt Meteor.userId()
+      return Meteor.users.findOne(@editor)
+    return null
 
 Template._editCellOpen.events =
   "click .action-event-edit": edit
@@ -279,36 +284,38 @@ Template._editCellSelf.events =
 ###
   Rendering and helpers for individual sheet cells
 ###
-Template.eventRow.rowClass = ->
-  if @deleted
-    "deleted"
-  else if @editor is Meteor.userId()
-    "info"
-  else if @editor
-    "warning"
-  else
-    ""
+Template.eventRow.helpers
+  rowClass: ->
+    if @deleted
+      "deleted"
+    else if @editor is Meteor.userId()
+      "info"
+    else if @editor
+      "warning"
+    else
+      ""
 
-Template.eventRow.eventCell = ->
-  if this?.type is "dropdown"
-    return Template.eventCellSelect
-  else
-    return Template.eventCellText
+  eventCell: ->
+    if this?.type is "dropdown"
+      return Template.eventCellSelect
+    else
+      return Template.eventCellText
 
 # TODO instead of ad hoc building data in the future, use either Template.parentData through the UI.dynamic, or appropriate use of {{..}}
-Template.eventRow.buildData = (context, field) ->
-  obj = {
-    _id: context._id
-    key: field.key
-    name: field.name
-    value: context[field.key]
-    editable: context.editor is Meteor.userId()
-  }
+Template.eventRow.helpers
+  buildData: (context, field) ->
+    obj = {
+      _id: context._id
+      key: field.key
+      name: field.name
+      value: context[field.key]
+      editable: context.editor is Meteor.userId()
+    }
 
-  if field?.type is "dropdown" and obj.value?
-    obj.textValue = Mapper.sources[field.key][obj.value]?.text
+    if field?.type is "dropdown" and obj.value?
+      obj.textValue = Mapper.sources[field.key][obj.value]?.text
 
-  return obj
+    return obj
 
 # Partial implementation of the code from http://stackoverflow.com/a/23144211/586086
 # Except, we don't need to update the form content because we are the only one editing
@@ -339,7 +346,8 @@ Template.eventCellSelectEditable.rendered = ->
     source: Mapper.sources[@data.key]
   return
 
-Template.eventLocation.editable = -> @editor is Meteor.userId()
+Template.eventLocation.helpers
+  editable: -> @editor is Meteor.userId()
 
 Template.eventLocationEditable.rendered = ->
   return unless @data.editor is Meteor.userId()
@@ -363,10 +371,12 @@ Template.eventVoting.events =
     Meteor.call "unvoteEvent", @_id
     $(e.target).closest(".event-voting-container").popover('destroy')
 
-Template.eventVoting.badgeClass = -> if @votes?.length > 0 then "alert-success" else ""
-Template.eventVoting.numVotes = -> @votes?.length || 0
+Template.eventVoting.helpers
+  badgeClass: -> if @votes?.length > 0 then "alert-success" else ""
+  numVotes: -> @votes?.length || 0
 
-Template.eventVotePopup.anyVotes = -> @votes?.length > 0
-Template.eventVotePopup.iVoted = ->
-  userId = Meteor.userId()
-  return userId && _.contains(@votes, userId)
+Template.eventVotePopup.helpers
+  anyVotes: -> @votes?.length > 0
+  iVoted: ->
+    userId = Meteor.userId()
+    return userId && _.contains(@votes, userId)

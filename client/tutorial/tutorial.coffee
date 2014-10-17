@@ -179,9 +179,12 @@ Template.tut_end.events =
     Session.set("consentChecked", e.target.checked)
     Mapper.events.emit("check-consent") if e.target.checked
 
-Template.tut_end.checked = -> Session.get("consentChecked")
-# Override stepComplete function on this template, to update message.
-Template.tut_end.stepCompleted = Template.tut_end.checked
+checked = -> Session.get("consentChecked")
+
+Template.tut_end.helpers
+  checked: checked
+  # Override stepComplete function on this template, to update message.
+  stepCompleted: checked
 
 getRecruitingSteps = ->
   # replace templates with _recruiting if they exist
@@ -208,26 +211,27 @@ getTutorialSteps = ->
         event: "check-consent"
   ]
 
-Template.mapperTutorial.tutorialEnabled = ->
-  treatment = TurkServer.treatment()
-  return treatment?.tutorialEnabled and not Meteor.user()?.admin
+Template.mapperTutorial.helpers
+  tutorialEnabled: ->
+    treatment = TurkServer.treatment()
+    return treatment?.tutorialEnabled and not Meteor.user()?.admin
 
-Template.mapperTutorial.options = ->
-  treatment = TurkServer.treatment()
+  options: ->
+    treatment = TurkServer.treatment()
 
-  steps = switch treatment?.tutorial
-    when "recruiting" then getRecruitingSteps()
-    when "pre_task" then getTutorialSteps()
-    else
-      Meteor._debug("Unknown tutorial type: " + treatment.tutorial)
-      []
-  
-  return {
-    id: "mapperTutorial"
-    steps: steps
-    emitter: Mapper.events
-    onFinish: -> Meteor.call "finishTutorial"
-  }
+    steps = switch treatment?.tutorial
+      when "recruiting" then getRecruitingSteps()
+      when "pre_task" then getTutorialSteps()
+      else
+        Meteor._debug("Unknown tutorial type: " + treatment.tutorial)
+        []
+
+    return {
+      id: "mapperTutorial"
+      steps: steps
+      emitter: Mapper.events
+      onFinish: -> Meteor.call "finishTutorial"
+    }
 
 # Handy function to allow the entire tutorial for testing
 Mapper.bypassTutorial = (skipToEnd) ->

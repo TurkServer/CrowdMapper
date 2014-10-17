@@ -132,14 +132,15 @@ Deps.autorun ->
 ###
 
 # TODO update this to use a more generalized API
-Template.home.landingTemplate = ->
-  treatments = TurkServer.batch()?.treatments
-  if _.indexOf(treatments, "recruiting") >= 0
-    Template.recruitingLanding
-  else if _.indexOf(treatments, "parallel_worlds") >= 0
-    Template.taskLanding
-  else
-    Template.loadingLanding
+Template.home.helpers
+  landingTemplate: ->
+    treatments = TurkServer.batch()?.treatments
+    if _.indexOf(treatments, "recruiting") >= 0
+      Template.recruitingLanding
+    else if _.indexOf(treatments, "parallel_worlds") >= 0
+      Template.taskLanding
+    else
+      Template.loadingLanding
 
 ###
   Global level events in the mapper application - activating popovers on
@@ -184,7 +185,8 @@ Template.mapper.events
 
     container.one("mouseleave", -> container.popover("destroy") )
 
-Template.mapper.adminControls = Template.adminControls
+Template.mapper.helpers
+  adminControls: Template.adminControls
 
 Template.mapper.rendered = ->
   # Set initial active tab when state changes
@@ -196,7 +198,8 @@ Template.mapper.rendered = ->
 
 Template.mapper.destroyed = -> @comp.stop()
 
-Template.guidance.message = -> Session.get("guidanceMessage")
+Template.guidance.helpers
+  message: -> Session.get("guidanceMessage")
 
 switchTab = (page) ->
   return if Deps.nonreactive(-> Session.equals("taskView", page))
@@ -211,37 +214,39 @@ Template.pageNav.events =
     else
       e.stopPropagation() # Avoid effect of click if no tab change
 
-Template.pageNav.payment = ->
-  return null unless (treatment = TurkServer.treatment())?
-  return switch
-    when treatment.payment? then Template.tutorialPayment
-    when treatment.wage?  then Template.scaledPayment
-    else null
+Template.pageNav.helpers
+  payment: ->
+    return null unless (treatment = TurkServer.treatment())?
+    return switch
+      when treatment.payment? then Template.tutorialPayment
+      when treatment.wage?  then Template.scaledPayment
+      else null
+  treatment: TurkServer.treatment
 
-Template.pageNav.treatment = TurkServer.treatment
+Template.tutorialPayment.helpers
+  amount: -> "$" + @payment.toFixed(2)
 
-Template.tutorialPayment.amount = -> "$" + @payment.toFixed(2)
+Template.scaledPayment.helpers
+  amount: ->
+    hours = TurkServer.Timers.activeTime() / (3600000) # millis per hour
+    lowest = (@wage * hours).toFixed(2)
+    highest = ((@wage + @bonus) * hours).toFixed(2)
+    return "$#{lowest} - $#{highest}"
+  lowest: -> @wage.toFixed(2)
+  highest: -> (@wage + @bonus).toFixed(2)
 
-Template.scaledPayment.amount = ->
-  hours = TurkServer.Timers.activeTime() / (3600000) # millis per hour
-  lowest = (@wage * hours).toFixed(2)
-  highest = ((@wage + @bonus) * hours).toFixed(2)
-  return "$#{lowest} - $#{highest}"
+Template.help.helpers
+  teamInfo: ->
+    switch @groupSize
+      when 1 then "You are working <b>by yourself</b>. There are no other team members for this task."
+      when undefined then "You are working in a <b>team</b>."
+      else "You are working in a <b>team of #{@groupSize} members</b>."
 
-Template.scaledPayment.lowest = -> @wage.toFixed(2)
-Template.scaledPayment.highest = -> (@wage + @bonus).toFixed(2)
-
-Template.help.teamInfo = ->
-  switch @groupSize
-    when 1 then "You are working <b>by yourself</b>. There are no other team members for this task."
-    when undefined then "You are working in a <b>team</b>."
-    else "You are working in a <b>team of #{@groupSize} members</b>."
-
-Template.help.instructionsInfo = ->
-  instr = "Refer to the <b>Instructions</b> document for an overview of the instructions."
-  if @groupSize > 1 or not @groupSize?
-    instr += " You should feel free to ask your teammates about anything that you don't understand."
-  return instr
+  instructionsInfo: ->
+    instr = "Refer to the <b>Instructions</b> document for an overview of the instructions."
+    if @groupSize > 1 or not @groupSize?
+      instr += " You should feel free to ask your teammates about anything that you don't understand."
+    return instr
 
 Template.help.rendered = ->
   this.$(".dropdown > a").click()

@@ -284,10 +284,11 @@ Template.mapPopup.events =
   "click .action-event-unmap": ->
     Meteor.call "unmapEvent", @_id
 
-Template.mapPopup.eventRecord = -> return Events.findOne(""+this) if this?
+Template.mapPopup.helpers
+  eventRecord: -> return Events.findOne(""+this) if this?
 
 Template.mapPopup.destroyed = -> console.log "map popup destroyed"
 
 # TODO this is just a workaround but don't hardcode fields in future
-Template.mapPopup.dereference = (key, value) ->
-  Mapper.sources[key][value]?.text || ""
+Template.mapPopup.helpers
+  dereference: (key, value) -> Mapper.sources[key][value]?.text || ""

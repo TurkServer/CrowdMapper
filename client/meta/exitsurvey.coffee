@@ -1,12 +1,13 @@
-Template.exitsurvey.surveyTemplate = ->
-  # TODO generalize this based on batch
-  treatments = TurkServer.batch()?.treatments
-  if _.indexOf(treatments, "recruiting") >= 0
-    Template.tutorialSurvey
-  else if _.indexOf(treatments, "parallel_worlds") >= 0
-    Template.postTaskSurvey
-  else
-    Template.loadingSurvey
+Template.exitsurvey.helpers
+  surveyTemplate: ->
+    # TODO generalize this based on batch
+    treatments = TurkServer.batch()?.treatments
+    if _.indexOf(treatments, "recruiting") >= 0
+      Template.tutorialSurvey
+    else if _.indexOf(treatments, "parallel_worlds") >= 0
+      Template.postTaskSurvey
+    else
+      Template.loadingSurvey
 
 Template.tutorialSurvey.events
   "submit form": (e, tmpl) ->

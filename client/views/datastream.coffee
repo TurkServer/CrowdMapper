@@ -1,4 +1,5 @@
-Template.datastream.loaded = -> Session.equals("dataSubReady", true)
+Template.datastream.helpers
+  loaded: -> Session.equals("dataSubReady", true)
 
 # We want events to exist and events.length > 0 to display
 # So we get all docs where events either doesn't exist or it's of size 0
@@ -9,13 +10,14 @@ dataSelector = {
   ]
 }
 
-Template.dataList.data = ->
-  selector = if TurkServer.isAdmin() and Session.equals("adminShowDeleted", true)
-    # Ignoring just tagged events values
-    dataSelector
-  else
-    _.extend({}, dataSelector, { hidden: {$exists: false} })
-  return Datastream.find(selector, sort: {num: 1}) # Sort in increasing insertion order
+Template.dataList.helpers
+  data: ->
+    selector = if TurkServer.isAdmin() and Session.equals("adminShowDeleted", true)
+      # Ignoring just tagged events values
+      dataSelector
+    else
+      _.extend({}, dataSelector, { hidden: {$exists: false} })
+    return Datastream.find(selector, sort: {num: 1}) # Sort in increasing insertion order
 
 Template.dataList.rendered = ->
   AnimatedEach.attachHooks(@firstNode)

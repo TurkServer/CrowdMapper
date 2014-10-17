@@ -2,15 +2,17 @@ Meteor.startup ->
   # No session document by default
   Session.setDefault("document", undefined)
 
-Template.docs.loaded = -> Session.equals("docSubReady", true)
+Template.docs.helpers
+  loaded: -> Session.equals("docSubReady", true)
 
-Template.docTabs.documents = ->
-  selector = if TurkServer.isAdmin() and Session.equals("adminShowDeleted", true) then {}
-  else { deleted: {$exists: false} }
-  Documents.find(selector)
+Template.docTabs.helpers
+  documents: ->
+    selector = if TurkServer.isAdmin() and Session.equals("adminShowDeleted", true) then {}
+    else { deleted: {$exists: false} }
+    Documents.find(selector)
 
-Template.docTabs.noDocuments = ->
-  Documents.find(deleted: {$exists: false}).count() is 0
+  noDocuments: ->
+    Documents.find(deleted: {$exists: false}).count() is 0
 
 Template.docTabs.events =
   "click .action-document-new": ->
@@ -29,22 +31,24 @@ Template.docTabs.events =
       action: "document-open"
       docId: @_id
 
-Template.docTab.active = -> if Session.equals("document", @_id) then "active" else ""
-Template.docTab.deleted = -> if @deleted then "deleted" else ""
+Template.docTab.helpers
+  active: -> if Session.equals("document", @_id) then "active" else ""
+  deleted: -> if @deleted then "deleted" else ""
 
 # TODO: make sure this doesn't cause thrashing of the currently open document.
-Template.docCurrent.document = ->
-  id = Session.get("document")
-  # Can't stay in a document if someone deletes it, unless we're admin
-  selector = {_id: id}
-  selector.deleted = {$exists: false} unless TurkServer.isAdmin()
+Template.docCurrent.helpers
+  document: ->
+    id = Session.get("document")
+    # Can't stay in a document if someone deletes it, unless we're admin
+    selector = {_id: id}
+    selector.deleted = {$exists: false} unless TurkServer.isAdmin()
 
-  if Documents.findOne(selector)
-    return id
-  else
-    return undefined
+    if Documents.findOne(selector)
+      return id
+    else
+      return undefined
 
-Template.docCurrent.title = -> Documents.findOne(""+@)?.title
+  title: -> Documents.findOne(""+@)?.title
 
 Template.docTitle.rendered = ->
   tmplInst = this
@@ -78,5 +82,6 @@ aceConfig = (ace) ->
 aceCheckAdmin = (ace) ->
   ace.setReadOnly(true) if TurkServer.isAdmin()
 
-Template.docCurrent.config = -> aceConfig
-Template.docCurrent.checkAdmin = -> aceCheckAdmin
+Template.docCurrent.helpers
+  config: -> aceConfig
+  checkAdmin: -> aceCheckAdmin

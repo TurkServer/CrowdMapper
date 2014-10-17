@@ -1,19 +1,20 @@
-Template.notifications.notifications = ->
-  return Notifications.find {},
-    # show most recent first
-    sort: {timestamp: -1}
+Template.notifications.helpers
+  notifications: ->
+    return Notifications.find {},
+      # show most recent first
+      sort: {timestamp: -1}
 
-Template.notifications.glowClass = ->
-  if Notifications.find().count() > 0 then "glowing" else ""
+  glowClass: ->
+    if Notifications.find().count() > 0 then "glowing" else ""
 
-Template.notifications.notificationCount = ->
-  return Notifications.find().count()
+  notificationCount: ->
+    return Notifications.find().count()
 
-Template.notifications.notificationTemplate = ->
-  switch @type
-    when "invite" then Template._inviteNotification
-    when "mention" then Template._mentionNotification
-    else null
+  notificationTemplate: ->
+    switch @type
+      when "invite" then Template._inviteNotification
+      when "mention" then Template._mentionNotification
+      else null
 
 notifyEvents =
   'click a': (e) ->
@@ -29,9 +30,11 @@ notifyUsername = ->
   
 notifyRoomname = ->
   ChatRooms.findOne(@room)?.name
-  
-Template._inviteNotification.username = notifyUsername
-Template._mentionNotification.username = notifyUsername
 
-Template._inviteNotification.roomname = notifyRoomname
-Template._mentionNotification.roomname = notifyRoomname
+notificationHelpers = {
+  username: notifyUsername
+  roomName: notifyRoomname
+}
+
+Template._inviteNotification.helpers(notificationHelpers)
+Template._mentionNotification.helpers(notificationHelpers)

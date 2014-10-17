@@ -5,17 +5,17 @@ UI.registerHelper "replaceURLs", (text) ->
   return text if text.indexOf("target='_blank'>") > -1
   text.replace(urlExp, "<a href='$1' target='_blank'>$1</a>")
 
-Template.userList.loaded = -> Session.equals("userSubReady", true)
+Template.userList.helpers
+  loaded: -> Session.equals("userSubReady", true)
+  users: -> Meteor.users.find()
 
-Template.userList.users = ->
-  Meteor.users.find()
-
-Template.userPill.labelClass = ->
-  if @_id is Meteor.userId()
-    "inverse"
-  else if @status?.online
-    "success"
-  else "default"
+Template.userPill.helpers
+  labelClass: ->
+    if @_id is Meteor.userId()
+      "inverse"
+    else if @status?.online
+      "success"
+    else "default"
 
 Template.userPill.events =
   "click .action-chat-invite": (e) ->
@@ -86,10 +86,11 @@ maxLongLat = transformLocation([Mapper.extent[2], Mapper.extent[3]])
 
 entryPrecision = 3
 
-Template.longLatEntry.minLong = minLongLat[0].toFixed(entryPrecision)
-Template.longLatEntry.maxLong = maxLongLat[0].toFixed(entryPrecision)
-Template.longLatEntry.minLat = minLongLat[1].toFixed(entryPrecision)
-Template.longLatEntry.maxLat = maxLongLat[1].toFixed(entryPrecision)
+Template.longLatEntry.helpers
+  minLong: minLongLat[0].toFixed(entryPrecision)
+  maxLong: maxLongLat[0].toFixed(entryPrecision)
+  minLat: minLongLat[1].toFixed(entryPrecision)
+  maxLat: maxLongLat[1].toFixed(entryPrecision)
 
 # LongLat editable
 # see http://vitalets.github.io/x-editable/assets/x-editable/inputs-ext/address/address.js

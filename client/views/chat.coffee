@@ -28,19 +28,22 @@ Template.currentChatroom.events
     #    bootbox.confirm "Leave this room?", (value) ->
     Session.set("room", undefined) # if value
 
-Template.currentChatroom.nameDoc = -> ChatRooms.findOne(""+@, {fields: name: 1})
+Template.currentChatroom.helpers
+  nameDoc: -> ChatRooms.findOne(""+@, {fields: name: 1})
 
-Template.rooms.loaded = -> Session.equals("chatSubReady", true)
+Template.rooms.helpers
+  loaded: -> Session.equals("chatSubReady", true)
 
-Template.rooms.availableRooms = ->
-  selector = if TurkServer.isAdmin() and Session.equals("adminShowDeleted", true) then {}
-  else { deleted: {$exists: false} }
-  ChatRooms.find(selector, {sort: {name: 1}}) # For a consistent ordering
+  availableRooms: ->
+    selector = if TurkServer.isAdmin() and Session.equals("adminShowDeleted", true) then {}
+    else { deleted: {$exists: false} }
+    ChatRooms.find(selector, {sort: {name: 1}}) # For a consistent ordering
 
-Template.roomItem.active = -> if Session.equals("room", @_id) then "active" else ""
-Template.roomItem.deleted = -> if @deleted then "deleted" else ""
+Template.roomItem.helpers
+  active: -> if Session.equals("room", @_id) then "active" else ""
+  deleted: -> if @deleted then "deleted" else ""
 
-Template.roomItem.empty = -> @users is 0
+  empty: -> @users is 0
 
 Template.roomItem.events =
   "click .action-room-enter": (e) ->
@@ -63,11 +66,9 @@ Template.roomItem.events =
     # don't select chatroom (above function) - http://stackoverflow.com/questions/10407783/stop-event-propagation-in-meteor
     e.stopImmediatePropagation()
 
-Template.roomUsers.users = ->
-  ChatUsers.find {}
-
-Template.roomUsers.findUser = ->
-  Meteor.users.findOne @userId
+Template.roomUsers.helpers
+  users: -> ChatUsers.find {}
+  findUser: -> Meteor.users.findOne @userId
 
 Template.roomHeader.rendered = ->
   tmplInst = this
@@ -117,16 +118,16 @@ Template.messageBox.events =
 
     showEvent(eventId)
 
-Template.messageBox.loaded = -> Session.equals("chatRoomReady", true)
-
-Template.messageBox.messages = ->
-  ChatMessages.find {},
-    # room: Session.get("room")
-    sort: {timestamp: 1}
+Template.messageBox.helpers
+  loaded: -> Session.equals("chatRoomReady", true)
+  messages: ->
+    ChatMessages.find {},
+      # room: Session.get("room")
+      sort: {timestamp: 1}
 
 # These usernames are nonreactive because find does not use any reactive variables
-Template.messageItem.username = ->
-  Meteor.users.findOne(@userId)?.username || @userId
+Template.messageItem.helpers
+  username: -> Meteor.users.findOne(@userId)?.username || @userId
 
 # If updating the user, also update server notification generations.
 userRegex = new RegExp('(^|\\b|\\s)(@[\\w.]+)($|\\b|\\s)','g')
@@ -171,16 +172,17 @@ Template.messageItem.rendered = ->
   $messages.scrollTop $messages[0].scrollHeight
 
 # Replace any matched users, tweets, or events with links
-Template.messageItem.renderText = ->
-  text = Handlebars._escape(@text)
-  # No SafeString needed here as long as renderText is unescaped
-  text = text.replace userRegex, userFunc
-  text = text.replace tweetRegex, tweetFunc
-  text = text.replace eventRegex, eventFunc
+Template.messageItem.helpers
+  renderText: ->
+    text = Handlebars._escape(@text)
+    # No SafeString needed here as long as renderText is unescaped
+    text = text.replace userRegex, userFunc
+    text = text.replace tweetRegex, tweetFunc
+    text = text.replace eventRegex, eventFunc
 
-Template.messageItem.eventText = ->
-  username = Meteor.users.findOne(@userId).username
-  return username + " has " + (if @event is "enter" then "entered" else "left" ) + " the room."
+  eventText: ->
+    username = Meteor.users.findOne(@userId).username
+    return username + " has " + (if @event is "enter" then "entered" else "left" ) + " the room."
 
 Template.chatInput.rendered = ->
   $(@find(".chat-help")).popover
@@ -214,33 +216,34 @@ numericMatcher = (filter) ->
   re = new RegExp("^" + filter)
   return { $where: -> re.test(@num) }
 
-Template.chatInput.settings = -> {
-  position: "top"
-  limit: 5
-  rules: [
-    {
-      token: '@'
-      collection: Meteor.users
-      field: "username"
-      template: Template.userPill
-    },
-    {
-      token: '~'
-      collection: Datastream
-      field: "num"
-      template: Template.tweetNumbered
-      # TODO this can select tweets attached to deleted events, but error
-      # shows up when they are clicked
-      filter: { hidden: $exists: false }
-      selector: numericMatcher
-    },
-    {
-      token: '#'
-      collection: Events
-      field: "num"
-      template: Template.eventShort
-      filter: { deleted: $exists: false }
-      selector: numericMatcher
-    }
-  ]
-}
+Template.chatInput.helpers
+  settings: -> {
+    position: "top"
+    limit: 5
+    rules: [
+      {
+        token: '@'
+        collection: Meteor.users
+        field: "username"
+        template: Template.userPill
+      },
+      {
+        token: '~'
+        collection: Datastream
+        field: "num"
+        template: Template.tweetNumbered
+        # TODO this can select tweets attached to deleted events, but error
+        # shows up when they are clicked
+        filter: { hidden: $exists: false }
+        selector: numericMatcher
+      },
+      {
+        token: '#'
+        collection: Events
+        field: "num"
+        template: Template.eventShort
+        filter: { deleted: $exists: false }
+        selector: numericMatcher
+      }
+    ]
+  }
