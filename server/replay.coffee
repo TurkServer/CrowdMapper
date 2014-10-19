@@ -7,7 +7,7 @@ class ReplayHandler
   # The earliest experiment for which we changed the behavior of event deleting
   eventDeleteChange = new Date("2014-07-29T15:28:57.242Z")
 
-  sleep = Meteor._wrapAsync((time, cb) -> Meteor.setTimeout (-> cb undefined), time)
+  sleep = Meteor.wrapAsync((time, cb) -> Meteor.setTimeout (-> cb undefined), time)
 
   constructor: (instance) ->
     @exp = Experiments.findOne(instance)

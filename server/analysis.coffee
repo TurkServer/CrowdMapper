@@ -67,7 +67,7 @@ preparePabloInstance = (instanceName, force) ->
       console.log("Loaded new tweets")
 
     # Sleep a moment until all tweets are loaded, before proceeding
-    sleep = Meteor._wrapAsync((time, cb) -> Meteor.setTimeout (-> cb undefined), time)
+    sleep = Meteor.wrapAsync((time, cb) -> Meteor.setTimeout (-> cb undefined), time)
     sleep(2000)
 
   # Fake treatmeent identifier for this instance to allow admin editing
