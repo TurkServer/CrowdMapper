@@ -173,21 +173,28 @@ Meteor.methods
 
     console.log "done"
 
-  # Get the list of re-mapped tweet IDs in the groups of 16 and 32
-  # TODO this can probably just pull from the analysis collections
+  # Get the list of re-mapped tweet IDs for completed experiment events
+  # TODO this can probably just pull from the analysis collections, which are already re-mapped
   "cm-get-group-cooccurences": ->
     TurkServer.checkAdmin()
 
-    expIds = getLargeGroupExpIds()
+    expIds = getGoldStandardExpIds()
 
     console.log "Found #{expIds.length} experiments"
 
-    # Re-map tweet numbers on all non-deleted events
+    # Re-map tweet numbers on all non-deleted events that have fields filled in
     occurrences = Events.direct.find({
       _groupId: $in: expIds
       deleted: $exists: false
+      "sources.0": $exists: true
+      type: $ne: null
+      province: $ne: null
+      region: $ne: null
+      location: $ne: null
     }).map (event) ->
       _.map event.sources, (source) -> Datastream.direct.findOne(source).num
+
+    console.log "Found #{occurrences.length} completed events"
 
     tweetText = {}
 

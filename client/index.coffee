@@ -145,6 +145,8 @@ Template.home.helpers
 ###
   Global level events in the mapper application - activating popovers on
   mouseover
+
+  TODO generalize events below to remove boilerplate
 ###
 popoverDelay = 200
 

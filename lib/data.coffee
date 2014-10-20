@@ -69,6 +69,14 @@ Meteor.methods
 
     return
 
+  # TODO currently only used by admin, adjust logging if enabled for users
+  dataUnhide: (tweetId) ->
+    checkPermissions()
+    check(tweetId, String)
+
+    Datastream.update tweetId,
+      $unset: { hidden: null }
+
   dataLink: (tweetId, eventId) ->
     checkPermissions()
     check(tweetId, String)
