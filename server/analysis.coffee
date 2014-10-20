@@ -10,6 +10,10 @@ AnalysisStats = new Meteor.Collection("analysis.stats")
 TurkServer.ensureTreatmentExists
   name: "groundtruth"
 
+# Treatment tag added to enable admin editing of an instance
+TurkServer.ensureTreatmentExists
+  name: "editable"
+
 getLargeGroupExpIds = ->
   batch = Batches.findOne({name: "group sizes redux"})
 

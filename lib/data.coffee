@@ -37,10 +37,12 @@ TurkServer.partitionCollection(Notifications, {
   }
 })
 
-# Admin cannot edit unless it is a special ground truth instance
+# Admin cannot edit unless it is specially enabled
 checkPermissions = ->
+  # Don't bother checking treatment unless admin
   return unless TurkServer.isAdmin()
-  unless TurkServer.treatment()?.treatments[0] is "editable"
+  treatments = TurkServer.treatment()?.treatments || []
+  unless treatments.indexOf("editable") >= 0
     throw new Meteor.Error(403, "Can't edit as admin")
 
 Meteor.methods

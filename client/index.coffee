@@ -146,6 +146,8 @@ Template.home.helpers
   Global level events in the mapper application - activating popovers on
   mouseover
 ###
+popoverDelay = 200
+
 Template.mapper.events
   # Attach and destroy a popover when mousing over a container. 'mouseenter'
   # only fires once when entering an element, so we use that to ensure that we
@@ -153,17 +155,26 @@ Template.mapper.events
   "mouseenter .tweet-icon-container:not(.ui-draggable-dragging)": (e) ->
     container = $(e.target)
     tweet = Blaze.getData(e.target)
+    delayShow = true
 
-    container.popover({
-      html: true
-      placement: "auto right" # Otherwise it goes off the top of the screen
-      trigger: "manual"
-      container: e.target # Hovering over the popover should hold it open
-      # No need for reactivity here since tweet does not change
-      content: Blaze.toHTMLWithData Template.tweetPopup, Datastream.findOne(tweet._id)
-    }).popover("show")
+    Meteor.setTimeout ->
+      # Skip creating popover if moused out already
+      return unless delayShow
 
-    container.one("mouseleave", -> container.popover("destroy") )
+      container.popover({
+        html: true
+        placement: "auto right" # Otherwise it goes off the top of the screen
+        trigger: "manual"
+        container: e.target # Hovering over the popover should hold it open
+        # No need for reactivity here since tweet does not change
+        content: Blaze.toHTMLWithData Template.tweetPopup, Datastream.findOne(tweet._id)
+      }).popover("show")
+    , popoverDelay
+
+    container.one "mouseleave", ->
+      delayShow = false
+      # Destroy any popover if it was created
+      container.popover("destroy")
 
   "mouseenter .user-pill-container": (e) ->
     container = $(e.target)
