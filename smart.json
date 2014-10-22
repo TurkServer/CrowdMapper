@@ -16,7 +16,10 @@
       "path": "../mizzao:turkserver"
     },
     "mizzao:sharejs": {
-      "path": "../mizzao:sharejs"
+      "path": "../mizzao:sharejs/sharejs-base"
+    },
+    "mizzao:sharejs-ace": {
+      "path": "../mizzao:sharejs/sharejs-ace"
     },
     "mizzao:autocomplete": {
       "path": "../mizzao:autocomplete"
