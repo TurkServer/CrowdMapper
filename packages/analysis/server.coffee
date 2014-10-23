@@ -17,4 +17,4 @@ Meteor.defer ->
     response = Analysis.invoke("maxMatching", [ [0, 0.5], [1, 0.5] ])
     console.log("Got python response (expect 1.5): ", response)
   catch e
-    console.error("RPC error: ", e)
+    console.error("RPC error: ", e.stack)
