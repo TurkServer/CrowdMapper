@@ -1,0 +1,8 @@
+.build*
+.npm
+
+versions.json
+
+# Don't store generated analysis output
+*.png
+

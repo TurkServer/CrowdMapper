@@ -33,6 +33,8 @@ class ReplayHandler
       {fields: {username: 1}})
     Mongo.Collection._publishCursor(userCursor, sub, "users")
 
+    sub.ready()
+
   initialize: ->
     tempData = @tempData
     # Load all the fake data in
