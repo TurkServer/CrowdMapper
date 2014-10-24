@@ -1,0 +1,39 @@
+<template name="overviewGroupPerformance">
+    <div class="col-md-1">
+        <label class="checkbox">
+            <input type="checkbox" name="progress" value="groupProgress"> Show Progress
+        </label>
+
+        <h3>Y-axis</h3>
+        <div class="radio">
+            <label class="radio">
+                <input type="radio" name="groupScoring" value="partialCreditScore" checked> Partial Credit Scoring
+            </label>
+            <label class="radio">
+                <input type="radio" name="groupScoring" value="fullCreditScore"> Full Credit Scoring
+            </label>
+            <label class="radio">
+                <input type="radio" name="groupScoring" value="totalEffort"> Total Effort
+            </label>
+        </div>
+
+        <h3>X-axis</h3>
+        <div class="radio">
+            <label class="radio">
+                <input type="radio" name="groupComparator" value="nominalSize" checked> Nominal Size
+            </label>
+            <label class="radio">
+                <input type="radio" name="groupComparator" value="personTime"> Person Hours
+            </label>
+            <label class="radio">
+                <input type="radio" name="groupComparator" value="totalEffort"> Effort Hours
+            </label>
+            <label class="radio">
+                <input type="radio" name="groupComparator" value="wallTime"> Wall Time
+            </label>
+        </div>
+    </div>
+    <div class="col-md-10">
+        <svg class="viz" width="900" height="700"></svg>
+    </div>
+</template>

@@ -540,13 +540,14 @@ Meteor.methods
 
           strictScore = Analysis.invoke("maxMatching", scoring)
         else
+          # If no events are created, don't RPC (errors with 0-length matrix)
           partialScore = 0
           strictScore = 0
 
         increments.push
-          wt: replay.wallTime / 60000
-          mt: replay.manTime / 60000
-          ef: replay.manEffort / 60000
+          wt: replay.wallTime / (3600 * 1000)
+          mt: replay.manTime / (3600 * 1000)
+          ef: replay.manEffort / (3600 * 1000)
           ps: partialScore
           ss: strictScore
 
@@ -562,3 +563,5 @@ Meteor.methods
           totalEffort: lastIncrement.ef
           partialCreditScore: lastIncrement.ps
           fullCreditScore: lastIncrement.ss
+
+    Meteor._debug("Analysis complete.")
