@@ -2,8 +2,11 @@
 # http://ianhinsdale.com/code/2013/12/08/communicating-between-nodejs-and-python/
 
 import zerorpc
+import logging
 
 from munkres import Munkres
+
+logging.basicConfig()
 
 class AnalysisRPC(object):
     def __init__(self):

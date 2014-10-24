@@ -466,25 +466,99 @@ Meteor.methods
 
     return weights
 
-  "cm-compute-group-effort": ->
+# Scoring function for an event. Current scheme is:
+# 0.25 to type, 0.25 to region, 0.25 to province,
+# 0.25 for within 10km to 0 beyond 100km
+scoreEvent = (event, benchmark) ->
+  s = 0
+
+  for field in [ "type", "region", "province" ]
+    if event[field] is benchmark[field]
+      s += 0.25
+
+  if event.location?
+    a = event.location[0] - benchmark.location[0]
+    b = event.location[1] - benchmark.location[1]
+    meters = 0.1 + Math.sqrt(a * a + b * b)
+
+    s += 0.25 * (1 - Math.max(0, Math.min(1, (Math.log(meters) / Math.LN10 - 4))))
+
+  # Flip so it's a cost matrix, for munkres
+  return 1 - s
+
+# 0.33 = up to 1 field wrong and ~20km away
+# < 0.24 = just errors in the location
+errorThresh = 0.33
+
+Meteor.methods
+  # Compute group performance and effort over time for experiment worlds.
+  "cm-compute-group-performance": ->
     TurkServer.checkAdmin()
 
     weights = Meteor.call("cm-get-action-weights")
 
-    for expId in getGoldStandardExpIds()
-      totalEffortMillis = 0
+    # Get gold standard events
+    gsEvents = Events.direct.find({
+      _groupId: "groundtruth-pablo",
+      deleted: { $exists: false },
+      # Some events in gold standard don't have location:
+      # They are just being used to hold data, so ignore them.
+      location: { $exists: true }
+    }).fetch()
 
-      Logs.find({_groupId: expId},
-        {sort: _timestamp: 1}).forEach (log) ->
-          return if log._meta
-          totalEffortMillis += weights[log.action] || 0
+    for expId in AnalysisWorlds.find().map( (w) -> w._id )
+      replay = new ReplayHandler(expId)
 
-      roomIds = ChatRooms.direct.find(_groupId: expId).map (room) -> room._id
+      replay.initialize(weights)
 
-      ChatMessages.find({room: {$in: roomIds}},
-        {sort: {timestamp: 1}}).forEach (chat) ->
-          totalEffortMillis += weights.chat
+      increments = []
 
-      # Don't insert new worlds, we discarded some of them.
+      while replay.nextEventTime()?
+        # Compute parameters every 5 wall-minutes or 15 man-minutes, whichever is smaller
+        targetWallTime = replay.wallTime + 5 * 60 * 1000
+        targetManTime = replay.manTime + 15 * 60 * 1000
+
+        try
+          while replay.wallTime < targetWallTime && replay.manTime < targetManTime
+            # This will throw an error if it runs out; giving us one final point
+            replay.processNext()
+        catch e
+
+        # Compute partial and strict scores
+        scoring = []
+
+        replay.tempEvents.find({deleted: {$exists: false}}).forEach (ev) ->
+          scoring.push( (scoreEvent(ev, gs) for gs in gsEvents) )
+
+        if scoring.length
+          partialScore = Analysis.invoke("maxMatching", scoring)
+
+          # Clamp and compute strict score
+          for row in scoring
+            for i in [1...row.length]
+              row[i] = if row[i] < errorThresh then 0 else 1
+
+          strictScore = Analysis.invoke("maxMatching", scoring)
+        else
+          partialScore = 0
+          strictScore = 0
+
+        increments.push
+          wt: replay.wallTime / 60000
+          mt: replay.manTime / 60000
+          ef: replay.manEffort / 60000
+          ps: partialScore
+          ss: strictScore
+
+      replay.printStats()
+
+      lastIncrement = increments[increments.length - 1]
+
       AnalysisWorlds.update expId,
-        $set: totalEffort: totalEffortMillis / 60000
+        $set:
+          progress: increments
+          wallTime: lastIncrement.wt
+          personTime: lastIncrement.mt
+          totalEffort: lastIncrement.ef
+          partialCreditScore: lastIncrement.ps
+          fullCreditScore: lastIncrement.ss

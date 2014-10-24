@@ -20,6 +20,7 @@ class ReplayHandler
       @pullDeletedEventTweets = true
       Meteor._debug("Using old event deletion behavior.")
 
+    @tempUsers = new Mongo.Collection(null)
     @tempData = new Mongo.Collection(null)
     @tempEvents = new Mongo.Collection(null)
 
@@ -29,48 +30,106 @@ class ReplayHandler
     Mongo.Collection._publishCursor(@tempData.find(), sub, Datastream._name)
     Mongo.Collection._publishCursor(@tempEvents.find(), sub, Events._name)
 
-    userCursor = Meteor.users.find({ _id: $in: @exp.users},
-      {fields: {username: 1}})
-    Mongo.Collection._publishCursor(userCursor, sub, "users")
+    # This is cool, we get to track users for the replay as well as for the analysis
+    Mongo.Collection._publishCursor(@tempUsers.find(), sub, "users")
 
     sub.ready()
 
-  initialize: ->
+  initialize: (actionWeights) ->
+    @actionWeights = actionWeights
+
+    # Load all the initial tweet data in, without any state
     tempData = @tempData
-    # Load all the fake data in
     Partitioner.bindGroup @exp._id, ->
       Datastream.find({}, {fields: {num:1, text:1}}).forEach (data) ->
         tempData.insert(data)
 
-  play: (rate) ->
-    @rate = rate
+    # Get logs and chat for analysis
+    @logs = Logs.find({_groupId: @exp._id}, {sort: {_timestamp: 1}}).fetch()
 
-    @start = new Date
+    roomIds = ChatRooms.direct.find(_groupId: @exp._id).map (room) -> room._id
+    @chat = ChatMessages.find({room: {$in: roomIds}}, {sort: {timestamp: 1}}).fetch()
+
+    # Set up counters
     @eventCount = 0
 
-    replay = this
-    instance = @exp._id
+    # Log indices
+    @li = 0
+    @ci = 0
 
-    # Schedule stuff for future going.
-    Meteor.defer ->
-      try
-        Logs.find({_groupId: instance}, {sort: {_timestamp: 1}}).forEach replay.processEvent
-        Meteor._debug "Replay finished"
-      catch e
-        Meteor._debug "Replay stopped"
+    # Performance metrics
+    @wallTime = 0
+    @manTime = 0
+    @manEffort = 0
+
+  ensureUserActive: (userId) ->
+    result = @tempUsers.upsert userId,
+      $set: { "status.online": true, "status.idle": false }
+
+    # If inserting this user for the first time, look up their username
+    if result.insertedId?
+      @tempUsers.update userId,
+        $set: username: Meteor.users.findOne(userId).username
+
+  activeUserCount: ->
+    # count online, non-idle users
+    @tempUsers.find({
+      "status.online": true
+      "status.idle": $ne: true
+    }).count()
+
+  nextEventTime: ->
+    nextLog = @logs[@li]
+    nextChat = @chat[@ci]
+
+    return unless nextLog? or nextChat?
+
+    return Math.min(
+        nextLog?._timestamp || Date.now(),
+        nextChat?.timestamp || Date.now() )
+
+  # Process and record the next log/chat event.
+  processNext: ->
+    nextLog = @logs[@li]
+    nextChat = @chat[@ci]
+
+    lastWallTime = @wallTime
+    activeCount = @activeUserCount()
+
+    if nextLog?._timestamp < ( nextChat?.timestamp || Date.now() )
+      @li++
+      @processEvent(nextLog)
+    else if nextChat? # next event for this user is chat
+      @ci++
+      @processChat(nextChat)
+    else
+      throw new Error("Nothing left to process")
+
+    # Record number of people active during this period
+    @manTime += activeCount * (@wallTime - lastWallTime)
 
   processEvent: (log) =>
-    throw new Error() if @destroyed
+    @wallTime = log._timestamp - @exp.startTime
 
     if log._meta
       switch log._meta
-        when "disconnect"
+        # May be inserting a new user for connected / active (esp when starting)
+        when "connected", "active"
+          @ensureUserActive(log._userId)
+        when "idle"
+          @tempUsers.update log._userId,
+            $set: { "status.idle": true }
+        when "disconnected"
           @tempEvents.update { editor: log._userId },
             $unset: { editor: null }
+          # Remove any online/idle status
+          @tempUsers.update log._userId,
+            $unset: { status: null }
+        when "created", "initialized"
+        else
+          Meteor._debug("Don't know what to do with ", log)
+          throw new Error()
       return
-
-    scheduled = (log._timestamp - @exp.startTime)/@rate - (new Date - @start)
-    sleep(scheduled) if scheduled > 0
 
     switch log.action
     # Stuff we don't know what to do with yet
@@ -137,7 +196,41 @@ class ReplayHandler
       else
         Meteor._debug("Don't know what to do with ", log)
         throw new Error()
+
+    # If user did an action, make sure they are not counted as inactive
+    # Some bookkeeping may have been off during the experiment
+    @ensureUserActive(log._userId)
+
+    if @actionWeights?
+      @manEffort += @actionWeights[log.action] || 0
+
     return
+
+  processChat: (chat) ->
+    @wallTime = chat.timestamp - @exp.startTime
+
+    if @actionWeights?
+      @manEffort += @actionWeights.chat
+
+  play: (rate) ->
+    start = new Date
+
+    # Schedule stuff for future going.
+    Meteor.defer =>
+      while (time = @nextEventTime())? and not @destroyed
+        scheduled = (time - @exp.startTime)/rate - (new Date() - start)
+        sleep(scheduled) if scheduled > 0
+        @processNext()
+
+      Meteor._debug "Replay finished"
+      @printStats()
+
+  printStats: ->
+    wallTimeMins = (@wallTime / 60000).toFixed(2)
+    manTimeMins = (@manTime / 60000).toFixed(2)
+    manEffortMins = (@manEffort / 60000).toFixed(2)
+
+    Meteor._debug "#{@exp._id}: wall time #{wallTimeMins} min, man time #{manTimeMins} min, effort #{manEffortMins} min"
 
   destroy: ->
     @destroyed = true

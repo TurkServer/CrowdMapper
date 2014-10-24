@@ -18,3 +18,4 @@ Meteor.defer ->
     console.log("Got python response (expect 1.5): ", response)
   catch e
     console.error("RPC error: ", e.stack)
+

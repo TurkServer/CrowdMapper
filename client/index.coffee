@@ -209,7 +209,7 @@ Template.mapper.rendered = ->
     $('.stack .pages').removeClass('active')
     $('#mapper-'+tab).addClass('active')
 
-Template.mapper.destroyed = -> @comp.stop()
+Template.mapper.destroyed = -> @comp?.stop()
 
 Template.guidance.helpers
   message: -> Session.get("guidanceMessage")

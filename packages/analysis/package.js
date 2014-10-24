@@ -6,7 +6,13 @@ Npm.depends({
 Package.on_use(function (api) {
   api.use("coffeescript", "server");
 
-  api.add_files('server.coffee', 'server');
+  api.use("mizzao:turkserver");
+
+  api.add_files('rpc.coffee', 'server');
+
+  api.add_files('replay.coffee', 'server');
+  api.add_files('analysis.coffee', 'server');
 
   api.export('Analysis', 'server');
+  api.export('ReplayHandler', 'server');
 });
