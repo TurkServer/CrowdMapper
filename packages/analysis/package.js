@@ -4,15 +4,32 @@ Npm.depends({
 });
 
 Package.on_use(function (api) {
-  api.use("coffeescript", "server");
+  api.use("coffeescript");
+  api.use("templating");
 
   api.use("mizzao:turkserver");
+  api.use("iron:router");
 
-  api.add_files('rpc.coffee', 'server');
+  api.addFiles([
+    "client/routes.coffee",
+    "client/viz.html",
+    "client/viz.coffee",
+    "client/overview.html",
+    "client/overview.coffee",
+    "client/groupPerformance.html",
+    "client/groupPerformance.coffee"
+  ], "client");
 
-  api.add_files('replay.coffee', 'server');
-  api.add_files('analysis.coffee', 'server');
+  api.addFiles('rpc.coffee', 'server');
 
+  api.addFiles('replay.coffee', 'server');
+  api.addFiles('aggregation.coffee', 'server');
+  api.addFiles('analysis.coffee', 'server');
+
+  // Exports
   api.export('Analysis', 'server');
   api.export('ReplayHandler', 'server');
+
+  api.export('AdminController', 'client');
 });
+
