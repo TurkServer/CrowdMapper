@@ -62,6 +62,8 @@ class ReplayHandler
     @manTime = 0
     @manEffort = 0
 
+    @userEffort = {}
+
   ensureUserActive: (userId) ->
     result = @tempUsers.upsert userId,
       $set: { "status.online": true, "status.idle": false }
@@ -71,12 +73,12 @@ class ReplayHandler
       @tempUsers.update userId,
         $set: username: Meteor.users.findOne(userId).username
 
-  activeUserCount: ->
+  activeUsers: ->
     # count online, non-idle users
     @tempUsers.find({
       "status.online": true
       "status.idle": $ne: true
-    }).count()
+    }).map (u) -> u._id
 
   nextEventTime: ->
     nextLog = @logs[@li]
@@ -94,7 +96,7 @@ class ReplayHandler
     nextChat = @chat[@ci]
 
     lastWallTime = @wallTime
-    activeCount = @activeUserCount()
+    activeUsers = @activeUsers()
 
     if nextLog?._timestamp < ( nextChat?.timestamp || Date.now() )
       @li++
@@ -106,7 +108,9 @@ class ReplayHandler
       throw new Error("Nothing left to process")
 
     # Record number of people active during this period
-    @manTime += activeCount * (@wallTime - lastWallTime)
+    tickTime = @wallTime - lastWallTime
+
+    @recordTime(activeUsers, tickTime)
 
   processEvent: (log) =>
     @wallTime = log._timestamp - @exp.startTime
@@ -201,16 +205,34 @@ class ReplayHandler
     # Some bookkeeping may have been off during the experiment
     @ensureUserActive(log._userId)
 
-    if @actionWeights?
-      @manEffort += @actionWeights[log.action] || 0
-
+    @recordEffort(log._userId, log.action) if @actionWeights?
     return
 
   processChat: (chat) ->
     @wallTime = chat.timestamp - @exp.startTime
 
-    if @actionWeights?
-      @manEffort += @actionWeights.chat
+    @recordEffort(chat.userId, "chat") if @actionWeights?
+
+  recordEffort: (userId, action) ->
+    weight = @actionWeights[action] || 0
+
+    @manEffort += weight
+
+    # Initialize user effort if missing
+    @userEffort[userId] ?= { effort: 0, time: 0 }
+    @userEffort[userId].effort += weight
+
+  recordTime: (userIds, time) ->
+    @manTime += userIds.length * time
+
+    # TODO this is somewhat inefficient, but I don't see a correct way to do
+    # it otherwise, because replay is also correcting for possible errors in
+    # recording the task.
+    for userId in userIds
+      @userEffort[userId] ?= { effort: 0, time: 0 }
+      @userEffort[userId].time += time
+
+    return
 
   play: (rate) ->
     start = new Date

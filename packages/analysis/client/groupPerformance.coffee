@@ -81,7 +81,11 @@ Template.overviewGroupPerformance.rendered = ->
   graph.selectAll("path.progress")
     .data(@data, (g) -> g._id)
   .enter().append("path")
-    .attr("class", (g) -> "progress line " + g.treatments.join(" "))
+    .attr("class", (g) ->
+      cls = "progress line " + g.treatments.join(" ")
+      cls += " untreated" unless g.treated
+      return cls
+    )
     .style("stroke", groupColor )
 
   # Draw final points

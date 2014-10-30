@@ -5,19 +5,26 @@ Npm.depends({
 
 Package.on_use(function (api) {
   api.use("coffeescript");
+  api.use("stylus");
   api.use("templating");
+
+  api.use("d3");
 
   api.use("mizzao:turkserver");
   api.use("iron:router");
 
   api.addFiles([
+    "client/viz.styl",
     "client/routes.coffee",
     "client/viz.html",
     "client/viz.coffee",
     "client/overview.html",
     "client/overview.coffee",
     "client/groupPerformance.html",
-    "client/groupPerformance.coffee"
+    "client/groupPerformance.coffee",
+    "client/box.js", // from http://bl.ocks.org/jensgrubert/7789216
+    "client/indivPerformance.html",
+    "client/indivPerformance.coffee"
   ], "client");
 
   api.addFiles('rpc.coffee', 'server');

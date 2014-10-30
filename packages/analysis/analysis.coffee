@@ -1,8 +1,8 @@
 # Collections for analysis
 AnalysisWorlds = new Meteor.Collection("analysis.worlds")
+AnalysisPeople = new Meteor.Collection("analysis.people")
 
-AnalysisDatastream = new Meteor.Collection("analysis.datastream")
-AnalysisEvents = new Meteor.Collection("analysis.events")
+AnalysisPeople._ensureIndex({instanceId: 1, userId: 1})
 
 AnalysisStats = new Meteor.Collection("analysis.stats")
 
@@ -13,6 +13,19 @@ TurkServer.ensureTreatmentExists
 # Treatment tag added to enable admin editing of an instance
 TurkServer.ensureTreatmentExists
   name: "editable"
+
+###
+  We can divide experiments into different (overlapping) categories:
+
+  - Incomplete experiments, which are just ignored from analysis.
+  - Non-treatment experiments, including buffers or non-random participants
+  - Treatment experiments, which were treated and can be used for analysis.
+
+  The gold standard can be constructed from treatment experiments and non-random groups.
+  Weights can be computed from all but incomplete, as they are evenly applied to everyone.
+  Stats should distinguish between treatment experiments and others we ignore.
+  Treatment experiments don't need to have perfect grouping as we can normalize in different ways.
+###
 
 getLargeGroupExpIds = ->
   batch = Batches.findOne({name: "group sizes redux"})
@@ -27,13 +40,23 @@ getGoldStandardExpIds = ->
   batch = Batches.findOne({name: "group sizes redux"})
 
   # Get the experiments that we will use to generate the gold standard
-  # This includes off-cycle treatment groups, but not buffer groups
+  # This includes ignored treatment groups, but not buffer groups
   return Experiments.find({
     batchId: batch._id
     treatments:
       $in: [
         "group_1", "group_2", "group_4", "group_8", "group_16", "group_32"
       ]
+    users: $exists: true
+  }).map (e) -> e._id
+
+getAllExpIds = ->
+  batch = Batches.findOne({name: "group sizes redux"})
+
+  # Get all crisis mapping experiments that had users join
+  return Experiments.find({
+    batchId: batch._id
+    treatments: "parallel_worlds"
     users: $exists: true
   }).map (e) -> e._id
 
@@ -57,8 +80,11 @@ Meteor.methods
 
   "cm-get-analysis-worlds": ->
     TurkServer.checkAdmin()
-
     return AnalysisWorlds.find().fetch()
+
+  "cm-get-analysis-people": ->
+    TurkServer.checkAdmin()
+    return AnalysisPeople.find({treated: true}).fetch()
 
   # Copy the experiment worlds we're interested in to a new collection for
   # computing analysis results
@@ -69,9 +95,12 @@ Meteor.methods
       throw new Meteor.Error(400, "Worlds already exist") if AnalysisWorlds.find().count()
 
     AnalysisWorlds.remove({})
+    AnalysisPeople.remove({})
 
-    # TODO exclude the extra long/short bus groups of 16
-    for expId in getGoldStandardExpIds()
+    worlds = 0
+    people = 0
+
+    for expId in getAllExpIds()
       exp = Experiments.findOne(expId)
 
       # Ignore experiments where no one submitted (mostly groups of 1)
@@ -82,15 +111,46 @@ Meteor.methods
         console.log "Skipping #{exp._id} as no one completed it"
         continue
 
-      # TODO this assumes that treatments[0] is of the form "group_xx"
-      exp.nominalSize = parseInt(exp.treatments[0].substring(6))
+      # Is this a buffer group?
+      if exp.treatments[0] is "parallel_worlds"
+        # Fo these, round to closest power of 2 in log space
+        exp.nominalSize = 1 << Math.round(Math.log(exp.users.length) / Math.LN2)
+        exp.treated = false
+      else
+        # TODO this assumes that treatments[0] is of the form "group_xx"
+        exp.nominalSize = parseInt(exp.treatments[0].substring(6))
+        # Only the two extra groups of 16 are invalid treatment groups.
+        exp.treated = exp.startTime > new Date("2014-08-08T12:00:00.000Z")
 
       AnalysisWorlds.insert(exp)
+      worlds++
+
+      # Insert a person record for each person that completed the assignment here
+      for userId in exp.users
+        user = Meteor.users.findOne(userId)
+
+        # TODO put this into a TurkServer API
+        if Assignments.findOne({
+          workerId: user.workerId
+          batchId: exp.batchId
+          submitTime: $exists: true
+        })?
+          AnalysisPeople.insert({
+            instanceId: exp._id
+            userId: userId
+          })
+          people++
+
+    console.log "Recorded #{worlds} instances, #{people} people"
 
   "cm-get-action-weights": (recompute) ->
     TurkServer.checkAdmin()
 
     if recompute or not (weights = AnalysisStats.findOne("actionWeights")?.weights)
+
+      unless AnalysisWorlds.findOne()?
+        console.log("No experiments specified for computing weights; grabbing some")
+        Meteor.call("cm-populate-analysis-worlds")
 
       weightArrs = {}
       skipped = 0
@@ -100,8 +160,10 @@ Meteor.methods
       forgetThresh = 8 * 60 * 1000
 
       batchId = Batches.findOne(name: "group sizes redux")._id
+      # Compute weights just over treated groups.
+      expIds = AnalysisWorlds.find({treated: true}).map (e) -> e._id
 
-      for expId in getGoldStandardExpIds()
+      for expId in expIds
         exp = Experiments.findOne(expId)
 
         # All rooms for this experiment, including deleted ones
@@ -138,30 +200,37 @@ Meteor.methods
 
             if nextLog && nextLog._timestamp < (nextChat?.timestamp || Date.now())
               # Next event for this user is log
+              timestamp = nextLog._timestamp
               li++
 
-              continue if nextLog._meta
+              # Don't track meta events, but use them to update last time if active/connection
+              if (meta = nextLog._meta)
+                # Some of these may be janky, but helps prevent overestimating effort
+                if meta is "active" or meta is "connected"
+                  lastEventTime = timestamp
+
+                continue
 
               # Ignore first action because we don't have ramp-up info
-              # TODO: count when this person entered the room
-              actionTime = lastEventTime && (nextLog._timestamp - lastEventTime)
+              actionTime = lastEventTime && (timestamp - lastEventTime)
 
               if actionTime < forgetThresh
                 weightArrs[nextLog.action] ?= []
                 weightArrs[nextLog.action].push(actionTime)
 
-              lastEventTime = nextLog._timestamp
+              lastEventTime = timestamp
 
             else if nextChat # next event for this user is chat
+              timestamp = nextChat.timestamp
               ci++
 
-              actionTime = lastEventTime && (nextChat.timestamp - lastEventTime)
+              actionTime = lastEventTime && (timestamp - lastEventTime)
 
               if actionTime < forgetThresh
                 weightArrs["chat"] ?= []
                 weightArrs["chat"].push(actionTime)
 
-              lastEventTime = nextChat.timestamp
+              lastEventTime = timestamp
 
           unless li is logEvents.length and ci is chatEvents.length
             console.log expId, userId
@@ -209,6 +278,28 @@ scoreEvent = (event, benchmark) ->
 # < 0.24 = just errors in the location
 errorThresh = 0.33
 
+matchingScore = (events, gsEvents) ->
+  scoring = []
+
+  events.forEach (ev) ->
+    scoring.push( (scoreEvent(ev, gs) for gs in gsEvents) )
+
+  if scoring.length
+    partialScore = Analysis.invoke("maxMatching", scoring)
+
+    # Clamp and compute strict score
+    for row in scoring
+      for i in [1...row.length]
+        row[i] = if row[i] < errorThresh then 0 else 1
+
+    strictScore = Analysis.invoke("maxMatching", scoring)
+  else
+    # If no events are created, don't RPC (errors with 0-length matrix)
+    partialScore = 0
+    strictScore = 0
+
+  return [ partialScore, strictScore ]
+
 Meteor.methods
   # Compute group performance and effort over time for experiment worlds.
   "cm-compute-group-performance": ->
@@ -225,12 +316,22 @@ Meteor.methods
       location: { $exists: true }
     }).fetch()
 
-    for expId in AnalysisWorlds.find().map( (w) -> w._id )
+    for world in AnalysisWorlds.find().fetch()
+      expId = world._id
       replay = new ReplayHandler(expId)
 
       replay.initialize(weights)
 
-      increments = []
+      # Initialize array with zeroes at time 0
+      increments = [
+        {
+          wt: 0
+          mt: 0
+          ef: 0
+          ps: 0
+          ss: 0
+        }
+      ]
 
       while replay.nextEventTime()?
         # Compute parameters every 5 wall-minutes or 15 man-minutes, whichever is smaller
@@ -244,24 +345,8 @@ Meteor.methods
         catch e
 
         # Compute partial and strict scores
-        scoring = []
-
-        replay.tempEvents.find({deleted: {$exists: false}}).forEach (ev) ->
-          scoring.push( (scoreEvent(ev, gs) for gs in gsEvents) )
-
-        if scoring.length
-          partialScore = Analysis.invoke("maxMatching", scoring)
-
-          # Clamp and compute strict score
-          for row in scoring
-            for i in [1...row.length]
-              row[i] = if row[i] < errorThresh then 0 else 1
-
-          strictScore = Analysis.invoke("maxMatching", scoring)
-        else
-          # If no events are created, don't RPC (errors with 0-length matrix)
-          partialScore = 0
-          strictScore = 0
+        [partialScore, strictScore] = matchingScore(
+          replay.tempEvents.find({deleted: {$exists: false}}), gsEvents)
 
         increments.push
           wt: replay.wallTime / (3600 * 1000)
@@ -282,5 +367,16 @@ Meteor.methods
           totalEffort: lastIncrement.ef
           partialCreditScore: lastIncrement.ps
           fullCreditScore: lastIncrement.ss
+
+      # Save the performance for each user
+      for userId, stats of replay.userEffort
+        stats.treated = world.treated
+        stats.groupSize = world.nominalSize
+        stats.time /= 3600 * 1000
+        stats.effort /= 3600 * 1000
+
+        # This skips people that aren't in the db.
+        AnalysisPeople.update {instanceId: expId, userId: userId},
+          $set: stats
 
     Meteor._debug("Analysis complete.")

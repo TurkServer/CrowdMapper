@@ -1,3 +1,19 @@
+// Box plots - janky CSS
+.box
+  font: 10px sans-serif;
+
+.box line, .box rect, .box circle
+  fill: steelblue;
+  stroke: #000;
+  stroke-width: 1px;
+
+.box .center
+  stroke-dasharray: 3,3;
+
+.box .outlier
+  fill: none;
+  stroke: #000;
+
 svg.viz
   // Charting stuff
   .grid .tick
@@ -81,6 +97,9 @@ svg.viz
   path
     fill-rule: evenodd
     stroke: #ffffff
+
+  path.untreated
+    stroke-dasharray: 5, 5
 
   .outline
     fill: #EEEEEE

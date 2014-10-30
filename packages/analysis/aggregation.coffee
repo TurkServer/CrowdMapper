@@ -5,6 +5,9 @@
   used for analysis.
 ###
 
+AnalysisDatastream = new Meteor.Collection("analysis.datastream")
+AnalysisEvents = new Meteor.Collection("analysis.events")
+
 # Centroid of location
 # This is approximate cause it's on a sphere, but should be good enough
 # https://en.wikipedia.org/wiki/Centroid#Of_a_finite_set_of_points
