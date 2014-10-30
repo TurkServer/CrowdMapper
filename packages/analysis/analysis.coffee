@@ -380,3 +380,93 @@ Meteor.methods
           $set: stats
 
     Meteor._debug("Analysis complete.")
+
+  # Compute performance of pseudo-aggregated groups, as in discussion with Peter.
+  "cm-compute-pseudo-performance": ->
+    TurkServer.checkAdmin()
+
+    weights = Meteor.call("cm-get-action-weights")
+
+    # Get gold standard events
+    gsEvents = Events.direct.find({
+      _groupId: "groundtruth-pablo",
+      deleted: { $exists: false },
+    # Some events in gold standard don't have location:
+    # They are just being used to hold data, so ignore them.
+      location: { $exists: true }
+    }).fetch()
+
+    for groupSize in [1, 2, 4, 8]
+      console.log "Syncing replays of size #{groupSize} groups"
+
+      replays = []
+
+      for world in AnalysisWorlds.find({treated: true, nominalSize: groupSize}).fetch()
+        expId = world._id
+        replay = new ReplayHandler(expId)
+        replay.initialize(weights)
+
+        replays.push(replay)
+
+      # Initialize array with zeroes at time 0
+      increments = [
+        {
+          wt: 0
+          mt: 0
+          ef: 0
+          ps: 0
+          ss: 0
+        }
+      ]
+
+      totalWallTime = 0
+      totalManTime = 0
+
+      # Advance all replays at the same wall time
+      while _.all( replays, (r) -> r.nextEventTime()? )
+        # Compute parameters every 5 wall-minutes or 15 man-minutes, whichever is smaller
+        targetWallTime = totalWallTime + 5 * 60 * 1000
+        targetManTime = totalManTime + 15 * 60 * 1000
+
+        try
+          while totalWallTime < targetWallTime && totalManTime < targetManTime
+            # tick replay with the next valid event time
+            minRep = _.min( replays, (r) -> (r.nextEventTime() - r.exp.startTime) || Infinity )
+            minRep.processNext()
+
+            # Recompute times
+            totalWallTime = _.max(replays, (r) -> r.wallTime).wallTime
+            totalManTime = _.reduce(replays, ((m, r) -> m + r.manTime), 0)
+        catch e
+          # console.log e
+
+        # console.log totalWallTime
+        # console.log( r.wallTime for r in replays )
+
+        manEffort = _.reduce(replays, ((m, r) -> m + r.manEffort), 0)
+
+        # Compute partial and strict scores
+        aggEvents = []
+        for r in replays
+          aggEvents = aggEvents.concat( r.tempEvents.find({deleted: {$exists: false}}).fetch() )
+
+        [partialScore, strictScore] = matchingScore(aggEvents, gsEvents)
+
+        increments.push
+          wt: totalWallTime / (3600 * 1000)
+          mt: totalManTime / (3600 * 1000)
+          ef: manEffort / (3600 * 1000)
+          ps: partialScore
+          ss: strictScore
+
+      lastIncrement = increments[increments.length - 1]
+
+      AnalysisWorlds.upsert {pseudo: true, treated: false, nominalSize: groupSize},
+        $set:
+          progress: increments
+          wallTime: lastIncrement.wt
+          personTime: lastIncrement.mt
+          totalEffort: lastIncrement.ef
+          partialCreditScore: lastIncrement.ps
+          fullCreditScore: lastIncrement.ss
+
