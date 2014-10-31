@@ -128,11 +128,10 @@ Meteor.methods
     console.log "done"
 
   # Get the list of re-mapped tweet IDs for completed experiment events
-  # TODO this can probably just pull from the analysis collections, which are already re-mapped
   "cm-get-group-cooccurences": ->
     TurkServer.checkAdmin()
 
-    expIds = getGoldStandardExpIds()
+    expIds = AnalysisWorlds.find({treated: true}).map (w) -> w._id
 
     console.log "Found #{expIds.length} experiments"
 

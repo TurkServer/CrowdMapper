@@ -16,7 +16,7 @@ Template.overviewGroupPerformance.rendered = ->
   svg = @find("svg")
 
   leftMargin = 80
-  bottomMargin = 30
+  bottomMargin = 50
 
   graphWidth = $(svg).width() - leftMargin
   graphHeight = $(svg).height() - bottomMargin
@@ -27,6 +27,14 @@ Template.overviewGroupPerformance.rendered = ->
 
   colors = d3.scale.category10()
     .domain( [0...10] )
+
+  # Color the legend
+  # TODO horrible hack, ugh
+  legend = @find(".legend")
+  d3.select(legend).selectAll("div")
+  .each ->
+    size = Math.log($(this).data("legend")) / Math.LN2
+    d3.select(this).style("background", colors(size))
 
   x = d3.scale.linear()
     .domain([0, 33]) # Need an initial X domain for the first y transition
@@ -63,19 +71,33 @@ Template.overviewGroupPerformance.rendered = ->
 
   zoom = d3.behavior.zoom()
     .x(x)
+    .y(y)
     .scaleExtent([1, 20])
 
-  d3.select(svg).append("g")
+  xg = d3.select(svg).append("g")
     .attr("class", "x axis")
     .attr("transform", "translate(#{leftMargin}, #{graphHeight})")
+
+  xLabel = xg.append("text")
+    .attr("x", (graphWidth / 2))
+    .attr("y", 25)
+    .attr("dy", ".71em")
+    .style("text-anchor", "middle")
 
   d3.select(svg).append("g")
     .attr("class", "x grid")
     .attr("transform", "translate(#{leftMargin}, #{graphHeight})")
 
-  d3.select(svg).append("g")
+  yg = d3.select(svg).append("g")
     .attr("class", "y axis")
     .attr("transform", "translate(#{leftMargin}, 0)")
+
+  yLabel = yg.append("text")
+    .attr("transform", "rotate(-90)")
+    .attr("x", -(graphHeight / 2))
+    .attr("y", -50)
+    .attr("dy", ".71em")
+    .style("text-anchor", "middle")
 
   d3.select(svg).append("g")
     .attr("class", "y grid")
@@ -126,46 +148,49 @@ Template.overviewGroupPerformance.rendered = ->
   yField = null
   yFieldAbbr = null
 
+  # Checkbox settings
   showProgress = false
   showAverages = false
+  showPseudos = false
 
   tdur = 600
 
   # y axis values
-  @setScoring = (field) =>
+  @setScoring = (field, label) =>
     yField = field
     yFieldAbbr = abbrv[yField]
+
+    yLabel.text(label)
 
     # Transition y axis
     maxScore = d3.max(@data, (g) -> g[yField])
 
     y.domain([0, maxScore * 1.1])
 
-    d3.select(svg).selectAll(".y.axis")
-      .transition().duration(tdur)
-      .call(yAxis)
-
-    d3.select(svg).selectAll(".y.grid")
-      .transition().duration(tdur)
-      .call(yAxisGrid)
+    @transitionYAxis()
 
     @transitionLines()
     @transitionPoints()
 
+
   # x axis values
-  @setComparator = (field) =>
+  @setComparator = (field, label) =>
     if field?
       xField = field
       xFieldAbbr = abbrv[xField]
 
-    maxVal = d3.max(@data, (g) -> g[xField])
+    xLabel.text(label)
 
-    # Reset zoom
+    maxVal = d3.max(@data, (g) -> g[xField])
+    maxScore = d3.max(@data, (g) -> g[yField])
+
+    # Reset zoom, both x and y
     zoom.translate([0, 0]).scale(1)
 
-    # Transition x axis
     x.domain([0, maxVal * 1.1])
+    y.domain([0, maxScore * 1.1])
     zoom.x(x)
+    zoom.y(y)
 
     if xField is "nominalSize"
       xAxis.tickValues( [1, 2, 4, 8, 16, 32] )
@@ -185,6 +210,7 @@ Template.overviewGroupPerformance.rendered = ->
     tdur = 0
 
     @transitionXAxis()
+    @transitionYAxis()
 
     # Show median only for nominal group size
     @transitionMedian()
@@ -203,6 +229,10 @@ Template.overviewGroupPerformance.rendered = ->
     showAverages = show
     @transitionLines()
 
+  @setShowPseudo = (show) =>
+    showPseudos = show
+    @transitionLines()
+
   @transitionXAxis = () ->
     d3.select(svg).selectAll(".x.axis")
       .transition().duration(tdur)
@@ -211,6 +241,15 @@ Template.overviewGroupPerformance.rendered = ->
     d3.select(svg).selectAll(".x.grid")
       .transition().duration(tdur)
       .call(xAxisGrid)
+
+  @transitionYAxis = () =>
+    d3.select(svg).selectAll(".y.axis")
+      .transition().duration(tdur)
+      .call(yAxis)
+
+    d3.select(svg).selectAll(".y.grid")
+      .transition().duration(tdur)
+      .call(yAxisGrid)
 
   @transitionMedian = () =>
     unless xField is "nominalSize"
@@ -246,7 +285,6 @@ Template.overviewGroupPerformance.rendered = ->
     if showAverages
       lines.style("opacity", 0)
       averages.style("opacity", 1)
-      pseudos.style("opacity", 1)
 
       # Compute new averages using current fields.
       # Average the interpolation every 1/10 of whatever is currently being displayed.
@@ -273,7 +311,8 @@ Template.overviewGroupPerformance.rendered = ->
             sum += frac * upper[yFieldAbbr] + (1-frac) * lower[yFieldAbbr]
             counted++
 
-          break if counted is 0
+          # TODO better control over what is being averaged
+          break if (counted < groups.length - 1) or (counted < groups.length and grouping.key > 3)
 
           bit = {}
           bit[xFieldAbbr] = i
@@ -293,8 +332,11 @@ Template.overviewGroupPerformance.rendered = ->
 
       lines.transition().duration(tdur).attr("d", (g) -> lineProgress(g.progress))
 
-    pseudos.style("opacity", 1)
-    pseudos.transition().duration(tdur).attr("d", (g) -> lineProgress(g.progress))
+    if showPseudos
+      pseudos.style("opacity", 1)
+      pseudos.transition().duration(tdur).attr("d", (g) -> lineProgress(g.progress))
+    else
+      pseudos.style("opacity", 0)
 
   @transitionPoints = () =>
     graph.selectAll(".point")
@@ -303,6 +345,7 @@ Template.overviewGroupPerformance.rendered = ->
       .attr("cx", (g) -> x(g[xField]))
 
   # Initial draw - default settings
+  # TODO set initial labels
   @setScoring("partialCreditScore")
   @setComparator("nominalSize")
 
@@ -311,7 +354,11 @@ Template.overviewGroupPerformance.events
     t.setShowProgress(e.target.checked)
   "change input[name=averages]": (e, t) ->
     t.setShowAverages(e.target.checked)
+  "change input[name=pseudo]": (e, t) ->
+    t.setShowPseudo(e.target.checked)
   "change input[name=groupScoring]": (e, t) ->
-    t.setScoring(e.target.value)
+    label = $(e.target).closest("label").text().trim()
+    t.setScoring(e.target.value, label)
   "change input[name=groupComparator]": (e, t) ->
-    t.setComparator(e.target.value)
+    label = $(e.target).closest("label").text().trim()
+    t.setComparator(e.target.value, label)

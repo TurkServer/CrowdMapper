@@ -10,6 +10,11 @@
                 <input type="checkbox" name="averages" value="groupAverages"> Show Averages
             </label>
         </div>
+        <div class="checkbox">
+            <label class="checkbox">
+                <input type="checkbox" name="pseudo" value="groupPseudo"> Show Pseudo-Groups
+            </label>
+        </div>
 
         <h3>Y-axis</h3>
         <div class="radio">
@@ -39,6 +44,17 @@
                 <input type="radio" name="groupComparator" value="wallTime"> Wall Time
             </label>
         </div>
+
+        <h3>Legend</h3>
+        <h4 class="legend">
+            <div data-legend="1">Size 1</div>
+            <div data-legend="2">Size 2</div>
+            <div data-legend="4">Size 4</div>
+            <div data-legend="8">Size 8</div>
+            <div data-legend="16">Size 16</div>
+            <div data-legend="32">Size 32</div>
+        </h4>
+
     </div>
     <div class="col-md-10">
         <svg class="viz" width="900" height="700"></svg>

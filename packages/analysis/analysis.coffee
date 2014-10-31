@@ -1,5 +1,5 @@
 # Collections for analysis
-AnalysisWorlds = new Meteor.Collection("analysis.worlds")
+@AnalysisWorlds = new Meteor.Collection("analysis.worlds")
 AnalysisPeople = new Meteor.Collection("analysis.people")
 
 AnalysisPeople._ensureIndex({instanceId: 1, userId: 1})

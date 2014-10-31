@@ -1,5 +1,5 @@
 # Returns a function to compute the interquartile range.
-iqr = (k) ->
+iqrFun = (k) ->
   (d, i) ->
     q1 = d.quartiles[0]
     q3 = d.quartiles[2]
@@ -35,7 +35,7 @@ Template.overviewIndivPerformance.rendered = ->
   height = $(svg).height() - margin.top - margin.bottom
 
   chart = d3.box()
-    .whiskers(iqr(1.5))
+    .whiskers(iqrFun(1.5))
     .height(height)
     .domain([min, max])
     .showLabels(true)
@@ -49,7 +49,7 @@ Template.overviewIndivPerformance.rendered = ->
   # the x-axis
   x = d3.scale.ordinal()
     .domain([1, 2, 4, 8, 16, 32])
-    .rangeRoundBands([0, width], 0.7, 0.3)
+    .rangeRoundBands([0, width], 0.6, 0.3)
 
   xAxis = d3.svg.axis().scale(x).orient("bottom")
 
@@ -77,7 +77,6 @@ Template.overviewIndivPerformance.rendered = ->
     .attr("y", 6)
     .attr("dy", ".71em")
     .style("text-anchor", "end")
-    .style("font-size", "16px")
     .text("Normalized Effort")
 
   # draw x axis
@@ -91,5 +90,4 @@ Template.overviewIndivPerformance.rendered = ->
     .attr("y", 10)
     .attr("dy", ".71em")
     .style("text-anchor", "middle")
-    .style("font-size", "16px")
     .text("Group Size")
