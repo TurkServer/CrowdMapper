@@ -239,9 +239,11 @@ class ReplayHandler
 
     # Schedule stuff for future going.
     Meteor.defer =>
-      while (time = @nextEventTime())? and not @destroyed
+      while (time = @nextEventTime())?
         scheduled = (time - @exp.startTime)/rate - (new Date() - start)
         sleep(scheduled) if scheduled > 0
+        # Don't try to process stuff if collections got nulled out
+        break if @destroyed
         @processNext()
 
       Meteor._debug "Replay finished"

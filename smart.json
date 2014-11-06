@@ -21,6 +21,9 @@
     "mizzao:sharejs-ace": {
       "path": "../mizzao:sharejs/sharejs-ace"
     },
+    "mizzao:animated-each": {
+      "path": "../mizzao:animated-each"
+    },
     "mizzao:autocomplete": {
       "path": "../mizzao:autocomplete"
     },

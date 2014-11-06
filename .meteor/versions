@@ -47,10 +47,10 @@ meteor-platform@1.2.0
 meteor@1.1.3
 minifiers@1.1.2
 minimongo@1.0.5
-mizzao:animated-each@0.1.0
+mizzao:animated-each@0.2.0
 mizzao:autocomplete@0.4.10
 mizzao:bootboxjs@4.3.0
-mizzao:bootstrap-3@3.2.0_1
+mizzao:bootstrap-3@3.3.0
 mizzao:build-fetcher@0.2.0
 mizzao:jquery-ui@1.11.2
 mizzao:openlayers@2.13.1_1
