@@ -254,6 +254,16 @@ Meteor.methods
 
     return weights
 
+# Get gold standard events
+getGoldStandardEvents = ->
+  return Events.direct.find({
+    _groupId: "groundtruth-pablo",
+    deleted: { $exists: false },
+  # Some events in gold standard don't have location:
+  # They are just being used to hold data, so ignore them.
+    location: { $exists: true }
+  }).fetch()
+
 # Scoring function for an event. Current scheme is:
 # 0.25 to type, 0.25 to region, 0.25 to province,
 # 0.25 for within 10km to 0 beyond 100km
@@ -289,7 +299,7 @@ matchingScore = (events, gsEvents) ->
 
     # Clamp and compute strict score
     for row in scoring
-      for i in [1...row.length]
+      for i in [0...row.length]
         row[i] = if row[i] < errorThresh then 0 else 1
 
     strictScore = Analysis.invoke("maxMatching", scoring)
@@ -307,16 +317,9 @@ Meteor.methods
 
     weights = Meteor.call("cm-get-action-weights")
 
-    # Get gold standard events
-    gsEvents = Events.direct.find({
-      _groupId: "groundtruth-pablo",
-      deleted: { $exists: false },
-      # Some events in gold standard don't have location:
-      # They are just being used to hold data, so ignore them.
-      location: { $exists: true }
-    }).fetch()
+    gsEvents = getGoldStandardEvents()
 
-    for world in AnalysisWorlds.find().fetch()
+    for world in AnalysisWorlds.find({pseudo: null, synthetic: null}).fetch()
       expId = world._id
       replay = new ReplayHandler(expId)
 
@@ -387,14 +390,7 @@ Meteor.methods
 
     weights = Meteor.call("cm-get-action-weights")
 
-    # Get gold standard events
-    gsEvents = Events.direct.find({
-      _groupId: "groundtruth-pablo",
-      deleted: { $exists: false },
-    # Some events in gold standard don't have location:
-    # They are just being used to hold data, so ignore them.
-      location: { $exists: true }
-    }).fetch()
+    gsEvents = getGoldStandardEvents()
 
     for groupSize in [1, 2, 4, 8]
       console.log "Syncing replays of size #{groupSize} groups"
@@ -470,3 +466,48 @@ Meteor.methods
           partialCreditScore: lastIncrement.ps
           fullCreditScore: lastIncrement.ss
 
+  ###
+  Compute synthetic performance of different groups of size 1.
+
+  TODO Current limitations:
+  - Only uses groups of size 1 (2 or more are trickier)
+  - Assumes all size 1 groups worked for exactly 1 hour / no wall time adj
+  - Only uses end state at the moment
+  ###
+  "cm-compute-synthetic-performance": ->
+    TurkServer.checkAdmin()
+
+    weights = Meteor.call("cm-get-action-weights")
+
+    # Remove all previous generated data
+    AnalysisWorlds.remove({synthetic: true})
+
+    gsEvents = getGoldStandardEvents()
+    singles = AnalysisWorlds.find({treated: true, nominalSize: 1}).fetch()
+    maxSamples = 100
+
+    # Form synthetic groups of size 2 up to total - 2
+    for cSize in [2..singles.length - 2]
+      for i in [1..maxSamples]
+        worlds = _.sample(singles, cSize)
+        ids = _.map(worlds, (w) -> w._id )
+
+        aggEvents = Events.direct.find({
+          _groupId: { $in: ids },
+          deleted: { $exists: false },
+        }).fetch()
+
+        [partialScore, strictScore] = matchingScore(aggEvents, gsEvents)
+
+        console.log partialScore, strictScore
+
+        AnalysisWorlds.insert
+          synthetic: true
+          treated: false
+          worlds: ids
+          personTime: cSize
+          totalEffort: worlds.reduce ((acc, w) -> acc + w.totalEffort), 0
+          partialCreditScore: partialScore
+          fullCreditScore: strictScore
+
+      console.log "Completed #{i} samples of synthesized groups of #{cSize}"

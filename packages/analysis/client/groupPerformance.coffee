@@ -105,9 +105,12 @@ Template.overviewGroupPerformance.rendered = ->
 
   groupColor = (size) -> colors(Math.log(size) / Math.LN2)
 
+  gBox = graph.append("g")
+    .attr("class", "boxplots")
+
   # Draw progress lines
   graph.selectAll("path.progress")
-    .data(@data.filter( (d) -> !d.pseudo), (g) -> g._id)
+    .data(@data.filter( (d) -> !(d.pseudo or d.synthetic)), (g) -> g._id)
   .enter().append("path")
     .attr("class", (g) ->
       cls = "progress line " + g.treatments.join(" ")
@@ -130,7 +133,7 @@ Template.overviewGroupPerformance.rendered = ->
 
   # Draw final points
   graph.selectAll(".point")
-    .data(@data.filter( (d) -> !d.pseudo), (g) -> g._id)
+    .data(@data.filter( (d) -> !(d.pseudo or d.synthetic)), (g) -> g._id)
   .enter().append("circle")
     .attr("class", (g) -> "point " + g.treatments.join(" "))
     .attr("stroke", (g) -> groupColor(g.nominalSize) )
@@ -232,6 +235,39 @@ Template.overviewGroupPerformance.rendered = ->
   @setShowPseudo = (show) =>
     showPseudos = show
     @transitionLines()
+
+  @setShowSynthetic = (show) =>
+    unless show
+      gBox.selectAll(".box").remove()
+      return
+
+    # Synthetic box plots
+    box = d3.box()
+      .whiskers(Util.iqrFun(1.5))
+      .height(graphHeight)
+      .showLabels(false)
+
+    # Nest data for boxplots
+    # TODO this probably doesn't need to be re-nested each time
+    synthetic = d3.nest()
+      .key( (d) -> d.personTime )
+      .sortKeys(d3.ascending)
+      .rollup( (leaves) -> leaves.map( (d) -> d[yField] ) )
+      .entries(@data.filter (d) -> d.synthetic)
+      .map( (o) -> [o.key, o.values] )
+
+    boxWidth = 12
+
+    box.domain(y.domain()).width(boxWidth)
+
+    boxes = gBox.selectAll(".box")
+      .data(synthetic)
+
+    boxes.enter().append("g")
+      .attr("class", "box")
+
+    boxes.attr("transform", (d) -> "translate(#{x(d[0]) - boxWidth/2},0)")
+      .call(box)
 
   @transitionXAxis = () ->
     d3.select(svg).selectAll(".x.axis")
@@ -356,6 +392,8 @@ Template.overviewGroupPerformance.events
     t.setShowAverages(e.target.checked)
   "change input[name=pseudo]": (e, t) ->
     t.setShowPseudo(e.target.checked)
+  "change input[name=synthetic]": (e, t) ->
+    t.setShowSynthetic(e.target.checked)
   "change input[name=groupScoring]": (e, t) ->
     label = $(e.target).closest("label").text().trim()
     t.setScoring(e.target.value, label)
