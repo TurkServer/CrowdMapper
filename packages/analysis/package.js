@@ -13,7 +13,7 @@ Package.on_use(function (api) {
   api.use("mizzao:turkserver");
   api.use("iron:router");
 
-  api.addFiles("client/util.coffee", "client");
+  api.addFiles("util.coffee");
 
   api.addFiles([
     "client/viz.styl",
@@ -43,6 +43,6 @@ Package.on_use(function (api) {
 
   api.export('AdminController', 'client');
   // Make global available only in this package
-  api.export('Util', 'client', {testOnly: true});
+  api.export('Util', {testOnly: true});
 });
 

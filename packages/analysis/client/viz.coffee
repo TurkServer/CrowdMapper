@@ -38,21 +38,8 @@ preprocess = (data) ->
 
 tags = /[~@#]/
 
-#  console.log @data.instance
-#  console.log "users", @data.users
-#  console.log "logs", @data.logs
-#  console.log "chat", @data.chat
-
-# What overall type of action is this?
-entryActionType = (entry) ->
-  switch entry.action
-    when "data-hide", "data-link" then "filter"
-    when "event-create", "event-edit", "event-update", "event-save" then "classify"
-    when "event-vote", "event-unvote", "event-unmap", "event-delete", "data-move", "data-unlink" then "verify"
-    else ""
-
-vizType = (entry) ->
-  switch entryActionType(entry)
+tickPosition = (entry) ->
+  switch Util.logActionType(entry)
     when "filter", "verify" then  0
     else 1
 
@@ -211,7 +198,7 @@ class VizManager
     # Re-nest for different types of classification actions
     @logNest = d3.nest()
       .key((entry) -> entry._userId)
-      .key( entryActionType )
+      .key( Util.logActionType )
       .sortKeys(d3.ascending)
       .key( (entry) -> entry.action + " " + (entryActionField(entry) || "")  )
       .sortKeys(d3.ascending)
@@ -340,7 +327,7 @@ class VizManager
     # Transition y positions of bands and events
     @timeline.selectAll(".action")
     .transition().duration(tDuration)
-      .attr("y", (entry) -> y(entry._userId) + vizType(entry) * bandWidth)
+      .attr("y", (entry) -> y(entry._userId) + tickPosition(entry) * bandWidth)
       .attr("height", bandWidth)
 
     @timeline.selectAll(".chat")

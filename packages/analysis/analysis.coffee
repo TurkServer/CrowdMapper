@@ -69,8 +69,7 @@ Meteor.methods
 
     instance =  Experiments.findOne(groupId)
 
-    roomIds = Partitioner.directOperation ->
-      ChatRooms.find(_groupId: groupId).map (room) -> room._id
+    roomIds = ChatRooms.direct.find(_groupId: groupId).map (room) -> room._id
 
     users = Meteor.users.find(_id: $in: instance.users).fetch()
     logs = Logs.find({_groupId: groupId}, {sort: {_timestamp: 1}}).fetch()
@@ -383,6 +382,77 @@ Meteor.methods
           $set: stats
 
     Meteor._debug("Analysis complete.")
+
+  # Compute the specialization of each real group, both individually and for the group as a whole.
+  "cm-compute-group-specialization": ->
+    TurkServer.checkAdmin()
+
+    weights = Meteor.call("cm-get-action-weights")
+
+    entropy = (probArr) ->
+      e = 0
+      for p in probArr
+        continue if p is 0 # 0 log 0 = 0
+        e -= p * Math.log(p) / Math.LN2
+      return e
+
+    for world in AnalysisWorlds.find({pseudo: null, synthetic: null}).fetch()
+      groupId = world._id
+      # Add up weights in each category for each user
+      userWeights = {}
+
+      for entry in Logs.find({_groupId: groupId}).fetch()
+        userId = entry._userId
+        type = Util.logActionType(entry)
+        weight = weights[entry.action]
+
+        continue unless weight? and type
+
+        userWeights[userId] ?= { filter: 0, verify: 0, classify: 0, chat: 0 }
+        userWeights[userId][type] += weight
+
+      roomIds = ChatRooms.direct.find(_groupId: groupId).map (room) -> room._id
+      chatWeight = weights["chat"]
+
+      for chat in ChatMessages.find({room: $in: roomIds}).fetch()
+        userId = chat.userId
+
+        userWeights[userId] ?= { filter: 0, verify: 0, classify: 0, chat: 0 }
+        userWeights[userId]["chat"] += chatWeight
+
+      spec = []
+
+      # Compute avg individual specialization
+      for userId, map of userWeights
+        sum = 0
+        for type, val of map
+          sum += val
+
+        probs = []
+        for type, val of map
+          probs.push val / sum
+
+        ent = entropy(probs)
+        spec.push { wt: sum, ent: ent }
+
+      # Compute group specialization
+      groupWeights = _.reduce userWeights, (acc, map) ->
+        for type, val of map
+          acc[type] = (acc[type] || 0) + val
+        return acc
+      , {}
+
+      totalWeight = _.reduce groupWeights, (a, v) -> a + v
+
+      groupWeights = (w / totalWeight for k, w of groupWeights)
+
+      avgIndivEntropy = spec.reduce( ((a, v) -> a + (v.wt * v.ent)), 0 ) / totalWeight
+      groupEntropy = entropy(groupWeights)
+
+      console.log groupId, world.nominalSize
+      console.log avgIndivEntropy, groupEntropy
+
+      AnalysisWorlds.update groupId, $set: { avgIndivEntropy, groupEntropy }
 
   # Compute performance of pseudo-aggregated groups, as in discussion with Peter.
   "cm-compute-pseudo-performance": ->
