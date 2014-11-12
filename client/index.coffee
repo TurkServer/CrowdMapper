@@ -26,15 +26,15 @@ Router.map ->
 
   @route 'mapper',
     path: '/mapper'
-    onBeforeAction: (pause) ->
+    onBeforeAction: ->
       unless Meteor.user()
-        @setLayout("defaultContainer")
+        @layout("defaultContainer")
         @render("awaitingLogin")
-        pause()
-      unless TurkServer.isAdmin() or TurkServer.inExperiment()
-        @setLayout("defaultContainer")
+      else unless TurkServer.isAdmin() or TurkServer.inExperiment()
+        @layout("defaultContainer")
         @render("loadError")
-        pause()
+      else
+        @next()
 
     waitOn: ->
       subHandles = [ fieldSub ]
@@ -61,11 +61,12 @@ Router.map ->
 
   @route 'exitsurvey/:template?',
     layoutTemplate: 'defaultContainer'
-    onBeforeAction: (pause) ->
+    onBeforeAction: ->
       unless TurkServer.isAdmin() or TurkServer.inExitSurvey()
-        @setLayout("defaultContainer")
+        @layout("defaultContainer")
         @render("loadError")
-        pause()
+      else
+        @next()
     action: ->
       # Override the route, for debugging use.
       if @params.template?

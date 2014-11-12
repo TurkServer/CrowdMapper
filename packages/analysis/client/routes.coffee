@@ -1,123 +1,69 @@
 # This controller handles the behavior of all admin templates
 # TODO: it doesn't belong in the analysis package, but we use it here.
 class AdminController extends RouteController
-  onBeforeAction: (pause) ->
+  onBeforeAction: ->
     unless TurkServer.isAdmin()
       @render("loadError")
-      pause()
+    else
+      @next()
+
+# TODO fix hack below that is used to avoid hitting the server twice
+# https://github.com/EventedMind/iron-router/issues/1011 and related
+class AdminDataController extends AdminController
+  waitOn: ->
+    return if @data()?
+
+    args = @route.options.methodArgs.call(this)
+    console.log "getting data"
+
+    # Tack on callback argument
+    args.push (err, res) =>
+      bootbox.alert(err) if err
+      console.log "got data"
+      @state.set("data", res)
+
+    Meteor.call.apply(null, args)
+
+    return => @data()?
+
+  data: -> @state.get("data")
 
 Router.map ->
   # Single-instance visualization templates
   @route 'viz',
     path: 'viz/:groupId'
-    controller: AdminController
-    waitOn: ->
-      @readyDep = new Deps.Dependency
-      @readyDep.isReady = false;
+    controller: AdminDataController
+    methodArgs: -> [ "cm-get-viz-data", this.params.groupId ]
 
-      Meteor.call "cm-get-viz-data", this.params.groupId, (err, res) =>
-        bootbox.alert(err) if err
-
-        this.mapperData = res
-
-        @readyDep.isReady = true;
-        @readyDep.changed()
-
-      return {
-      ready: =>
-        @readyDep.depend()
-        return @readyDep.isReady
-      }
-    data: ->
-      @readyDep.depend()
-      return this.mapperData
-    action: ->
-      this.render() if this.ready()
-
+  # Overview route, with access to experiments and stuff
   @route 'overview',
     controller: AdminController
     layoutTemplate: "overviewLayout"
     action: ->
 
-  # Overview route, with access to experiments and stuff
-  # TODO reduce repetitive loading code below
   @route 'overviewTagging',
     path: 'overview/tagging'
-    controller: AdminController
+    controller: AdminDataController
     layoutTemplate: "overviewLayout"
-    waitOn: ->
-      loaded = @loaded = new Tracker.Dependency
-      isReady = false
-
-      Meteor.call "cm-get-group-cooccurences", (err, res) =>
-        bootbox.alert(err) if err
-
-        this.data = res
-
-        isReady = true
-        loaded.changed()
-
-      return {
-      ready: ->
-        loaded.depend()
-        return isReady
-      }
-    data: ->
-      @loaded.depend()
-      return this.data
-    action: ->
-      this.render() if this.ready()
+    methodArgs: -> [ "cm-get-group-cooccurences" ]
 
   @route 'overviewGroupPerformance',
     path: 'overview/groupPerformance'
-    controller: AdminController
+    controller: AdminDataController
     layoutTemplate: "overviewLayout"
-    waitOn: ->
-      loaded = @loaded = new Tracker.Dependency
-      isReady = false
-
-      Meteor.call "cm-get-analysis-worlds", (err, res) =>
-        bootbox.alert(err) if err
-
-        this.data = res
-
-        isReady = true
-        loaded.changed()
-
-      return {
-      ready: ->
-        loaded.depend()
-        return isReady
-      }
-    data: ->
-      @loaded.depend()
-      return this.data
-    action: ->
-      this.render() if this.ready()
+    methodArgs: -> [ "cm-get-analysis-worlds" ]
 
   @route 'overviewIndivPerformance',
     path: 'overview/indivPerformance'
-    controller: AdminController
+    controller: AdminDataController
     layoutTemplate: "overviewLayout"
-    waitOn: ->
-      loaded = @loaded = new Tracker.Dependency
-      isReady = false
+    methodArgs: -> [ "cm-get-analysis-people" ]
 
-      Meteor.call "cm-get-analysis-people", (err, res) =>
-        bootbox.alert(err) if err
-
-        this.data = res
-
-        isReady = true
-        loaded.changed()
-
-      return {
-      ready: ->
-        loaded.depend()
-        return isReady
-      }
-    data: ->
-      @loaded.depend()
-      return this.data
-    action: ->
-      this.render() if this.ready()
+  @route 'overviewSpecialization',
+    path: 'overview/specialization'
+    controller: AdminDataController
+    layoutTemplate: "overviewLayout"
+    methodArgs: -> [
+      "cm-get-analysis-worlds",
+      { pseudo: null, synthetic: null }
+    ]

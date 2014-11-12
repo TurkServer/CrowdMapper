@@ -78,9 +78,9 @@ Meteor.methods
 
     return {weights, instance, users, logs, chat}
 
-  "cm-get-analysis-worlds": ->
+  "cm-get-analysis-worlds": (filter) ->
     TurkServer.checkAdmin()
-    return AnalysisWorlds.find().fetch()
+    return AnalysisWorlds.find(filter || {}).fetch()
 
   "cm-get-analysis-people": ->
     TurkServer.checkAdmin()

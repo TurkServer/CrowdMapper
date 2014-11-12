@@ -1,9 +1,10 @@
 
 class AdminController extends RouteController
-  onBeforeAction: (pause) ->
+  onBeforeAction: ->
     unless TurkServer.isAdmin()
       @render("loadError")
-      pause()
+    else
+      @next()
 
 # Admin Routes
 Router.map ->

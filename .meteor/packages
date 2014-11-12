@@ -12,7 +12,7 @@ webapp
 d3
 
 # Published, versioned shit
-iron:router@0.9.0
+iron:router@1.0.1
 mizzao:bootboxjs@4.3.0
 sacha:spin@2.0.4
 mizzao:animated-each@0.1.0

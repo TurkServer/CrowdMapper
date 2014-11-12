@@ -26,7 +26,9 @@ Package.on_use(function (api) {
     "client/groupPerformance.coffee",
     "client/box.js", // from http://bl.ocks.org/jensgrubert/7789216
     "client/indivPerformance.html",
-    "client/indivPerformance.coffee"
+    "client/indivPerformance.coffee",
+    "client/specialization.html",
+    "client/specialization.coffee"
   ], "client");
 
   api.addFiles('rpc.coffee', 'server');
