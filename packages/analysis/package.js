@@ -9,6 +9,7 @@ Package.on_use(function (api) {
   api.use("templating");
 
   api.use("d3");
+  api.use("underscore");
 
   api.use("mizzao:turkserver");
   api.use("iron:router");

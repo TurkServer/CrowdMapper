@@ -210,6 +210,7 @@ Template.overviewGroupPerformance.rendered = ->
   # Zoom does all the same transitions as x
   zoom.on "zoom", =>
     # TODO ugly hack! Reuse d3 selections properly.
+    # Might require update to D3 3.4 or later for better transition support.
     tdur = 0
 
     @transitionXAxis()

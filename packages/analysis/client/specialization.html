@@ -1,6 +1,30 @@
 <template name="overviewSpecialization">
     <div class="col-md-1">
         <h3>Specialization</h3>
+
+        <h4>X-axis</h4>
+        <div class="radio">
+            {{#each labels}}
+            <label class="radio">
+                <input type="radio" name="xaxis" value="{{key}}"> {{value}}
+            </label>
+            {{/each}}
+        </div>
+
+        <h4>Y-axis</h4>
+        <div class="radio">
+            {{#each labels}}
+                <label class="radio">
+                    <input type="radio" name="yaxis" value="{{key}}"> {{value}}
+                </label>
+            {{/each}}
+        </div>
+
+        <div class="checkbox">
+            <label class="checkbox">
+                <input type="checkbox" name="boxplot"> Boxplot
+            </label>
+        </div>
     </div>
 
     <div class="col-md-10">
