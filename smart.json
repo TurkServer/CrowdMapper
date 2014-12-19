@@ -39,9 +39,6 @@
     "mizzao:openlayers": {
       "path": "../mizzao:openlayers"
     },
-    "mizzao:bootstrap-3": {
-      "path": "../mizzao:bootstrap-3"
-    },
     "natestrauser:x-editable-bootstrap": {
       "path": "../natestrauser:x-editable-bootstrap"
     }
