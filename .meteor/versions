@@ -14,7 +14,7 @@ callback-hook@1.0.2
 check@1.0.3
 coffeescript@1.0.5
 csv@0.0.0
-d3@1.0.0
+d3js:d3@3.4.13
 dandv:caret-position@2.1.0-3
 ddp@1.0.13
 deps@1.0.6
@@ -63,7 +63,7 @@ mizzao:turkserver@0.0.0
 mizzao:tutorials@0.6.5
 mizzao:user-status@0.6.3
 mobile-status-bar@1.0.2
-mongo@1.0.10
+mongo@1.0.11
 mongo-livedata@1.0.7
 mrt:moment@2.8.1
 natestrauser:x-editable-bootstrap@1.5.2_2

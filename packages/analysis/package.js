@@ -8,10 +8,11 @@ Package.on_use(function (api) {
   api.use("stylus");
   api.use("templating");
 
-  api.use("d3");
   api.use("underscore");
 
+  // use versions of these specified in main project
   api.use("mizzao:turkserver");
+  api.use("d3js:d3");
   api.use("iron:router");
 
   api.addFiles("util.coffee");

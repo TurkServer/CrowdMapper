@@ -9,7 +9,6 @@ stylus
 accounts-ui
 meteor-platform
 webapp
-d3
 
 # Published, versioned shit
 iron:router@1.0.1
@@ -17,6 +16,7 @@ mizzao:bootboxjs@4.3.0
 sacha:spin@2.0.4
 mizzao:animated-each@0.1.0
 
+d3js:d3@3.4.13
 twbs:bootstrap@3.3.1
 mizzao:jquery-ui@1.11.0
 natestrauser:x-editable-bootstrap@1.5.1
