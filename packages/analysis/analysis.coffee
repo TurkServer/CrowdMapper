@@ -1,3 +1,5 @@
+fs = Npm.require('fs');
+
 # Collections for analysis
 @AnalysisWorlds = new Meteor.Collection("analysis.worlds")
 AnalysisPeople = new Meteor.Collection("analysis.people")
@@ -252,6 +254,44 @@ Meteor.methods
         $set: { weights }
 
     return weights
+
+  # Output non-deleted events and status of data in the world to a file
+  "cm-save-world-data": (worldId) ->
+    TurkServer.checkAdmin()
+
+    # we need to store _ids here because of cross referencing
+    events = Events.direct.find({
+      _groupId: worldId,
+      deleted: { $exists: false },
+    }, {
+      sort: {num: 1}
+      fields: { _groupId: 0 }
+    }).fetch()
+
+    data = Datastream.direct.find({
+      _groupId: worldId
+    }, {
+      sort: {num: 1}
+      fields: { _groupId: 0 }
+    }).fetch()
+
+    # some cleanup:
+    for d in data
+      # delete hidden field if events exists and length > 0
+      delete d.hidden if d.hidden? and d.events?.length
+      # delete empty events arrays
+      delete d.events if d.events? and d.events.length is 0
+
+    output = {
+      events: events
+      datastream: data
+    }
+
+    # Write to a file that won't cause Meteor to restart
+    filename = ".#{worldId}.json"
+
+    fs.writeFile filename, JSON.stringify(output, null, 2), (err) ->
+      if err then console.log(err) else console.log "Output written to #{filename}"
 
 # Get gold standard events
 getGoldStandardEvents = ->
