@@ -37,15 +37,25 @@ Router.map ->
 
   # Overview route, with access to experiments and stuff
   @route 'overview',
-    controller: AdminController
+    template: "analysisOverview"
+    controller: AdminDataController
     layoutTemplate: "overviewLayout"
-    action: ->
+    methodArgs: -> [
+      "cm-get-analysis-worlds",
+      { pseudo: null, synthetic: null }
+    ]
 
   @route 'overviewTagging',
     path: 'overview/tagging'
     controller: AdminDataController
     layoutTemplate: "overviewLayout"
     methodArgs: -> [ "cm-get-group-cooccurences" ]
+
+  @route 'overviewStats',
+    path: 'overview/stats'
+    controller: AdminDataController
+    layoutTemplate: "overviewLayout"
+    methodArgs: -> [ "cm-get-action-weights" ]
 
   @route 'overviewGroupPerformance',
     path: 'overview/groupPerformance'

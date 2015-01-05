@@ -1,3 +1,6 @@
+# Define analysis global for export
+Analysis = {}
+
 Util =
   # Overall classification of log actions
   logActionType: (entry) ->

@@ -1,13 +1,5 @@
 fs = Npm.require('fs');
 
-# Collections for analysis
-@AnalysisWorlds = new Meteor.Collection("analysis.worlds")
-AnalysisPeople = new Meteor.Collection("analysis.people")
-
-AnalysisPeople._ensureIndex({instanceId: 1, userId: 1})
-
-AnalysisStats = new Meteor.Collection("analysis.stats")
-
 # Special groundtruth tag for these instances
 TurkServer.ensureTreatmentExists
   name: "groundtruth"
@@ -81,11 +73,11 @@ Meteor.methods
 
   "cm-get-analysis-worlds": (filter) ->
     TurkServer.checkAdmin()
-    return AnalysisWorlds.find(filter || {}).fetch()
+    return Analysis.Worlds.find(filter || {}).fetch()
 
   "cm-get-analysis-people": ->
     TurkServer.checkAdmin()
-    return AnalysisPeople.find({treated: true}).fetch()
+    return Analysis.People.find({treated: true}).fetch()
 
   # Copy the experiment worlds we're interested in to a new collection for
   # computing analysis results
@@ -93,10 +85,10 @@ Meteor.methods
     TurkServer.checkAdmin()
 
     unless force
-      throw new Meteor.Error(400, "Worlds already exist") if AnalysisWorlds.find().count()
+      throw new Meteor.Error(400, "Worlds already exist") if Analysis.Worlds.find().count()
 
-    AnalysisWorlds.remove({})
-    AnalysisPeople.remove({})
+    Analysis.Worlds.remove({})
+    Analysis.People.remove({})
 
     worlds = 0
     people = 0
@@ -123,7 +115,7 @@ Meteor.methods
         # Only the two extra groups of 16 are invalid treatment groups.
         exp.treated = exp.startTime > new Date("2014-08-08T12:00:00.000Z")
 
-      AnalysisWorlds.insert(exp)
+      Analysis.Worlds.insert(exp)
       worlds++
 
       # Insert a person record for each person that completed the assignment here
@@ -136,7 +128,7 @@ Meteor.methods
           batchId: exp.batchId
           submitTime: $exists: true
         })?
-          AnalysisPeople.insert({
+          Analysis.People.insert({
             instanceId: exp._id
             userId: userId
           })
@@ -147,9 +139,9 @@ Meteor.methods
   "cm-get-action-weights": (recompute) ->
     TurkServer.checkAdmin()
 
-    if recompute or not (weights = AnalysisStats.findOne("actionWeights")?.weights)
+    if recompute or not (weights = Analysis.Stats.findOne("actionWeights")?.weights)
 
-      unless AnalysisWorlds.findOne()?
+      unless Analysis.Worlds.findOne()?
         console.log("No experiments specified for computing weights; grabbing some")
         Meteor.call("cm-populate-analysis-worlds")
 
@@ -162,7 +154,7 @@ Meteor.methods
 
       batchId = Batches.findOne(name: "group sizes redux")._id
       # Compute weights just over treated groups.
-      expIds = AnalysisWorlds.find({treated: true}).map (e) -> e._id
+      expIds = Analysis.Worlds.find({treated: true}).map (e) -> e._id
 
       for expId in expIds
         exp = Experiments.findOne(expId)
@@ -250,7 +242,7 @@ Meteor.methods
       console.log "Skipped #{skipped}, included #{included} workers"
       console.log weights
 
-      AnalysisStats.upsert "actionWeights",
+      Analysis.Stats.upsert "actionWeights",
         $set: { weights }
 
     return weights
@@ -334,14 +326,14 @@ matchingScore = (events, gsEvents) ->
     scoring.push( (scoreEvent(ev, gs) for gs in gsEvents) )
 
   if scoring.length
-    partialScore = Analysis.invoke("maxMatching", scoring)
+    partialScore = Analysis.invokeRPC("maxMatching", scoring)
 
     # Clamp and compute strict score
     for row in scoring
       for i in [0...row.length]
         row[i] = if row[i] < errorThresh then 0 else 1
 
-    strictScore = Analysis.invoke("maxMatching", scoring)
+    strictScore = Analysis.invokeRPC("maxMatching", scoring)
   else
     # If no events are created, don't RPC (errors with 0-length matrix)
     partialScore = 0
@@ -358,7 +350,7 @@ Meteor.methods
 
     gsEvents = getGoldStandardEvents()
 
-    for world in AnalysisWorlds.find({pseudo: null, synthetic: null}).fetch()
+    for world in Analysis.Worlds.find({pseudo: null, synthetic: null}).fetch()
       expId = world._id
       replay = new ReplayHandler(expId)
 
@@ -401,7 +393,7 @@ Meteor.methods
 
       lastIncrement = increments[increments.length - 1]
 
-      AnalysisWorlds.update expId,
+      Analysis.Worlds.update expId,
         $set:
           progress: increments
           wallTime: lastIncrement.wt
@@ -418,7 +410,7 @@ Meteor.methods
         stats.effort /= 3600 * 1000
 
         # This skips people that aren't in the db.
-        AnalysisPeople.update {instanceId: expId, userId: userId},
+        Analysis.People.update {instanceId: expId, userId: userId},
           $set: stats
 
     Meteor._debug("Analysis complete.")
@@ -436,7 +428,7 @@ Meteor.methods
         e -= p * Math.log(p) / Math.LN2
       return e
 
-    for world in AnalysisWorlds.find({pseudo: null, synthetic: null}).fetch()
+    for world in Analysis.Worlds.find({pseudo: null, synthetic: null}).fetch()
       groupId = world._id
       # Add up weights in each category for each user
       userWeights = {}
@@ -492,7 +484,7 @@ Meteor.methods
       console.log groupId, world.nominalSize
       console.log avgIndivEntropy, groupEntropy
 
-      AnalysisWorlds.update groupId, $set: { avgIndivEntropy, groupEntropy }
+      Analysis.Worlds.update groupId, $set: { avgIndivEntropy, groupEntropy }
 
   # Compute performance of pseudo-aggregated groups, as in discussion with Peter.
   "cm-compute-pseudo-performance": ->
@@ -507,7 +499,7 @@ Meteor.methods
 
       replays = []
 
-      for world in AnalysisWorlds.find({treated: true, nominalSize: groupSize}).fetch()
+      for world in Analysis.Worlds.find({treated: true, nominalSize: groupSize}).fetch()
         expId = world._id
         replay = new ReplayHandler(expId)
         replay.initialize(weights)
@@ -567,7 +559,7 @@ Meteor.methods
 
       lastIncrement = increments[increments.length - 1]
 
-      AnalysisWorlds.upsert {pseudo: true, treated: false, nominalSize: groupSize},
+      Analysis.Worlds.upsert {pseudo: true, treated: false, nominalSize: groupSize},
         $set:
           progress: increments
           wallTime: lastIncrement.wt
@@ -590,10 +582,10 @@ Meteor.methods
     weights = Meteor.call("cm-get-action-weights")
 
     # Remove all previous generated data
-    AnalysisWorlds.remove({synthetic: true})
+    Analysis.Worlds.remove({synthetic: true})
 
     gsEvents = getGoldStandardEvents()
-    singles = AnalysisWorlds.find({treated: true, nominalSize: 1}).fetch()
+    singles = Analysis.Worlds.find({treated: true, nominalSize: 1}).fetch()
     maxSamples = 100
 
     # Form synthetic groups of size 2 up to total - 2
@@ -611,7 +603,7 @@ Meteor.methods
 
         console.log partialScore, strictScore
 
-        AnalysisWorlds.insert
+        Analysis.Worlds.insert
           synthetic: true
           treated: false
           worlds: ids

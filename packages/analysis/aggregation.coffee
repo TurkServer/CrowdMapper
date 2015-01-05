@@ -131,7 +131,7 @@ Meteor.methods
   "cm-get-group-cooccurences": ->
     TurkServer.checkAdmin()
 
-    expIds = AnalysisWorlds.find({treated: true}).map (w) -> w._id
+    expIds = Analysis.Worlds.find({treated: true}).map (w) -> w._id
 
     console.log "Found #{expIds.length} experiments"
 

@@ -12,10 +12,12 @@ Package.on_use(function (api) {
 
   // use versions of these specified in main project
   api.use("mizzao:turkserver");
-  api.use("d3js:d3");
   api.use("iron:router");
+  api.use("d3js:d3");
+  api.use("aslagle:reactive-table");
 
   api.addFiles("util.coffee");
+  api.addFiles("common.coffee");
 
   api.addFiles([
     "client/viz.styl",
@@ -24,6 +26,8 @@ Package.on_use(function (api) {
     "client/viz.coffee",
     "client/overview.html",
     "client/overview.coffee",
+    "client/tagging.html",
+    "client/tagging.coffee",
     "client/groupPerformance.html",
     "client/groupPerformance.coffee",
     "client/box.js", // from http://bl.ocks.org/jensgrubert/7789216
@@ -40,7 +44,7 @@ Package.on_use(function (api) {
   api.addFiles('analysis.coffee', 'server');
 
   // Exports
-  api.export('Analysis', 'server');
+  api.export('Analysis');
   api.export('ReplayHandler', 'server');
 
   api.export('AdminController', 'client');
