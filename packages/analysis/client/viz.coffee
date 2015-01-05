@@ -4,10 +4,17 @@ preprocess = (data) ->
 
   move_reclassify = 0
   unlink_reclassify = 0
+  non_user = 0
 
   i = 0
   while i < logs.length
-    if logs[i].action is "data-unlink"
+    if not logs[i]._userId?
+      non_user++
+
+      logs.splice(i, 1)
+      continue # no increment
+
+    else if logs[i].action is "data-unlink"
       j = Math.max(i - 5, 0)
       while ++j < logs.length and (j - i) < 5
         # data-unlink followed by data-link (in the near future) should be
@@ -32,9 +39,10 @@ preprocess = (data) ->
           logs.splice(j, 1)
           i-- if j < i
           break
+
     i++
 
-  console.log "Moves re-classified: #{move_reclassify}", "Unlinks re-classified: #{unlink_reclassify}"
+  console.log "Moves re-classified: #{move_reclassify}", "Unlinks re-classified: #{unlink_reclassify}", "Non-user log items removed: #{non_user}"
 
 tags = /[~@#]/
 
@@ -269,14 +277,13 @@ class VizManager
       .attr("x", (entry) -> x(entry.timestamp))
 
   expandTimeline: (expanded) ->
-    y = @timelineY
 
     if expanded
       height = $(@svg).height() - bottomMargin
       domain = (user._id for user in @data.users)
 
       # update Y domain
-      y.domain( domain )
+      @timelineY.domain( domain )
 
       domainLabels = domainLabels = (user.username for user in @data.users)
 
@@ -287,8 +294,8 @@ class VizManager
     else
       height = collapsedTimelineHeight
 
-      # Only one blob on this domain
-      y.domain([0])
+      # Everything should map to the same value on this domain
+      @timelineY.domain( [ 0 ] )
       @timelineYaxis.tickValues(["Everyone"])
 
       # Draw brush
@@ -306,39 +313,51 @@ class VizManager
       # Make sure brushed area is up to date after this re-zoom
       @brushTimeline()
 
-    y.rangeBands([0, height], 0.2)
-    bandWidth = y.rangeBand() / 3
+    @timelineY.rangeBands([0, height], 0.2)
+    bandWidth = @timelineY.rangeBand() / 3
 
     tDuration = 600
+    y = @timelineY
+    ySVG = @timelineYaxis
 
-    # Redraw axes and labels
-    @timeline.select(".x.axis")
-    .transition().duration(tDuration)
-      .attr("transform", "translate(0, #{height})")
+    d3.select(@timeline)
+      .transition()
+      .duration(tDuration)
+      .each ->
+        # Transition various items selected from timeline
+        # Inside this function, the transition duration is shared
 
-    @timeline.select(".y.axis")
-    .transition().duration(tDuration)
-      .call(@timelineYaxis)
+        # Redraw axes and labels
+        this.select(".x.axis")
+          .transition()
+          .attr("transform", "translate(0, #{height})")
 
-    @timeline.select(".brush rect")
-    .transition().duration(tDuration)
-      .attr("height", height)
+        this.select(".y.axis")
+          .transition()
+          .call(ySVG)
 
-    # Transition y positions of bands and events
-    @timeline.selectAll(".action")
-    .transition().duration(tDuration)
-      .attr("y", (entry) -> y(entry._userId) + tickPosition(entry) * bandWidth)
-      .attr("height", bandWidth)
+        this.select(".brush rect")
+          .transition()
+          .attr("height", height)
 
-    @timeline.selectAll(".chat")
-    .transition().duration(tDuration)
-      .attr("y", (msg) -> y(msg.userId) + 2*bandWidth)
-      .attr("height", bandWidth)
+        # TODO: behavior of ordinal scale changed in 3.4. Must manually revert to 0 below for collapsed timeline, but it can change if we modify the timeline position.
+        defaultY = y(0)
 
-    @timeline.select(".chart-background").selectAll(".band")
-    .transition().duration(tDuration)
-      .attr("y", (id) -> y(id)) # Should just be 0 -> 0 for single band
-      .attr("height", y.rangeBand())
+        # Transition y positions of bands and events
+        this.selectAll(".action")
+          .transition()
+          .attr("y", (entry) -> (y(entry._userId) || defaultY) + tickPosition(entry) * bandWidth)
+          .attr("height", bandWidth)
+
+        this.selectAll(".chat")
+          .transition()
+          .attr("y", (msg) -> (y(msg.userId) || defaultY) + 2*bandWidth)
+          .attr("height", bandWidth)
+
+        this.select(".chart-background").selectAll(".band")
+          .transition()
+          .attr("y", (id) -> y(id) || defaultY ) # Should just be 0 -> 0 for single band
+          .attr("height", y.rangeBand())
 
     # Move sunbursts out of way
     @sunbursts.transition().duration(tDuration)
