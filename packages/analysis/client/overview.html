@@ -7,6 +7,9 @@
                         <a href="{{pathFor 'overview'}}">All Experiments</a>
                     </li>
                     <li>
+                        <a href="{{pathFor 'overviewPeople'}}">All Participants</a>
+                    </li>
+                    <li>
                         <a href="{{pathFor 'overviewTagging'}}">Tagging</a>
                     </li>
                     <li>
@@ -29,9 +32,9 @@
 </template>
 
 <template name="analysisExpLinks">
-    <a href="{{ pathFor 'viz' groupId=_id }}">viz</a>
-    <a href="{{ pathFor 'watch' instance=_id }}">watch</a>
-    <a href="{{ pathFor 'replay' instance=_id }}">replay</a>
+    <a href="{{ pathFor 'viz' groupId=id }}">viz</a>
+    <a href="{{ pathFor 'watch' instance=id }}">watch</a>
+    <a href="{{ pathFor 'replay' instance=id }}">replay</a>
 </template>
 
 <template name="analysisOverview">
@@ -44,6 +47,13 @@
 <template name="overviewStats">
     <div class="col-md-11">
         <h3>Computed Seconds Per Action</h3>
-        {{> tsDescList this }}
+        {{> reactiveTable collection=actionArray settings=settings }}
+    </div>
+</template>
+
+<template name="overviewPeople">
+    <div class="col-md-11 scroll-vertical">
+        <h3>List of Participants</h3>
+        {{> reactiveTable collection=this settings=settings }}
     </div>
 </template>

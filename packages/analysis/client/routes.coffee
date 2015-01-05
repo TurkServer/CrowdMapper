@@ -45,6 +45,12 @@ Router.map ->
       { pseudo: null, synthetic: null }
     ]
 
+  @route 'overviewPeople',
+    path: 'overview/people'
+    controller: AdminDataController
+    layoutTemplate: "overviewLayout"
+    methodArgs: -> [ "cm-get-analysis-people" ]
+
   @route 'overviewTagging',
     path: 'overview/tagging'
     controller: AdminDataController

@@ -1,31 +1,19 @@
+Template.analysisExpLinks.helpers
+  # Get the groupId associated with an analysis.world or analysis.person.
+  id: -> @instanceId || @_id
+
 Template.analysisOverview.helpers
   settings: {
     rowsPerPage: 100
     fields: [
       {
-        key: "avgIndivEntropy"
-        label: "mean indiv. entropy"
-        fn: (v) -> v.toFixed(3)
-        sortByValue: true
-      },
-      {
-        key: "fullCreditScore"
-        label: "0-1 score"
-      },
-      {
-        key: "groupEntropy"
-        label: "collective entropy"
-        fn: (v) -> v.toFixed(3)
-        sortByValue: true
-      },
-      {
         key: "nominalSize"
         label: "nominal size"
       },
       {
-        key: "partialCreditScore"
-        label: "partial score"
-        fn: (v) -> v.toFixed(3)
+        key: "wallTime"
+        label: "wall time"
+        fn: (v) -> v.toFixed(2)
         sortByValue: true
       },
       {
@@ -41,13 +29,36 @@ Template.analysisOverview.helpers
         sortByValue: true
       },
       {
-        key: "treated"
-        label: "treated"
+        key: "personEffort"
+        label: "effort/person"
+        fn: (v, o) ->
+          # Return a number so value is properly sorted
+          +(o.totalEffort / o.personTime).toFixed(2)
       },
       {
-        key: "wallTime"
-        label: "wall time"
-        fn: (v) -> v.toFixed(2)
+        key: "treated"
+        label: "valid treatment"
+      },
+      {
+        key: "partialCreditScore"
+        label: "partial score"
+        fn: (v) -> v.toFixed(3)
+        sortByValue: true
+      },
+      {
+        key: "fullCreditScore"
+        label: "0-1 score"
+      },
+      {
+        key: "avgIndivEntropy"
+        label: "mean indiv. entropy"
+        fn: (v) -> v.toFixed(3)
+        sortByValue: true
+      },
+      {
+        key: "groupEntropy"
+        label: "collective entropy"
+        fn: (v) -> v.toFixed(3)
         sortByValue: true
       },
       {
@@ -58,3 +69,53 @@ Template.analysisOverview.helpers
     ]
   }
 
+Template.overviewPeople.helpers
+  settings: {
+    rowsPerPage: 100
+    fields: [
+      {
+        key: "groupSize"
+        label: "group size"
+      },
+      {
+        key: "time"
+        label: "active time"
+        fn: (v) -> v.toFixed(2)
+        sortByValue: true
+      },
+      {
+        key: "effort"
+        label: "effort-time"
+        fn: (v) -> v.toFixed(2)
+        sortByValue: true
+      },
+      {
+        key: "treated"
+        label: "valid treatment"
+      },
+      {
+        key: "links"
+        label: "links"
+        tmpl: Template.analysisExpLinks
+      }
+
+    ]
+  }
+
+Template.overviewStats.helpers
+  actionArray: -> ({action: k, time: v} for k, v of this)
+  settings: {
+    rowsPerPage: 50
+    fields: [
+      {
+        key: "action"
+        label: "action"
+      },
+      {
+        key: "time"
+        label: "mean time since previous action (s)"
+        fn: (v) -> (v / 1000).toFixed(2)
+        sortByValue: true
+      }
+    ]
+  }
