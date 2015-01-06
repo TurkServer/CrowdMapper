@@ -17,12 +17,13 @@ To make the analysis algorithms available, first install the `libzmq` and `libev
 apt-get install libzmq-dev
 apt-get install libevent
 ```
-       
-Then install the python dependencies for ZeroRPC:
+
+If all the above works, Meteor should be able to install the `zerorpc` npm package as part of the app without any issues.
+
+In addition, install the python dependencies for ZeroRPC, and Munkres (the Hungarian algorithm):
        
 ```
 pip install pyzmq
 pip install zerorpc
+pip install munkres
 ```       
-
-If all the above works, Meteor should be able to install the `zerorpc` npm package as part of the app without any issues.  
