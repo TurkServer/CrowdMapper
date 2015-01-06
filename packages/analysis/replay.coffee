@@ -24,6 +24,10 @@ class ReplayHandler
     @tempData = new Mongo.Collection(null)
     @tempEvents = new Mongo.Collection(null)
 
+    @tempChatRooms = new Mongo.Collection(null)
+    @tempChatUsers = new Mongo.Collection(null)
+    @tempChatMessages = new Mongo.Collection(null)
+
   publishData: (sub) ->
     # Send fake local collection data over the wire
     # We're pretending to do the same thing as with an array of cursors
@@ -31,7 +35,12 @@ class ReplayHandler
     Mongo.Collection._publishCursor(@tempEvents.find(), sub, Events._name)
 
     # This is cool, we get to track users for the replay as well as for the analysis
-    Mongo.Collection._publishCursor(@tempUsers.find(), sub, "users")
+    Mongo.Collection._publishCursor(@tempUsers.find(), sub, Meteor.users._name)
+
+    # Publish chat - rooms, presence, and messages
+    Mongo.Collection._publishCursor(@tempChatRooms.find(), sub, ChatRooms._name)
+    Mongo.Collection._publishCursor(@tempChatUsers.find(), sub, ChatUsers._name)
+    Mongo.Collection._publishCursor(@tempChatMessages.find(), sub, ChatMessages._name)
 
     sub.ready()
 
@@ -129,6 +138,9 @@ class ReplayHandler
           # Remove any online/idle status
           @tempUsers.update log._userId,
             $unset: { status: null }
+          # Remove from any rooms
+          @setChatroom(log._userId, null)
+
         when "created", "initialized"
         else
           Meteor._debug("Don't know what to do with ", log)
@@ -194,9 +206,25 @@ class ReplayHandler
 
         @tempEvents.update log.eventId,
           $set: { deleted: true }
+      # below events from data.coffee
+      when "chat-create"
+        @tempChatRooms.insert
+          _id: log.room
+          name: log.name
+          users: 0
+      when "chat-rename"
+        @tempChatRooms.update log.room,
+          $set: { name: log.name }
+      # these are from chat_server.coffee
+      when "room-enter"
+        @setChatroom(log._userId, log.room)
+
+      when "chat-delete"
+        @tempChatRooms.update log.room,
+          $set: { deleted: true }
+
       when "document-create", "document-rename", "document-delete", "document-open"
         null
-      when "chat-create", "chat-rename", "room-enter", "chat-delete" then null
       else
         Meteor._debug("Don't know what to do with ", log)
         throw new Error()
@@ -208,10 +236,35 @@ class ReplayHandler
     @recordEffort(log._userId, log.action) if @actionWeights?
     return
 
+  # Take care of updating chat room sessions and counts.
+  setChatroom: (userId, roomId) ->
+    # we can't do incrementing properly because we don't have leaveRoom
+    # data, so we're just going to have to approximate it here.
+    # This shouldn't be too big of a deal because people rarely left rooms
+    # without joining a different one
+    if (prevRoom = @tempChatUsers.findOne({ userId })?.roomId)?
+      @tempChatRooms.update prevRoom,
+        $inc: { users: -1 }
+
+    # If roomId is null, user left the room (i.e. disconnection).
+    if roomId?
+      @tempChatUsers.upsert { userId },
+        $set: { roomId }
+      @tempChatRooms.update roomId,
+        $inc: { users: 1 }
+    else
+      @tempChatUsers.remove({ userId })
+
+    return
+
   processChat: (chat) ->
     @wallTime = chat.timestamp - @exp.startTime
 
+    # Just copy the whole message, including timestamp, into the collection
+    @tempChatMessages.insert(chat)
+
     @recordEffort(chat.userId, "chat") if @actionWeights?
+    return
 
   recordEffort: (userId, action) ->
     weight = @actionWeights[action] || 0
@@ -221,6 +274,7 @@ class ReplayHandler
     # Initialize user effort if missing
     @userEffort[userId] ?= { effort: 0, time: 0 }
     @userEffort[userId].effort += weight
+    return
 
   recordTime: (userIds, time) ->
     @manTime += userIds.length * time

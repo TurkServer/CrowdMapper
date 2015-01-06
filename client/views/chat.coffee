@@ -1,16 +1,24 @@
-# Send room changes to server
-# TODO this incurs a high traffic/rendering cost when switching between rooms
-# TODO only subscribe to the room if found in the ChatRooms collection
-Deps.autorun ->
-  roomId = Session.get("room")
-  Session.set("chatRoomReady", false)
-  Meteor.subscribe("chatstate", roomId, -> Session.set("chatRoomReady", true))
-
 # This should only change if the room changes, else chat box will be re-rendering a lot
 Handlebars.registerHelper "currentRoom", ->
   return unless Meteor.userId()?
   # Return room only if it exists in the collection (not deleted)
   return ChatRooms.findOne(Session.get("room"), {fields: _id: 1})?._id
+
+Template.chat.rendered = ->
+  # Send room changes to server
+  # TODO this incurs a high traffic/rendering cost when switching between rooms
+  # TODO only subscribe to the room if found in the ChatRooms collection
+  this.autorun ->
+    roomId = Session.get("room")
+
+    # in replay mode, messages will be automatically pushed over by the server
+    if Router.current().route.getName() is "replay"
+      console.log "Room change in replay; no action taken."
+      return
+
+    # request the contents of the chat room otherwise
+    Session.set("chatRoomReady", false)
+    Meteor.subscribe("chatstate", roomId, -> Session.set("chatRoomReady", true))
 
 Template.chat.events
   "click .action-room-create": (e) ->
@@ -121,8 +129,9 @@ Template.messageBox.events =
 Template.messageBox.helpers
   loaded: -> Session.equals("chatRoomReady", true)
   messages: ->
-    ChatMessages.find {},
-      # room: Session.get("room")
+    # Multiple chatrooms may be loaded, to save on traffic or for the replay.
+    # Since we're sorting anyway, filter by room.
+    ChatMessages.find { room: Session.get("room") },
       sort: {timestamp: 1}
 
 # These usernames are nonreactive because find does not use any reactive variables
