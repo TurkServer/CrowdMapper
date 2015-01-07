@@ -9,6 +9,9 @@ Template.overviewSpecialization.helpers
   labels: _.map(labels, (v, k) -> { key: k, value: v } )
 
 Template.overviewSpecialization.rendered = ->
+  # TODO use minimongo queries
+  @data = Analysis.Worlds.find().fetch()
+
   svg = @find("svg")
 
   leftMargin = 80

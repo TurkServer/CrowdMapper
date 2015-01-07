@@ -37,19 +37,24 @@ Router.map ->
 
   # Overview route, with access to experiments and stuff
   @route 'overview',
-    template: "analysisOverview"
-    controller: AdminDataController
+    controller: AdminController
     layoutTemplate: "overviewLayout"
-    methodArgs: -> [
-      "cm-get-analysis-worlds",
-      { pseudo: null, synthetic: null }
-    ]
+
+  @route 'overviewExperiments',
+    template: "overviewExperiments"
+    controller: AdminController
+    layoutTemplate: "overviewLayout"
+    waitOn: ->
+      Meteor.subscribe("cm-analysis-worlds", {
+        pseudo: null,
+        synthetic: null
+      })
 
   @route 'overviewPeople',
     path: 'overview/people'
-    controller: AdminDataController
+    controller: AdminController
     layoutTemplate: "overviewLayout"
-    methodArgs: -> [ "cm-get-analysis-people" ]
+    waitOn: -> Meteor.subscribe("cm-analysis-people")
 
   @route 'overviewTagging',
     path: 'overview/tagging'
@@ -65,21 +70,23 @@ Router.map ->
 
   @route 'overviewGroupPerformance',
     path: 'overview/groupPerformance'
-    controller: AdminDataController
+    controller: AdminController
     layoutTemplate: "overviewLayout"
-    methodArgs: -> [ "cm-get-analysis-worlds" ]
+    waitOn: ->
+      Meteor.subscribe("cm-analysis-worlds")
 
   @route 'overviewIndivPerformance',
     path: 'overview/indivPerformance'
-    controller: AdminDataController
+    controller: AdminController
     layoutTemplate: "overviewLayout"
-    methodArgs: -> [ "cm-get-analysis-people" ]
+    waitOn: -> Meteor.subscribe("cm-analysis-people")
 
   @route 'overviewSpecialization',
     path: 'overview/specialization'
-    controller: AdminDataController
+    controller: AdminController
     layoutTemplate: "overviewLayout"
-    methodArgs: -> [
-      "cm-get-analysis-worlds",
-      { pseudo: null, synthetic: null }
-    ]
+    waitOn: ->
+      Meteor.subscribe("cm-analysis-worlds", {
+        pseudo: null,
+        synthetic: null
+      })

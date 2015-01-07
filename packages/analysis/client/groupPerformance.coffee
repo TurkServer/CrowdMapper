@@ -7,6 +7,9 @@ abbrv =
   personTime: "mt"
 
 Template.overviewGroupPerformance.rendered = ->
+  # TODO use db queries later
+  @data = Analysis.Worlds.find().fetch()
+
   # Sort treated data for averaging later
   nested = d3.nest()
     .key( (d) -> d.nominalSize )

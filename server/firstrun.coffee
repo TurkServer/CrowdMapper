@@ -123,3 +123,21 @@ Meteor.startup ->
 
   Meteor._debug "Set up group size assigner"
 
+# Load gold standard data if it exists
+pabloGoldStandard = "groundtruth-pablo"
+
+Meteor.startup ->
+  return if Experiments.findOne(pabloGoldStandard)?
+  result = JSON.parse Assets.getText("#{pabloGoldStandard}.json")
+
+  Experiments.upsert(pabloGoldStandard, $set: {})
+
+  for event in result.events
+    event._groupId = pabloGoldStandard
+    Events.direct.insert(event)
+
+  for data in result.datastream
+    data._groupId = pabloGoldStandard
+    Datastream.direct.insert(data)
+
+  console.log "Imported gold standard data; events: #{result.events.length}, datastream: #{result.datastream.length}"

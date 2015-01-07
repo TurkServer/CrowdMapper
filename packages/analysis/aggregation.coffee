@@ -23,6 +23,7 @@ getCentroid = (events) ->
 
   return location
 
+# TODO: this is not used anymore; merge with collected gold standard
 preparePabloInstance = (instanceName, force) ->
 
   if Experiments.findOne(instanceName)?

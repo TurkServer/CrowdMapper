@@ -4,7 +4,10 @@
             <div class="col-md-1">
                 <ul class="nav nav-pills nav-stacked">
                     <li>
-                        <a href="{{pathFor 'overview'}}">All Experiments</a>
+                        <a href="{{pathFor 'overview'}}">Overview</a>
+                    </li>
+                    <li>
+                        <a href="{{pathFor 'overviewExperiments'}}">All Experiments</a>
                     </li>
                     <li>
                         <a href="{{pathFor 'overviewPeople'}}">All Participants</a>
@@ -31,13 +34,19 @@
     </div>
 </template>
 
+<template name="overview">
+    <h3>Data Analysis Overview</h3>
+
+
+</template>
+
 <template name="analysisExpLinks">
     <a href="{{ pathFor 'viz' groupId=id }}">viz</a>
     <a href="{{ pathFor 'watch' instance=id }}">watch</a>
     <a href="{{ pathFor 'replay' instance=id }}">replay</a>
 </template>
 
-<template name="analysisOverview">
+<template name="overviewExperiments">
     <div class="col-md-11 scroll-vertical">
         <h3>List of Experiments</h3>
         {{> reactiveTable collection=this settings=settings}}
@@ -45,7 +54,7 @@
 </template>
 
 <template name="overviewStats">
-    <div class="col-md-11">
+    <div class="col-md-11 scroll-vertical">
         <h3>Computed Seconds Per Action</h3>
         {{> reactiveTable collection=actionArray settings=settings }}
     </div>

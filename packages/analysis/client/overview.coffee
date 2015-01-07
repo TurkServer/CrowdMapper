@@ -2,8 +2,9 @@ Template.analysisExpLinks.helpers
   # Get the groupId associated with an analysis.world or analysis.person.
   id: -> @instanceId || @_id
 
-Template.analysisOverview.helpers
+Template.overviewExperiments.helpers
   settings: {
+    collection: Analysis.Worlds
     rowsPerPage: 100
     fields: [
       {
@@ -71,6 +72,7 @@ Template.analysisOverview.helpers
 
 Template.overviewPeople.helpers
   settings: {
+    collection: Analysis.People
     rowsPerPage: 100
     fields: [
       {

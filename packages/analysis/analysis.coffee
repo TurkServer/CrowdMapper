@@ -54,6 +54,24 @@ getAllExpIds = ->
     users: $exists: true
   }).map (e) -> e._id
 
+# Admin data publications
+Meteor.publish "cm-analysis-worlds", (filter) ->
+  return [] unless TurkServer.isAdmin(this.userId)
+  return Analysis.Worlds.find(filter || {})
+
+Meteor.publish "cm-analysis-people", (filter) ->
+  return [] unless TurkServer.isAdmin(this.userId)
+  return Analysis.People.find({treated: true})
+
+###
+  Overview of analysis starting from the gold standard
+  - copy experiment worlds and people into analysis collections
+  - compute average weight of each action
+  - score worlds over time
+  - compute specialization
+  - synthetic groups
+###
+
 Meteor.methods
   "cm-get-viz-data": (groupId) ->
     TurkServer.checkAdmin()
@@ -70,14 +88,6 @@ Meteor.methods
     chat = ChatMessages.find({room: $in: roomIds}, {sort: {timestamp: 1}}).fetch()
 
     return {weights, instance, users, logs, chat}
-
-  "cm-get-analysis-worlds": (filter) ->
-    TurkServer.checkAdmin()
-    return Analysis.Worlds.find(filter || {}).fetch()
-
-  "cm-get-analysis-people": ->
-    TurkServer.checkAdmin()
-    return Analysis.People.find({treated: true}).fetch()
 
   # Copy the experiment worlds we're interested in to a new collection for
   # computing analysis results

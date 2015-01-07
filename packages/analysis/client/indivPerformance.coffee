@@ -1,4 +1,5 @@
 Template.overviewIndivPerformance.rendered = ->
+  @data = Analysis.People.find().fetch()
 
   margin = {top: 30, right: 50, bottom: 70, left: 50}
 
