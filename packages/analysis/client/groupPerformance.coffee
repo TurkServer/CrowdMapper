@@ -8,13 +8,13 @@ abbrv =
 
 Template.overviewGroupPerformance.rendered = ->
   # TODO use db queries later
-  @data = Analysis.Worlds.find().fetch()
+  groupData = Analysis.Worlds.find().fetch()
 
   # Sort treated data for averaging later
   nested = d3.nest()
     .key( (d) -> d.nominalSize )
     .sortKeys(d3.ascending)
-    .entries(@data.filter( (d) -> d.treated ))
+    .entries(groupData.filter( (d) -> d.treated ))
 
   svg = @find("svg")
 
@@ -113,7 +113,7 @@ Template.overviewGroupPerformance.rendered = ->
 
   # Draw progress lines
   graph.selectAll("path.progress")
-    .data(@data.filter( (d) -> !(d.pseudo or d.synthetic)), (g) -> g._id)
+    .data(groupData.filter( (d) -> !(d.pseudo or d.synthetic)), (g) -> g._id)
   .enter().append("path")
     .attr("class", (g) ->
       cls = "progress line " + g.treatments.join(" ")
@@ -129,14 +129,14 @@ Template.overviewGroupPerformance.rendered = ->
     .style("stroke", (g) -> groupColor(g.key) )
 
   graph.selectAll("path.pseudo")
-    .data(@data.filter( (d) -> d.pseudo ), (g) -> g._id )
+    .data(groupData.filter( (d) -> d.pseudo ), (g) -> g._id )
   .enter().append("path")
     .attr("class", (g) -> "line pseudo group_" + g.nominalSize)
     .style("stroke", (g) -> groupColor(g.nominalSize) )
 
   # Draw final points
   graph.selectAll(".point")
-    .data(@data.filter( (d) -> !(d.pseudo or d.synthetic)), (g) -> g._id)
+    .data(groupData.filter( (d) -> !(d.pseudo or d.synthetic)), (g) -> g._id)
   .enter().append("circle")
     .attr("class", (g) -> "point " + g.treatments.join(" "))
     .attr("stroke", (g) -> groupColor(g.nominalSize) )
@@ -169,7 +169,7 @@ Template.overviewGroupPerformance.rendered = ->
     yLabel.text(label)
 
     # Transition y axis
-    maxScore = d3.max(@data, (g) -> g[yField])
+    maxScore = d3.max(groupData, (g) -> g[yField])
 
     y.domain([0, maxScore * 1.1])
 
@@ -187,8 +187,8 @@ Template.overviewGroupPerformance.rendered = ->
 
     xLabel.text(label)
 
-    maxVal = d3.max(@data, (g) -> g[xField])
-    maxScore = d3.max(@data, (g) -> g[yField])
+    maxVal = d3.max(groupData, (g) -> g[xField])
+    maxScore = d3.max(groupData, (g) -> g[yField])
 
     # Reset zoom, both x and y
     zoom.translate([0, 0]).scale(1)
@@ -257,7 +257,7 @@ Template.overviewGroupPerformance.rendered = ->
       .key( (d) -> d.personTime )
       .sortKeys(d3.ascending)
       .rollup( (leaves) -> leaves.map( (d) -> d[yField] ) )
-      .entries(@data.filter (d) -> d.synthetic)
+      .entries(groupData.filter (d) -> d.synthetic)
       .map( (o) -> [o.key, o.values] )
 
     boxWidth = 12
@@ -302,7 +302,7 @@ Template.overviewGroupPerformance.rendered = ->
     medians = d3.nest()
       .key((g) -> g.nominalSize ).sortKeys( (a, b) -> a - b)
       .rollup((leaves) -> d3.median(leaves, (g) -> g[yField]) )
-      .entries(@data.filter (d) -> d.treated )
+      .entries(groupData.filter (d) -> d.treated )
 
     medianLine.datum(medians)
       .transition().duration(tdur).attr("d", line)

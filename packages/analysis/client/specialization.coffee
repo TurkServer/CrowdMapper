@@ -9,9 +9,6 @@ Template.overviewSpecialization.helpers
   labels: _.map(labels, (v, k) -> { key: k, value: v } )
 
 Template.overviewSpecialization.rendered = ->
-  # TODO use minimongo queries
-  @data = Analysis.Worlds.find().fetch()
-
   svg = @find("svg")
 
   leftMargin = 80
@@ -28,11 +25,22 @@ Template.overviewSpecialization.rendered = ->
     .attr("transform", "translate(#{leftMargin}, 0)")
 
   # TODO generalize this for transitions
-  filteredData = @data
+  filteredData = null
   xKey = null
   yKey = null
   displayOrdinal = false
   showBoxes = false
+
+  filterData = =>
+    displayOrdinal = xKey is "nominalSize" and showBoxes
+
+    if displayOrdinal
+      filteredData = Analysis.Worlds.find({
+        nominalSize: { $gt: 1 }
+        treated: true
+      }).fetch()
+    else
+      filteredData = Analysis.Worlds.find().fetch()
 
   # TODO allow selection of circle radius
   # radius = (g) -> 2 * Math.sqrt(g.partialCreditScore)
@@ -93,14 +101,6 @@ Template.overviewSpecialization.rendered = ->
     .attr("transform", "translate(#{leftMargin}, 0)")
 
   groupColor = (size) -> colors(Math.log(size) / Math.LN2)
-
-  filterData = =>
-    displayOrdinal = xKey is "nominalSize" and showBoxes
-
-    if displayOrdinal
-      filteredData = @data.filter( (d) -> d.nominalSize > 1 and d.treated )
-    else
-      filteredData = @data
 
   # Redraw X axis
   redrawX = ->
@@ -174,8 +174,10 @@ Template.overviewSpecialization.rendered = ->
       points = graph.selectAll(".point")
         .data(filteredData, (d) -> d._id)
 
+      # TODO Somehow, pseudo treatments get in here, even though they don't
+      # appear in the final result.
       points.enter().append("circle")
-        .attr("class", (g) -> "point " + g.treatments.join(" "))
+        .attr("class", (g) -> "point " + g.treatments?.join(" "))
         .attr("stroke", (g) -> groupColor(g.nominalSize) )
         .attr("fill", (g) -> if g.treated then groupColor(g.nominalSize) else "white" )
       .append("svg:title")

@@ -1,19 +1,19 @@
 Template.overviewIndivPerformance.rendered = ->
-  @data = Analysis.People.find().fetch()
+  peopleData = Analysis.People.find().fetch()
 
   margin = {top: 30, right: 50, bottom: 70, left: 50}
 
   svg = @find("svg")
 
   accessor = (d) -> d.effort / d.time
-  min = d3.min(@data, accessor)
-  max = d3.max(@data, accessor)
+  min = d3.min(peopleData, accessor)
+  max = d3.max(peopleData, accessor)
 
   nest = d3.nest()
     .key( (d) -> d.groupSize )
     .sortKeys(d3.ascending)
     .rollup( (leaves) -> leaves.map(accessor) )
-    .entries(@data)
+    .entries(peopleData)
 
   # Get this shit into the [0][1] format for rows
   data = nest.map( (o) -> [o.key, o.values] )
