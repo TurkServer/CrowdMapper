@@ -7,11 +7,13 @@ Package.on_use(function (api) {
   api.use("coffeescript");
   api.use("stylus");
   api.use("templating");
+  api.use("reactive-dict");
 
   api.use("underscore");
 
   // use versions of these specified in main project
   api.use("mizzao:turkserver");
+  api.use("mizzao:jquery-ui");
   api.use("iron:router");
   api.use("d3js:d3");
   api.use("aslagle:reactive-table");
@@ -22,15 +24,18 @@ Package.on_use(function (api) {
   api.addFiles([
     "client/viz.styl",
     "client/routes.coffee",
+    "client/graphing.coffee",
     "client/viz.html",
     "client/viz.coffee",
     "client/overview.html",
     "client/overview.coffee",
     "client/tagging.html",
     "client/tagging.coffee",
+    "client/box.js", // from http://bl.ocks.org/jensgrubert/7789216
     "client/groupPerformance.html",
     "client/groupPerformance.coffee",
-    "client/box.js", // from http://bl.ocks.org/jensgrubert/7789216
+    "client/groupSlices.html",
+    "client/groupSlices.coffee",
     "client/indivPerformance.html",
     "client/indivPerformance.coffee",
     "client/specialization.html",

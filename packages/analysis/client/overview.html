@@ -22,7 +22,10 @@
                         <a href="{{pathFor 'overviewIndivPerformance'}}">Individual Performance</a>
                     </li>
                     <li>
-                        <a href="{{pathFor 'overviewGroupPerformance'}}">Group Performance</a>
+                        <a href="{{pathFor 'overviewGroupPerformance'}}">Groups Over Time</a>
+                    </li>
+                    <li>
+                        <a href="{{pathFor 'overviewGroupSlices'}}">Groups Sliced</a>
                     </li>
                     <li>
                         <a href="{{pathFor 'overviewSpecialization'}}">Specialization</a>
@@ -65,4 +68,16 @@
         <h3>List of Participants</h3>
         {{> reactiveTable collection=this settings=settings }}
     </div>
+</template>
+
+<template name="sizeLegend">
+    <h3>Legend</h3>
+    <h4 class="legend">
+        <div style="background: {{color 1}}">Size 1</div>
+        <div style="background: {{color 2}}">Size 2</div>
+        <div style="background: {{color 4}}">Size 4</div>
+        <div style="background: {{color 8}}">Size 8</div>
+        <div style="background: {{color 16}}">Size 16</div>
+        <div style="background: {{color 32}}">Size 32</div>
+    </h4>
 </template>

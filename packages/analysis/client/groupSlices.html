@@ -1,0 +1,71 @@
+<template name="overviewGroupSlices">
+    <div class="col-md-1">
+        <h3>Group Sliced Performance</h3>
+
+        <h3>Y-axis</h3>
+        <div class="radio">
+            <label class="radio">
+                <input type="radio" name="groupScoring" value="partialCreditScore" checked> Partial Credit Scoring
+            </label>
+            <label class="radio">
+                <input type="radio" name="groupScoring" value="fullCreditScore"> Full Credit Scoring
+            </label>
+            <label class="radio">
+                <input type="radio" name="groupScoring" value="totalEffort"> Total Effort
+            </label>
+        </div>
+
+        <h3>X-axis</h3>
+        <div class="radio">
+            <label class="radio">
+                <input type="radio" name="xScale" value="ordinal" checked> Ordinal
+            </label>
+            <label class="radio">
+                <input type="radio" name="xScale" value="cardinal"> Cardinal
+            </label>
+        </div>
+
+        <h3>Slice Value</h3>
+        <div class="radio">
+            <label class="radio">
+                <input type="radio" name="groupComparator" value="personTime"> Person Hours
+            </label>
+            <label class="radio">
+                <input type="radio" name="groupComparator" value="totalEffort"> Effort Hours
+            </label>
+            <label class="radio">
+                <input type="radio" name="groupComparator" value="wallTime" checked> Wall Time
+            </label>
+        </div>
+
+        {{> sizeLegend}}
+    </div>
+
+    <div class="col-md-10">
+        <div class="well" style="width: 900px">
+            <div class="slider"></div>
+            <h4 class="pull-left">0</h4>
+            <h4 class="pull-right">{{settingOf "sliceMax"}}</h4>
+            <h4 class="slider-immediate text-center"></h4>
+        </div>
+
+        <svg class="viz" width="900" height="{{height}}">
+            <g class="graph" transform="translate({{leftMargin}} 0)">
+                {{#each points}}
+                {{> groupSlicePoint}}
+                {{/each}}
+                <path class="line median"></path>
+            </g>
+            <g class="x axis" transform="translate({{leftMargin}} {{bottomOffset}})"></g>
+            <g class="x grid" transform="translate({{leftMargin}} {{bottomOffset}})"></g>
+            <g class="y axis" transform="translate({{leftMargin}} 0)"></g>
+            <g class="y grid" transform="translate({{leftMargin}} 0)"></g>
+        </svg>
+    </div>
+</template>
+
+<template name="groupSlicePoint">
+    <circle class="point {{treatments}}" r="5" fill={{sizeColor}}>
+        <title>{{_id}}</title>
+    </circle>
+</template>

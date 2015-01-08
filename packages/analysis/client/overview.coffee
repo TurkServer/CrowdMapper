@@ -121,3 +121,6 @@ Template.overviewStats.helpers
       }
     ]
   }
+
+Template.sizeLegend.helpers
+  color: Util.groupColor

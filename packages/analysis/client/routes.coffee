@@ -75,6 +75,16 @@ Router.map ->
     waitOn: ->
       Meteor.subscribe("cm-analysis-worlds")
 
+  @route 'overviewGroupSlices',
+    path: 'overview/groupSlices'
+    controller: AdminController
+    layoutTemplate: "overviewLayout"
+    waitOn: ->
+      Meteor.subscribe("cm-analysis-worlds", {
+        pseudo: null,
+        synthetic: null
+      })
+
   @route 'overviewIndivPerformance',
     path: 'overview/indivPerformance'
     controller: AdminController

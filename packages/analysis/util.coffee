@@ -1,6 +1,8 @@
 # Define analysis global for export
 Analysis = {}
 
+bisectors = {}
+
 Util =
   # Overall classification of log actions
   logActionType: (entry) ->
@@ -24,3 +26,27 @@ Util =
         null
       return [ i, j ]
 
+  # Abbreviations used in progress array
+  fieldAbbr:
+    partialCreditScore: "ps"
+    fullCreditScore: "ss"
+    totalEffort: "ef"
+    wallTime: "wt"
+    personTime: "mt"
+
+  # Memoize bisectors so they aren't constructed each time.
+  getBisector: (key) ->
+    return bisectors[key] ?= d3.bisector( (d) -> d[key] )
+
+  # compute a linearly interpolated value for a field in a progress array.
+  interpolateArray: (progress, xField, yField, xVal) ->
+    return if progress[progress.length - 1][xField] < xVal
+    bisector = Util.getBisector(xField)
+
+    i = bisector.right(progress, xVal)
+
+    lower = progress[i - 1] || progress[0]
+    upper = progress[i]
+
+    l = (xVal - lower[xField]) / (upper[xField] - lower[xField])
+    return l * upper[yField] + (1-l) * lower[yField]

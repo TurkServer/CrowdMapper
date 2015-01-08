@@ -1,11 +1,3 @@
-# Abbreviations used in array
-abbrv =
-  partialCreditScore: "ps"
-  fullCreditScore: "ss"
-  totalEffort: "ef"
-  wallTime: "wt"
-  personTime: "mt"
-
 Template.overviewGroupPerformance.rendered = ->
   # TODO use db queries later
   groupData = Analysis.Worlds.find().fetch()
@@ -27,17 +19,6 @@ Template.overviewGroupPerformance.rendered = ->
   graph = d3.select(svg).append("g")
     .attr("class", "graph")
     .attr("transform", "translate(#{leftMargin}, 0)")
-
-  colors = d3.scale.category10()
-    .domain( [0...10] )
-
-  # Color the legend
-  # TODO horrible hack, ugh
-  legend = @find(".legend")
-  d3.select(legend).selectAll("div")
-  .each ->
-    size = Math.log($(this).data("legend")) / Math.LN2
-    d3.select(this).style("background", colors(size))
 
   x = d3.scale.linear()
     .domain([0, 33]) # Need an initial X domain for the first y transition
@@ -106,8 +87,6 @@ Template.overviewGroupPerformance.rendered = ->
     .attr("class", "y grid")
     .attr("transform", "translate(#{leftMargin}, 0)")
 
-  groupColor = (size) -> colors(Math.log(size) / Math.LN2)
-
   gBox = graph.append("g")
     .attr("class", "boxplots")
 
@@ -120,27 +99,27 @@ Template.overviewGroupPerformance.rendered = ->
       cls += " untreated" unless g.treated
       return cls
     )
-    .style("stroke", (g) -> groupColor(g.nominalSize) )
+    .style("stroke", (g) -> Util.groupColor(g.nominalSize) )
 
   graph.selectAll("path.average")
     .data(nested, (g) -> g.key)
   .enter().append("path")
     .attr("class", (g) -> "line average group_" + g.key)
-    .style("stroke", (g) -> groupColor(g.key) )
+    .style("stroke", (g) -> Util.groupColor(g.key) )
 
   graph.selectAll("path.pseudo")
     .data(groupData.filter( (d) -> d.pseudo ), (g) -> g._id )
   .enter().append("path")
     .attr("class", (g) -> "line pseudo group_" + g.nominalSize)
-    .style("stroke", (g) -> groupColor(g.nominalSize) )
+    .style("stroke", (g) -> Util.groupColor(g.nominalSize) )
 
   # Draw final points
   graph.selectAll(".point")
     .data(groupData.filter( (d) -> !(d.pseudo or d.synthetic)), (g) -> g._id)
   .enter().append("circle")
     .attr("class", (g) -> "point " + g.treatments.join(" "))
-    .attr("stroke", (g) -> groupColor(g.nominalSize) )
-    .attr("fill", (g) -> if g.treated then groupColor(g.nominalSize) else "#ffffff" )
+    .attr("stroke", (g) -> Util.groupColor(g.nominalSize) )
+    .attr("fill", (g) -> if g.treated then Util.groupColor(g.nominalSize) else "#ffffff" )
     .attr("cx", (g) -> x(g.nominalSize))
     .attr("r", 4)
   .append("svg:title")
@@ -164,7 +143,7 @@ Template.overviewGroupPerformance.rendered = ->
   # y axis values
   @setScoring = (field, label) =>
     yField = field
-    yFieldAbbr = abbrv[yField]
+    yFieldAbbr = Util.fieldAbbr[yField]
 
     yLabel.text(label)
 
@@ -183,7 +162,7 @@ Template.overviewGroupPerformance.rendered = ->
   @setComparator = (field, label) =>
     if field?
       xField = field
-      xFieldAbbr = abbrv[xField]
+      xFieldAbbr = Util.fieldAbbr[xField]
 
     xLabel.text(label)
 
@@ -331,7 +310,6 @@ Template.overviewGroupPerformance.rendered = ->
       computeAverages = (grouping) ->
         groups = grouping.values
 
-        bisector = d3.bisector( (d) -> d[xFieldAbbr] )
         result = []
 
         i = 0
@@ -339,19 +317,15 @@ Template.overviewGroupPerformance.rendered = ->
           sum = 0
           counted = 0
           for group in groups
-            progress = group.progress
+
+            interp = Util.interpolateArray(group.progress, xFieldAbbr, yFieldAbbr, i)
             # Average only over groups that have gotten up to this value
-            continue if progress[progress.length - 1][xFieldAbbr] < i
-            idx = bisector.right(progress, i)
+            continue unless interp?
 
-            lower = progress[idx - 1] || progress[0]
-            upper = progress[idx]
-
-            frac = (i - lower[xFieldAbbr]) / (upper[xFieldAbbr] - lower[xFieldAbbr])
-            sum += frac * upper[yFieldAbbr] + (1-frac) * lower[yFieldAbbr]
+            sum += interp
             counted++
 
-          # TODO better control over what is being averaged
+          # TODO better control over what is being averaged, this is a heuristic hack
           break if (counted < groups.length - 1) or (counted < groups.length and grouping.key > 3)
 
           bit = {}
