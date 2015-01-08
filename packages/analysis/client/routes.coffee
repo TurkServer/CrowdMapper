@@ -41,7 +41,7 @@ Router.map ->
     layoutTemplate: "overviewLayout"
 
   @route 'overviewExperiments',
-    template: "overviewExperiments"
+    path: 'overview/experiments'
     controller: AdminController
     layoutTemplate: "overviewLayout"
     waitOn: ->
