@@ -1,3 +1,18 @@
+Template.overview.events
+  "click .cm-analysis": (e) ->
+    method = $(e.target).data("method")
+
+    dialog = bootbox.dialog
+      closeButton: false
+      message: "<h3>Working...</h3>"
+
+    Meteor.call method, (err, res) ->
+      dialog.modal("hide")
+      if err
+        bootbox.alert(err)
+      else
+        bootbox.alert("done")
+
 Template.analysisExpLinks.helpers
   # Get the groupId associated with an analysis.world or analysis.person.
   id: -> @instanceId || @_id

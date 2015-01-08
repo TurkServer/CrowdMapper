@@ -38,9 +38,39 @@
 </template>
 
 <template name="overview">
-    <h3>Data Analysis Overview</h3>
+    <div class="col-md-10">
+        <h3>Overview</h3>
 
+        <p>Click bits to the left to see graphs.</p>
 
+        <h4>Run data analysis functions:</h4>
+        <ol>
+            <li>
+                <button class="btn btn-default cm-analysis"
+                        data-method="cm-populate-analysis-worlds">
+                    Populate data analysis collections
+                </button>
+            </li>
+            <li>
+                <button class="btn btn-default cm-analysis"
+                        data-method="cm-get-action-weights">
+                    Compute average action weights
+                </button>
+            </li>
+            <li>
+                <button class="btn btn-default cm-analysis"
+                        data-method="cm-compute-group-performance">
+                    Compute group performance and effort
+                </button>
+            </li>
+            <li>
+                <button class="btn btn-default cm-analysis"
+                        data-method="cm-compute-group-specialization">
+                    Compute group specialization
+                </button>
+            </li>
+        </ol>
+    </div>
 </template>
 
 <template name="analysisExpLinks">

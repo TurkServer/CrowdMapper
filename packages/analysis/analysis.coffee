@@ -69,7 +69,7 @@ Meteor.publish "cm-analysis-people", (filter) ->
   - compute average weight of each action
   - score worlds over time
   - compute specialization
-  - synthetic groups
+  - synthetic/pseudo groups TODO
 ###
 
 Meteor.methods

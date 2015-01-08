@@ -2,7 +2,20 @@
     <div class="col-md-1">
         <h3>Group Sliced Performance</h3>
 
-        <h3>Y-axis</h3>
+        <h4>Slice Value</h4>
+        <div class="radio">
+            <label class="radio">
+                <input type="radio" name="groupComparator" value="personTime"> Person Hours
+            </label>
+            <label class="radio">
+                <input type="radio" name="groupComparator" value="totalEffort"> Effort Hours
+            </label>
+            <label class="radio">
+                <input type="radio" name="groupComparator" value="wallTime" checked> Wall Time
+            </label>
+        </div>
+
+        <h4>Y-axis</h4>
         <div class="radio">
             <label class="radio">
                 <input type="radio" name="groupScoring" value="partialCreditScore" checked> Partial Credit Scoring
@@ -15,26 +28,13 @@
             </label>
         </div>
 
-        <h3>X-axis</h3>
+        <h4>X-axis</h4>
         <div class="radio">
             <label class="radio">
                 <input type="radio" name="xScale" value="ordinal" checked> Ordinal
             </label>
             <label class="radio">
                 <input type="radio" name="xScale" value="cardinal"> Cardinal
-            </label>
-        </div>
-
-        <h3>Slice Value</h3>
-        <div class="radio">
-            <label class="radio">
-                <input type="radio" name="groupComparator" value="personTime"> Person Hours
-            </label>
-            <label class="radio">
-                <input type="radio" name="groupComparator" value="totalEffort"> Effort Hours
-            </label>
-            <label class="radio">
-                <input type="radio" name="groupComparator" value="wallTime" checked> Wall Time
             </label>
         </div>
 

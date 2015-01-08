@@ -139,7 +139,7 @@ Template.overviewGroupSlices.rendered = ->
         g.interp = Util.interpolateArray(g.progress, xField, yField, sliceVal)
 
       # Transition y axis
-      y.domain([0, yMax])
+      y.domain([0, yMax * 1.1])
 
       d3.select(this).selectAll(".y.axis")
       .transition().call(yAxis)
