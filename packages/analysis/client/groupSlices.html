@@ -56,9 +56,13 @@
                 {{/each}}
                 <path class="line median"></path>
             </g>
-            <g class="x axis" transform="translate({{leftMargin}} {{bottomOffset}})"></g>
+            <g class="x axis" transform="translate({{leftMargin}} {{bottomOffset}})">
+                <text x="{{xLabelPosition}}" y="30" dy=".71em">Group Size</text>
+            </g>
             <g class="x grid" transform="translate({{leftMargin}} {{bottomOffset}})"></g>
-            <g class="y axis" transform="translate({{leftMargin}} 0)"></g>
+            <g class="y axis" transform="translate({{leftMargin}} 0)">
+                <text transform="rotate(-90)" x="-{{yLabelPosition}}" y="-55" dy=".71em">{{settingOf "yLabel"}}</text>
+            </g>
             <g class="y grid" transform="translate({{leftMargin}} 0)"></g>
         </svg>
     </div>

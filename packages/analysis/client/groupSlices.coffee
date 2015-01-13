@@ -8,6 +8,8 @@ Template.overviewGroupSlices.helpers({
   bottomOffset: height - bottomMargin
   points: -> Analysis.Worlds.find({treated: true})
   treatments: -> this.treatments.join(" ")
+  xLabelPosition: 450
+  yLabelPosition: (height - bottomMargin) / 2
   settingOf: (key) ->
     val = Template.instance().settings.get(key)
     return val.toFixed(2) if $.isNumeric(val)
@@ -29,9 +31,17 @@ Template.overviewGroupSlices.rendered = ->
       @settings.set("sliceValue", ui.value)
   })
 
+  @setField = (field, value, label) ->
+    @settings.set(field, value)
+    # Update y axis label if necessary
+    if field is "groupScoring" then @settings.set("yLabel", label)
+
   # default settings - change in template; fields must match here
   for field in [ "groupScoring", "xScale", "groupComparator" ]
-    @settings.set(field, @find("input[name=#{field}]:checked").value)
+    $input = @$("input[name=#{field}]:checked")
+    value = $input.val()
+    label = $input.closest("label").text().trim()
+    @setField(field, value, label)
 
   svg = @find("svg")
 
@@ -164,7 +174,7 @@ Template.overviewGroupSlices.rendered = ->
 
 Template.overviewGroupSlices.events
   "change input": (e, t) ->
-    t.settings.set(e.target.name, e.target.value)
+    t.setField(e.target.name, e.target.value, $(e.target).closest("label").text().trim())
 
 Template.groupSlicePoint.rendered = ->
   # Bind the meteor data to d3's datum.
