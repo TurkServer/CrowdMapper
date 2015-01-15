@@ -1,5 +1,4 @@
 preprocess = (data) ->
-  # This won't be necessary other than for the pilot data.
   logs = data.logs
 
   move_reclassify = 0
@@ -9,13 +8,17 @@ preprocess = (data) ->
   i = 0
   while i < logs.length
     if not logs[i]._userId?
+      # Filter out non-user log items.
       non_user++
 
       logs.splice(i, 1)
       continue # no increment
 
     else if logs[i].action is "data-unlink"
+      # Re-categorize link/unlink as data-move.
+      # This won't be necessary other than for the pilot data.
       j = Math.max(i - 5, 0)
+
       while ++j < logs.length and (j - i) < 5
         # data-unlink followed by data-link (in the near future) should be
         # reclassified as a "data-move" action
@@ -93,13 +96,28 @@ clusterPadding = 80
 # Radius for per-user sunburst; arbitrary value that gets rescaled anyway
 scaleRadius = 200
 
+Template.viz.created = ->
+  @vm = new VizManager(@data)
+  console.log("rendering nodes")
+
+Template.viz.rendered = ->
+  @vm.init(@find("svg"))
+  console.log("positioning nodes")
+
+Template.viz.helpers
+  leftMargin: leftMargin
+  data: (field) -> Template.instance().vm.data[field]
+
 ###
   An attempt to prevent the visualization code from becoming spaghetti
 ###
 class VizManager
-  constructor: (@svg, @data) ->
+  constructor: (@data) ->
     preprocess(@data)
 
+    @settings = new ReactiveDict()
+
+  init: (@svg) ->
     @initTimeline()
 
     @initPies()
@@ -117,9 +135,7 @@ class VizManager
   initTimeline: ->
     @timelineWidth = $(@svg).width() - leftMargin
 
-    @timeline = d3.select(@svg).append("g")
-      .attr("class", "timeline")
-      .attr("transform", "translate(#{leftMargin}, 0)")
+    @timeline = d3.select(@svg).select("g.timeline")
 
     timeRange = [@data.instance.startTime, @data.instance.endTime]
 
@@ -138,16 +154,8 @@ class VizManager
       .orient("left")
       .scale(@timelineY)
 
-    @timeline.append("g")
-      .attr("class", "x axis")
-
-    @timeline.append("g")
-      .attr("class", "y axis")
-      .attr("transform", "translate(0, 0)")
-
     # Create a background for bands, grid lines, etc that appear under data
-    background = @timeline.append("g")
-      .attr("class", "chart-background")
+    background = @timeline.select("g.chart-background")
 
     # Draw bands once for all users, these will collapse together
     bands = background.selectAll(".band")
@@ -156,8 +164,8 @@ class VizManager
       .attr("class", "band")
       .attr("width", @timelineWidth)
 
-    chart = @timeline.append("g")
-      .attr("class", "chart-data")
+    # Too slow to draw these via blaze; must draw with d3
+    chart = @timeline.select("g.chart-data")
 
     # Draw actions
     chart.selectAll(".action")
@@ -195,9 +203,7 @@ class VizManager
     @brush.on("brushend", @brushTimeline)
 
   initPies: ->
-    @sunbursts = d3.select(@svg).append("g")
-      .attr("class", "sunbursts")
-      .attr("transform", "translate(0,0)") # Adjust this later to move it
+    @sunbursts = d3.select(@svg).select("g.sunbursts")
 
     width = $(@svg).width()
     @pieHeight = $(@svg).height() - collapsedTimelineHeight
@@ -299,8 +305,7 @@ class VizManager
       @timelineYaxis.tickValues(["Everyone"])
 
       # Draw brush
-      @timeline.append("g")
-      .attr("class", "brush")
+      @timeline.select("g.brush")
       .call(@brush)
       .selectAll("rect") # Set initial height of brush
       .attr("height", collapsedTimelineHeight)
@@ -617,6 +622,3 @@ Template.viz.events
     t.vm.setPieWeighting(e.target.value)
 
     t.vm.brushTimeline()
-
-Template.viz.rendered = ->
-  @vm = new VizManager(@find("svg"), @data)

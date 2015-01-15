@@ -4,10 +4,13 @@
             <div class="col-md-1">
                 <ul class="nav nav-pills nav-stacked">
                     <li>
-                        <a href="#" data-target="time" data-toggle="tab">Actions Over Time</a>
+                        <a href="#" data-target="pies" data-toggle="tab">Action Distribution</a>
                     </li>
                     <li>
-                        <a href="#" data-target="pies" data-toggle="tab">Action Distribution</a>
+                        <a href="#" data-target="line" data-toggle="tab">Line Chart</a>
+                    </li>
+                    <li>
+                        <a href="#" data-target="time" data-toggle="tab">Expanded Timeline</a>
                     </li>
                 </ul>
             </div>
@@ -25,7 +28,7 @@
                 <h4>Sunburst Layout</h4>
                 <div class="radio">
                     <label class="radio">
-                        <input type="radio" name="pieLayout" value="force" checked> Force
+                        <input type="radio" name="pieLayout" value="force" checked> Force Cluster
                     </label>
                     <label class="radio">
                         <input type="radio" name="pieLayout" value="sorted"> By Contribution
@@ -36,9 +39,25 @@
                 </div>
             </div>
 
-            <div class="col-md-10">
-                <svg class="viz" width="100%" height="900"></svg>
+            <div class="col-md-10 inherit-height">
+                <svg class="viz" width="100%" height="100%">
+                    <g class="timeline" transform="translate({{leftMargin}}, 0)">
+                        <g class="x axis"></g>
+                        <g class="y axis"></g>
+                        <g class="chart-background">
+                            {{! user bands }}
+                        </g>
+                        <g class="chart-data">
+                            {{! log and chat nodes }}
+                        </g>
+                        <g class="brush"></g>
+                    </g>
+                    <g class="sunbursts" transform="translate(0,0)">
+                        {{! sunburst transform is animated later}}
+                    </g>
+                </svg>
             </div>
         </div>
     </div>
 </template>
+
