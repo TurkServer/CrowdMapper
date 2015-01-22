@@ -97,42 +97,19 @@ clusterPadding = 80
 scaleRadius = 200
 
 Template.viz.created = ->
-  @vm = new VizManager(@data)
-  console.log("rendering nodes")
+  preprocess(@data)
 
-Template.viz.rendered = ->
-  @vm.init(@find("svg"))
-  console.log("positioning nodes")
+  @settings = new ReactiveDict()
 
 Template.viz.helpers
   leftMargin: leftMargin
-  data: (field) -> Template.instance().vm.data[field]
+  data: (field) -> Template.instance().data[field]
 
-###
-  An attempt to prevent the visualization code from becoming spaghetti
-###
-class VizManager
-  constructor: (@data) ->
-    preprocess(@data)
-
-    @settings = new ReactiveDict()
-
-  init: (@svg) ->
-    @initTimeline()
-
-    @initPies()
-
-    # Draw the default layout, which is pies
-    @pieLayout = "force"
-    @setVizType("pies")
-
-    # Draw pies
-    @brushTimeline()
-
+Template.viz.rendered = ->
   ###
     Initialization functions
   ###
-  initTimeline: ->
+  @initTimeline = =>
     @timelineWidth = $(@svg).width() - leftMargin
 
     @timeline = d3.select(@svg).select("g.timeline")
@@ -200,9 +177,9 @@ class VizManager
       .x(@timelineX)
       .extent(timeRange)
 
-    @brush.on("brushend", @brushTimeline)
+    @brush.on("brushend", @setBrush)
 
-  initPies: ->
+  @initPies = =>
     @sunbursts = d3.select(@svg).select("g.sunbursts")
 
     width = $(@svg).width()
@@ -253,8 +230,6 @@ class VizManager
       .sort(null)
       .size([2 * Math.PI, scaleRadius * scaleRadius])
       .children( (d) -> d.values )
-    # Sets the value function above
-    @setPieWeighting("scaled")
 
     @piesArc = d3.svg.arc()
       .startAngle((d) -> d.x )
@@ -272,7 +247,7 @@ class VizManager
     Redraw functions,
     separated for different granularity of modifications
   ###
-  zoomTimeline: =>
+  @zoomTimeline = =>
     @timeline.select(".timeline .x.axis").call(@timelineXaxis)
     x = @timelineX
 
@@ -282,9 +257,8 @@ class VizManager
     @timeline.selectAll(".chat")
       .attr("x", (entry) -> x(entry.timestamp))
 
-  expandTimeline: (expanded) ->
-
-    if expanded
+  expandTimeline = =>
+    if @settings.equals("vizType", "time")
       height = $(@svg).height() - bottomMargin
       domain = (user._id for user in @data.users)
 
@@ -316,7 +290,7 @@ class VizManager
       @zoom.translate([0, 0])
       @zoomTimeline()
       # Make sure brushed area is up to date after this re-zoom
-      @brushTimeline()
+      @setBrush()
 
     @timelineY.rangeBands([0, height], 0.2)
     bandWidth = @timelineY.rangeBand() / 3
@@ -368,11 +342,18 @@ class VizManager
     @sunbursts.transition().duration(tDuration)
       .attr("transform", "translate(0, #{height})")
 
-  brushTimeline: =>
+  @setBrush = =>
     unless @brush.empty()
       extent = @brush.extent()
     else
       extent = @timelineX.domain()
+
+    @settings.set("brushExtent", extent)
+
+  brushTimeline = =>
+    extent = @settings.get("brushExtent")
+    # Redraw if pie weights change
+    @settings.get("pieWeighting")
 
     # Merge nested actions up per user
     oldData = @pieData
@@ -447,7 +428,7 @@ class VizManager
     width = $(@svg).width()
 
     # Use existing (x,y) positions to initialize when we keeping a force layout
-    if @pieLayout is "force" and oldData?
+    if @settings.equals("pieLayout", "force") and oldData?
       for d in @pieData
         if (od = _.find(oldData, (od) -> od.key is d.key ))
           d.x = od.x
@@ -463,10 +444,8 @@ class VizManager
     # Reset data for force layout
     @piesForce.nodes(@pieData)
 
-    @repositionPies()
-
   # Compute pie sizes and positions for simple layout
-  layoutPiesSimple: ->
+  @layoutPiesSimple = ->
     width = $(@svg).width()
 
     layoutMargin = 50
@@ -491,7 +470,11 @@ class VizManager
       currentX += 2*d.r + layoutPadding
 
   # Redraw pie sizes and locations
-  repositionPies: =>
+  repositionPies = =>
+    layout = @settings.get("pieLayout")
+    # Also re-position if re-weighted
+    @settings.get("pieWeighting")
+
     pies = @sunbursts.selectAll("g.pie")
 
     # Resize pies smoothly
@@ -503,7 +486,7 @@ class VizManager
           return "scale(#{s}, #{s})"
 
     # Start force layout if appropriate
-    if @pieLayout is "force"
+    if layout is "force"
       @piesForce.on("tick.pies", @forceTick)
       @piesForce.start()
     else
@@ -513,13 +496,13 @@ class VizManager
     # Leave things in whatever playout was there before if fixed
     return if @layout is "fixed"
 
-    if @pieLayout is "sorted"
+    if layout is "sorted"
       @layoutPiesSimple()
       # Animate to new positions
       pies.transition()
         .attr("transform", (d) -> "translate(#{d.x}, #{d.y})")
 
-  forceTick: (e) =>
+  @forceTick = (e) =>
     @sunbursts.selectAll("g.pie")
       .each(@recluster(10 * e.alpha * e.alpha))
       # Don't treat collisions too harshly, causes bouncing on transitions
@@ -531,7 +514,7 @@ class VizManager
   ###
 
   # Move d to be adjacent to the cluster node.
-  recluster: (alpha) ->
+  @recluster = (alpha) =>
     clusters = @pieClusters
     (d) ->
       cluster = clusters[d.cluster]
@@ -549,7 +532,7 @@ class VizManager
       return
 
   # Resolves collisions between d and all other circles.
-  collide: (alpha) =>
+  @collide = (alpha) =>
     maxRadius = @pieMaxRadius
     quadtree = d3.geom.quadtree(@pieData)
     (d) ->
@@ -573,20 +556,8 @@ class VizManager
         x1 > nx2 or x2 < nx1 or y1 > ny2 or y2 < ny1
       return
 
-  ###
-    Mutator functions
-  ###
-  setVizType: (type) ->
-    # "time" or "pies"
-    switch type
-      when "time"
-        @expandTimeline(true)
-      else # also "pies"
-        @expandTimeline(false)
-
-  setPieWeighting: (weighting) ->
-
-    sliceValue = if weighting is "scaled"
+  pieWeighting = =>
+    sliceValue = if @settings.equals("pieWeighting", "scaled")
       weights = @data.weights
       # TODO A little bit of hacky handling here, which we should clean up
       (d) ->
@@ -604,21 +575,36 @@ class VizManager
 
     @piesPartition.value(sliceValue)
 
-  setPieLayout: (layout) ->
-    @pieLayout = layout
+  # Initial draw
+  @svg = @find("svg")
+  @initTimeline()
 
-    @repositionPies()
+  @initPies()
+
+  # Default setting for nav
+  @settings.set("vizType", "pies")
+  # Grab settings from rendered template
+  for field in [ "pieLayout", "pieWeighting" ]
+    @settings.set( field, @$("input[name=#{field}]:checked").val() )
+
+  @setBrush()
+
+  @autorun(pieWeighting)
+  @autorun(expandTimeline)
+
+  # Draw pies
+  @autorun(brushTimeline)
+  @autorun(repositionPies)
 
 Template.viz.events
   "click .nav a": (e, t) ->
     e.preventDefault()
     target = $(e.target).data("target")
-    t.vm.setVizType(target)
+    t.settings.set("vizType", target)
 
   "change input[name=pieLayout]": (e, t) ->
-    t.vm.setPieLayout(e.target.value)
+    t.settings.set("pieLayout", e.target.value)
 
   "change input[name=pieWeight]": (e, t) ->
-    t.vm.setPieWeighting(e.target.value)
+    t.settings.set("pieWeighting", e.target.value)
 
-    t.vm.brushTimeline()
