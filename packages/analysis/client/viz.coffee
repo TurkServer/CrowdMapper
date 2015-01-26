@@ -163,8 +163,6 @@ Template.viz.rendered = ->
       .text((d) -> d.text)
 
     # Reposition X stuff with appropriate zoom
-    @zoomTimeline()
-
     @zoom = d3.behavior.zoom()
       .x(@timelineX)
       .scaleExtent([1, 20])
@@ -177,7 +175,12 @@ Template.viz.rendered = ->
       .x(@timelineX)
       .extent(timeRange)
 
-    @brush.on("brushend", @setBrush)
+    @brush
+    .on("brushend", @setBrush)
+    # Stop brush drag from propagating to zoom handler
+    .on("brushstart", -> d3.event.sourceEvent.stopPropagation() )
+
+    @timeline.select("g.brush").call(@brush)
 
   @initPies = =>
     @sunbursts = d3.select(@svg).select("g.sunbursts")
@@ -243,6 +246,32 @@ Template.viz.rendered = ->
       .gravity(.02)
       .charge(0)
 
+  pieWeighting = =>
+    # XXX We'd like to use settings.equals here, but it seems that .equals
+    # callbacks are called after .get callbacks, and so don't preserve execution
+    # order. So this is necessary to ensure that redraw operations execute in
+    # the right order. It shouldn't matter too much as the radio button doesn't
+    # fire a change event unless it actually changes.
+    sliceValue = if @settings.get("pieWeight") is "scaled"
+      console.log "set pies to scaled"
+      weights = @data.weights
+      # TODO A little bit of hacky handling here, which we should clean up
+      (d) ->
+        count = d.values?.count
+        tag = d.key.split(" ")[0]
+        # No parent at this point, unfortunately
+        if tag is "tagged" or tag is "undirected"
+          value = weights.chat * count
+        else
+          value = count * ( weights[tag] || 0)
+        # Return value in minutes
+        return value / 60000
+    else
+      console.log "set pies to equal"
+      (d) -> d.values?.count
+
+    @piesPartition.value(sliceValue)
+
   ###
     Redraw functions,
     separated for different granularity of modifications
@@ -265,23 +294,27 @@ Template.viz.rendered = ->
       # update Y domain
       @timelineY.domain( domain )
 
-      domainLabels = domainLabels = (user.username for user in @data.users)
+      usernameMap = {}
+      (usernameMap[user._id] = user.username for user in @data.users)
+      # XXX d3.svg.tickValues seems to be broken for ordinal scales in 3.4.13
+      # https://github.com/mbostock/d3/issues/2029
+      @timelineYaxis.tickFormat( (id) -> usernameMap[id] )
 
-      @timelineYaxis.tickValues(domainLabels)
+      # Hide brush
+      @timeline.select("g.brush")
+      .style("display", "none")
 
-      # Remove brush
-      @timeline.select("g.brush").remove()
     else
       height = collapsedTimelineHeight
 
       # Everything should map to the same value on this domain
       @timelineY.domain( [ 0 ] )
-      @timelineYaxis.tickValues(["Everyone"])
+      @timelineYaxis.tickFormat( -> "Everyone")
 
       # Draw brush
       @timeline.select("g.brush")
-      .call(@brush)
-      .selectAll("rect") # Set initial height of brush
+      .style("display", null)
+      .selectAll("rect") # Set height of brush
       .attr("height", collapsedTimelineHeight)
 
       # Reset x zoom when collapsing
@@ -289,6 +322,7 @@ Template.viz.rendered = ->
       @zoom.scale(1)
       @zoom.translate([0, 0])
       @zoomTimeline()
+
       # Make sure brushed area is up to date after this re-zoom
       @setBrush()
 
@@ -350,10 +384,12 @@ Template.viz.rendered = ->
 
     @settings.set("brushExtent", extent)
 
-  brushTimeline = =>
-    extent = @settings.get("brushExtent")
+  rescalePies = =>
     # Redraw if pie weights change
-    @settings.get("pieWeighting")
+    @settings.get("pieWeight")
+    extent = @settings.get("brushExtent")
+
+    console.log "rescaling pies"
 
     # Merge nested actions up per user
     oldData = @pieData
@@ -428,7 +464,10 @@ Template.viz.rendered = ->
     width = $(@svg).width()
 
     # Use existing (x,y) positions to initialize when we keeping a force layout
-    if @settings.equals("pieLayout", "force") and oldData?
+    # Can't depend reactively here, or will incorrectly resize when not needed
+    wasForce = Deps.nonreactive => @settings.equals("pieLayout", "force")
+
+    if wasForce and oldData?
       for d in @pieData
         if (od = _.find(oldData, (od) -> od.key is d.key ))
           d.x = od.x
@@ -443,6 +482,14 @@ Template.viz.rendered = ->
 
     # Reset data for force layout
     @piesForce.nodes(@pieData)
+
+    # Resize pies smoothly
+    pies.select("g.scaler")
+      .transition()
+      .attr "transform", (d) ->
+        # s = Math.sqrt(d.value / max)
+        s = d.r / 200
+        return "scale(#{s}, #{s})"
 
   # Compute pie sizes and positions for simple layout
   @layoutPiesSimple = ->
@@ -471,19 +518,13 @@ Template.viz.rendered = ->
 
   # Redraw pie sizes and locations
   repositionPies = =>
+    console.log "repositioning pies"
+
+    # Also re-position if re-weighted or brushed
+    @settings.get("pieWeight")
+    @settings.get("brushExtent")
+
     layout = @settings.get("pieLayout")
-    # Also re-position if re-weighted
-    @settings.get("pieWeighting")
-
-    pies = @sunbursts.selectAll("g.pie")
-
-    # Resize pies smoothly
-    pies.select("g.scaler")
-      .transition()
-      .attr "transform", (d) ->
-          # s = Math.sqrt(d.value / max)
-          s = d.r / 200
-          return "scale(#{s}, #{s})"
 
     # Start force layout if appropriate
     if layout is "force"
@@ -493,13 +534,13 @@ Template.viz.rendered = ->
       @piesForce.stop()
       @piesForce.on("tick.pies", null)
 
-    # Leave things in whatever playout was there before if fixed
+    # Leave things in whatever layout was there before if fixed
     return if @layout is "fixed"
 
     if layout is "sorted"
       @layoutPiesSimple()
       # Animate to new positions
-      pies.transition()
+      @sunbursts.selectAll("g.pie").transition()
         .attr("transform", (d) -> "translate(#{d.x}, #{d.y})")
 
   @forceTick = (e) =>
@@ -556,26 +597,9 @@ Template.viz.rendered = ->
         x1 > nx2 or x2 < nx1 or y1 > ny2 or y2 < ny1
       return
 
-  pieWeighting = =>
-    sliceValue = if @settings.equals("pieWeighting", "scaled")
-      weights = @data.weights
-      # TODO A little bit of hacky handling here, which we should clean up
-      (d) ->
-        count = d.values?.count
-        tag = d.key.split(" ")[0]
-        # No parent at this point, unfortunately
-        if tag is "tagged" or tag is "undirected"
-          value = weights.chat * count
-        else
-          value = count * ( weights[tag] || 0)
-        # Return value in minutes
-        return value / 60000
-    else
-      (d) -> d.values?.count
-
-    @piesPartition.value(sliceValue)
-
-  # Initial draw
+  ###
+    Set up drawing functions
+  ###
   @svg = @find("svg")
   @initTimeline()
 
@@ -584,8 +608,10 @@ Template.viz.rendered = ->
   # Default setting for nav
   @settings.set("vizType", "pies")
   # Grab settings from rendered template
-  for field in [ "pieLayout", "pieWeighting" ]
-    @settings.set( field, @$("input[name=#{field}]:checked").val() )
+  for field in [ "pieLayout", "pieWeight" ]
+    value = @$("input[name=#{field}]:checked").val()
+    @settings.set( field, value )
+    console.log "set #{field} to #{value}"
 
   @setBrush()
 
@@ -593,7 +619,7 @@ Template.viz.rendered = ->
   @autorun(expandTimeline)
 
   # Draw pies
-  @autorun(brushTimeline)
+  @autorun(rescalePies)
   @autorun(repositionPies)
 
 Template.viz.events
@@ -606,5 +632,5 @@ Template.viz.events
     t.settings.set("pieLayout", e.target.value)
 
   "change input[name=pieWeight]": (e, t) ->
-    t.settings.set("pieWeighting", e.target.value)
+    t.settings.set("pieWeight", e.target.value)
 
