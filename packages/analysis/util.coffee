@@ -12,6 +12,18 @@ Util =
       when "event-vote", "event-unvote", "event-unmap", "event-delete", "data-move", "data-unlink" then "verify"
       else ""
 
+  typeFields: [ "filter", "classify", "verify", "chat", "" ]
+
+  # Convenience function for binning log or chat actions
+  actionType: (item) ->
+    if item.timestamp? then "chat" else Util.logActionType(item)
+
+  weightOf: (item, weights) ->
+    # Chat entry
+    return weights.chat if item.timestamp?
+    # Log entry
+    return weights[item.action] || 0
+
   # Returns a function to compute the interquartile range.
   iqrFun: (k) ->
     (d, i) ->

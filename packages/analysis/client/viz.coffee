@@ -84,6 +84,7 @@ filterChat = (chat, extent) ->
 ###
 
 vizPointWidth = 5
+transitionDuration = 1000
 
 collapsedTimelineHeight = 70
 # left and bottom margin of timelines
@@ -102,6 +103,7 @@ Template.viz.created = ->
   @settings = new ReactiveDict()
 
 Template.viz.helpers
+  pieTop: collapsedTimelineHeight + bottomMargin
   leftMargin: leftMargin
   data: (field) -> Template.instance().data[field]
 
@@ -130,6 +132,8 @@ Template.viz.rendered = ->
     @timelineYaxis = d3.svg.axis()
       .orient("left")
       .scale(@timelineY)
+
+    @chartHeight = $(@svg).height() - (collapsedTimelineHeight + bottomMargin)
 
     # Create a background for bands, grid lines, etc that appear under data
     background = @timeline.select("g.chart-background")
@@ -182,11 +186,18 @@ Template.viz.rendered = ->
 
     @timeline.select("g.brush").call(@brush)
 
+  @setBrush = =>
+    unless @brush.empty()
+      extent = @brush.extent()
+    else
+      extent = @timelineX.domain()
+
+    @settings.set("brushExtent", extent)
+
   @initPies = =>
-    @sunbursts = d3.select(@svg).select("g.sunbursts")
+    @chart = d3.select(@svg).select("g.chart")
 
     width = $(@svg).width()
-    @pieHeight = $(@svg).height() - collapsedTimelineHeight
 
     # Create nest operators for counting up actions and chat
     # Re-nest for different types of classification actions
@@ -208,7 +219,7 @@ Template.viz.rendered = ->
     # circles are bigger in the force directed layout
     @piesPack = d3.layout.pack()
       .sort(null)
-      .size([width, Math.min(width, 1.25 * @pieHeight)])
+      .size([width, Math.min(width, 1.25 * @chartHeight)])
       # We create a one-time object to use this, but we don't want it to descend
       # into the per-user nested data, which has the 'children' key
       .children( (d) -> d.values unless d.children )
@@ -241,7 +252,7 @@ Template.viz.rendered = ->
       .outerRadius((d) -> Math.sqrt(d.y + d.dy) )
 
     @piesForce = d3.layout.force()
-      .size([width, @pieHeight])
+      .size([width, @chartHeight])
       # .friction(0.4) # So it's less bouncy when we are playing with time
       .gravity(.02)
       .charge(0)
@@ -286,6 +297,92 @@ Template.viz.rendered = ->
     @timeline.selectAll(".chat")
       .attr("x", (entry) -> x(entry.timestamp))
 
+  showBrush = =>
+    if @settings.equals("vizType", "pies")
+      @timeline.select("g.brush")
+      .style("display", null)
+      .selectAll("rect") # Set height of brush
+      .attr("height", collapsedTimelineHeight)
+    else
+      @timeline.select("g.brush")
+      .style("display", "none")
+
+  drawLines = =>
+    unless @settings.equals("vizType", "line")
+      @chart.selectAll(".stacked").remove()
+      return
+
+    combined = @data.logs.concat(@data.chat)
+
+    hist = d3.layout.histogram()
+    .value( (d) -> d.timestamp || d._timestamp )
+    # .range( @data.instance.startTime, @data.instance.endTime )
+    .bins(20)
+
+    binned = hist(combined)
+    weights = @data.weights
+
+    # Nest data according to action types
+    nest = d3.nest()
+      .key( Util.actionType )
+      .sortKeys( d3.ascending )
+      .rollup (leaves) ->
+        sum = 0
+        for leaf in leaves
+          sum += Util.weightOf(leaf, weights)
+        return sum
+
+    # Compute sum of weights within each bin
+    nestedBins = for bin in binned
+      obj = nest.map(bin)
+      # propagate histogram values
+      obj.x = bin.x
+      obj.dx = bin.dx
+
+      # Ensure all type fields exist, for transposition
+      for field in Util.typeFields
+        obj[field] ?= 0
+
+      obj
+
+    # Compute max sum at any period
+    maxSum = d3.max nestedBins, (d) ->
+      sum = 0
+      Util.typeFields.map (field) -> sum += d[field]
+      return sum
+
+    # Transpose data for stack
+    transposed = Util.typeFields.map (field) ->
+      name: field
+      values: nestedBins.map (d) ->
+        time: d.x + d.dx # This is the sum at the end of each time period
+        y: d[field]
+
+    stack = d3.layout.stack()
+      .values((d) -> d.values)
+
+    lineChart = stack(transposed)
+
+    # Draw stacked chart
+    x = @timelineX
+    y = d3.scale.linear()
+    .domain([0, maxSum])
+    .range([@chartHeight, 0])
+
+    area = d3.svg.area()
+    .x( (d) -> x(d.time) )
+    .y0( (d) -> y(d.y0) )
+    .y1( (d) -> y(d.y0 + d.y) )
+
+    lines = @chart.selectAll(".stacked")
+      .data(lineChart)
+    .enter().append("g")
+      .attr("class", "stacked")
+
+    lines.append("path")
+      .attr("class", (d) -> "action type " + d.name)
+      .attr("d", (d) -> area(d.values) )
+
   expandTimeline = =>
     if @settings.equals("vizType", "time")
       height = $(@svg).height() - bottomMargin
@@ -300,22 +397,12 @@ Template.viz.rendered = ->
       # https://github.com/mbostock/d3/issues/2029
       @timelineYaxis.tickFormat( (id) -> usernameMap[id] )
 
-      # Hide brush
-      @timeline.select("g.brush")
-      .style("display", "none")
-
     else
       height = collapsedTimelineHeight
 
       # Everything should map to the same value on this domain
       @timelineY.domain( [ 0 ] )
       @timelineYaxis.tickFormat( -> "Everyone")
-
-      # Draw brush
-      @timeline.select("g.brush")
-      .style("display", null)
-      .selectAll("rect") # Set height of brush
-      .attr("height", collapsedTimelineHeight)
 
       # Reset x zoom when collapsing
       # TODO animate this in D3 3.3 or later using zoom.event
@@ -329,13 +416,12 @@ Template.viz.rendered = ->
     @timelineY.rangeBands([0, height], 0.2)
     bandWidth = @timelineY.rangeBand() / 3
 
-    tDuration = 600
     y = @timelineY
     ySVG = @timelineYaxis
 
     d3.select(@timeline)
       .transition()
-      .duration(tDuration)
+      .duration(transitionDuration)
       .each ->
         # Transition various items selected from timeline
         # Inside this function, the transition duration is shared
@@ -372,19 +458,12 @@ Template.viz.rendered = ->
           .attr("y", (id) -> y(id) || defaultY ) # Should just be 0 -> 0 for single band
           .attr("height", y.rangeBand())
 
-    # Move sunbursts out of way
-    @sunbursts.transition().duration(tDuration)
-      .attr("transform", "translate(0, #{height})")
-
-  @setBrush = =>
-    unless @brush.empty()
-      extent = @brush.extent()
-    else
-      extent = @timelineX.domain()
-
-    @settings.set("brushExtent", extent)
-
   rescalePies = =>
+    # Remove pies when not in pie-viewing mode
+    unless @settings.equals("vizType", "pies")
+      @chart.selectAll("g.pie").remove()
+      return
+
     # Redraw if pie weights change
     @settings.get("pieWeight")
     extent = @settings.get("brushExtent")
@@ -400,12 +479,13 @@ Template.viz.rendered = ->
     chatData = @chatNest.entries filterChat(@data.chat, extent)
 
     # Smush data together
+    # TODO: this ignores segments when there is only chat and no log data
     for record in @pieData
       chatRecords = _.find(chatData, (c) -> c.key is record.key)
       continue unless chatRecords?
       record.values = record.values.concat(chatRecords.values)
 
-    pies = @sunbursts.selectAll("g.pie")
+    pies = @chart.selectAll("g.pie")
       .data(@pieData, (d) -> d.key)
 
     # Create a container for each pie along with a circle that outlines it
@@ -475,7 +555,7 @@ Template.viz.rendered = ->
         else
           # For things that didn't exist before, start them in random places
           d.x = Math.random() * width
-          d.y = Math.random() * @pieHeight
+          d.y = Math.random() * @chartHeight
 
     # Update size of maximum radius for collision function
     @pieMaxRadius = d3.max(@pieData, (d) -> d.r)
@@ -518,6 +598,7 @@ Template.viz.rendered = ->
 
   # Redraw pie sizes and locations
   repositionPies = =>
+    return unless @settings.equals("vizType", "pies")
     console.log "repositioning pies"
 
     # Also re-position if re-weighted or brushed
@@ -540,11 +621,11 @@ Template.viz.rendered = ->
     if layout is "sorted"
       @layoutPiesSimple()
       # Animate to new positions
-      @sunbursts.selectAll("g.pie").transition()
+      @chart.selectAll("g.pie").transition()
         .attr("transform", (d) -> "translate(#{d.x}, #{d.y})")
 
   @forceTick = (e) =>
-    @sunbursts.selectAll("g.pie")
+    @chart.selectAll("g.pie")
       .each(@recluster(10 * e.alpha * e.alpha))
       # Don't treat collisions too harshly, causes bouncing on transitions
       .each(@collide(.5))
@@ -606,7 +687,8 @@ Template.viz.rendered = ->
   @initPies()
 
   # Default setting for nav
-  @settings.set("vizType", "pies")
+  @settings.set("vizType", Router.current().params.type || "pies" )
+
   # Grab settings from rendered template
   for field in [ "pieLayout", "pieWeight" ]
     value = @$("input[name=#{field}]:checked").val()
@@ -616,7 +698,10 @@ Template.viz.rendered = ->
   @setBrush()
 
   @autorun(pieWeighting)
+  @autorun(showBrush)
   @autorun(expandTimeline)
+
+  @autorun(drawLines)
 
   # Draw pies
   @autorun(rescalePies)
@@ -626,6 +711,14 @@ Template.viz.events
   "click .nav a": (e, t) ->
     e.preventDefault()
     target = $(e.target).data("target")
+
+    current = Router.current()
+
+    # Update route (doesn't re-render)
+    Router.go "viz",
+      groupId: current.params.groupId
+      type: target
+
     t.settings.set("vizType", target)
 
   "change input[name=pieLayout]": (e, t) ->
