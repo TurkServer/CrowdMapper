@@ -351,6 +351,13 @@ Template.viz.rendered = ->
       Util.typeFields.map (field) -> sum += d[field]
       return sum
 
+    entropies = nestedBins.map (d) ->
+      total = d3.sum Util.typeFields, (field) -> d[field]
+      {
+        time: d.x + d.dx
+        ent: Util.entropy Util.typeFields.map (field) -> d[field] / total
+      }
+
     # Transpose data for stack
     transposed = Util.typeFields.map (field) ->
       name: field
@@ -363,12 +370,18 @@ Template.viz.rendered = ->
 
     lineChart = stack(transposed)
 
-    # Draw stacked chart
+    range = [@chartHeight, 0]
+
     x = @timelineX
     y = d3.scale.linear()
     .domain([0, maxSum])
-    .range([@chartHeight, 0])
+    .range(range)
 
+    yEnt = d3.scale.linear()
+    .domain([0, d3.max(entropies, (d) -> d.ent)])
+    .range(range)
+
+    # Draw stacked chart
     area = d3.svg.area()
     .x( (d) -> x(d.time) )
     .y0( (d) -> y(d.y0) )
@@ -382,6 +395,15 @@ Template.viz.rendered = ->
     lines.append("path")
       .attr("class", (d) -> "action type " + d.name)
       .attr("d", (d) -> area(d.values) )
+
+    entLine = d3.svg.line()
+    .x((d) -> x(d.time))
+    .y((d) -> yEnt(d.ent))
+
+    @chart.append("path")
+      .attr("class", "line")
+      .datum(entropies)
+      .attr("d", entLine)
 
   expandTimeline = =>
     if @settings.equals("vizType", "time")

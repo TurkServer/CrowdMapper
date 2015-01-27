@@ -62,3 +62,11 @@ Util =
 
     l = (xVal - lower[xField]) / (upper[xField] - lower[xField])
     return l * upper[yField] + (1-l) * lower[yField]
+
+  # Compute entropy of an array of probabilities that sum to 1.
+  entropy: (probArr) ->
+    e = 0
+    for p in probArr
+      continue if p is 0 # 0 log 0 = 0
+      e -= p * Math.log(p) / Math.LN2
+    return e

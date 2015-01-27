@@ -431,13 +431,6 @@ Meteor.methods
 
     weights = Meteor.call("cm-get-action-weights")
 
-    entropy = (probArr) ->
-      e = 0
-      for p in probArr
-        continue if p is 0 # 0 log 0 = 0
-        e -= p * Math.log(p) / Math.LN2
-      return e
-
     for world in Analysis.Worlds.find({pseudo: null, synthetic: null}).fetch()
       groupId = world._id
       # Add up weights in each category for each user
@@ -474,7 +467,7 @@ Meteor.methods
         for type, val of map
           probs.push val / sum
 
-        ent = entropy(probs)
+        ent = Util.entropy(probs)
         spec.push { wt: sum, ent: ent }
 
       # Compute group specialization
@@ -489,7 +482,7 @@ Meteor.methods
       groupWeights = (w / totalWeight for k, w of groupWeights)
 
       avgIndivEntropy = spec.reduce( ((a, v) -> a + (v.wt * v.ent)), 0 ) / totalWeight
-      groupEntropy = entropy(groupWeights)
+      groupEntropy = Util.entropy(groupWeights)
 
       console.log groupId, world.nominalSize
       console.log avgIndivEntropy, groupEntropy
