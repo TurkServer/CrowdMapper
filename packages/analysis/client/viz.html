@@ -1,7 +1,7 @@
 <template name="viz">
     <div class="container-fluid inherit-height">
         <div class="row flex inherit-height">
-            <div class="col-md-1">
+            <div class="col-md-2">
                 <ul class="nav nav-pills nav-stacked">
                     <li>
                         <a href="#" data-target="pies" data-toggle="tab">Action Distribution</a>
@@ -13,29 +13,9 @@
                         <a href="#" data-target="time" data-toggle="tab">Expanded Timeline</a>
                     </li>
                 </ul>
-            </div>
 
-            <div class="col-md-1 well">
-                <h4>Sunburst Weights</h4>
-                <div class="radio">
-                    <label class="radio">
-                        <input type="radio" name="pieWeight" value="scaled" checked> Scaled
-                    </label>
-                    <label class="radio">
-                        <input type="radio" name="pieWeight" value="uniform"> Equal
-                    </label>
-                </div>
-                <h4>Sunburst Layout</h4>
-                <div class="radio">
-                    <label class="radio">
-                        <input type="radio" name="pieLayout" value="force" checked> Force Cluster
-                    </label>
-                    <label class="radio">
-                        <input type="radio" name="pieLayout" value="sorted"> By Contribution
-                    </label>
-                    <label class="radio">
-                        <input type="radio" name="pieLayout" value="fixed"> Fixed
-                    </label>
+                <div class="well">
+                    {{> controls}}
                 </div>
             </div>
 
@@ -60,3 +40,28 @@
     </div>
 </template>
 
+<template name="vizPieControls">
+    {{! XXX: Should read rendered radio button settings from parent template}}
+
+    <h4>Sunburst Weights</h4>
+    <div class="radio">
+        <label class="radio">
+            <input type="radio" name="pieWeight" value="scaled"> Scaled
+        </label>
+        <label class="radio">
+            <input type="radio" name="pieWeight" value="uniform"> Equal
+        </label>
+    </div>
+    <h4>Sunburst Layout</h4>
+    <div class="radio">
+        <label class="radio">
+            <input type="radio" name="pieLayout" value="force"> Force Cluster
+        </label>
+        <label class="radio">
+            <input type="radio" name="pieLayout" value="sorted"> By Contribution
+        </label>
+        <label class="radio">
+            <input type="radio" name="pieLayout" value="fixed"> Fixed
+        </label>
+    </div>
+</template>

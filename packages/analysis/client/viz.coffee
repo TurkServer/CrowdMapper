@@ -102,10 +102,20 @@ Template.viz.created = ->
 
   @settings = new ReactiveDict()
 
+  # Default setting for nav
+  @settings.set("vizType", Router.current().params.type || "pies" )
+
+  @settings.set("pieWeight", "scaled")
+  @settings.set("pieLayout", "force")
+
 Template.viz.helpers
   pieTop: collapsedTimelineHeight + bottomMargin
   leftMargin: leftMargin
   data: (field) -> Template.instance().data[field]
+  controls: ->
+    switch Template.instance().settings.get("vizType")
+      when "pies" then Template.vizPieControls
+      else null
 
 Template.viz.rendered = ->
   ###
@@ -351,10 +361,11 @@ Template.viz.rendered = ->
       Util.typeFields.map (field) -> sum += d[field]
       return sum
 
+    # Plot values below in the middle of each time period, for slightly better fidelity
     entropies = nestedBins.map (d) ->
       total = d3.sum Util.typeFields, (field) -> d[field]
       {
-        time: d.x + d.dx
+        time: d.x + d.dx / 2
         ent: Util.entropy Util.typeFields.map (field) -> d[field] / total
       }
 
@@ -362,11 +373,13 @@ Template.viz.rendered = ->
     transposed = Util.typeFields.map (field) ->
       name: field
       values: nestedBins.map (d) ->
-        time: d.x + d.dx # This is the sum at the end of each time period
+        time: d.x + d.dx / 2
         y: d[field]
 
     stack = d3.layout.stack()
       .values((d) -> d.values)
+      .offset("silhouette")
+      .order("inside-out")
 
     lineChart = stack(transposed)
 
@@ -380,6 +393,10 @@ Template.viz.rendered = ->
     yEnt = d3.scale.linear()
     .domain([0, d3.max(entropies, (d) -> d.ent)])
     .range(range)
+
+    entAxis = d3.svg.axis()
+    .orient("left")
+    .scale(yEnt)
 
     # Draw stacked chart
     area = d3.svg.area()
@@ -401,9 +418,13 @@ Template.viz.rendered = ->
     .y((d) -> yEnt(d.ent))
 
     @chart.append("path")
-      .attr("class", "line")
+      .attr("class", "line stacked")
       .datum(entropies)
       .attr("d", entLine)
+
+    @chart.append("g")
+      .attr("class", "y axis stacked")
+      .call(entAxis)
 
   expandTimeline = =>
     if @settings.equals("vizType", "time")
@@ -707,15 +728,6 @@ Template.viz.rendered = ->
   @initTimeline()
 
   @initPies()
-
-  # Default setting for nav
-  @settings.set("vizType", Router.current().params.type || "pies" )
-
-  # Grab settings from rendered template
-  for field in [ "pieLayout", "pieWeight" ]
-    value = @$("input[name=#{field}]:checked").val()
-    @settings.set( field, value )
-    console.log "set #{field} to #{value}"
 
   @setBrush()
 
