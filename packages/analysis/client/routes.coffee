@@ -1,11 +1,20 @@
+adminRedirectURL = null
+
 # This controller handles the behavior of all admin templates
-# TODO: it doesn't belong in the analysis package, but we use it here.
 class AdminController extends RouteController
-  onBeforeAction: ->
+  onRun: ->
     unless TurkServer.isAdmin()
-      @render("loadError")
+      # Redirect to turkserver admin login
+      adminRedirectURL = Router.current().url
+      Router.go("/turkserver")
     else
-      @next()
+      this.next()
+
+# Redirect to the appropriate path after login, if it was set; then remove.
+Tracker.autorun ->
+  if Meteor.userId() and TurkServer.isAdmin() and adminRedirectURL?
+      Router.go(adminRedirectURL)
+      adminRedirectURL = null
 
 # TODO fix hack below that is used to avoid hitting the server twice
 # https://github.com/EventedMind/iron-router/issues/1011 and related

@@ -7,6 +7,7 @@ Package.on_use(function (api) {
   api.use("coffeescript");
   api.use("stylus");
   api.use("templating");
+  api.use("tracker");
   api.use("reactive-dict");
 
   api.use("underscore");

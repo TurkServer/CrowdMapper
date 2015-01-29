@@ -1,11 +1,3 @@
-
-class AdminController extends RouteController
-  onBeforeAction: ->
-    unless TurkServer.isAdmin()
-      @render("loadError")
-    else
-      @next()
-
 # Admin Routes
 Router.map ->
   # Multi-watching capable route
