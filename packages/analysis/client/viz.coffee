@@ -79,18 +79,6 @@ filterChat = (chat, extent) ->
   _.filter chat, (entry) ->
     extent[0] < entry.timestamp < extent[1]
 
-###
-  Compute links between users in a range of chat messages.
-
-  For a first step, links are defined as
-  - targeted communication @user
-  - posting a message after a user within some threshold;
-
-  General posts with no tags and not in response to a recent message can be
-  assumed as broadcasts (verified anecdotally).
-###
-userRegex = new RegExp('(^|\\b|\\s)(@[\\w.]+)($|\\b|\\s)','g')
-
 class DiGraph
   constructor: ->
     @adjList = {}
@@ -110,6 +98,18 @@ class DiGraph
           links.push { source, target, weight }
 
     return links
+
+###
+  Compute links between users in a range of chat messages.
+
+  For a first step, links are defined as
+  - targeted communication @user
+  - posting a message after a user within some threshold;
+
+  General posts with no tags and not in response to a recent message can be
+  assumed as broadcasts (verified anecdotally).
+###
+userRegex = new RegExp('(^|\\b|\\s)(@[\\w.]+)($|\\b|\\s)','g')
 
 chatGraph = (chatRange, threshold, limit, users) ->
   graph = new DiGraph
@@ -142,6 +142,57 @@ chatGraph = (chatRange, threshold, limit, users) ->
     # Record message in room
     recent[msg.room] ?= []
     recent[msg.room].push msg
+
+  return graph
+
+###
+  Compute collaboration links between users working on events
+
+  Collaboration from user A to user B is if user A worked on an event after user
+  B worked on the same event.
+
+  May also consider putting a threshold on this.
+
+  Collaboration includes
+  - link / move / unlink
+  - creating an event
+  - updating a field (probably the most pertinent)
+  - voting
+###
+
+collabGraph = (actionRange) ->
+  graph = new DiGraph
+
+  events = {}
+
+  for entry in actionRange
+    eventId = null
+
+    switch entry.action
+#      when "data-link", "data-unlink"
+#        eventId = entry.eventId
+#      when "data-move"
+#        eventId = entry.toEventId
+#      when "event-create"
+#        eventId = entry.eventId
+      when "event-update"
+        eventId = entry.eventId
+#      when "event-vote"
+#        eventId = entry.eventId
+      else continue
+
+    userId = entry._userId
+    events[eventId] ?= {}
+
+    # Add a collaboration link to anyone who has worked on this event so far
+    for otherId, count of events[eventId]
+      continue if userId is otherId
+      graph.addWeight(userId, otherId, 1)
+
+    # Record this user as having worked on this event
+    # XXX use this weight
+    events[eventId][userId] ?= 0
+    events[eventId][userId] += 1
 
   return graph
 
@@ -572,6 +623,7 @@ Template.viz.rendered = ->
 
     # Redraw if pie weights change
     @settings.get("pieWeight")
+    layout = @settings.get("pieLayout")
     extent = @settings.get("brushExtent")
 
     console.log "rescaling pies"
@@ -579,11 +631,11 @@ Template.viz.rendered = ->
     # Merge nested actions up per user
     oldData = @pieData
 
-    @pieData = @logNest.entries filterLogs(@data.logs, extent)
-
-    # Store range of chat data; may be used to compute links
+    # Store range of log/chat data; may be used to compute networks
+    @logRange = filterLogs(@data.logs, extent)
     @chatRange = filterChat(@data.chat, extent)
 
+    @pieData = @logNest.entries( @logRange )
     # merge nested chat entries
     chatData = @chatNest.entries( @chatRange )
 
@@ -653,10 +705,7 @@ Template.viz.rendered = ->
     width = $(@svg).width()
 
     # Use existing (x,y) positions to initialize when we keeping a force layout
-    # Can't depend reactively here, or will incorrectly resize when not needed
-    useExisting = Deps.nonreactive =>
-      layout = @settings.get("pieLayout")
-      layout is "force" or layout is "comm-net"
+    useExisting = layout is "force" or layout is "comm-net" or layout is "collab-net"
 
     if useExisting and oldData?
       for d in @pieData
@@ -674,7 +723,7 @@ Template.viz.rendered = ->
     # Reset data for force layout
     @piesForce.nodes(@pieData)
 
-    if @settings.get("pieLayout") is "comm-net"
+    if layout is "comm-net" or layout is "collab-net"
       # Make pies uniformly sized
       pies.select("g.scaler")
         .transition()
@@ -728,20 +777,33 @@ Template.viz.rendered = ->
       resetLinks()
       return
 
-    unless @settings.get("pieLayout") is "comm-net"
+    layout = @settings.get("pieLayout")
+    unless layout is "comm-net" or layout is "collab-net"
       resetLinks()
       return
 
+    # Since pieData changes with new weights, must recompute links
+    @settings.get("pieWeight")
     # Depend on brush extent to draw links
     @settings.get("brushExtent")
 
     # Draw links for communication
-    graph = chatGraph(@chatRange, 30000, 5, @data.users)
-
     map = {}
     for item in @pieData
       map[item.key] = item
-    links = graph.getLinks(map)
+
+    switch layout
+      when "comm-net"
+        graph = chatGraph(@chatRange, 30000, 5, @data.users)
+
+        links = graph.getLinks(map)
+
+      when "collab-net"
+        graph = collabGraph(@logRange)
+
+        links = graph.getLinks(map)
+      else
+        console.error("Unknown network structure.")
 
     maxWeight = d3.max(links, (l) -> l.weight)
 
@@ -786,7 +848,7 @@ Template.viz.rendered = ->
         .on("tick.pies", @forceTick)
         .start()
 
-      when "comm-net"
+      when "comm-net", "collab-net"
         @piesForce
         .gravity(.04)
         .charge(-450)

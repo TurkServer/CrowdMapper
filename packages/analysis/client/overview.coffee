@@ -25,6 +25,7 @@ Template.overviewExperiments.helpers
       {
         key: "nominalSize"
         label: "nominal size"
+        sort: 'descending' # Default sort order
       },
       {
         key: "wallTime"
