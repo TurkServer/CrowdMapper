@@ -80,6 +80,66 @@ filterChat = (chat, extent) ->
     extent[0] < entry.timestamp < extent[1]
 
 ###
+  Compute links between users in a range of chat messages.
+
+  For a first step, links are defined as
+  - targeted communication @user
+  - posting a message after a user within some threshold;
+
+  General posts with no tags and not in response to a recent message can be
+  assumed as broadcasts (verified anecdotally).
+###
+userRegex = new RegExp('(^|\\b|\\s)(@[\\w.]+)($|\\b|\\s)','g')
+
+class DiGraph
+  adjList = {}
+
+  addWeight: (sourceId, targetId, weight) ->
+    adjList[sourceId] ?= {}
+    adjList[sourceId][targetId] ?= 0
+    adjList[sourceId][targetId] += weight
+
+  # Return links in d3 format, using the specified map of keys to nodes
+  getLinks: (map) ->
+    links = []
+    for s, targets of adjList
+      for t, weight of targets
+        links.push {
+          source: map[s]
+          target: map[t]
+          weight: weight
+        }
+    return links
+
+chatGraph = (chatRange, threshold, users) ->
+  graph = new DiGraph
+
+  recent = {}
+
+  for msg in chatRange
+    # Keep only messages newer than threshold in room
+    if recent[msg.room]?
+      recent[msg.room] = recent[msg.room].filter (m) ->
+        m.timestamp > msg.timestamp - threshold
+
+    # Apply links to any targeted users in message
+    msg.text.replace userRegex, (p0, p1, p2) ->
+      username = p2.substring(1)
+      userId = _.findWhere(users, { username })._id
+      graph.addWeight(msg.userId, userId, 1)
+
+    # Apply links to all recent messages in same room
+    if recent[msg.room]?
+      for r in recent[msg.room]
+        graph.addWeight(msg.userId, r.userId, 1)
+
+    # Record message in room
+    recent[msg.room] ?= []
+    recent[msg.room].push msg
+
+  return graph
+
+###
   Viz Parameters
 ###
 
@@ -88,7 +148,7 @@ transitionDuration = 1000
 
 collapsedTimelineHeight = 70
 # left and bottom margin of timelines
-leftMargin = 90
+leftMargin = 100
 bottomMargin = 30
 
 # Cluster settings
@@ -263,9 +323,6 @@ Template.viz.rendered = ->
 
     @piesForce = d3.layout.force()
       .size([width, @chartHeight])
-      # .friction(0.4) # So it's less bouncy when we are playing with time
-      .gravity(.02)
-      .charge(0)
 
   pieWeighting = =>
     # XXX We'd like to use settings.equals here, but it seems that .equals
@@ -398,7 +455,7 @@ Template.viz.rendered = ->
     .orient("left")
     .scale(yEnt)
 
-    # Draw stacked chart
+    # Draw stacked chart - from example at http://bl.ocks.org/mbostock/3885211
     area = d3.svg.area()
     .x( (d) -> x(d.time) )
     .y0( (d) -> y(d.y0) )
@@ -518,8 +575,11 @@ Template.viz.rendered = ->
 
     @pieData = @logNest.entries filterLogs(@data.logs, extent)
 
+    # Store range of chat data; may be used to compute links
+    @chatRange = filterChat(@data.chat, extent)
+
     # merge nested chat entries
-    chatData = @chatNest.entries filterChat(@data.chat, extent)
+    chatData = @chatNest.entries( @chatRange )
 
     # Smush data together
     # TODO: this ignores segments when there is only chat and no log data
@@ -600,19 +660,26 @@ Template.viz.rendered = ->
           d.x = Math.random() * width
           d.y = Math.random() * @chartHeight
 
-    # Update size of maximum radius for collision function
+    # Update size of maximum radius for force cluster collision function
     @pieMaxRadius = d3.max(@pieData, (d) -> d.r)
 
     # Reset data for force layout
     @piesForce.nodes(@pieData)
 
-    # Resize pies smoothly
-    pies.select("g.scaler")
-      .transition()
-      .attr "transform", (d) ->
-        # s = Math.sqrt(d.value / max)
-        s = d.r / 200
-        return "scale(#{s}, #{s})"
+    if @settings.get("pieLayout") is "comm-net"
+      # Make pies uniformly sized
+      pies.select("g.scaler")
+        .transition()
+        .attr("transform", "scale(0.2, 0.2)")
+
+    else
+      # Resize pies smoothly
+      pies.select("g.scaler")
+        .transition()
+        .attr "transform", (d) ->
+          # s = Math.sqrt(d.value / max)
+          s = d.r / 200
+          return "scale(#{s}, #{s})"
 
   # Compute pie sizes and positions for simple layout
   @layoutPiesSimple = ->
@@ -641,7 +708,11 @@ Template.viz.rendered = ->
 
   # Redraw pie sizes and locations
   repositionPies = =>
-    return unless @settings.equals("vizType", "pies")
+    unless @settings.equals("vizType", "pies")
+      # Remove extraneous things that were drawn
+      @chart.selectAll(".link").remove()
+      return
+
     console.log "repositioning pies"
 
     # Also re-position if re-weighted or brushed
@@ -650,23 +721,64 @@ Template.viz.rendered = ->
 
     layout = @settings.get("pieLayout")
 
-    # Start force layout if appropriate
-    if layout is "force"
-      @piesForce.on("tick.pies", @forceTick)
-      @piesForce.start()
-    else
-      @piesForce.stop()
-      @piesForce.on("tick.pies", null)
+    # Reset any previous layout state
+    @piesForce.stop()
+    @piesForce.on("tick.pies", null)
 
-    # Leave things in whatever layout was there before if fixed
-    return if @layout is "fixed"
+    switch layout
+      when "force"
+        # Start force layout computation
+        @piesForce
+        # .friction(0.4) # So it's less bouncy when we are playing with time
+        .links([])
+        .linkDistance(20)
+        .gravity(.02)
+        .charge(0) # Custom tick function
+        .on("tick.pies", @forceTick)
+        .start()
 
-    if layout is "sorted"
-      @layoutPiesSimple()
-      # Animate to new positions
-      @chart.selectAll("g.pie").transition()
-        .attr("transform", (d) -> "translate(#{d.x}, #{d.y})")
+      when "comm-net"
+        console.log @pieData
+        graph = chatGraph(@chatRange, 30000, @data.users)
 
+        map = {}
+        for item in @pieData
+          map[item.key] = item
+        links = graph.getLinks(map)
+
+        @chart.selectAll(".link")
+          .data(links)
+        .enter().insert("line", ".pie")
+          .attr("class", "link")
+
+        @piesForce
+        .links(links)
+        .linkDistance(150)
+        .gravity(.05)
+        .charge(-400)
+        .on("tick.pies", @networkTick)
+        .start()
+
+      when "sorted"
+        @layoutPiesSimple()
+        # Animate to new positions
+        @chart.selectAll("g.pie").transition()
+          .attr("transform", (d) -> "translate(#{d.x}, #{d.y})")
+
+    # Any other case: pies don't move
+
+  # Network tick: update node and link positions.
+  @networkTick = =>
+    @chart.selectAll(".link").attr
+      x1: (d) -> d.source.x
+      y1: (d) -> d.source.y
+      x2: (d) -> d.target.x
+      y2: (d) -> d.target.y
+
+    @chart.selectAll("g.pie")
+      .attr("transform", (d) -> "translate(#{d.x}, #{d.y})")
+
+  # Force-cluster tick: cluster node positions.
   @forceTick = (e) =>
     @chart.selectAll("g.pie")
       .each(@recluster(10 * e.alpha * e.alpha))
