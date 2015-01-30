@@ -40,7 +40,7 @@ class AdminDataController extends AdminController
 Router.map ->
   # Single-instance visualization templates
   @route 'viz',
-    path: 'viz/:groupId/:type?'
+    path: 'viz/:groupId/:type?/:layout?'
     controller: AdminDataController
     methodArgs: -> [ "cm-get-viz-data", this.params.groupId ]
 

@@ -92,41 +92,47 @@ filterChat = (chat, extent) ->
 userRegex = new RegExp('(^|\\b|\\s)(@[\\w.]+)($|\\b|\\s)','g')
 
 class DiGraph
-  adjList = {}
+  constructor: ->
+    @adjList = {}
 
   addWeight: (sourceId, targetId, weight) ->
-    adjList[sourceId] ?= {}
-    adjList[sourceId][targetId] ?= 0
-    adjList[sourceId][targetId] += weight
+    @adjList[sourceId] ?= {}
+    @adjList[sourceId][targetId] ?= 0
+    @adjList[sourceId][targetId] += weight
 
   # Return links in d3 format, using the specified map of keys to nodes
   getLinks: (map) ->
     links = []
-    for s, targets of adjList
+    for s, targets of @adjList
       for t, weight of targets
-        links.push {
-          source: map[s]
-          target: map[t]
-          weight: weight
-        }
+        # Sometimes, there can be a link but user does not appear in region.
+        if (source = map[s])? and (target = map[t])?
+          links.push { source, target, weight }
+
     return links
 
-chatGraph = (chatRange, threshold, users) ->
+chatGraph = (chatRange, threshold, limit, users) ->
   graph = new DiGraph
 
   recent = {}
 
   for msg in chatRange
-    # Keep only messages newer than threshold in room
     if recent[msg.room]?
+      # Keep only messages newer than threshold in room
       recent[msg.room] = recent[msg.room].filter (m) ->
         m.timestamp > msg.timestamp - threshold
+
+      # If more than limit messages, only keep the most recent few
+      if recent[msg.room].length > limit
+        recent[msg.room] = recent[msg.room].slice(-limit)
 
     # Apply links to any targeted users in message
     msg.text.replace userRegex, (p0, p1, p2) ->
       username = p2.substring(1)
-      userId = _.findWhere(users, { username })._id
-      graph.addWeight(msg.userId, userId, 1)
+      userId = _.findWhere(users, { username })?._id
+
+      # Sometimes there are typos in chat, just ignore for now
+      graph.addWeight(msg.userId, userId, 1) if userId?
 
     # Apply links to all recent messages in same room
     if recent[msg.room]?
@@ -166,7 +172,7 @@ Template.viz.created = ->
   @settings.set("vizType", Router.current().params.type || "pies" )
 
   @settings.set("pieWeight", "scaled")
-  @settings.set("pieLayout", "force")
+  @settings.set("pieLayout", Router.current().params.layout || "force")
 
 Template.viz.helpers
   pieTop: collapsedTimelineHeight + bottomMargin
@@ -648,9 +654,11 @@ Template.viz.rendered = ->
 
     # Use existing (x,y) positions to initialize when we keeping a force layout
     # Can't depend reactively here, or will incorrectly resize when not needed
-    wasForce = Deps.nonreactive => @settings.equals("pieLayout", "force")
+    useExisting = Deps.nonreactive =>
+      layout = @settings.get("pieLayout")
+      layout is "force" or layout is "comm-net"
 
-    if wasForce and oldData?
+    if useExisting and oldData?
       for d in @pieData
         if (od = _.find(oldData, (od) -> od.key is d.key ))
           d.x = od.x
@@ -706,12 +714,54 @@ Template.viz.rendered = ->
 
       currentX += 2*d.r + layoutPadding
 
+  resetLinks = =>
+    @chart.selectAll(".link").remove()
+
+    @piesForce
+    .links([])
+    .linkDistance(20)
+
   # Redraw pie sizes and locations
-  repositionPies = =>
+  drawLinks = =>
+    # Remove extraneous things that were drawn
     unless @settings.equals("vizType", "pies")
-      # Remove extraneous things that were drawn
-      @chart.selectAll(".link").remove()
+      resetLinks()
       return
+
+    unless @settings.get("pieLayout") is "comm-net"
+      resetLinks()
+      return
+
+    # Depend on brush extent to draw links
+    @settings.get("brushExtent")
+
+    # Draw links for communication
+    graph = chatGraph(@chatRange, 30000, 5, @data.users)
+
+    map = {}
+    for item in @pieData
+      map[item.key] = item
+    links = graph.getLinks(map)
+
+    maxWeight = d3.max(links, (l) -> l.weight)
+
+    linkEls = @chart.selectAll(".link").data(links)
+
+    linkEls.enter().insert("line", ".pie")
+      .attr("class", "link")
+    linkEls.exit().remove()
+
+    linkEls.style("stroke-width", (d) -> Math.sqrt(d.weight) )
+
+    @piesForce
+    .links(links)
+    .linkStrength( (l) -> l.weight / maxWeight )
+    .linkDistance(150)
+
+    return
+
+  repositionPies = =>
+    return unless @settings.equals("vizType", "pies")
 
     console.log "repositioning pies"
 
@@ -730,32 +780,17 @@ Template.viz.rendered = ->
         # Start force layout computation
         @piesForce
         # .friction(0.4) # So it's less bouncy when we are playing with time
-        .links([])
-        .linkDistance(20)
         .gravity(.02)
         .charge(0) # Custom tick function
+        .chargeDistance(Infinity)
         .on("tick.pies", @forceTick)
         .start()
 
       when "comm-net"
-        console.log @pieData
-        graph = chatGraph(@chatRange, 30000, @data.users)
-
-        map = {}
-        for item in @pieData
-          map[item.key] = item
-        links = graph.getLinks(map)
-
-        @chart.selectAll(".link")
-          .data(links)
-        .enter().insert("line", ".pie")
-          .attr("class", "link")
-
         @piesForce
-        .links(links)
-        .linkDistance(150)
-        .gravity(.05)
-        .charge(-400)
+        .gravity(.04)
+        .charge(-450)
+        .chargeDistance(400) # roughly graph diameter, stops too much spread
         .on("tick.pies", @networkTick)
         .start()
 
@@ -851,6 +886,7 @@ Template.viz.rendered = ->
 
   # Draw pies
   @autorun(rescalePies)
+  @autorun(drawLinks)
   @autorun(repositionPies)
 
 Template.viz.events
@@ -858,17 +894,23 @@ Template.viz.events
     e.preventDefault()
     target = $(e.target).data("target")
 
-    current = Router.current()
-
     # Update route (doesn't re-render)
     Router.go "viz",
-      groupId: current.params.groupId
+      groupId: Router.current().params.groupId
       type: target
+      layout: t.settings.get("pieLayout")
 
     t.settings.set("vizType", target)
 
   "change input[name=pieLayout]": (e, t) ->
-    t.settings.set("pieLayout", e.target.value)
+    layout = e.target.value
+
+    Router.go "viz",
+      groupId: Router.current().params.groupId
+      type: t.settings.get("vizType")
+      layout: layout
+
+    t.settings.set("pieLayout", layout)
 
   "change input[name=pieWeight]": (e, t) ->
     t.settings.set("pieWeight", e.target.value)
