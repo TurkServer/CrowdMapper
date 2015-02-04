@@ -1,15 +1,6 @@
-<template name="overviewSpecialization">
-    <div class="col-md-1">
-        <h3>Specialization</h3>
-
-        <h4>X-axis</h4>
-        <div class="radio">
-            {{#each labels}}
-            <label class="radio">
-                <input type="radio" name="xaxis" value="{{key}}"> {{value}}
-            </label>
-            {{/each}}
-        </div>
+<template name="overviewGroupScatter">
+    <div class="col-md-2">
+        <h3>Group Scatterplot</h3>
 
         <h4>Y-axis</h4>
         <div class="radio">
@@ -20,6 +11,15 @@
             {{/each}}
         </div>
 
+        <h4>X-axis</h4>
+        <div class="radio">
+            {{#each labels}}
+            <label class="radio">
+                <input type="radio" name="xaxis" value="{{key}}"> {{value}}
+            </label>
+            {{/each}}
+        </div>
+
         <div class="checkbox">
             <label class="checkbox">
                 <input type="checkbox" name="boxplot"> Boxplot
@@ -27,7 +27,7 @@
         </div>
     </div>
 
-    <div class="col-md-10">
+    <div class="col-md-9">
         <svg class="viz" width="900" height="700"></svg>
     </div>
 </template>

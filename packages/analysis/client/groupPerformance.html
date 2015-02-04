@@ -1,5 +1,5 @@
 <template name="overviewGroupPerformance">
-    <div class="col-md-1">
+    <div class="col-md-2">
         <div class="checkbox">
             <label class="checkbox">
                 <input type="checkbox" name="progress" value="groupProgress"> Show Progress
@@ -32,6 +32,12 @@
             <label class="radio">
                 <input type="radio" name="groupScoring" value="totalEffort"> Total Effort
             </label>
+            <label class="radio">
+                <input type="radio" name="groupScoring" value="precision"> Precision
+            </label>
+            <label class="radio">
+                <input type="radio" name="groupScoring" value="recall"> Recall
+            </label>
         </div>
 
         <h3>X-axis</h3>
@@ -53,7 +59,7 @@
         {{> sizeLegend }}
 
     </div>
-    <div class="col-md-10">
+    <div class="col-md-9">
         <svg class="viz" width="900" height="700"></svg>
     </div>
 </template>

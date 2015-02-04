@@ -77,6 +77,16 @@ Router.map ->
     layoutTemplate: "overviewLayout"
     methodArgs: -> [ "cm-get-action-weights" ]
 
+  @route 'overviewGroupScatter',
+    path: 'overview/groupScatter'
+    controller: AdminController
+    layoutTemplate: "overviewLayout"
+    waitOn: ->
+      Meteor.subscribe("cm-analysis-worlds", {
+        pseudo: null,
+        synthetic: null
+      })
+
   @route 'overviewGroupPerformance',
     path: 'overview/groupPerformance'
     controller: AdminController
@@ -99,13 +109,3 @@ Router.map ->
     controller: AdminController
     layoutTemplate: "overviewLayout"
     waitOn: -> Meteor.subscribe("cm-analysis-people")
-
-  @route 'overviewSpecialization',
-    path: 'overview/specialization'
-    controller: AdminController
-    layoutTemplate: "overviewLayout"
-    waitOn: ->
-      Meteor.subscribe("cm-analysis-worlds", {
-        pseudo: null,
-        synthetic: null
-      })

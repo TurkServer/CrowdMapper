@@ -374,6 +374,8 @@ Meteor.methods
           ef: 0
           ps: 0
           ss: 0
+          p: 0
+          r: 0
         }
       ]
 
@@ -389,8 +391,13 @@ Meteor.methods
         catch e
 
         # Compute partial and strict scores
-        [partialScore, strictScore] = matchingScore(
-          replay.tempEvents.find({deleted: {$exists: false}}), gsEvents)
+        currentEvents = replay.tempEvents.find({deleted: {$exists: false}})
+        eventCount = currentEvents.count()
+
+        [partialScore, strictScore] = matchingScore(currentEvents, gsEvents)
+
+        prec = if eventCount > 0 then strictScore / eventCount else 0
+        rec = strictScore / gsEvents.length
 
         increments.push
           wt: replay.wallTime / (3600 * 1000)
@@ -398,6 +405,8 @@ Meteor.methods
           ef: replay.manEffort / (3600 * 1000)
           ps: partialScore
           ss: strictScore
+          p: prec
+          r: rec
 
       replay.printStats()
 
@@ -411,6 +420,8 @@ Meteor.methods
           totalEffort: lastIncrement.ef
           partialCreditScore: lastIncrement.ps
           fullCreditScore: lastIncrement.ss
+          precision: lastIncrement.p
+          recall: lastIncrement.r
 
       # Save the performance for each user
       for userId, stats of replay.userEffort

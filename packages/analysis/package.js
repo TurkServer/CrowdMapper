@@ -33,14 +33,14 @@ Package.on_use(function (api) {
     "client/tagging.html",
     "client/tagging.coffee",
     "client/box.js", // from http://bl.ocks.org/jensgrubert/7789216
+    "client/groupScatter.html",
+    "client/groupScatter.coffee",
     "client/groupPerformance.html",
     "client/groupPerformance.coffee",
     "client/groupSlices.html",
     "client/groupSlices.coffee",
     "client/indivPerformance.html",
-    "client/indivPerformance.coffee",
-    "client/specialization.html",
-    "client/specialization.coffee"
+    "client/indivPerformance.coffee"
   ], "client");
 
   api.addFiles('rpc.coffee', 'server');

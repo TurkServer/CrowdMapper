@@ -3,12 +3,25 @@ labels = {
   groupEntropy: "Group Entropy"
   nominalSize: "Nominal Group Size"
   partialCreditScore: "Group Score"
+  fullCreditScore: "Group 0-1 Score"
+  precision: "Precision"
+  recall: "Recall"
+  f1: "F1 Score"
 }
 
-Template.overviewSpecialization.helpers
+# Custom values computed from the data
+transform = {
+  f1: (d) -> 2 * d.precision * d.recall / (d.precision + d.recall)
+}
+
+accessor = (key) ->
+  return transform[key] if transform[key]
+  return (d) -> d[key]
+
+Template.overviewGroupScatter.helpers
   labels: _.map(labels, (v, k) -> { key: k, value: v } )
 
-Template.overviewSpecialization.rendered = ->
+Template.overviewGroupScatter.rendered = ->
   svg = @find("svg")
 
   leftMargin = 80
@@ -34,13 +47,13 @@ Template.overviewSpecialization.rendered = ->
   filterData = =>
     displayOrdinal = xKey is "nominalSize" and showBoxes
 
-    if displayOrdinal
-      filteredData = Analysis.Worlds.find({
-        nominalSize: { $gt: 1 }
-        treated: true
-      }).fetch()
-    else
-      filteredData = Analysis.Worlds.find().fetch()
+#    if displayOrdinal
+#      filteredData = Analysis.Worlds.find({
+#        nominalSize: { $gt: 1 }
+#        treated: true
+#      }).fetch()
+#    else
+    filteredData = Analysis.Worlds.find().fetch()
 
   # TODO allow selection of circle radius
   # radius = (g) -> 2 * Math.sqrt(g.partialCreditScore)
@@ -104,17 +117,21 @@ Template.overviewSpecialization.rendered = ->
 
   # Redraw X axis
   redrawX = ->
-    xExtent = d3.extent(filteredData, (d) -> d[xKey])
+    xExtent = d3.extent(filteredData, accessor(xKey) )
 
     if displayOrdinal
+      domain = _.uniq( filteredData.map((d) -> d.nominalSize) )
+      .sort( (a,b) -> a-b )
+
       x = d3.scale.ordinal()
-        .domain([2, 4, 8, 16, 32]) # TODO hack, compute sizes properly
+        .domain(domain)
         .rangeRoundBands([0, graphWidth], 0.6)
 
       chart.width(x.rangeBand())
 
     else
-      xExtent[0] *= 0.9
+      # Start domain at 0 for group size
+      xExtent[0] = if xKey is "nominalSize" then 0 else xExtent[0] * 0.9
       xExtent[1] *= 1.1
 
       x = d3.scale.linear()
@@ -130,7 +147,7 @@ Template.overviewSpecialization.rendered = ->
     d3.select(".x.axis > text").text(labels[xKey])
 
   redrawY = ->
-    yExtent = d3.extent(filteredData, (d) -> d[yKey])
+    yExtent = d3.extent(filteredData, accessor(yKey) )
     yExtent[0] *= 0.9
     yExtent[1] *= 1.1
 
@@ -151,7 +168,7 @@ Template.overviewSpecialization.rendered = ->
       nested = d3.nest()
         .key( (d) -> d.nominalSize )
         .sortKeys(d3.ascending)
-        .rollup( (leaves) -> leaves.map((d) -> d[yKey]) )
+        .rollup( (leaves) -> leaves.map( accessor(yKey) ) )
         .entries(filteredData)
         .map( (o) -> [o.key, o.values] )
 
@@ -184,9 +201,11 @@ Template.overviewSpecialization.rendered = ->
         .text((g) -> g._id)
 
       # Update display values
-      points.attr("cx", (g) -> x(g[xKey]) #+ x.rangeBand() / 2
+      accX = accessor(xKey)
+      accY = accessor(yKey)
+      points.attr("cx", (g) -> x(accX(g)) #+ x.rangeBand() / 2
       )
-      .attr("cy", (g) -> y(g[yKey]))
+      .attr("cy", (g) -> y(accY(g)))
       .attr("r", radius )
 
   @setX = (key) ->
@@ -216,7 +235,7 @@ Template.overviewSpecialization.rendered = ->
   redrawY()
   redrawData()
 
-Template.overviewSpecialization.events
+Template.overviewGroupScatter.events
   "change input[name=xaxis]": (e, t) -> t.setX(e.target.value)
   "change input[name=yaxis]": (e, t) -> t.setY(e.target.value)
   "change input[name=boxplot]": (e, t) -> t.setShowBoxes(e.target.checked)

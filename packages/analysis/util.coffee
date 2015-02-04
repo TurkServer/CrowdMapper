@@ -45,6 +45,8 @@ Util =
     totalEffort: "ef"
     wallTime: "wt"
     personTime: "mt"
+    precision: "p"
+    recall: "r"
 
   # Memoize bisectors so they aren't constructed each time.
   getBisector: (key) ->
