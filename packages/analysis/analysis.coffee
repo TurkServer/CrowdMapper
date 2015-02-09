@@ -8,6 +8,11 @@ TurkServer.ensureTreatmentExists
 TurkServer.ensureTreatmentExists
   name: "editable"
 
+getRecruitingBatchId = -> Batches.findOne({name: "recruitment"})._id
+getExperimentBatchId = -> Batches.findOne({name: "group sizes redux"})._id
+
+millisPerHour = 3600 * 1000
+
 ###
   We can divide experiments into different (overlapping) categories:
 
@@ -22,21 +27,17 @@ TurkServer.ensureTreatmentExists
 ###
 
 getLargeGroupExpIds = ->
-  batch = Batches.findOne({name: "group sizes redux"})
-
   return Experiments.find({
-    batchId: batch._id
+    batchId: getExperimentBatchId()
     treatments: $in: [ "group_16", "group_32" ]
     users: $exists: true
   }).map (e) -> e._id
 
 getGoldStandardExpIds = ->
-  batch = Batches.findOne({name: "group sizes redux"})
-
   # Get the experiments that we will use to generate the gold standard
   # This includes ignored treatment groups, but not buffer groups
   return Experiments.find({
-    batchId: batch._id
+    batchId: getExperimentBatchId()
     treatments:
       $in: [
         "group_1", "group_2", "group_4", "group_8", "group_16", "group_32"
@@ -45,11 +46,9 @@ getGoldStandardExpIds = ->
   }).map (e) -> e._id
 
 getAllExpIds = ->
-  batch = Batches.findOne({name: "group sizes redux"})
-
   # Get all crisis mapping experiments that had users join
   return Experiments.find({
-    batchId: batch._id
+    batchId: getExperimentBatchId()
     treatments: "parallel_worlds"
     users: $exists: true
   }).map (e) -> e._id
@@ -146,6 +145,73 @@ Meteor.methods
 
     console.log "Recorded #{worlds} instances, #{people} people"
 
+countWords = (str) -> str.match(/(\w+)/g)?.length || 0
+
+Meteor.methods
+  # Add user metadata to individual records such as age, gender, and tutorial
+  # time and response length
+  "cm-compute-user-metadata": ->
+    TurkServer.checkAdmin()
+
+    recruitingBatchId = getRecruitingBatchId()
+    experimentBatchId = getExperimentBatchId()
+
+    Analysis.People.find().forEach (p, i) ->
+      # Find completed tutorial record for this user
+      workerId = Meteor.users.findOne(p.userId).workerId
+
+      tutorialAsst = Assignments.findOne({
+        batchId: recruitingBatchId
+        workerId,
+        submitTime: {$exists: true}
+      }, {sort: submitTime: -1 })
+
+      tutorialInstanceId = tutorialAsst.instances[0].id
+      tutorialInstance = TurkServer.Instance.getInstance(tutorialInstanceId)
+
+      tutorialWords = 0
+      for field, str of tutorialAsst.exitdata
+        tutorialWords += countWords(str)
+
+      tutorialMins = tutorialInstance.getDuration() / 60000
+
+      experimentAsst = Assignments.findOne({
+        batchId: experimentBatchId
+        workerId,
+        submitTime: {$exists: true}
+      })
+
+      exitSurveyWords = 0
+
+      for field in [ "approach", "specialize", "teamwork", "workwith", "leadership", "misc" ]
+        exitSurveyWords += countWords(experimentAsst.exitdata[field])
+
+      Analysis.People.update {instanceId: p.instanceId, userId: p.userId},
+        $set: {
+          tutorialWords,
+          tutorialMins,
+          exitSurveyWords,
+          age: experimentAsst.exitdata.age,
+          gender: experimentAsst.exitdata.gender,
+        }
+
+    return
+
+  "cm-compute-group-metadata": ->
+    TurkServer.checkAdmin()
+
+    # Number of females out of number of total submitted users
+    Analysis.Worlds.find({pseudo: null, synthetic: null}).forEach (world) ->
+      numFemale = Analysis.People.find({instanceId: world._id, gender: "female"}).count()
+      # XXX do not use nominalSize here
+      numTotal = Analysis.People.find({instanceId: world._id}).count()
+
+      Analysis.Worlds.update world._id, $set: {
+        fracFemale: numFemale / numTotal
+      }
+
+    return
+
   "cm-get-action-weights": (recompute) ->
     TurkServer.checkAdmin()
 
@@ -162,7 +228,7 @@ Meteor.methods
       # 8 minute timeout used in actual experiments.
       forgetThresh = 8 * 60 * 1000
 
-      batchId = Batches.findOne(name: "group sizes redux")._id
+      batchId = getExperimentBatchId()
       # Compute weights just over treated groups.
       expIds = Analysis.Worlds.find({treated: true}).map (e) -> e._id
 
@@ -400,9 +466,9 @@ Meteor.methods
         rec = strictScore / gsEvents.length
 
         increments.push
-          wt: replay.wallTime / (3600 * 1000)
-          mt: replay.manTime / (3600 * 1000)
-          ef: replay.manEffort / (3600 * 1000)
+          wt: replay.wallTime / millisPerHour
+          mt: replay.manTime / millisPerHour
+          ef: replay.manEffort / millisPerHour
           ps: partialScore
           ss: strictScore
           p: prec
@@ -427,8 +493,8 @@ Meteor.methods
       for userId, stats of replay.userEffort
         stats.treated = world.treated
         stats.groupSize = world.nominalSize
-        stats.time /= 3600 * 1000
-        stats.effort /= 3600 * 1000
+        stats.time /= millisPerHour
+        stats.effort /= millisPerHour
 
         # This skips people that aren't in the db.
         Analysis.People.update {instanceId: expId, userId: userId},
@@ -436,6 +502,9 @@ Meteor.methods
 
     Meteor._debug("Analysis complete.")
 
+capFirst = (str) -> str.charAt(0).toUpperCase() + str.slice(1);
+
+Meteor.methods
   # Compute the specialization of each real group, both individually and for the group as a whole.
   "cm-compute-group-specialization": ->
     TurkServer.checkAdmin()
@@ -466,39 +535,221 @@ Meteor.methods
         userWeights[userId] ?= { filter: 0, verify: 0, classify: 0, chat: 0 }
         userWeights[userId]["chat"] += chatWeight
 
-      spec = []
+      userStats = {}
 
-      # Compute avg individual specialization
+      ###
+        individual specialization features:
+
+        - effort in each subtasks (and fraction)
+        - entropy across actions
+      ###
       for userId, map of userWeights
         sum = 0
         for type, val of map
           sum += val
 
+        userStats[userId] = {}
+
         probs = []
         for type, val of map
-          probs.push val / sum
+          userStats[userId][type + "Weight"] = val / millisPerHour
+          prob = val / sum
+          userStats[userId][type + "Frac"] = prob
+          probs.push(prob)
 
-        ent = Util.entropy(probs)
-        spec.push { wt: sum, ent: ent }
+        userStats[userId].effort = sum
+        userStats[userId].entropy = Util.entropy(probs)
 
-      # Compute group specialization
+      # Compute group specs
       groupWeights = _.reduce userWeights, (acc, map) ->
         for type, val of map
           acc[type] = (acc[type] || 0) + val
         return acc
       , {}
 
-      totalWeight = _.reduce groupWeights, (a, v) -> a + v
+      totalWeight = _.reduce groupWeights, ((a, v) -> a + v), 0
 
-      groupWeights = (w / totalWeight for k, w of groupWeights)
+      ###
+        group specialization features
 
-      avgIndivEntropy = spec.reduce( ((a, v) -> a + (v.wt * v.ent)), 0 ) / totalWeight
-      groupEntropy = Util.entropy(groupWeights)
+        - effort across each subtask (and fraction)
+        - entropy across subtasks
+        - average individual entropy
+        - entropy across individuals
+      ###
+      groupStats = {}
+      groupProbs = []
 
-      console.log groupId, world.nominalSize
-      console.log avgIndivEntropy, groupEntropy
+      for type, weight of groupWeights
+        groupStats[type + "Weight"] = weight / millisPerHour
+        prob = weight / totalWeight
+        groupStats[type + "Frac"] = prob
+        groupProbs.push(prob)
 
-      Analysis.Worlds.update groupId, $set: { avgIndivEntropy, groupEntropy }
+      userEffortProbs = []
+
+      # individual effort as fraction of group (and per category)
+      for userId, stats of userStats
+        frac = stats.effort / totalWeight
+        userStats[userId]["groupEffortFrac"] = frac
+        userEffortProbs.push(frac)
+
+        for type, weight of groupWeights
+          # might be NaN, i.e. no chat in a 1 person group
+          userStats[userId]["group" + capFirst(type) + "Frac"] =
+            (stats[type + "Weight"] / groupStats[type + "Weight"]) || 0
+
+      groupStats.effortEntropy = Util.entropy( userEffortProbs )
+
+      groupStats.avgIndivEntropy =
+        _.reduce(userStats, ((a, v) -> a + (v.effort * v.entropy)), 0 ) / totalWeight
+
+      groupStats.groupEntropy =
+        Util.entropy(groupProbs)
+
+      Analysis.Worlds.update groupId, $set: groupStats
+
+      for userId, stats of userStats
+        delete stats["effort"] # This is computed elsewhere
+        Analysis.People.update {userId, instanceId: groupId}, $set: stats
+
+  # Compute words uttered in chat and equality across group
+  "cm-compute-chat-weight": ->
+    TurkServer.checkAdmin()
+
+    Analysis.Worlds.find({pseudo: null, synthetic: null}).forEach (world) ->
+      groupId = world._id
+
+      roomIds = ChatRooms.direct.find(_groupId: groupId).map (room) -> room._id
+
+      userWords = {}
+
+      for chat in ChatMessages.find({room: $in: roomIds}).fetch()
+        userId = chat.userId
+        userWords[userId] ?= 0
+        userWords[userId] += countWords(chat.text)
+
+      chatVolume = _.reduce(userWords, ((a, v) -> a + v), 0)
+      chatEntropy = Util.entropy( (words / chatVolume for userId, words of userWords) )
+
+      Analysis.Worlds.update groupId, $set:
+        chatWordCount: chatVolume
+        chatWordEntropy: chatEntropy
+
+      for userId in world.users
+        words = userWords[userId] || 0
+        wordFrac = (words / chatVolume) || 0
+
+        Analysis.People.update {userId, instanceId: groupId}, $set:
+          chatWordCount: words
+          chatWordFrac: wordFrac
+
+dataFields = {
+  age: "self-reported participant age"
+  gender: "self-reported participant gender"
+  instanceId: "ID of the containing experiment group"
+
+  tutorialMins: "Minutes spent to complete tutorial"
+  tutorialWords: "Words typed into tutorial exit survey"
+  exitSurveyWords: "Number of words typed in exit survey"
+
+  effort: "total effort-time from this user"
+  entropy: "entropy across different action categories"
+  time: "actual active time of the user"
+  normalizedEffort: "effort/time"
+
+  chatFrac: "fraction of user effort on chat"
+  chatWeight: "effort-time spent on chat"
+  classifyFrac: ""
+  classifyWeight: ""
+  filterFrac: ""
+  filterWeight: ""
+  verifyFrac: ""
+  verifyWeight: ""
+
+  chatWordCount: "number of words uttered in chat"
+  chatWordFrac: "fraction of total chat words in group"
+
+  groupEffortFrac: "fraction of this user's effort of group total"
+  groupChatFrac: "fraction of this user's chat effort weight of group total"
+  groupClassifyFrac: ""
+  groupFilterFrac: ""
+  groupVerifyFrac: ""
+
+  # Group attributes
+  g_nominalSize: "Nominal size of treatment group"
+  g_wallTime: "wall time from first joiner to end of experiment"
+  g_fracFemale: "percentage of females in the group"
+
+  g_personTime: "person-hours spent by the group"
+  g_totalEffort: "effort-hours spent by the group"
+  g_effortPerPerson: "totalEffort / personTime"
+
+  g_partialCreditScore: "group score accounting for partial accuracy"
+  g_fullCreditScore: "group score rounded to 0-1 based on threshold"
+  g_precision: "precision computed from 0-1 score"
+  g_recall: "recall computed from 0-1 score"
+  g_f1: "F-1 score"
+
+  g_avgIndivEntropy: "weighted average of individual user action entropy"
+  g_effortEntropy: "entropy of effort contribution from users"
+  g_groupEntropy: "entropy of group actions across categories"
+
+  g_chatFrac: "fraction of effort spent on chat"
+  g_chatWeight: "effort time spent on chat"
+  g_classifyFrac: ""
+  g_classifyWeight: ""
+  g_filterFrac: ""
+  g_filterWeight: ""
+  g_verifyFrac: ""
+  g_verifyWeight: ""
+
+  g_chatWordCount: "total chat volume in words"
+  g_chatWordEntropy: "entropy of chat word volume across users"
+}
+
+dataTransform = {
+  normalizedEffort: (d) -> d.effort / d.time
+  g_effortPerPerson: (d) -> d.g_totalEffort / d.g_personTime
+  g_f1: (d) -> 2 * d.g_precision * d.g_recall / (d.g_precision + d.g_recall)
+}
+
+Meteor.methods
+  "cm-generate-data-csv": ->
+    results = []
+
+    Analysis.Worlds.find(
+      {pseudo: null, synthetic: null, treated: true},
+      { sort: { nominalSize: 1 } }
+    ).forEach (w) ->
+      groupStats = {}
+
+      for key, desc of dataFields
+        if key.slice(0, 2) is "g_"
+          groupStats[key] = w[ key.slice(2) ]
+
+      # Compute group transformed states
+      for key, f of dataTransform
+        if key.slice(0, 2) is "g_"
+          groupStats[key] = f(groupStats)
+
+      Analysis.People.find({instanceId: w._id}).forEach (p) ->
+        stats = _.extend {}, groupStats
+
+        for key, desc of dataFields
+          continue if key.slice(0, 2) is "g_"
+          stats[key] = p[key]
+
+        # Compute individual transforms
+        for key, f of dataTransform
+          unless key.slice(0, 2) is "g_"
+            stats[key] = f(stats)
+
+        results.push(stats)
+
+    convert = Meteor.wrapAsync(Npm.require('json2csv'))
+
+    return convert({data: results, fields: (key for key, desc of dataFields)})
 
   # Compute performance of pseudo-aggregated groups, as in discussion with Peter.
   "cm-compute-pseudo-performance": ->
@@ -565,9 +816,9 @@ Meteor.methods
         [partialScore, strictScore] = matchingScore(aggEvents, gsEvents)
 
         increments.push
-          wt: totalWallTime / (3600 * 1000)
-          mt: totalManTime / (3600 * 1000)
-          ef: manEffort / (3600 * 1000)
+          wt: totalWallTime / millisPerHour
+          mt: totalManTime / millisPerHour
+          ef: manEffort / millisPerHour
           ps: partialScore
           ss: strictScore
 

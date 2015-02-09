@@ -1,5 +1,6 @@
 // This is used to send RPC requests over ZeroMQ to Python
 Npm.depends({
+  json2csv: "2.2.1",
   zerorpc: "0.9.3"
 });
 
@@ -18,6 +19,9 @@ Package.on_use(function (api) {
   api.use("iron:router");
   api.use("d3js:d3");
   api.use("aslagle:reactive-table");
+
+  // Use local csv package to generate stuff
+  api.use("csv");
 
   api.addFiles("util.coffee");
   api.addFiles("common.coffee");

@@ -13,6 +13,17 @@ Template.overview.events
       else
         bootbox.alert("done")
 
+  "click .cm-download-csv": (e) ->
+    Meteor.call "cm-generate-data-csv", (err, res) ->
+      if err
+        bootbox.alert(err)
+      else
+        # http://stackoverflow.com/a/18197511/586086
+        pom = document.createElement('a')
+        pom.setAttribute("href", "data:text/csv," + encodeURIComponent(res))
+        pom.setAttribute("download", "data.csv")
+        pom.click()
+
 Template.analysisExpLinks.helpers
   # Get the groupId associated with an analysis.world or analysis.person.
   id: -> @instanceId || @_id
@@ -92,6 +103,14 @@ Template.overviewPeople.helpers
     rowsPerPage: 100
     fields: [
       {
+        key: "age"
+        label: "age"
+      },
+      {
+        key: "gender"
+        label: "gender"
+      },
+      {
         key: "groupSize"
         label: "group size"
       },
@@ -108,8 +127,29 @@ Template.overviewPeople.helpers
         sortByValue: true
       },
       {
+        key: "normalizedEffort"
+        label: "effort/time"
+        fn: (v, o) ->
+          # Return a number so value is properly sorted
+          +(o.effort / o.time).toFixed(2)
+      },
+      {
         key: "treated"
         label: "valid treatment"
+      },
+      {
+        key: "tutorialWords"
+        label: "tut. response words"
+      },
+      {
+        key: "tutorialMins"
+        label: "tut. time mins"
+        fn: (v) -> v.toFixed(2)
+        sortByValue: true
+      },
+      {
+        key: "exitSurveyWords"
+        label: "exit survey words"
       },
       {
         key: "links"
