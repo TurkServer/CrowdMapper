@@ -1,6 +1,7 @@
 // This is used to send RPC requests over ZeroMQ to Python
 Npm.depends({
   json2csv: "2.2.1",
+  "simple-statistics": "0.9.0",
   zerorpc: "0.9.3"
 });
 
@@ -22,6 +23,9 @@ Package.on_use(function (api) {
 
   // Use local csv package to generate stuff
   api.use("csv");
+
+  // Basic stats in browser
+  api.addFiles('.npm/package/node_modules/simple-statistics/src/simple_statistics.js', 'client');
 
   api.addFiles("util.coffee");
   api.addFiles("common.coffee");

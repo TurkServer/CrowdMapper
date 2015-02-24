@@ -26,15 +26,21 @@
             <label class="radio">
                 <input type="radio" name="groupScoring" value="totalEffort"> Total Effort
             </label>
+            <label class="radio">
+                <input type="radio" name="groupScoring" value="precision"> Precision
+            </label>
+            <label class="radio">
+                <input type="radio" name="groupScoring" value="recall"> Recall
+            </label>
         </div>
 
         <h4>X-axis</h4>
         <div class="radio">
             <label class="radio">
-                <input type="radio" name="xScale" value="ordinal" checked> Ordinal
+                <input type="radio" name="xScale" value="log" checked> Log
             </label>
             <label class="radio">
-                <input type="radio" name="xScale" value="cardinal"> Cardinal
+                <input type="radio" name="xScale" value="linear"> Linear
             </label>
         </div>
 
@@ -55,6 +61,8 @@
                 {{> groupSlicePoint}}
                 {{/each}}
                 <path class="line median"></path>
+                <line class="line regression"></line>
+                <text class="regression" style="alignment-baseline: hanging"></text>
             </g>
             <g class="x axis" transform="translate({{leftMargin}} {{bottomOffset}})">
                 <text x="{{xLabelPosition}}" y="30" dy=".71em">Group Size</text>

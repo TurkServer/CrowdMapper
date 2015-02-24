@@ -104,15 +104,18 @@ Template.overviewGroupSlices.rendered = ->
   this.autorun =>
     xScale = @settings.get("xScale")
 
-    if xScale is "cardinal"
+    if xScale is "linear"
       x = d3.scale.linear()
         .domain([0, 33])
         .range([0, graphWidth])
     else
-      x = d3.scale.ordinal()
-        .domain([1, 2, 4, 8, 16, 32])
-        .rangePoints([0, graphWidth], 0.5)
+      x = d3.scale.log()
+        .base(2)
+        .domain([0.5, 40])
+        .range([0, graphWidth])
 
+    xAxis.tickValues([1, 2, 4, 8, 16, 32])
+    xAxis.tickFormat(x.tickFormat(6, "2d"))
     xAxis.scale(x)
     xGrid.scale(x)
 
@@ -129,25 +132,40 @@ Template.overviewGroupSlices.rendered = ->
 
   # Update axes and transition the points.
   this.autorun =>
-    @settings.get("xScale") # redraw if this changes.
+    xScale = @settings.get("xScale") # redraw if this changes.
 
     xField = Util.fieldAbbr[@settings.get("groupComparator")]
     yField = Util.fieldAbbr[@settings.get("groupScoring")]
 
     sliceVal = @settings.get("sliceValue")
 
+    points = d3.select(svg).selectAll(".point")
+    pointData = points.data()
+
+    # Compute new interpolated values in-place while simultaneously returning them.
+    yMax = d3.max pointData, (g) ->
+      g.interp = Util.interpolateArray(g.progress, xField, yField, sliceVal)
+
+    # Run linear regression on points that exist
+    validPoints = pointData.filter (g) -> g.interp?
+
+    regData = validPoints.map (g) ->
+      [ (if xScale is "log" then Math.log(g.nominalSize)/Math.LN2 else g.nominalSize), g.interp ]
+
+    # Run simple linear regression
+    reg = ss.linear_regression().data(regData)
+    regLine = reg.line()
+    r2 = ss.r_squared(regData, regLine)
+
+    indepVarText = if xScale is "log" then "log2(groupSize)" else "groupSize"
+
+    regText = """#{@settings.get("groupScoring")} = #{reg.m().toFixed(2)} x #{indepVarText} + #{reg.b().toFixed(2)}, R^2 = #{r2.toFixed(4)}"""
+
     # Shared transition.
     d3.select(svg)
     .transition()
     .duration(transDuration)
     .each ->
-      points = d3.select(this).selectAll(".point")
-      pointData = points.data()
-
-      # Compute new interpolated values in-place while simultaneously returning them.
-      yMax = d3.max pointData, (g) ->
-        g.interp = Util.interpolateArray(g.progress, xField, yField, sliceVal)
-
       # Transition y axis
       y.domain([0, yMax * 1.1])
 
@@ -167,10 +185,28 @@ Template.overviewGroupSlices.rendered = ->
       medians = d3.nest()
       .key((g) -> g.nominalSize ).sortKeys( (a, b) -> a - b)
       .rollup((leaves) -> d3.median(leaves, (g) -> g.interp) )
-      .entries( pointData.filter (g) -> g.interp? )
+      .entries( validPoints )
 
       d3.select(this).selectAll(".line.median").datum(medians)
       .transition().attr("d", line)
+
+      # Transition regression line
+      if xScale is "log"
+        y1 = y(regLine( Math.log(x.domain()[0]) / Math.LN2 ))
+        y2 = y(regLine( Math.log(x.domain()[1]) / Math.LN2 ))
+      else
+        y1 = y(regLine(x.domain()[0]))
+        y2 = y(regLine(x.domain()[1]))
+
+      d3.select(this).selectAll(".line.regression")
+      .transition().attr({
+          "x1": x.range()[0]
+          "y1": y1
+          "x2": x.range()[1]
+          "y2": y2
+        })
+
+      d3.select(this).selectAll("text.regression").text(regText)
 
 Template.overviewGroupSlices.events
   "change input": (e, t) ->

@@ -58,12 +58,12 @@ mizzao:build-fetcher@0.2.0
 mizzao:jquery-ui@1.11.2
 mizzao:openlayers@2.13.1_1
 mizzao:partitioner@0.5.4
-mizzao:sharejs@0.7.0
-mizzao:sharejs-ace@1.1.2
-mizzao:timesync@0.2.2
+mizzao:sharejs@0.7.1
+mizzao:sharejs-ace@1.1.8_1
+mizzao:timesync@0.3.0
 mizzao:turkserver@0.0.0
 mizzao:tutorials@0.6.6
-mizzao:user-status@0.6.3
+mizzao:user-status@0.6.4
 mobile-status-bar@1.0.2
 mongo@1.0.11
 mongo-livedata@1.0.7
