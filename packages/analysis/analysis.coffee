@@ -13,6 +13,8 @@ getExperimentBatchId = -> Batches.findOne({name: "group sizes redux"})._id
 
 millisPerHour = 3600 * 1000
 
+add = (x, y) -> x + y
+
 ###
   We can divide experiments into different (overlapping) categories:
 
@@ -313,7 +315,7 @@ Meteor.methods
       weights = {}
 
       for k, v of weightArrs
-        weights[k] = _.reduce(v, ( (m, n) -> m + n), 0 ) / v.length
+        weights[k] = _.reduce(v, add, 0 ) / v.length
 
       console.log "Skipped #{skipped}, included #{included} workers"
       console.log weights
@@ -567,7 +569,7 @@ Meteor.methods
         return acc
       , {}
 
-      totalWeight = _.reduce groupWeights, ((a, v) -> a + v), 0
+      totalWeight = _.reduce groupWeights, add, 0
 
       ###
         group specialization features
@@ -629,7 +631,7 @@ Meteor.methods
         userWords[userId] ?= 0
         userWords[userId] += countWords(chat.text)
 
-      chatVolume = _.reduce(userWords, ((a, v) -> a + v), 0)
+      chatVolume = _.reduce(userWords, add, 0)
       chatEntropy = Util.entropy( (words / chatVolume for userId, words of userWords) )
 
       Analysis.Worlds.update groupId, $set:
@@ -643,6 +645,62 @@ Meteor.methods
         Analysis.People.update {userId, instanceId: groupId}, $set:
           chatWordCount: words
           chatWordFrac: wordFrac
+
+getEventContention = (logs, weights, excludeVotes = false) ->
+
+  events = {}
+
+  for entry in logs
+    switch entry.action
+      when "data-link", "data-unlink"
+        eventId = entry.eventId
+      when "data-move"
+        eventId = entry.toEventId
+      when "event-create"
+        eventId = entry.eventId
+      when "event-update"
+        eventId = entry.eventId
+      when "event-vote" and !excludeVotes
+        eventId = entry.eventId
+      else continue
+
+    userId = entry._userId
+
+    events[eventId] ?= {}
+
+    events[eventId][userId] ?= 0
+    events[eventId][userId] += weights[entry.action]
+
+  # Calculate entropy across events
+  contention = []
+
+  for event, map of events
+    eventEffort = _.reduce(map, add, 0)
+    eventEntropy = Util.entropy( (eff / eventEffort for userId, eff of map) )
+    contention.push Math.pow(2, eventEntropy)
+
+  # Return average contention
+  return 0 if contention.length is 0
+  return _.reduce(contention, add, 0) / contention.length
+
+Meteor.methods
+  "cm-compute-event-contention": ->
+    TurkServer.checkAdmin()
+
+    weights = Meteor.call("cm-get-action-weights")
+
+    Analysis.Worlds.find({pseudo: null, synthetic: null}).forEach (world) ->
+      groupId = world._id
+      actionLogs = Logs.find({_groupId: groupId}).fetch()
+
+      eventContention = getEventContention actionLogs, weights
+      eventContentionExVoting = getEventContention actionLogs, weights, true
+
+      Analysis.Worlds.update groupId,
+        $set: {
+          eventContention,
+          eventContentionExVoting
+        }
 
 dataFields = {
   age: "self-reported participant age"
@@ -694,6 +752,8 @@ dataFields = {
   g_avgIndivEntropy: "weighted average of individual user action entropy"
   g_effortEntropy: "entropy of effort contribution from users"
   g_groupEntropy: "entropy of group actions across categories"
+  g_eventContention: "average number of people contributing effort to an event"
+  g_eventContentionExVoting: "event contention excluding votes"
 
   g_chatFrac: "fraction of effort spent on chat"
   g_chatWeight: "effort time spent on chat"
