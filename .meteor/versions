@@ -4,7 +4,7 @@ accounts-ui@1.1.5
 accounts-ui-unstyled@1.1.7
 analysis@0.0.0
 anti:i18n@0.4.3
-aslagle:reactive-table@0.6.15
+aslagle:reactive-table@0.7.2
 autoupdate@1.2.0
 base64@1.0.3
 binary-heap@1.0.3
@@ -51,7 +51,7 @@ minifiers@1.1.4
 minimongo@1.0.7
 mizzao:animated-each@0.2.0
 mizzao:autocomplete@0.5.1
-mizzao:bootboxjs@4.3.0
+mizzao:bootboxjs@4.4.0
 mizzao:build-fetcher@0.2.0
 mizzao:jquery-ui@1.11.2
 mizzao:openlayers@2.13.1_1
