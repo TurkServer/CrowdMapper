@@ -37,13 +37,13 @@ Analysis.Stats = new Meteor.Collection("analysis.stats")
   - chatFrac / chatWeight
   - chatWordCount / chatWordEntropy
   - avgIndivEntropy
+  - binaryScore
   - classifyFrac / classifyWeight
   - effortEntropy (equality across users)
   - eventContention (maybe)
   - filterFrac / filterWeight
-  - fullCreditScore (rounded)
+  - fractionalScore (rounded)
   - groupEntropy (distribution in group)
-  - partialCreditScore
   - personTime
   - precision
   - recall

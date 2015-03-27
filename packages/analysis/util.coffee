@@ -5,11 +5,14 @@ bisectors = {}
 
 Util =
   # Overall classification of log actions
-  logActionType: (entry) ->
-    switch entry.action
+  logActionType: (entry) -> Util.actionCategory(entry.action)
+
+  actionCategory: (action) ->
+    switch action
       when "data-hide", "data-link" then "filter"
       when "event-create", "event-edit", "event-update", "event-save" then "classify"
-      when "event-vote", "event-unvote", "event-unmap", "event-delete", "data-move", "data-unlink" then "verify"
+      when "event-vote", "event-unvote", "event-unmap", "event-delete", "data-move", "data-unlink", \
+      "event-edit-verify", "event-update-verify", "event-save-verify" then "verify"
       else ""
 
   typeFields: [ "filter", "classify", "verify", "chat", "" ]

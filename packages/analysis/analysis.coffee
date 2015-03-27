@@ -389,6 +389,141 @@ matchingScore = (events, gsEvents) ->
 
   return [ partialScore, strictScore ]
 
+# Compute the specialization of each real group, both individually and for the group as a whole.
+computeGroupStats = (replay) ->
+  weights = replay.actionWeights
+
+  userWeights = {}
+
+  # Compute total weights per action type across all users
+  # This array just has number of actions, which we weight equally
+  for userId, map of replay.actionTimeArrs
+    for action, arr of map
+
+      type = Util.actionCategory(action)
+      weight = weights[action]
+
+      if type is "" then continue
+      unless weight? then throw new Meteor.Error(500, "#{type} has no weight")
+
+      userWeights[userId] ?= { filter: 0, verify: 0, classify: 0, chat: 0 }
+      userWeights[userId][type] += weight * arr.length
+
+  userStats = {}
+  ###
+    individual specialization features:
+
+    - effort in each subtasks (and fraction)
+    - entropy across actions
+  ###
+  for userId, map of userWeights
+    sum = 0
+    for type, val of map
+      sum += val
+
+    userStats[userId] = {}
+
+    probs = []
+    for type, val of map
+      userStats[userId][type + "Weight"] = val / millisPerHour
+      prob = val / sum
+      userStats[userId][type + "Frac"] = prob
+      probs.push(prob)
+
+    userStats[userId].effort = sum
+    userStats[userId].entropy = Util.entropy(probs)
+
+  # Compute group specs
+  groupWeights = _.reduce userWeights, (acc, map) ->
+    for type, val of map
+      acc[type] = (acc[type] || 0) + val
+    return acc
+  , {}
+
+  totalWeight = _.reduce(groupWeights, add, 0)
+
+  ###
+    group specialization features
+
+    - effort across each subtask (and fraction)
+    - entropy across subtasks
+    - average individual entropy
+    - entropy across individuals
+  ###
+  groupStats = {}
+  groupProbs = []
+
+  for type, weight of groupWeights
+    groupStats[type + "Weight"] = weight / millisPerHour
+    prob = weight / totalWeight
+    groupStats[type + "Frac"] = prob
+    groupProbs.push(prob)
+
+  userEffortProbs = []
+
+  # individual effort as fraction of group (and per category)
+  for userId, stats of userStats
+    frac = stats.effort / totalWeight
+    userStats[userId]["groupEffortFrac"] = frac
+    userEffortProbs.push(frac)
+
+    for type, weight of groupWeights
+      # might be NaN, i.e. no chat in a 1 person group
+      userStats[userId]["group" + capFirst(type) + "Frac"] =
+        (stats[type + "Weight"] / groupStats[type + "Weight"]) || 0
+
+  groupStats.effortEntropy = Util.entropy( userEffortProbs )
+
+  groupStats.avgIndivEntropy =
+    _.reduce(userStats, ((a, v) -> a + (v.effort * v.entropy)), 0 ) / totalWeight
+
+  groupStats.groupEntropy =
+    Util.entropy(groupProbs)
+
+  return [groupStats, userStats]
+
+saveStats = (replay, expId, gsEvents) ->
+  # Compute partial and strict scores
+  currentEvents = replay.tempEvents.find({deleted: {$exists: false}})
+  eventCount = currentEvents.count()
+
+  [fractionalScore, binaryScore] = matchingScore(currentEvents, gsEvents)
+
+  precision = if eventCount > 0 then binaryScore / eventCount else 0
+  recall = binaryScore / gsEvents.length
+
+  wallTime = replay.wallTime / millisPerHour
+  personTime = replay.manTime / millisPerHour
+  totalEffort = replay.manEffort / millisPerHour
+
+  # Grab specialization stats
+  [groupStats, userStats] = computeGroupStats(replay)
+
+  # Combine performance and specialization stats
+  _.extend(groupStats, {
+    personTime,
+    totalEffort,
+    fractionalScore,
+    binaryScore,
+    precision,
+    recall
+  })
+
+  Analysis.Stats.upsert { instanceId: expId, wallTime },
+    $set: groupStats
+
+  # Save the performance for each user
+  for userId, stats of replay.userEffort
+    stats.time /= millisPerHour
+    stats.effort /= millisPerHour
+
+    # Combine performance and spec stats
+    uStats = _.extend({}, stats, userStats[userId])
+
+    # Stick in experiment wall time here
+    Analysis.Stats.upsert {userId: userId, wallTime},
+      $set: uStats
+
 Meteor.methods
   # Compute group performance and effort over time for experiment worlds.
   "cm-compute-group-performance": ->
@@ -399,195 +534,58 @@ Meteor.methods
     gsEvents = getGoldStandardEvents()
 
     for world in Analysis.Worlds.find({pseudo: null, synthetic: null}).fetch()
-      expId = world._id
-      replay = new ReplayHandler(expId)
+      # Scores we definitely want values for, if possible
+      targets = {
+        manEffort: [ 1.0, 2.0, 3.0 ]
+        manTime: [ 1.0, 2.0, 3.0 ]
+        wallTime: [ 0.25, 0.5, 0.75, 1.0 ]
+      }
 
+      expId = world._id
+
+      replay = new ReplayHandler(expId)
       replay.initialize(weights)
 
-      # Initialize array with zeroes at time 0
-      increments = [
-        {
-          wt: 0
-          mt: 0
-          ef: 0
-          ps: 0
-          ss: 0
-          p: 0
-          r: 0
-        }
-      ]
+      # Save stats of 0 zeroes at time 0
+      saveStats(replay, expId, gsEvents)
 
       while replay.nextEventTime()?
         # Compute parameters every 5 wall-minutes or 15 man-minutes, whichever is smaller
-        targetWallTime = replay.wallTime + 5 * 60 * 1000
-        targetManTime = replay.manTime + 15 * 60 * 1000
+        # Or if we have a target we want to hit
+        nextWallTimeTarget =
+          targets.wallTime[_.sortedIndex(targets.wallTime, replay.wallTime / millisPerHour)] || 100
+        nextManTimeTarget =
+          targets.manTime[_.sortedIndex(targets.manTime, replay.manTime / millisPerHour)] || 100
+        nextEffortTimeTarget =
+          targets.manEffort[_.sortedIndex(targets.manEffort, replay.manEffort / millisPerHour)] || 100
+
+        targetWallTime = Math.min(replay.wallTime + 5 * 60 * 1000, nextWallTimeTarget * millisPerHour)
+        targetManTime = Math.min(replay.manTime + 15 * 60 * 1000, nextManTimeTarget * millisPerHour)
+        targetEffortTime = nextEffortTimeTarget * millisPerHour
 
         try
-          while replay.wallTime < targetWallTime && replay.manTime < targetManTime
+          while replay.wallTime < targetWallTime &&
+          replay.manTime < targetManTime &&
+          replay.manEffort < targetEffortTime
             # This will throw an error if it runs out; giving us one final point
             replay.processNext()
         catch e
 
-        # Compute partial and strict scores
-        currentEvents = replay.tempEvents.find({deleted: {$exists: false}})
-        eventCount = currentEvents.count()
-
-        [partialScore, strictScore] = matchingScore(currentEvents, gsEvents)
-
-        prec = if eventCount > 0 then strictScore / eventCount else 0
-        rec = strictScore / gsEvents.length
-
-        increments.push
-          wt: replay.wallTime / millisPerHour
-          mt: replay.manTime / millisPerHour
-          ef: replay.manEffort / millisPerHour
-          ps: partialScore
-          ss: strictScore
-          p: prec
-          r: rec
+        replay.printStats()
+        saveStats(replay, expId, gsEvents)
 
       replay.printStats()
 
-      lastIncrement = increments[increments.length - 1]
-
-      Analysis.Worlds.update expId,
-        $set:
-          progress: increments
-          wallTime: lastIncrement.wt
-          personTime: lastIncrement.mt
-          totalEffort: lastIncrement.ef
-          partialCreditScore: lastIncrement.ps
-          fullCreditScore: lastIncrement.ss
-          precision: lastIncrement.p
-          recall: lastIncrement.r
-
-      # Save the performance for each user
-      for userId, stats of replay.userEffort
-        stats.treated = world.treated
-        stats.groupSize = world.nominalSize
-        stats.time /= millisPerHour
-        stats.effort /= millisPerHour
-
-        # This skips people that aren't in the db.
-        Analysis.People.update {instanceId: expId, userId: userId},
-          $set: stats
-
     Meteor._debug("Analysis complete.")
 
-capFirst = (str) -> str.charAt(0).toUpperCase() + str.slice(1);
+capFirst = (str) -> str.charAt(0).toUpperCase() + str.slice(1)
 
 Meteor.methods
-  # Compute the specialization of each real group, both individually and for the group as a whole.
-  "cm-compute-group-specialization": ->
-    TurkServer.checkAdmin()
-
-    weights = Meteor.call("cm-get-action-weights")
-
-    for world in Analysis.Worlds.find({pseudo: null, synthetic: null}).fetch()
-      groupId = world._id
-      # Add up weights in each category for each user
-      userWeights = {}
-
-      for entry in Logs.find({_groupId: groupId}).fetch()
-        userId = entry._userId
-        type = Util.logActionType(entry)
-        weight = weights[entry.action]
-
-        continue unless weight? and type
-
-        userWeights[userId] ?= { filter: 0, verify: 0, classify: 0, chat: 0 }
-        userWeights[userId][type] += weight
-
-      roomIds = ChatRooms.direct.find(_groupId: groupId).map (room) -> room._id
-      chatWeight = weights["chat"]
-
-      for chat in ChatMessages.find({room: $in: roomIds}).fetch()
-        userId = chat.userId
-
-        userWeights[userId] ?= { filter: 0, verify: 0, classify: 0, chat: 0 }
-        userWeights[userId]["chat"] += chatWeight
-
-      userStats = {}
-
-      ###
-        individual specialization features:
-
-        - effort in each subtasks (and fraction)
-        - entropy across actions
-      ###
-      for userId, map of userWeights
-        sum = 0
-        for type, val of map
-          sum += val
-
-        userStats[userId] = {}
-
-        probs = []
-        for type, val of map
-          userStats[userId][type + "Weight"] = val / millisPerHour
-          prob = val / sum
-          userStats[userId][type + "Frac"] = prob
-          probs.push(prob)
-
-        userStats[userId].effort = sum
-        userStats[userId].entropy = Util.entropy(probs)
-
-      # Compute group specs
-      groupWeights = _.reduce userWeights, (acc, map) ->
-        for type, val of map
-          acc[type] = (acc[type] || 0) + val
-        return acc
-      , {}
-
-      totalWeight = _.reduce groupWeights, add, 0
-
-      ###
-        group specialization features
-
-        - effort across each subtask (and fraction)
-        - entropy across subtasks
-        - average individual entropy
-        - entropy across individuals
-      ###
-      groupStats = {}
-      groupProbs = []
-
-      for type, weight of groupWeights
-        groupStats[type + "Weight"] = weight / millisPerHour
-        prob = weight / totalWeight
-        groupStats[type + "Frac"] = prob
-        groupProbs.push(prob)
-
-      userEffortProbs = []
-
-      # individual effort as fraction of group (and per category)
-      for userId, stats of userStats
-        frac = stats.effort / totalWeight
-        userStats[userId]["groupEffortFrac"] = frac
-        userEffortProbs.push(frac)
-
-        for type, weight of groupWeights
-          # might be NaN, i.e. no chat in a 1 person group
-          userStats[userId]["group" + capFirst(type) + "Frac"] =
-            (stats[type + "Weight"] / groupStats[type + "Weight"]) || 0
-
-      groupStats.effortEntropy = Util.entropy( userEffortProbs )
-
-      groupStats.avgIndivEntropy =
-        _.reduce(userStats, ((a, v) -> a + (v.effort * v.entropy)), 0 ) / totalWeight
-
-      groupStats.groupEntropy =
-        Util.entropy(groupProbs)
-
-      Analysis.Worlds.update groupId, $set: groupStats
-
-      for userId, stats of userStats
-        delete stats["effort"] # This is computed elsewhere
-        Analysis.People.update {userId, instanceId: groupId}, $set: stats
-
   # Compute words uttered in chat and equality across group
   "cm-compute-chat-weight": ->
     TurkServer.checkAdmin()
+
+    throw new Meteor.Error(500, "Implmentation needs updating")
 
     Analysis.Worlds.find({pseudo: null, synthetic: null}).forEach (world) ->
       groupId = world._id
@@ -656,6 +654,8 @@ getEventContention = (logs, weights, excludeVotes = false) ->
 Meteor.methods
   "cm-compute-event-contention": ->
     TurkServer.checkAdmin()
+
+    throw new Meteor.Error(500, "Implmentation needs updating")
 
     weights = Meteor.call("cm-get-action-weights")
 
