@@ -100,20 +100,22 @@ Meteor.methods
 
     Analysis.Worlds.remove({})
     Analysis.People.remove({})
+    # Remove all user and world stats (not weights)
+    Analysis.Stats.remove({instanceId: {$exists: true}})
+    Analysis.Stats.remove({userId: {$exists: true}})
 
     worlds = 0
     people = 0
+    dropouts = 0
 
     for expId in getAllExpIds()
       exp = Experiments.findOne(expId)
 
       # Ignore experiments where no one submitted (mostly groups of 1)
-      unless Assignments.findOne({
+      exp.completed = Assignments.findOne({
         "instances.id": exp._id
         "status": "completed"
       })?
-        console.log "Skipping #{exp._id} as no one completed it"
-        continue
 
       # Is this a buffer group?
       if exp.treatments[0] is "parallel_worlds"
@@ -126,6 +128,7 @@ Meteor.methods
         # Only the two extra groups of 16 are invalid treatment groups.
         exp.treated = exp.startTime > new Date("2014-08-08T12:00:00.000Z")
 
+
       Analysis.Worlds.insert(exp)
       worlds++
 
@@ -133,19 +136,28 @@ Meteor.methods
       for userId in exp.users
         user = Meteor.users.findOne(userId)
 
+        person = {
+          instanceId: exp._id
+          userId: userId
+          treated: exp.treated
+          groupSize: exp.nominalSize
+        }
+
         # TODO put this into a TurkServer API
         if Assignments.findOne({
           workerId: user.workerId
           batchId: exp.batchId
           submitTime: $exists: true
         })?
-          Analysis.People.insert({
-            instanceId: exp._id
-            userId: userId
-          })
-          people++
+          person.dropped = false
+        else
+          person.dropped = true
+          dropouts++
 
-    console.log "Recorded #{worlds} instances, #{people} people"
+        Analysis.People.insert(person)
+        people++
+
+    console.log "Recorded #{worlds} instances, #{people} people, #{dropouts} dropouts"
 
 countWords = (str) -> str.match(/(\w+)/g)?.length || 0
 
@@ -185,16 +197,17 @@ Meteor.methods
 
       exitSurveyWords = 0
 
-      for field in [ "approach", "specialize", "teamwork", "workwith", "leadership", "misc" ]
-        exitSurveyWords += countWords(experimentAsst.exitdata[field])
+      if experimentAsst? # may be dropout
+        for field in [ "approach", "specialize", "teamwork", "workwith", "leadership", "misc" ]
+          exitSurveyWords += countWords(experimentAsst.exitdata[field])
 
       Analysis.People.update {instanceId: p.instanceId, userId: p.userId},
         $set: {
           tutorialWords,
           tutorialMins,
           exitSurveyWords,
-          age: experimentAsst.exitdata.age,
-          gender: experimentAsst.exitdata.gender,
+          age: experimentAsst?.exitdata.age || null,
+          gender: experimentAsst?.exitdata.gender || null,
         }
 
     return
@@ -202,11 +215,20 @@ Meteor.methods
   "cm-compute-group-metadata": ->
     TurkServer.checkAdmin()
 
-    # Number of females out of number of total submitted users
+    # Number of females out of number of total users, excluding dropouts
+
     Analysis.Worlds.find({pseudo: null, synthetic: null}).forEach (world) ->
-      numFemale = Analysis.People.find({instanceId: world._id, gender: "female"}).count()
+      numFemale = Analysis.People.find({
+        instanceId: world._id,
+        gender: "female",
+        dropped: false
+      }).count()
+
       # XXX do not use nominalSize here
-      numTotal = Analysis.People.find({instanceId: world._id}).count()
+      numTotal = Analysis.People.find({
+        instanceId: world._id,
+        dropped: false
+      }).count()
 
       Analysis.Worlds.update world._id, $set: {
         fracFemale: numFemale / numTotal
@@ -226,9 +248,6 @@ Meteor.methods
       weightArrs = {}
       skipped = 0
       included = 0
-      # Threshold for which we count action times.
-      # 8 minute timeout used in actual experiments.
-      forgetThresh = 8 * 60 * 1000
 
       batchId = getExperimentBatchId()
       # Compute weights just over treated groups.
@@ -237,8 +256,11 @@ Meteor.methods
       for expId in expIds
         exp = Experiments.findOne(expId)
 
-        # All rooms for this experiment, including deleted ones
-        roomIds = ChatRooms.direct.find(_groupId: expId).map (room) -> room._id
+        # Run full replay for this experiment
+        replay = new ReplayHandler(expId)
+        replay.initialize()
+
+        replay.processNext() while replay.nextEventTime()?
 
         for userId in exp.users
           user = Meteor.users.findOne(userId)
@@ -253,63 +275,11 @@ Meteor.methods
             skipped++
             continue
 
-          # Get all log and chat records for this user and iterate through them
-          # TODO: consider doc edits as well.
-          logEvents = Logs.find({_groupId: expId, _userId: userId},
-            {sort: _timestamp: 1}).fetch()
+          userWeights = replay.actionTimeArrs[userId]
 
-          chatEvents = ChatMessages.find({room: {$in: roomIds}, userId: userId},
-            {sort: {timestamp: 1}}).fetch()
-
-          lastEventTime = null
-          li = 0
-          ci = 0
-
-          while li < logEvents.length or ci < chatEvents.length
-            nextLog = logEvents[li]
-            nextChat = chatEvents[ci]
-
-            if nextLog && nextLog._timestamp < (nextChat?.timestamp || Date.now())
-              # Next event for this user is log
-              timestamp = nextLog._timestamp
-              li++
-
-              # Don't track meta events, but use them to update last time if active/connection
-              if (meta = nextLog._meta)
-                # Some of these may be janky, but helps prevent overestimating effort
-                if meta is "active" or meta is "connected"
-                  lastEventTime = timestamp
-
-                continue
-
-              # Ignore first action because we don't have ramp-up info
-              actionTime = lastEventTime && (timestamp - lastEventTime)
-
-              if actionTime < forgetThresh
-                weightArrs[nextLog.action] ?= []
-                weightArrs[nextLog.action].push(actionTime)
-
-              lastEventTime = timestamp
-
-            else if nextChat # next event for this user is chat
-              timestamp = nextChat.timestamp
-              ci++
-
-              actionTime = lastEventTime && (timestamp - lastEventTime)
-
-              if actionTime < forgetThresh
-                weightArrs["chat"] ?= []
-                weightArrs["chat"].push(actionTime)
-
-              lastEventTime = timestamp
-
-          unless li is logEvents.length and ci is chatEvents.length
-            console.log expId, userId
-            console.log li, logEvents.length
-            console.log ci, chatEvents.length
-            throw new Error("Did not reach end of log or chat array")
-
-          included++
+          for actionType, actionWeights of userWeights
+            weightArrs[actionType] ?= []
+            weightArrs[actionType] = weightArrs[actionType].concat(actionWeights)
 
       # Compute average weight for each action
       weights = {}

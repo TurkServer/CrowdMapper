@@ -1,6 +1,6 @@
 ###
   Replay publication for admin
-  currently sends users, docs, events
+  currently sends users, chat, events
   # TODO lots of hacks here. Integrate with TurkServer APIs.
 ###
 class ReplayHandler
@@ -72,6 +72,10 @@ class ReplayHandler
     @manEffort = 0
 
     @userEffort = {}
+
+    @userLastEventTime = {}
+    @eventLastEditor = {}
+    @actionTimeArrs = {}
 
   ensureUserActive: (userId) ->
     result = @tempUsers.upsert userId,
@@ -147,6 +151,8 @@ class ReplayHandler
           throw new Error()
       return
 
+    modifiedEventType = log.action
+
     switch log.action
     # Stuff we don't know what to do with yet
       when "data-hide"
@@ -178,17 +184,35 @@ class ReplayHandler
           sources: []
           num: ++@eventCount # TODO is this accurate?
       when "event-edit"
+        ###
+          Edits, updates, and saves to an event that was previously edited by
+          someone else, counts as a verify. Not sure if this should apply at the
+          field or event level.
+        ###
+        if @eventLastEditor[log.eventId]? and @eventLastEditor[log.eventId] != log.userId
+          modifiedEventType = "event-edit-verify"
+
         @tempEvents.update log.eventId,
           $set: editor: log._userId
       when "event-update"
+        if @eventLastEditor[log.eventId]? and @eventLastEditor[log.eventId] != log.userId
+          modifiedEventType = "event-update-verify"
+
         @tempEvents.update log.eventId,
           $set: log.fields
       when "event-unmap"
         @tempEvents.update log.eventId,
           $unset: { location: null }
       when "event-save"
+        if @eventLastEditor[log.eventId]? and @eventLastEditor[log.eventId] != log.userId
+          modifiedEventType = "event-save-verify"
+
         @tempEvents.update log.eventId,
           $unset: { editor: null }
+
+        # Record last editor for annotation purposes
+        @eventLastEditor[log.eventId] = log._userId
+
       when "event-vote"
         @tempEvents.update log.eventId,
           $addToSet: { votes: log._userId }
@@ -229,11 +253,14 @@ class ReplayHandler
         Meteor._debug("Don't know what to do with ", log)
         throw new Error()
 
+    @recordActionWeight(log._userId, modifiedEventType, log._timestamp)
+    @userLastEventTime[log._userId] = log._timestamp
+
     # If user did an action, make sure they are not counted as inactive
     # Some bookkeeping may have been off during the experiment
     @ensureUserActive(log._userId)
 
-    @recordEffort(log._userId, log.action) if @actionWeights?
+    @recordEffort(log._userId, modifiedEventType) if @actionWeights?
     return
 
   # Take care of updating chat room sessions and counts.
@@ -263,7 +290,20 @@ class ReplayHandler
     # Just copy the whole message, including timestamp, into the collection
     @tempChatMessages.insert(chat)
 
+    @recordActionWeight(chat.userId, "chat", chat.timestamp)
+    @userLastEventTime[chat.userId] = chat.timestamp
+
+    @ensureUserActive(chat.userId)
+
     @recordEffort(chat.userId, "chat") if @actionWeights?
+    return
+
+  recordActionWeight: (userId, action, timestamp) ->
+    return unless (lastTime = @userLastEventTime[userId])?
+
+    @actionTimeArrs[userId] ?= {}
+    @actionTimeArrs[userId][action] ?= []
+    @actionTimeArrs[userId][action].push( timestamp - lastTime )
     return
 
   recordEffort: (userId, action) ->
