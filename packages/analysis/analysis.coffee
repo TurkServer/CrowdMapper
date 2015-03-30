@@ -524,6 +524,45 @@ saveStats = (replay, expId, gsEvents) ->
     Analysis.Stats.upsert {userId: userId, wallTime},
       $set: uStats
 
+computeReplayStats = (expId, weights, gsEvents, targets, increments=true) ->
+  replay = new ReplayHandler(expId)
+  replay.initialize(weights)
+
+  # Save stats of 0 zeroes at time 0
+  saveStats(replay, expId, gsEvents)
+
+  while replay.nextEventTime()?
+    # Compute parameters every 5 wall-minutes or 15 man-minutes, whichever is smaller
+    # Or if we have a target we want to hit
+    nextWallTimeTarget =
+      targets.wallTime[_.sortedIndex(targets.wallTime, replay.wallTime / millisPerHour)] || 100
+    nextManTimeTarget =
+      targets.manTime[_.sortedIndex(targets.manTime, replay.manTime / millisPerHour)] || 100
+    nextEffortTimeTarget =
+      targets.manEffort[_.sortedIndex(targets.manEffort, replay.manEffort / millisPerHour)] || 100
+
+    targetWallTime = nextWallTimeTarget * millisPerHour
+    targetManTime = nextManTimeTarget * millisPerHour
+    targetEffortTime = nextEffortTimeTarget * millisPerHour
+
+    # Compute smaller increments along the way?
+    if increments
+      targetWallTime = Math.min(replay.wallTime + 5 * 60 * 1000, targetWallTime)
+      targetManTime = Math.min(replay.manTime + 15 * 60 * 1000, targetManTime)
+
+    try
+      while replay.wallTime < targetWallTime &&
+      replay.manTime < targetManTime &&
+      replay.manEffort < targetEffortTime
+        # This will throw an error if it runs out; giving us one final point
+        replay.processNext()
+    catch e
+
+    replay.printStats()
+    saveStats(replay, expId, gsEvents)
+
+  replay.printStats()
+
 Meteor.methods
   # Compute group performance and effort over time for experiment worlds.
   "cm-compute-group-performance": ->
@@ -543,38 +582,38 @@ Meteor.methods
 
       expId = world._id
 
-      replay = new ReplayHandler(expId)
-      replay.initialize(weights)
+      computeReplayStats(expId, weights, gsEvents, targets)
 
-      # Save stats of 0 zeroes at time 0
-      saveStats(replay, expId, gsEvents)
+    Meteor._debug("Analysis complete.")
 
-      while replay.nextEventTime()?
-        # Compute parameters every 5 wall-minutes or 15 man-minutes, whichever is smaller
-        # Or if we have a target we want to hit
-        nextWallTimeTarget =
-          targets.wallTime[_.sortedIndex(targets.wallTime, replay.wallTime / millisPerHour)] || 100
-        nextManTimeTarget =
-          targets.manTime[_.sortedIndex(targets.manTime, replay.manTime / millisPerHour)] || 100
-        nextEffortTimeTarget =
-          targets.manEffort[_.sortedIndex(targets.manEffort, replay.manEffort / millisPerHour)] || 100
+  # Same as above, but divide groups up by quadrants according to man-time and
+  # do this only for completed groups with sufficient wall time
+  # XXX must run this after the method above!
+  "cm-compute-group-quadrants": ->
+    TurkServer.checkAdmin()
 
-        targetWallTime = Math.min(replay.wallTime + 5 * 60 * 1000, nextWallTimeTarget * millisPerHour)
-        targetManTime = Math.min(replay.manTime + 15 * 60 * 1000, nextManTimeTarget * millisPerHour)
-        targetEffortTime = nextEffortTimeTarget * millisPerHour
+    weights = Meteor.call("cm-get-action-weights")
+    gsEvents = getGoldStandardEvents()
 
-        try
-          while replay.wallTime < targetWallTime &&
-          replay.manTime < targetManTime &&
-          replay.manEffort < targetEffortTime
-            # This will throw an error if it runs out; giving us one final point
-            replay.processNext()
-        catch e
+    for world in Analysis.Worlds.find({completed: true}).fetch()
+      expId = world._id
 
-        replay.printStats()
-        saveStats(replay, expId, gsEvents)
+      finalStats = Analysis.Stats.findOne({instanceId: expId}, {sort: {wallTime: -1}})
 
-      replay.printStats()
+      if finalStats.wallTime < 0.75
+        console.log "#{expId} has less than 45 minutes wall time; skipping"
+        continue
+
+      targets = {
+        manEffort: []
+        manTime: [ finalStats.personTime * 0.25,
+                   finalStats.personTime * 0.5,
+                   finalStats.personTime * 0.75,
+        ]
+        wallTime: []
+      }
+
+      computeReplayStats(expId, weights, gsEvents, targets, false)
 
     Meteor._debug("Analysis complete.")
 
