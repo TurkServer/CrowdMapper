@@ -815,6 +815,23 @@ Meteor.methods
           if world.nominalSize > 1 and error > 0.05 or error > 0.13
             throw new Meteor.Error(500, "Couldn't find accurate slice time for #{worldId}: target is #{targetPersonTime} but closest above is #{slice.personTime}")
           return slice.wallTime
+
+      when "eff1"
+        (worldId) ->
+          slice = Analysis.Stats.findOne({
+            instanceId: worldId,
+            totalEffort: {$gte: 1.0}
+          }, {sort: {wallTime: 1}})
+          return slice && slice.wallTime || null
+
+      when "eff3"
+        (worldId) ->
+          slice = Analysis.Stats.findOne({
+            instanceId: worldId,
+            totalEffort: {$gte: 3.0}
+          }, {sort: {wallTime: 1}})
+          return slice && slice.wallTime || null
+
       else
         (worldId) -> Analysis.Stats.findOne({instanceId: worldId},
           {sort: {wallTime: -1}}).wallTime
