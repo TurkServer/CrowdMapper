@@ -13,7 +13,13 @@ Util =
       when "event-create", "event-edit", "event-update", "event-save" then "classify"
       when "event-vote", "event-unvote", "event-unmap", "event-delete", "data-move", "data-unlink", \
       "event-edit-verify", "event-update-verify", "event-save-verify" then "verify"
-      else ""
+      when "chat" then "chat"
+      when "chat-create", "chat-rename", "room-enter", "chat-delete", \
+      "document-create", "document-rename", "document-delete", "document-open"
+        # explicitly ignored
+        null
+      else
+        throw new Meteor.Error(500, "Unrecognized action")
 
   typeFields: [ "filter", "classify", "verify", "chat", "" ]
 

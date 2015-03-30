@@ -13,8 +13,8 @@ Template.overview.events
       else
         bootbox.alert("done")
 
-  "click .cm-download-csv": (e) ->
-    Meteor.call "cm-generate-data-csv", (err, res) ->
+  "click .cm-download": (e) ->
+    Meteor.call $(e.target).data("method"), $(e.target).data("args"), (err, res) ->
       if err
         bootbox.alert(err)
       else

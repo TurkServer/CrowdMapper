@@ -403,8 +403,9 @@ computeGroupStats = (replay) ->
       type = Util.actionCategory(action)
       weight = weights[action]
 
-      if type is "" then continue
-      unless weight? then throw new Meteor.Error(500, "#{type} has no weight")
+      continue unless type? # Skip null (ignored) types
+      if type != null and !weight?
+        throw new Meteor.Error(500, "#{action} (#{type}) has no weight")
 
       userWeights[userId] ?= { filter: 0, verify: 0, classify: 0, chat: 0 }
       userWeights[userId][type] += weight * arr.length
@@ -417,12 +418,14 @@ computeGroupStats = (replay) ->
     - entropy across actions
   ###
   for userId, map of userWeights
+    # Add up all action weights of this user
     sum = 0
     for type, val of map
       sum += val
 
     userStats[userId] = {}
 
+    # Compute weight and normalized fraction for this user
     probs = []
     for type, val of map
       userStats[userId][type + "Weight"] = val / millisPerHour
@@ -514,11 +517,12 @@ saveStats = (replay, expId, gsEvents) ->
 
   # Save the performance for each user
   for userId, stats of replay.userEffort
-    stats.time /= millisPerHour
-    stats.effort /= millisPerHour
-
     # Combine performance and spec stats
     uStats = _.extend({}, stats, userStats[userId])
+
+    # Normalize computed time and effort
+    uStats.time /= millisPerHour
+    uStats.effort /= millisPerHour
 
     # Stick in experiment wall time here
     Analysis.Stats.upsert {userId: userId, wallTime},
@@ -715,6 +719,7 @@ dataFields = {
   age: "self-reported participant age"
   gender: "self-reported participant gender"
   instanceId: "ID of the containing experiment group"
+  dropped: "whether this user dropped out during the experiment"
 
   tutorialMins: "Minutes spent to complete tutorial"
   tutorialWords: "Words typed into tutorial exit survey"
@@ -734,8 +739,8 @@ dataFields = {
   verifyFrac: ""
   verifyWeight: ""
 
-  chatWordCount: "number of words uttered in chat"
-  chatWordFrac: "fraction of total chat words in group"
+  # chatWordCount: "number of words uttered in chat"
+  # chatWordFrac: "fraction of total chat words in group"
 
   groupEffortFrac: "fraction of this user's effort of group total"
   groupChatFrac: "fraction of this user's chat effort weight of group total"
@@ -752,8 +757,8 @@ dataFields = {
   g_totalEffort: "effort-hours spent by the group"
   g_effortPerPerson: "totalEffort / personTime"
 
-  g_partialCreditScore: "group score accounting for partial accuracy"
-  g_fullCreditScore: "group score rounded to 0-1 based on threshold"
+  g_fractionalScore: "group score accounting for partial accuracy"
+  g_binaryScore: "group score rounded to 0-1 based on threshold"
   g_precision: "precision computed from 0-1 score"
   g_recall: "recall computed from 0-1 score"
   g_f1: "F-1 score"
@@ -761,8 +766,8 @@ dataFields = {
   g_avgIndivEntropy: "weighted average of individual user action entropy"
   g_effortEntropy: "entropy of effort contribution from users"
   g_groupEntropy: "entropy of group actions across categories"
-  g_eventContention: "average number of people contributing effort to an event"
-  g_eventContentionExVoting: "event contention excluding votes"
+  # g_eventContention: "average number of people contributing effort to an event"
+  # g_eventContentionExVoting: "event contention excluding votes"
 
   g_chatFrac: "fraction of effort spent on chat"
   g_chatWeight: "effort time spent on chat"
@@ -773,8 +778,8 @@ dataFields = {
   g_verifyFrac: ""
   g_verifyWeight: ""
 
-  g_chatWordCount: "total chat volume in words"
-  g_chatWordEntropy: "entropy of chat word volume across users"
+  # g_chatWordCount: "total chat volume in words"
+  # g_chatWordEntropy: "entropy of chat word volume across users"
 }
 
 dataTransform = {
@@ -783,19 +788,60 @@ dataTransform = {
   g_f1: (d) -> 2 * d.g_precision * d.g_recall / (d.g_precision + d.g_recall)
 }
 
+json2csv = Meteor.wrapAsync(Npm.require('json2csv'))
+
 Meteor.methods
-  "cm-generate-data-csv": ->
+  "cm-generate-data-csv": (type) ->
+    getKey = switch type
+      when "3/4"
+        (worldId) ->
+          world = Analysis.Worlds.findOne(worldId)
+
+          maxPersonTime = Analysis.Stats.findOne({instanceId: worldId},
+            {sort: {wallTime: -1}}).personTime
+          targetPersonTime = maxPersonTime * 0.75
+          # Find minimum person time above the 3/4 number
+          slice = Analysis.Stats.findOne({
+              instanceId: worldId,
+              personTime: {$gte: targetPersonTime}
+            }, {sort: {wallTime: 1}})
+
+          error = Math.abs((slice.personTime - targetPersonTime) / targetPersonTime)
+
+          if world.completed == false
+            return null
+
+          # Should small difference (if quadration was run)
+          if world.nominalSize > 1 and error > 0.05 or error > 0.13
+            throw new Meteor.Error(500, "Couldn't find accurate slice time for #{worldId}: target is #{targetPersonTime} but closest above is #{slice.personTime}")
+          return slice.wallTime
+      else
+        (worldId) -> Analysis.Stats.findOne({instanceId: worldId},
+          {sort: {wallTime: -1}}).wallTime
+
     results = []
 
     Analysis.Worlds.find(
       {pseudo: null, synthetic: null, treated: true},
       { sort: { nominalSize: 1 } }
     ).forEach (w) ->
+
+      wallTimeKey = getKey(w._id)
+
+      unless wallTimeKey?
+        console.log "Skipping #{w._id}"
+        return
+
+      # Grab slice data for the group
+      groupSlice = Analysis.Stats.findOne({instanceId: w._id, wallTime: wallTimeKey})
+
       groupStats = {}
 
       for key, desc of dataFields
         if key.slice(0, 2) is "g_"
-          groupStats[key] = w[ key.slice(2) ]
+          groupKey = key.slice(2)
+          # Look in either the top-level field or the slice
+          groupStats[key] = w[ groupKey ] || groupSlice[ groupKey ]
 
       # Compute group transformed states
       for key, f of dataTransform
@@ -805,9 +851,17 @@ Meteor.methods
       Analysis.People.find({instanceId: w._id}).forEach (p) ->
         stats = _.extend {}, groupStats
 
+        # Grab slice data for the person
+        personSlice = Analysis.Stats.findOne({userId: p.userId, wallTime: wallTimeKey})
+
+        unless personSlice?
+          console.log "#{p.userId} did not exist at this slice; skipping"
+          return
+
         for key, desc of dataFields
           continue if key.slice(0, 2) is "g_"
-          stats[key] = p[key]
+          # Look in both places
+          stats[key] = p[key] || personSlice[key]
 
         # Compute individual transforms
         for key, f of dataTransform
@@ -816,9 +870,72 @@ Meteor.methods
 
         results.push(stats)
 
-    convert = Meteor.wrapAsync(Npm.require('json2csv'))
+    return json2csv({data: results, fields: (key for key, desc of dataFields)})
 
-    return convert({data: results, fields: (key for key, desc of dataFields)})
+  "cm-generate-effort-quadrants": ->
+    TurkServer.checkAdmin()
+
+    results = []
+
+    Analysis.Worlds.find(
+      {pseudo: null, synthetic: null, treated: true},
+      { sort: { nominalSize: 1 } }
+    ).forEach (w) ->
+
+      finalSlice = Analysis.Stats.findOne({instanceId: w._id},
+        {sort: {wallTime: -1}})
+
+      maxPersonTime = finalSlice.personTime
+
+      targets = [0.25, 0.5, 0.75].map (frac) ->
+        Analysis.Stats.findOne({
+          instanceId: w._id,
+          personTime: {$gte: maxPersonTime * frac}
+        }, {sort: {wallTime: 1}}).wallTime
+
+      targets.push( finalSlice.wallTime )
+
+      # console.log w._id, targets
+
+      # For each person in the group, compute normalized effort in the buckets
+      Analysis.People.find({instanceId: w._id}).forEach (p) ->
+
+        if p.dropped
+          console.log "#{p.userId} dropped out; skipping"
+          return
+
+        accruedEffort = 0
+        accruedTime = 0
+        q = 0
+
+        for wallTimeTarget in targets
+          q++
+          personSlice = Analysis.Stats.findOne({userId: p.userId, wallTime: wallTimeTarget})
+
+          unless personSlice?
+            # This will skip the person for all later slices
+            console.log "#{p.userId} did not exist in early slices; skipping"
+            return
+
+          nEff = (personSlice.effort - accruedEffort) / (personSlice.time - accruedTime)
+
+          results.push {
+            instanceId: w._id
+            userId: p.userId
+            g_nominalSize: w.nominalSize
+            quadrant: q
+            normalizedEffort: nEff
+          }
+
+          # Set effort to new value
+          accruedEffort = personSlice.effort
+          accruedTime = personSlice.time
+
+    return json2csv({
+      data: results,
+      fields: ["instanceId", "userId", "g_nominalSize", "quadrant", "normalizedEffort"]
+    })
+
 
   # Compute performance of pseudo-aggregated groups, as in discussion with Peter.
   "cm-compute-pseudo-performance": ->
