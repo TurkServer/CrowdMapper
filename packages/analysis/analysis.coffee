@@ -824,6 +824,14 @@ Meteor.methods
           }, {sort: {wallTime: 1}})
           return slice && slice.wallTime || null
 
+      when "eff2"
+        (worldId) ->
+          slice = Analysis.Stats.findOne({
+            instanceId: worldId,
+            totalEffort: {$gte: 2.0}
+          }, {sort: {wallTime: 1}})
+          return slice && slice.wallTime || null
+
       when "eff3"
         (worldId) ->
           slice = Analysis.Stats.findOne({
