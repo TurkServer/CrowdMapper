@@ -791,52 +791,47 @@ dataTransform = {
 json2csv = Meteor.wrapAsync(Npm.require('json2csv'))
 
 Meteor.methods
-  "cm-generate-data-csv": (type) ->
+  "cm-generate-data-csv": (type, sliceValue) ->
+    sliceValue = Number(sliceValue)
+
     getKey = switch type
-      when "3/4"
+      when "time"
         (worldId) ->
           world = Analysis.Worlds.findOne(worldId)
 
-          maxPersonTime = Analysis.Stats.findOne({instanceId: worldId},
-            {sort: {wallTime: -1}}).personTime
-          targetPersonTime = maxPersonTime * 0.75
-          # Find minimum person time above the 3/4 number
-          slice = Analysis.Stats.findOne({
+          # Skip incomplete worlds
+          return null if world.completed == false
+
+          lastSlice = Analysis.Stats.findOne({instanceId: worldId},
+            {sort: {wallTime: -1}})
+
+          # If no slice value provided, return final value
+          return lastSlice.wallTime unless sliceValue?
+
+          maxPersonTime = lastSlice.personTime
+          targetPersonTime = maxPersonTime * sliceValue
+
+          # Find minimum person time above the slice number
+          targetSlice = Analysis.Stats.findOne({
               instanceId: worldId,
               personTime: {$gte: targetPersonTime}
             }, {sort: {wallTime: 1}})
 
-          error = Math.abs((slice.personTime - targetPersonTime) / targetPersonTime)
+          error = Math.abs((targetSlice.personTime - targetPersonTime) / targetPersonTime)
 
-          if world.completed == false
-            return null
+          # Basic sanity check for (if quadration was run)
+          if (world.nominalSize > 4 and error > 0.05) or
+          (world.nominalSize > 1 and error > 0.08) or
+          (sliceValue > 0.4 and error > 0.15) or
+          error > 0.5
+            throw new Meteor.Error(500, "Couldn't find accurate slice time for #{worldId}: target is #{targetPersonTime} but closest above is #{targetSlice.personTime}")
+          return targetSlice.wallTime
 
-          # Should small difference (if quadration was run)
-          if world.nominalSize > 1 and error > 0.05 or error > 0.13
-            throw new Meteor.Error(500, "Couldn't find accurate slice time for #{worldId}: target is #{targetPersonTime} but closest above is #{slice.personTime}")
-          return slice.wallTime
-
-      when "eff1"
+      when "effort"
         (worldId) ->
           slice = Analysis.Stats.findOne({
             instanceId: worldId,
-            totalEffort: {$gte: 1.0}
-          }, {sort: {wallTime: 1}})
-          return slice && slice.wallTime || null
-
-      when "eff2"
-        (worldId) ->
-          slice = Analysis.Stats.findOne({
-            instanceId: worldId,
-            totalEffort: {$gte: 2.0}
-          }, {sort: {wallTime: 1}})
-          return slice && slice.wallTime || null
-
-      when "eff3"
-        (worldId) ->
-          slice = Analysis.Stats.findOne({
-            instanceId: worldId,
-            totalEffort: {$gte: 3.0}
+            totalEffort: {$gte: sliceValue}
           }, {sort: {wallTime: 1}})
           return slice && slice.wallTime || null
 

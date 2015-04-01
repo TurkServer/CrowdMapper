@@ -14,7 +14,8 @@ Template.overview.events
         bootbox.alert("done")
 
   "click .cm-download": (e) ->
-    Meteor.call $(e.target).data("method"), $(e.target).data("args"), (err, res) ->
+    $target = $(e.target)
+    Meteor.call $target.data("method"), $target.data("arg1"), $target.data("arg2"), (err, res) ->
       if err
         bootbox.alert(err)
       else

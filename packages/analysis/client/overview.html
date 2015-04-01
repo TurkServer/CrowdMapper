@@ -94,32 +94,37 @@
                 </button>
             </li>
             <li>
-                <button class="btn btn-default cm-download-csv">
-                    Download data frame
+                Download data frame:
+                <button class="btn btn-default cm-download"
+                        data-method="cm-generate-data-csv" data-arg1="time" data-arg2="0.25">
+                    1/4
+                </button>
+                <button class="btn btn-default cm-download"
+                        data-method="cm-generate-data-csv" data-arg1="time" data-arg2="0.5">
+                    1/2
+                </button>
+                <button class="btn btn-default cm-download"
+                        data-method="cm-generate-data-csv" data-arg1="time" data-arg2="0.75">
+                    3/4
+                </button>
+                <button class="btn btn-default cm-download"
+                        data-method="cm-generate-data-csv" data-arg1="time">
+                    End
                 </button>
             </li>
             <li>
+                Download data frame (effort normalized):
                 <button class="btn btn-default cm-download"
-                        data-method="cm-generate-data-csv" data-args="3/4">
-                    Download data frame (3/4 analysis)
+                        data-method="cm-generate-data-csv" data-arg1="effort" data-arg2="1">
+                    1 hour
                 </button>
-            </li>
-            <li>
                 <button class="btn btn-default cm-download"
-                        data-method="cm-generate-data-csv" data-args="eff1">
-                    Download data frame (1 hour fixed effort)
+                        data-method="cm-generate-data-csv" data-arg1="effort" data-arg2="2">
+                    2 hours
                 </button>
-            </li>
-            <li>
                 <button class="btn btn-default cm-download"
-                        data-method="cm-generate-data-csv" data-args="eff2">
-                    Download data frame (2 hours fixed effort)
-                </button>
-            </li>
-            <li>
-                <button class="btn btn-default cm-download"
-                        data-method="cm-generate-data-csv" data-args="eff3">
-                    Download data frame (3 hours fixed effort)
+                        data-method="cm-generate-data-csv" data-arg1="effort" data-arg2="3">
+                    3 hours
                 </button>
             </li>
             <li>
