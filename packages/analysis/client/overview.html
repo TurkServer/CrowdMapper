@@ -113,6 +113,21 @@
                 </button>
             </li>
             <li>
+                Download data frame (time normalized):
+                <button class="btn btn-default cm-download"
+                        data-method="cm-generate-data-csv" data-arg1="persontime" data-arg2="1">
+                    1 hour
+                </button>
+                <button class="btn btn-default cm-download"
+                        data-method="cm-generate-data-csv" data-arg1="persontime" data-arg2="2">
+                    2 hours
+                </button>
+                <button class="btn btn-default cm-download"
+                        data-method="cm-generate-data-csv" data-arg1="persontime" data-arg2="3">
+                    3 hours
+                </button>
+            </li>
+            <li>
                 Download data frame (effort normalized):
                 <button class="btn btn-default cm-download"
                         data-method="cm-generate-data-csv" data-arg1="effort" data-arg2="1">
@@ -131,6 +146,18 @@
                 <button class="btn btn-default cm-download"
                         data-method="cm-generate-effort-quadrants">
                     Download effort quadrants
+                </button>
+            </li>
+            <li>
+                <button class="btn btn-default cm-analysis"
+                        data-method="cm-compute-synthetic-performance">
+                    Compute synthetic group performance
+                </button>
+            </li>
+            <li>
+                <button class="btn btn-default cm-download"
+                        data-method="cm-download-synthetic-performance">
+                    Download synthetic performance
                 </button>
             </li>
         </ol>

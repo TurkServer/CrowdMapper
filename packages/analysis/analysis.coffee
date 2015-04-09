@@ -792,6 +792,8 @@ json2csv = Meteor.wrapAsync(Npm.require('json2csv'))
 
 Meteor.methods
   "cm-generate-data-csv": (type, sliceValue) ->
+    TurkServer.checkAdmin()
+
     sliceValue = Number(sliceValue)
 
     getKey = switch type
@@ -826,6 +828,26 @@ Meteor.methods
           error > 0.5
             throw new Meteor.Error(500, "Couldn't find accurate slice time for #{worldId}: target is #{targetPersonTime} but closest above is #{targetSlice.personTime}")
           return targetSlice.wallTime
+
+      when "persontime"
+        (worldId) ->
+          slice = Analysis.Stats.findOne({
+            instanceId: worldId,
+            personTime: {$gte: sliceValue}
+          }, {sort: {wallTime: 1}})
+
+          # Some groups of 1 or 2 didn't quite reach 1 or 2 hours,
+          # OK to use smaller values
+          unless slice?
+            slice = Analysis.Stats.findOne({
+              instanceId: worldId,
+            }, {sort: {wallTime: -1}})
+
+            if slice.personTime >= 0.9 * sliceValue
+              console.log("Using person time of #{slice.personTime} for #{sliceValue} in group #{worldId}")
+            else return null
+
+          return slice && slice.wallTime || null
 
       when "effort"
         (worldId) ->
@@ -956,6 +978,75 @@ Meteor.methods
       fields: ["instanceId", "userId", "g_nominalSize", "quadrant", "normalizedEffort"]
     })
 
+  ###
+  Compute synthetic performance of different groups of size 1.
+
+  TODO Current limitations:
+  - Only uses groups of size 1 (2 or more are trickier)
+  - Assumes all size 1 groups worked for exactly 1 hour / no wall time adj
+  - Only uses end state at the moment
+  ###
+  "cm-compute-synthetic-performance": ->
+    TurkServer.checkAdmin()
+
+    weights = Meteor.call("cm-get-action-weights")
+
+    # Remove all previous generated data
+    Analysis.Stats.remove({synthetic: true})
+
+    gsEvents = getGoldStandardEvents()
+    singles = Analysis.Worlds.find({
+      treated: true,
+      completed: true,
+      nominalSize: 1
+    }).fetch()
+    maxSamples = 100
+
+    console.log "Found #{singles.length} completed groups of size 1"
+
+    # Form synthetic groups of size 2 up to total - 2
+    for cSize in [2..singles.length - 2]
+      for i in [1..maxSamples]
+        worlds = _.sample(singles, cSize)
+        ids = worlds.map (w) -> w._id
+
+        worldSlices = ( Analysis.Stats.findOne({instanceId: id},
+          {sort: {wallTime: -1}}) for id in ids)
+
+        aggEvents = Events.direct.find({
+          _groupId: { $in: ids },
+          deleted: { $exists: false },
+        }).fetch()
+
+        eventCount = aggEvents.length
+
+        [fractionalScore, binaryScore] = matchingScore(aggEvents, gsEvents)
+
+        precision = if eventCount > 0 then binaryScore / eventCount else 0
+        recall = binaryScore / gsEvents.length
+
+        console.log fractionalScore, binaryScore
+
+        Analysis.Stats.insert({
+          synthetic: true,
+          worlds: ids,
+          personTime: cSize,
+          totalEffort: worldSlices.reduce( ((acc, w) -> acc + w.totalEffort), 0),
+          fractionalScore,
+          binaryScore,
+          precision,
+          recall
+        })
+
+      console.log "Completed #{i} samples of synthesized groups of #{cSize}"
+
+  "cm-download-synthetic-performance": ->
+    TurkServer.checkAdmin()
+
+    return json2csv({
+      data: Analysis.Stats.find({synthetic: true}, {sort: {personTime: 1}}).fetch(),
+      fields: ["personTime", "totalEffort", "fractionalScore", "binaryScore", "precision", "recall"]
+    })
 
   # Compute performance of pseudo-aggregated groups, as in discussion with Peter.
   "cm-compute-pseudo-performance": ->
@@ -1038,49 +1129,3 @@ Meteor.methods
           totalEffort: lastIncrement.ef
           partialCreditScore: lastIncrement.ps
           fullCreditScore: lastIncrement.ss
-
-  ###
-  Compute synthetic performance of different groups of size 1.
-
-  TODO Current limitations:
-  - Only uses groups of size 1 (2 or more are trickier)
-  - Assumes all size 1 groups worked for exactly 1 hour / no wall time adj
-  - Only uses end state at the moment
-  ###
-  "cm-compute-synthetic-performance": ->
-    TurkServer.checkAdmin()
-
-    weights = Meteor.call("cm-get-action-weights")
-
-    # Remove all previous generated data
-    Analysis.Worlds.remove({synthetic: true})
-
-    gsEvents = getGoldStandardEvents()
-    singles = Analysis.Worlds.find({treated: true, nominalSize: 1}).fetch()
-    maxSamples = 100
-
-    # Form synthetic groups of size 2 up to total - 2
-    for cSize in [2..singles.length - 2]
-      for i in [1..maxSamples]
-        worlds = _.sample(singles, cSize)
-        ids = _.map(worlds, (w) -> w._id )
-
-        aggEvents = Events.direct.find({
-          _groupId: { $in: ids },
-          deleted: { $exists: false },
-        }).fetch()
-
-        [partialScore, strictScore] = matchingScore(aggEvents, gsEvents)
-
-        console.log partialScore, strictScore
-
-        Analysis.Worlds.insert
-          synthetic: true
-          treated: false
-          worlds: ids
-          personTime: cSize
-          totalEffort: worlds.reduce ((acc, w) -> acc + w.totalEffort), 0
-          partialCreditScore: partialScore
-          fullCreditScore: strictScore
-
-      console.log "Completed #{i} samples of synthesized groups of #{cSize}"
