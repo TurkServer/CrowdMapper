@@ -785,7 +785,7 @@ dataFields = {
 dataTransform = {
   normalizedEffort: (d) -> d.effort / d.time
   g_effortPerPerson: (d) -> d.g_totalEffort / d.g_personTime
-  g_f1: (d) -> 2 * d.g_precision * d.g_recall / (d.g_precision + d.g_recall)
+  g_f1: (d) -> (2 * d.g_precision * d.g_recall / (d.g_precision + d.g_recall)) || 0
 }
 
 json2csv = Meteor.wrapAsync(Npm.require('json2csv'))
@@ -807,8 +807,8 @@ Meteor.methods
           lastSlice = Analysis.Stats.findOne({instanceId: worldId},
             {sort: {wallTime: -1}})
 
-          # If no slice value provided, return final value
-          return lastSlice.wallTime unless sliceValue?
+          # If no slice value provided, or 0, return final value
+          return lastSlice.wallTime unless sliceValue
 
           maxPersonTime = lastSlice.personTime
           targetPersonTime = maxPersonTime * sliceValue
