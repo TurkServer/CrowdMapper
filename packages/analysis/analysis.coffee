@@ -698,22 +698,29 @@ Meteor.methods
   "cm-compute-event-contention": ->
     TurkServer.checkAdmin()
 
-    throw new Meteor.Error(500, "Implmentation needs updating")
-
     weights = Meteor.call("cm-get-action-weights")
 
-    Analysis.Worlds.find({pseudo: null, synthetic: null}).forEach (world) ->
+    results = []
+
+    Analysis.Worlds.find({treated: true, completed: true}).forEach (world) ->
       groupId = world._id
       actionLogs = Logs.find({_groupId: groupId}).fetch()
 
-      eventContention = getEventContention actionLogs, weights
-      eventContentionExVoting = getEventContention actionLogs, weights, true
+      eventContention = getEventContention(actionLogs, weights)
+      eventContentionExVoting = getEventContention(actionLogs, weights, true)
 
-      Analysis.Worlds.update groupId,
-        $set: {
-          eventContention,
-          eventContentionExVoting
-        }
+      world.eventContention = eventContention
+      world.eventContentionExVoting = eventContentionExVoting
+
+      results.push(world)
+
+    return json2csv({
+      data: results,
+      fields: [
+        "_id", "nominalSize",
+        "eventContention", "eventContentionExVoting"
+      ]
+    })
 
 dataFields = {
   age: "self-reported participant age"
@@ -986,7 +993,7 @@ Meteor.methods
   - Assumes all size 1 groups worked for exactly 1 hour / no wall time adj
   - Only uses end state at the moment
   ###
-  "cm-compute-synthetic-performance": ->
+  "cm-compute-synthetic-performance": (withReplacement = false, maxSize = 16) ->
     TurkServer.checkAdmin()
 
     weights = Meteor.call("cm-get-action-weights")
@@ -1005,10 +1012,17 @@ Meteor.methods
     console.log "Found #{singles.length} completed groups of size 1"
 
     # Form synthetic groups of size 2 up to total - 2
-    for cSize in [2..singles.length - 2]
+    for cSize in [2..maxSize]
       for i in [1..maxSamples]
-        worlds = _.sample(singles, cSize)
-        ids = worlds.map (w) -> w._id
+        if withReplacement
+          worlds = (_.sample(singles) for j in [1..cSize])
+        else
+          worlds = _.sample(singles, cSize)
+
+        # Uniq because this will make matching run faster but with same result
+        ids = _.uniq( worlds.map (w) -> w._id )
+
+        console.log ids, ids.length
 
         worldSlices = ( Analysis.Stats.findOne({instanceId: id},
           {sort: {wallTime: -1}}) for id in ids)
