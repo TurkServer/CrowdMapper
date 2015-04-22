@@ -509,7 +509,9 @@ saveStats = (replay, expId, gsEvents) ->
     fractionalScore,
     binaryScore,
     precision,
-    recall
+    recall,
+    eventCollaboration: replay.getEventCollaboration(),
+    eventCollaborationExVoting: replay.getEventCollaboration(true)
   })
 
   Analysis.Stats.upsert { instanceId: expId, wallTime },
@@ -657,71 +659,6 @@ Meteor.methods
           chatWordCount: words
           chatWordFrac: wordFrac
 
-getEventContention = (logs, weights, excludeVotes = false) ->
-
-  events = {}
-
-  for entry in logs
-    switch entry.action
-      when "data-link", "data-unlink"
-        eventId = entry.eventId
-      when "data-move"
-        eventId = entry.toEventId
-      when "event-create"
-        eventId = entry.eventId
-      when "event-update"
-        eventId = entry.eventId
-      when "event-vote" and !excludeVotes
-        eventId = entry.eventId
-      else continue
-
-    userId = entry._userId
-
-    events[eventId] ?= {}
-
-    events[eventId][userId] ?= 0
-    events[eventId][userId] += weights[entry.action]
-
-  # Calculate entropy across events
-  contention = []
-
-  for event, map of events
-    eventEffort = _.reduce(map, add, 0)
-    eventEntropy = Util.entropy( (eff / eventEffort for userId, eff of map) )
-    contention.push Math.pow(2, eventEntropy)
-
-  # Return average contention
-  return 0 if contention.length is 0
-  return _.reduce(contention, add, 0) / contention.length
-
-Meteor.methods
-  "cm-compute-event-contention": ->
-    TurkServer.checkAdmin()
-
-    weights = Meteor.call("cm-get-action-weights")
-
-    results = []
-
-    Analysis.Worlds.find({treated: true, completed: true}).forEach (world) ->
-      groupId = world._id
-      actionLogs = Logs.find({_groupId: groupId}).fetch()
-
-      eventContention = getEventContention(actionLogs, weights)
-      eventContentionExVoting = getEventContention(actionLogs, weights, true)
-
-      world.eventContention = eventContention
-      world.eventContentionExVoting = eventContentionExVoting
-
-      results.push(world)
-
-    return json2csv({
-      data: results,
-      fields: [
-        "_id", "nominalSize",
-        "eventContention", "eventContentionExVoting"
-      ]
-    })
-
 dataFields = {
   age: "self-reported participant age"
   gender: "self-reported participant gender"
@@ -773,8 +710,8 @@ dataFields = {
   g_avgIndivEntropy: "weighted average of individual user action entropy"
   g_effortEntropy: "entropy of effort contribution from users"
   g_groupEntropy: "entropy of group actions across categories"
-  # g_eventContention: "average number of people contributing effort to an event"
-  # g_eventContentionExVoting: "event contention excluding votes"
+  g_eventCollaboration: "average number of people contributing effort to an event"
+  g_eventCollaborationExVoting: "event contention excluding votes"
 
   g_chatFrac: "fraction of effort spent on chat"
   g_chatWeight: "effort time spent on chat"

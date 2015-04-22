@@ -1,3 +1,5 @@
+add = (x, y) -> x + y
+
 ###
   Replay publication for admin
   currently sends users, chat, events
@@ -72,6 +74,8 @@ class ReplayHandler
     @manEffort = 0
 
     @userEffort = {}
+    # Effort on events by user
+    @eventEffort = {}
 
     @userLastEventTime = {}
     @eventLastEditor = {}
@@ -152,6 +156,8 @@ class ReplayHandler
       return
 
     modifiedEventType = log.action
+    # For recording effort toward events
+    editedEventId = null
 
     switch log.action
     # Stuff we don't know what to do with yet
@@ -163,6 +169,9 @@ class ReplayHandler
           $addToSet: { sources: log.dataId }
         @tempData.update log.dataId,
           $addToSet: { events: log.eventId }
+
+        editedEventId = log.eventId
+
       when "data-move"
         @tempEvents.update log.fromEventId,
           $pull: { sources: log.dataId }
@@ -172,17 +181,26 @@ class ReplayHandler
           $pull: { events: log.fromEventId }
         @tempEvents.update log.toEventId,
           $addToSet: { sources: log.dataId }
+
+        editedEventId = log.toEventId
+
       when "data-unlink"
         @tempData.update log.dataId,
           $pull: { events: log.eventId }
           $set: { hidden: true }
         @tempEvents.update log.eventId,
           $pull: { sources: log.dataId }
+
+        editedEventId = log.eventId
+
       when "event-create"
         @tempEvents.insert
           _id: log.eventId
           sources: []
           num: ++@eventCount # TODO is this accurate?
+
+        editedEventId = log.eventId
+
       when "event-edit"
         ###
           Edits, updates, and saves to an event that was previously edited by
@@ -200,9 +218,15 @@ class ReplayHandler
 
         @tempEvents.update log.eventId,
           $set: log.fields
+
+        editedEventId = log.eventId
+
       when "event-unmap"
         @tempEvents.update log.eventId,
           $unset: { location: null }
+
+        editedEventId = log.eventId
+
       when "event-save"
         if @eventLastEditor[log.eventId]? and @eventLastEditor[log.eventId] != log.userId
           modifiedEventType = "event-save-verify"
@@ -216,9 +240,15 @@ class ReplayHandler
       when "event-vote"
         @tempEvents.update log.eventId,
           $addToSet: { votes: log._userId }
+
+        editedEventId = log.eventId
+
       when "event-unvote"
         @tempEvents.update log.eventId,
           $pull: { votes: log._userId }
+
+        editedEventId = log.eventId
+
       when "event-delete"
         event = @tempEvents.findOne(log.eventId)
 
@@ -260,7 +290,9 @@ class ReplayHandler
     # Some bookkeeping may have been off during the experiment
     @ensureUserActive(log._userId)
 
-    @recordEffort(log._userId, modifiedEventType) if @actionWeights?
+    if @actionWeights?
+      @recordEffort(log._userId, modifiedEventType)
+      @recordEventEffort(log._userId, modifiedEventType, editedEventId) if editedEventId?
     return
 
   # Take care of updating chat room sessions and counts.
@@ -316,6 +348,14 @@ class ReplayHandler
     @userEffort[userId].effort += weight
     return
 
+  recordEventEffort: (userId, action, eventId) ->
+    @eventEffort[eventId] ?= {}
+
+    @eventEffort[eventId][userId] ?= {}
+
+    @eventEffort[eventId][userId][action] ?= 0
+    @eventEffort[eventId][userId][action] += 1
+
   recordTime: (userIds, time) ->
     @manTime += userIds.length * time
 
@@ -327,6 +367,27 @@ class ReplayHandler
       @userEffort[userId].time += time
 
     return
+
+  getEventCollaboration: (excludeVoting = false) ->
+    # Compute entropy of effort across events
+    collaboration = []
+
+    for event, map of @eventEffort
+      eff = {}
+      for userId, actions of map
+        # Actions: object of action: count
+        eff[userId] = 0
+        for action, num of actions
+          continue if excludeVoting and (action is "event-vote" or action is "event-unvote")
+          eff[userId] += @actionWeights[action] * num
+
+      totalEffort = _.reduce(eff, add, 0)
+      eventEntropy = Util.entropy( (e / totalEffort for userId, e of eff) )
+      collaboration.push Math.pow(2, eventEntropy)
+
+    # Return average contention
+    return 0 if collaboration.length is 0
+    return _.reduce(collaboration, add, 0) / collaboration.length
 
   play: (rate) ->
     start = new Date
