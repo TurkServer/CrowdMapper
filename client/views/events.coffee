@@ -39,6 +39,7 @@ generateNewEvent = ->
 edit = (e) ->
   Meteor.call "editEvent", @_id
   Mapper.switchTab "events"
+  # TODO: scrolling not working properly after new event
   Mapper.scrollToEvent(@_id)
 
 # Set initial sort order on start

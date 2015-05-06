@@ -16,7 +16,7 @@ Mapper.switchTab = (page) ->
 
 scrollPos = (element, parent) ->
   scrollTop:
-    parent.scrollTop() + element.position().top - parent.height()/2 + element.height()/2
+    parent.scrollTop() + element.position().top - parent.height() / 2 + element.height() / 2
 
 Mapper.selectData = (id) ->
   $(".data-cell").removeClass("selected")

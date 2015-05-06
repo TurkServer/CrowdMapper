@@ -23,6 +23,12 @@ getCentroid = (events) ->
 
   return location
 
+loadPabloTweets = (instanceName) ->
+  instance = TurkServer.Instance.getInstance(instanceName)
+  instance.bindOperation ->
+    Mapper.loadCSVTweets("PabloPh_UN_cm.csv", 2000)
+    console.log("Loaded new tweets")
+
 # TODO: this is not used anymore; merge with collected gold standard
 preparePabloInstance = (instanceName, force) ->
 
@@ -37,10 +43,7 @@ preparePabloInstance = (instanceName, force) ->
     Experiments.upsert(instanceName, $set: {})
 
     # First run, load new tweets
-    instance = TurkServer.Instance.getInstance(instanceName)
-    instance.bindOperation ->
-      Mapper.loadCSVTweets("PabloPh_UN_cm.csv", 2000)
-      console.log("Loaded new tweets")
+    loadPabloTweets(instanceName)
 
     # Sleep a moment until all tweets are loaded, before proceeding
     sleep = Meteor.wrapAsync((time, cb) -> Meteor.setTimeout (-> cb undefined), time)
@@ -52,6 +55,15 @@ preparePabloInstance = (instanceName, force) ->
   return instance
 
 Meteor.methods
+  "cm-create-empty-instance": (instanceName) ->
+    TurkServer.checkAdmin()
+
+    if Experiments.findOne(instanceName)?
+      throw new Meteor.Error(403, "aggregated instance already exists")
+
+    Experiments.upsert(instanceName, $set: { treatments: [ "editable" ] })
+    loadPabloTweets(instanceName)
+
   # Create and populate a world that represents the Pablo data from groups of
   # 16 and 32
   "cm-aggregate-pablo-gt": (force) ->

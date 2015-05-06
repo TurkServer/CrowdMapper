@@ -922,6 +922,28 @@ Meteor.methods
       fields: ["instanceId", "userId", "g_nominalSize", "quadrant", "normalizedEffort"]
     })
 
+  "cm-compute-sbtf-performance": ->
+    TurkServer.checkAdmin()
+
+    gsEvents = getGoldStandardEvents()
+
+    sbtfEvents = Events.direct.find({
+      _groupId: "sbtf-pablo",
+      deleted: { $exists: false },
+    }).fetch()
+
+    eventCount = sbtfEvents.length
+
+    [fractionalScore, binaryScore] = matchingScore(sbtfEvents, gsEvents)
+
+    precision = if eventCount > 0 then binaryScore / eventCount else 0
+    recall = binaryScore / gsEvents.length
+
+    console.log fractionalScore, binaryScore
+    console.log precision, recall
+
+    return [ precision, recall ]
+
   ###
   Compute synthetic performance of different groups of size 1.
 
