@@ -1,5 +1,7 @@
 fs = Npm.require('fs');
 
+json2csv = Meteor.wrapAsync(Npm.require('json2csv'))
+
 # Special groundtruth tag for these instances
 TurkServer.ensureTreatmentExists
   name: "groundtruth"
@@ -158,6 +160,39 @@ Meteor.methods
         people++
 
     console.log "Recorded #{worlds} instances, #{people} people, #{dropouts} dropouts"
+
+  # Generate a CSV of individual group event output to check for duplication
+  "cm-download-individual-groups": ->
+    groupIds = Analysis.Worlds.find({ nominalSize: 1, completed: true }).map (w) -> w._id
+
+    indivEvents = Events.direct.find({
+      _groupId: { $in: groupIds },
+      deleted: { $exists: false },
+    }).map (e) ->
+      delete e._id
+      delete e.num
+      delete e.editor
+
+      # Fill out coded fields such as type, etc
+      for field in [ "type", "province", "region" ]
+        e[field] = EventFields.findOne({key: field}).choices[e[field]] if e[field]?
+
+      if e.sources?
+        e.sources = e.sources.map( (id) -> Datastream.direct.findOne(id).num ).join(" ")
+
+      if e.location?
+        e.longitude = e.location[0]
+        e.latitude = e.location[1]
+
+      return e
+
+    return json2csv({
+      data: indivEvents,
+      fields: [ "_groupId",
+                "region", "province", "type", "longitude", "latitude",
+                "sources", "description"
+      ]
+    })
 
 countWords = (str) -> str.match(/(\w+)/g)?.length || 0
 
@@ -731,8 +766,6 @@ dataTransform = {
   g_effortPerPerson: (d) -> d.g_totalEffort / d.g_personTime
   g_f1: (d) -> (2 * d.g_precision * d.g_recall / (d.g_precision + d.g_recall)) || 0
 }
-
-json2csv = Meteor.wrapAsync(Npm.require('json2csv'))
 
 Meteor.methods
   "cm-generate-data-csv": (type, sliceValue) ->
