@@ -985,13 +985,13 @@ Meteor.methods
   - Assumes all size 1 groups worked for exactly 1 hour / no wall time adj
   - Only uses end state at the moment
   ###
-  "cm-compute-synthetic-performance": (withReplacement = false, maxSize = 16) ->
+  "cm-compute-synthetic-performance": (force) ->
     TurkServer.checkAdmin()
 
     weights = Meteor.call("cm-get-action-weights")
 
     # Remove all previous generated data
-    Analysis.Stats.remove({synthetic: true})
+    Analysis.Stats.remove({synthetic: true}) if force
 
     gsEvents = getGoldStandardEvents()
     singles = Analysis.Worlds.find({
@@ -1003,48 +1003,71 @@ Meteor.methods
 
     console.log "Found #{singles.length} completed groups of size 1"
 
+    scoreGroups = (ids) ->
+      worldSlices = ( Analysis.Stats.findOne({instanceId: id},
+        {sort: {wallTime: -1}}) for id in ids)
+
+      aggEvents = Events.direct.find({
+        _groupId: { $in: ids },
+        deleted: { $exists: false },
+      }).fetch()
+
+      eventCount = aggEvents.length
+
+      [fractionalScore, binaryScore] = matchingScore(aggEvents, gsEvents)
+
+      precision = if eventCount > 0 then binaryScore / eventCount else 0
+      recall = binaryScore / gsEvents.length
+
+      console.log fractionalScore, binaryScore
+
+      Analysis.Stats.insert({
+        synthetic: true,
+        worlds: ids,
+        personTime: ids.length,
+        totalEffort: worldSlices.reduce( ((acc, w) -> acc + w.totalEffort), 0),
+        fractionalScore,
+        binaryScore,
+        precision,
+        recall
+      })
+
+    maxSize = singles.length - 2
+
     # Form synthetic groups of size 2 up to total - 2
     for cSize in [2..maxSize]
-      for i in [1..maxSamples]
-        if withReplacement
-          worlds = (_.sample(singles) for j in [1..cSize])
-        else
-          worlds = _.sample(singles, cSize)
+      existingSamples = Analysis.Stats.find({
+        synthetic: true
+        personTime: cSize
+      }).count()
 
-        # Uniq because this will make matching run faster but with same result
-        ids = _.uniq( worlds.map (w) -> w._id )
+      console.log "Found #{existingSamples} existing samples of groups of #{cSize}"
 
-        console.log ids, ids.length
+      for i in [0 ... (maxSamples - existingSamples)]
 
-        worldSlices = ( Analysis.Stats.findOne({instanceId: id},
-          {sort: {wallTime: -1}}) for id in ids)
+        worlds = _.sample(singles, cSize)
+        ids = worlds.map (w) -> w._id
 
-        aggEvents = Events.direct.find({
-          _groupId: { $in: ids },
-          deleted: { $exists: false },
-        }).fetch()
-
-        eventCount = aggEvents.length
-
-        [fractionalScore, binaryScore] = matchingScore(aggEvents, gsEvents)
-
-        precision = if eventCount > 0 then binaryScore / eventCount else 0
-        recall = binaryScore / gsEvents.length
-
-        console.log fractionalScore, binaryScore
-
-        Analysis.Stats.insert({
-          synthetic: true,
-          worlds: ids,
-          personTime: cSize,
-          totalEffort: worldSlices.reduce( ((acc, w) -> acc + w.totalEffort), 0),
-          fractionalScore,
-          binaryScore,
-          precision,
-          recall
-        })
+        scoreGroups(ids)
 
       console.log "Completed #{i} samples of synthesized groups of #{cSize}"
+
+    # Reset for final few samples
+    Analysis.Stats.remove({synthetic: true, personTime: {$gt: maxSize}})
+
+    # Sample n groups with n-1 users
+    console.log "Sampling #{singles.length} samples of synthesized groups of #{cSize}"
+    allIds = singles.map (w) -> w._id
+    for i in [0 ... allIds.length]
+      ids = allIds.filter( (id) -> id isnt allIds[i] )
+
+      scoreGroups(ids)
+
+    # Finally score all groups
+    console.log "Sampling final combination"
+    scoreGroups(allIds)
+
+    return
 
   "cm-download-synthetic-performance": ->
     TurkServer.checkAdmin()
