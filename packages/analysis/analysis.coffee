@@ -977,6 +977,102 @@ Meteor.methods
 
     return [ precision, recall ]
 
+# From spreadsheet
+dedupList = [
+  {
+    region: "ARMM - Autonomous Region in Muslim Mindanao"
+    province: "Maguindanao"
+    type: "Flooding"
+  },
+  {
+    region: "REGION VI (Western Visayas)"
+    province: "Iloilo"
+    type: "Damaged roads"
+  },
+  {
+    region: "REGION VII (Central Visayas)"
+    province: "Negros Oriental"
+    type: "Damaged roads"
+  },
+  {
+    region: "REGION X (Northern Mindanao)"
+    province: "Lanao del Norte"
+    type: "Damaged housing"
+  },
+  {
+    region: "REGION X (Northern Mindanao)"
+    province: "Misamis Oriental"
+    type: "Damaged crops"
+  },
+  {
+    region: "REGION XI (Davao Region)"
+    province: "Compostela Valley"
+    type: "Damaged roads"
+  },
+]
+
+# Return a new list with only the first event in each of the duplicate categories
+deduplicate = (events) ->
+  existing = dedupList.map -> false
+  newEvents = []
+
+  for event in _.shuffle(events)
+    mappedFields = {}
+    for field in [ "type", "province", "region" ] when event[field]?
+      mappedFields[field] = EventFields.findOne({key: field}).choices[event[field]]
+
+    exists = false
+    matchIndex = null
+    for v, i in dedupList
+      if _.isEqual(v, mappedFields)
+        exists = true
+        matchIndex = i
+        break
+
+    # Skip this event if one already exists
+    continue if exists and existing[matchIndex]
+
+    existing[matchIndex] = true if exists
+    newEvents.push(event)
+
+  diff = events.length - newEvents.length
+  console.log "Event records reduced from #{events.length} to #{newEvents.length} (#{diff})"
+
+  return newEvents
+
+scoreGroups = (ids, gsEvents, dedup) ->
+  worldSlices = ( Analysis.Stats.findOne({instanceId: id},
+    {sort: {wallTime: -1}}) for id in ids)
+
+  aggEvents = Events.direct.find({
+    _groupId: { $in: ids },
+    deleted: { $exists: false },
+  }).fetch()
+
+  # Replace all duplicate events with a single event of each category
+  aggEvents = deduplicate(aggEvents) if dedup
+
+  eventCount = aggEvents.length
+
+  [fractionalScore, binaryScore] = matchingScore(aggEvents, gsEvents)
+
+  precision = if eventCount > 0 then binaryScore / eventCount else 0
+  recall = binaryScore / gsEvents.length
+
+  console.log fractionalScore, binaryScore
+
+  Analysis.Stats.insert({
+    synthetic: true,
+    worlds: ids,
+    personTime: ids.length,
+    totalEffort: worldSlices.reduce( ((acc, w) -> acc + w.totalEffort), 0),
+    fractionalScore,
+    binaryScore,
+    precision,
+    recall
+  })
+
+Meteor.methods
   ###
   Compute synthetic performance of different groups of size 1.
 
@@ -985,7 +1081,7 @@ Meteor.methods
   - Assumes all size 1 groups worked for exactly 1 hour / no wall time adj
   - Only uses end state at the moment
   ###
-  "cm-compute-synthetic-performance": (force) ->
+  "cm-compute-synthetic-performance": (force, dedup) ->
     TurkServer.checkAdmin()
 
     weights = Meteor.call("cm-get-action-weights")
@@ -994,6 +1090,7 @@ Meteor.methods
     Analysis.Stats.remove({synthetic: true}) if force
 
     gsEvents = getGoldStandardEvents()
+
     singles = Analysis.Worlds.find({
       treated: true,
       completed: true,
@@ -1002,35 +1099,6 @@ Meteor.methods
     maxSamples = 100
 
     console.log "Found #{singles.length} completed groups of size 1"
-
-    scoreGroups = (ids) ->
-      worldSlices = ( Analysis.Stats.findOne({instanceId: id},
-        {sort: {wallTime: -1}}) for id in ids)
-
-      aggEvents = Events.direct.find({
-        _groupId: { $in: ids },
-        deleted: { $exists: false },
-      }).fetch()
-
-      eventCount = aggEvents.length
-
-      [fractionalScore, binaryScore] = matchingScore(aggEvents, gsEvents)
-
-      precision = if eventCount > 0 then binaryScore / eventCount else 0
-      recall = binaryScore / gsEvents.length
-
-      console.log fractionalScore, binaryScore
-
-      Analysis.Stats.insert({
-        synthetic: true,
-        worlds: ids,
-        personTime: ids.length,
-        totalEffort: worldSlices.reduce( ((acc, w) -> acc + w.totalEffort), 0),
-        fractionalScore,
-        binaryScore,
-        precision,
-        recall
-      })
 
     maxSize = singles.length - 2
 
@@ -1048,7 +1116,7 @@ Meteor.methods
         worlds = _.sample(singles, cSize)
         ids = worlds.map (w) -> w._id
 
-        scoreGroups(ids)
+        scoreGroups(ids, gsEvents, dedup)
 
       console.log "Completed #{i} samples of synthesized groups of #{cSize}"
 
@@ -1061,11 +1129,11 @@ Meteor.methods
     for i in [0 ... allIds.length]
       ids = allIds.filter( (id) -> id isnt allIds[i] )
 
-      scoreGroups(ids)
+      scoreGroups(ids, gsEvents, dedup)
 
     # Finally score all groups
     console.log "Sampling final combination"
-    scoreGroups(allIds)
+    scoreGroups(allIds, gsEvents, dedup)
 
     return
 
