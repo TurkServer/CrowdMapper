@@ -123,21 +123,33 @@ Meteor.startup ->
 
   Meteor._debug "Set up group size assigner"
 
+Meteor.methods
+  "cm-delete-world-data": (worldId) ->
+    TurkServer.checkAdmin()
+
+    if Experiments.remove(worldId)
+      Partitioner.bindGroup worldId, ->
+        Events.remove({})
+        Datastream.remove({})
+
+    return
+
 # Load gold standard data if it exists
-pabloGoldStandard = "groundtruth-pablo"
+tryImport = (worldName) ->
+  return if Experiments.findOne(worldName)?
+  result = JSON.parse Assets.getText("#{worldName}.json")
 
-Meteor.startup ->
-  return if Experiments.findOne(pabloGoldStandard)?
-  result = JSON.parse Assets.getText("#{pabloGoldStandard}.json")
-
-  Experiments.upsert(pabloGoldStandard, {})
+  Experiments.upsert({worldName}, $set: { treatments: [ "editable" ] })
 
   for event in result.events
-    event._groupId = pabloGoldStandard
+    event._groupId = worldName
     Events.direct.insert(event)
 
   for data in result.datastream
-    data._groupId = pabloGoldStandard
+    data._groupId = worldName
     Datastream.direct.insert(data)
 
-  console.log "Imported gold standard data; events: #{result.events.length}, datastream: #{result.datastream.length}"
+  console.log "Imported #{worldName}; events: #{result.events.length}, datastream: #{result.datastream.length}"
+
+Meteor.startup -> tryImport("groundtruth-pablo")
+Meteor.startup -> tryImport("sbtf-pablo")
