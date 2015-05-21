@@ -5,6 +5,28 @@ Meteor.startup ->
 
   EventFields.insert(field) for field in JSON.parse(pabloFields)
 
+# Load gold standard data if it exists
+tryImport = (worldName) ->
+  if Experiments.findOne(worldName)?
+    console.log("#{worldName} already exists, skipping import")
+    return
+  result = JSON.parse Assets.getText("#{worldName}.json")
+
+  Experiments.upsert(worldName, $set: { treatments: [ "editable" ] })
+
+  for event in result.events
+    event._groupId = worldName
+    Events.direct.insert(event)
+
+  for data in result.datastream
+    data._groupId = worldName
+    Datastream.direct.insert(data)
+
+  console.log "Imported #{worldName}; events: #{result.events.length}, datastream: #{result.datastream.length}"
+
+Meteor.startup -> tryImport("groundtruth-pablo")
+Meteor.startup -> tryImport("sbtf-pablo")
+
 # Set up treatments
 Meteor.startup ->
   TurkServer.ensureTreatmentExists
@@ -98,30 +120,48 @@ Meteor.startup ->
   ###
   groupSizeBatchName = "group sizes redux"
 
-  TurkServer.ensureBatchExists
-    name: groupSizeBatchName
+  if Meteor.settings.experiment or Batches.findOne({name: groupSizeBatchName})?
+    TurkServer.ensureBatchExists
+      name: groupSizeBatchName
 
-  groupSizeBatchId = Batches.findOne(name: groupSizeBatchName)._id
+    groupSizeBatchId = Batches.findOne(name: groupSizeBatchName)._id
 
-  # Needed to trigger the right preview/exit survey
-  Batches.upsert groupSizeBatchId,
-    $addToSet: { treatments: "parallel_worlds" }
+    # Needed to trigger the right preview/exit survey
+    Batches.upsert groupSizeBatchId,
+      $addToSet: { treatments: "parallel_worlds" }
 
-  groupBatch = TurkServer.Batch.getBatch(groupSizeBatchId)
-  # 8x1, 4x2, 2x4, 1x8, 1x16, 1x32
-  groupArray = [
-    1, 1, 1, 1, 1, 1, 1, 1,
-    2, 2, 2, 2,
-    4, 4,
-    8, 16, 32
-  ]
+    groupBatch = TurkServer.Batch.getBatch(groupSizeBatchId)
+    # 8x1, 4x2, 2x4, 1x8, 1x16, 1x32
+    groupArray = [
+      1, 1, 1, 1, 1, 1, 1, 1,
+      2, 2, 2, 2,
+      4, 4,
+      8, 16, 32
+    ]
 
-  groupAssigner = new TurkServer.Assigners.TutorialRandomizedGroupAssigner(
-    [ "tutorial" ], [ "parallel_worlds" ], groupArray)
+    groupAssigner = new TurkServer.Assigners.TutorialRandomizedGroupAssigner(
+      [ "tutorial" ], [ "parallel_worlds" ], groupArray)
 
-  groupBatch.setAssigner(groupAssigner)
+    groupBatch.setAssigner(groupAssigner)
 
-  Meteor._debug "Set up group size assigner"
+    Meteor._debug "Set up group size assigner"
+
+  # Set up demo for SBTF
+  if Meteor.settings.demo
+    demoBatchName = "SBTF demo"
+
+    TurkServer.ensureBatchExists({name: demoBatchName, active: true})
+
+    demoBatchId = Batches.findOne({name: demoBatchName})._id
+
+    # Make sure pablo data is in this batch
+    Experiments.update("sbtf-pablo", {$set: {batchId: demoBatchId}})
+
+    # Create a test assigner that puts everyone in this group
+    demoBatch = TurkServer.Batch.getBatch(demoBatchId)
+    demoBatch.setAssigner( new TurkServer.Assigners.TestAssigner() )
+
+    console.log "Set up demo"
 
 Meteor.methods
   "cm-delete-world-data": (worldId) ->
@@ -134,22 +174,3 @@ Meteor.methods
 
     return
 
-# Load gold standard data if it exists
-tryImport = (worldName) ->
-  return if Experiments.findOne(worldName)?
-  result = JSON.parse Assets.getText("#{worldName}.json")
-
-  Experiments.upsert({worldName}, $set: { treatments: [ "editable" ] })
-
-  for event in result.events
-    event._groupId = worldName
-    Events.direct.insert(event)
-
-  for data in result.datastream
-    data._groupId = worldName
-    Datastream.direct.insert(data)
-
-  console.log "Imported #{worldName}; events: #{result.events.length}, datastream: #{result.datastream.length}"
-
-Meteor.startup -> tryImport("groundtruth-pablo")
-Meteor.startup -> tryImport("sbtf-pablo")
