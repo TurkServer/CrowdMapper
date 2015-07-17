@@ -154,8 +154,8 @@ Meteor.startup ->
 
     demoBatchId = Batches.findOne({name: demoBatchName})._id
 
-    # Make sure pablo data is in this batch
-    Experiments.update("sbtf-pablo", {$set: {batchId: demoBatchId}})
+    # Create a new instance for this demo
+    Experiments.update("sbtf-demo", {$set: {batchId: demoBatchId}})
 
     # Create a test assigner that puts everyone in this group
     demoBatch = TurkServer.Batch.getBatch(demoBatchId)

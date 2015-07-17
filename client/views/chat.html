@@ -1,15 +1,15 @@
 <template name="chat">
-    <div class="row compact chat-overview">
-        <div class="col-xs-7">
-            <h5 class="compact">Chat Rooms:
+    <div class="fill-flex flex horizontal">
+        <div class="chat-left flex vertical">
+            <h5 class="fixed-flex compact">Chat Rooms:
                 <button title="Create new chat room" class="btn btn-xs btn-info pull-right action-room-create">New room</button>
             </h5>
-            <div class="chat-rooms fill-width">
+            <div class="chat-rooms">
             {{> rooms}}
             </div>
         </div>
 
-        <div class="col-xs-5">
+        <div class="chat-right flex vertical">
             {{#if currentRoom}}
             {{> roomUsers}}
             {{/if}}
@@ -17,8 +17,15 @@
     </div>
 </template>
 
+<template name="roomUsers">
+    <h5 class="text-center fixed-flex compact">In room:</h5>
+    <div class="room-users well well-skinny bigger-labels data-labels">
+        {{#each users}}{{> userPill findUser}}&nbsp;{{/each}}
+    </div>
+</template>
+
 <template name="currentChatroom">
-    <div class="chat-messaging fill-height carrier">
+    <div class="chat-messaging fill-flex carrier">
     {{#with currentRoom}}
         {{> roomHeader nameDoc }}
         {{> messageBox}}
@@ -53,15 +60,8 @@
     </li>
 </template>
 
-<template name="roomUsers">
-    <h5 class="text-center compact">In room:</h5>
-    <div class="room-users well well-skinny bigger-labels data-labels">
-        {{#each users}}{{> userPill findUser}}&nbsp;{{/each}}
-    </div>
-</template>
-
 <template name="roomHeader">
-    <h4 class="chat-header compact">
+    <h4 class="fixed-flex compact">
         <span class="editable"
               data-autotext="never"
               title="Rename this room">{{name}}</span>
@@ -70,9 +70,10 @@
 </template>
 
 <template name="messageBox">
-    <div class="messages well well-nopad">
+    <div class="messages well well-nopad flex">
         {{#if loaded}}
-        <ul class="scroll-vertical messages-body bigger-labels data-labels">
+        <ul class="fill-flex scroll-vertical messages-body bigger-labels
+        data-labels">
             {{#each messages}}
             {{> messageItem}}
             {{/each}}
@@ -94,7 +95,7 @@
 </template>
 
 <template name="chatInput">
-    <form class="form-inline compact" action="javascript:void(0)">
+    <form class="form-inline fixed-flex compact" action="javascript:void(0)">
         <div class="chat-button-container">
             <button type="submit" class="btn btn-primary action-chat-send" title="Send">
                 <span class="glyphicon glyphicon-share-alt"></span>

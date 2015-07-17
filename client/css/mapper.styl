@@ -30,10 +30,15 @@
   display: inline-block
   padding: 3px 5px
 
+// Right sidebar layout - extra space is distributed evenly
 .user-list
-  display: block
-  height: 80px
-  max-height: 80px
+  flex: 0 1 15%
+
+.chat-overview
+  flex: 0 1 25%
+
+.chat-room
+  flex: 0 1 56%
 
 .user-pill-container, .tweet-icon-container
   border-radius: .25em // To match the label inside, so shadow is round

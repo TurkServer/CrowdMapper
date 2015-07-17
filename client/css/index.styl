@@ -16,9 +16,6 @@ html, body, .fill-parent
   height: 100%
   width: 100%
 
-.flex
-  display: flex
-
 .inherit-height
   height: inherit
 
@@ -28,22 +25,25 @@ html, body, .fill-parent
 .fill-width
   width: 100%
 
-.carrier
-  position: relative
+.flex, .carrier
+  display: flex
+  justify-content: space-between
+
+.carrier, .flex.vertical
+  flex-flow: column nowrap
+
+.flex.horizontal
+  flex-flow: row nowrap
+
+.fill-flex
+  flex: 1
+
+.fixed-flex
+  flex: 0 0
 
 .scroll-vertical
   overflow-x: hidden
   overflow-y: auto
-
-.vertical-table
-  display: table
-  border-spacing: 0px 8px
-
-.vertical-table-row
-  display: table-row
-
-.vertical-table-cell
-  display: table-cell
 
 // Tweaks to bootstrap classes
 

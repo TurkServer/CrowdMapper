@@ -151,22 +151,14 @@
 </template>
 
 <template name="sidebar">
-    <div class="vertical-table fill-parent">
-        <div class="vertical-table-row">
-            <div class="vertical-table-cell user-list">
-                {{> userList}}
-            </div>
-        </div>
-        <div class="vertical-table-row">
-            <div class="vertical-table-cell chat-overview">
-                {{> chat}}
-            </div>
-        </div>
-        <div class="vertical-table-row">
-            <div class="vertical-table-cell fill-height">
-                {{> currentChatroom}}
-            </div>
-        </div>
+    <div class="user-list flex">
+        {{> userList}}
+    </div>
+    <div class="chat-overview flex">
+        {{> chat}}
+    </div>
+    <div class="chat-room flex">
+        {{> currentChatroom}}
     </div>
 </template>
 

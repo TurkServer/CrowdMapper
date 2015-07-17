@@ -1,11 +1,12 @@
-.chat-overview
-  height: 172px
-  max-height: 172px
+.chat-left
+  flex: 0 1 58%
+
+.chat-right
+  flex: 0 1 40%
 
 .chat-rooms, .room-users
-    height: 150px
-    max-height: 150px
-    overflow: auto
+  overflow: auto
+  flex: 1
 
 .room-item.deleted
   opacity: 0.4
@@ -21,30 +22,13 @@
 .roomScreen form
     margin: 0px
 
-.chat-header
-    position: absolute
-    width: 100%
-
 .messages
-  position: absolute
-  width: 100%
-  top: 30px
-  bottom: 35px
-  margin: 0
-  padding: 0px
+  flex: 1
 
 .messages-body
   list-style: none
   margin: 0
   padding: 5px
-  height: 100%
-  width: 100%
-
-.chat-messaging > form
-  position: absolute
-  width: 100%
-  height: auto
-  bottom: 0
 
 .chat-button-container
   float: right
