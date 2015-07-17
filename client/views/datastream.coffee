@@ -1,5 +1,29 @@
+urlRe = /^(http|https):\/\/(([a-zA-Z0-9$\-_.+!*'(),;:&=]|%[0-9a-fA-F]{2})+@)?(((25[0-5]|2[0-4][0-9]|[0-1][0-9][0-9]|[1-9][0-9]|[0-9])(\.(25[0-5]|2[0-4][0-9]|[0-1][0-9][0-9]|[1-9][0-9]|[0-9])){3})|localhost|([a-zA-Z0-9\-\u00C0-\u017F]+\.)+([a-zA-Z]{2,}))(:[0-9]+)?(\/(([a-zA-Z0-9$\-_.+!*'(),;:@&=]|%[0-9a-fA-F]{2})*(\/([a-zA-Z0-9$\-_.+!*'(),;:@&=]|%[0-9a-fA-F]{2})*)*)?(\?([a-zA-Z0-9$\-_.+!*'(),;:@&=\/?]|%[0-9a-fA-F]{2})*)?(\#([a-zA-Z0-9$\-_.+!*'(),;:@&=\/?]|%[0-9a-fA-F]{2})*)?)?$/
+
 Template.datastream.helpers
   loaded: -> Session.equals("dataSubReady", true)
+
+Template.datastream.events
+  "submit .datastream-input": (e, t) ->
+    input = t.$("input[type=text]")
+    url = input.val().trim()
+    # Ignore empty URL
+    return unless url
+
+    # Process from http://embed.ly/static/scripts/generator.js
+
+    # Prepend protocol if missing
+    if !(/^https?:\/\//i).test(url)
+      url = 'http://' + url
+
+    if ( !urlRe.test(url) )
+      bootbox.alert("Sorry! The URL <kbd>#{url}</kbd> seems to be invalid. Please fix it and try again.")
+      return
+
+    Meteor.call("dataInsert", url)
+
+    # Success; clear input
+    input.val('')
 
 # We want events to exist and events.length > 0 to display
 # So we get all docs where events either doesn't exist or it's of size 0

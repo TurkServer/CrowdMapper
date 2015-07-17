@@ -32,15 +32,24 @@
         <span class="label label-primary">
             <span class="glyphicon glyphicon-tag"></span>{{num}}
         </span>
-        {{{replaceURLs text}}}
+        {{> dataContent}}
     </div>
 </template>
 
 <template name="tweetPopup">
-    {{{replaceURLs text}}}
+    {{> dataContent}}
     <button class="btn btn-xs btn-danger data-cell-icon action-unlink-tweet" title="Hide this tweet">
         <span class="glyphicon glyphicon-remove"></span>
     </button>
+</template>
+
+<template name="dataContent">
+    {{#if url}}
+        <a href="{{url}}" class="embedly-card">{{url}}</a>
+    {{/if}}
+    {{#if text}}
+        <span class="data-text">{{{replaceURLs text}}}</span>
+    {{/if}}
 </template>
 
 <template name="tweetIconClickable">

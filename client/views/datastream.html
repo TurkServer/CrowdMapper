@@ -1,5 +1,8 @@
 <template name="datastream">
-    <div class="datastream well well-nopad">
+    <form class="datastream-input fixed-flex" action="javascript:void(0)">
+        <input class="form-control" type="text" placeholder="Add a link...">
+    </form>
+    <div class="datastream fill-flex well well-nopad flex vertical">
         {{#if loaded}}
         {{!-- again, a workaround to allow the inner divs to be dragged out --}}
         {{> dataList}}
@@ -10,7 +13,7 @@
 </template>
 
 <template name="dataList">
-    <ul class="scroll-vertical data-body bigger-labels">
+    <ul class="fill-flex scroll-vertical data-body bigger-labels">
         {{#each data}}
         {{> dataItem}}
         {{/each}}
@@ -20,11 +23,10 @@
 <template name="dataItem">
     <li id="data-{{_id}}" class="data-cell {{hidden}}">
         <span class="label label-primary"><span class="glyphicon glyphicon-tag"></span>{{num}}</span>
-        <span class="data-text">{{{replaceURLs text}}}</span>
+        {{> dataContent}}
         <button class="btn btn-danger btn-xs data-cell-icon action-data-hide"
                 title="Hide this tweet">
             <span class="glyphicon glyphicon-remove"></span>
         </button>
     </li>
 </template>
-

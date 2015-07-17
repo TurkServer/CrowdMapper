@@ -49,6 +49,16 @@ Meteor.methods
   ###
     Data Methods
   ###
+  dataInsert: (url) ->
+    checkPermissions()
+
+    maxEventIdx = Datastream.findOne({}, sort: {num: -1})?.num || 0
+    num = maxEventIdx + 1
+
+    Datastream.insert({num, url})
+
+    return
+
   dataHide: (tweetId) ->
     checkPermissions()
     check(tweetId, String)
@@ -170,6 +180,7 @@ Meteor.methods
     _.extend(obj, fields)
 
     # On server, increment number based on highest numbered event (including deleted)
+    # TODO: is this causing events to bounce around on client?
     unless @isSimulation
       maxEventIdx = Events.findOne({}, sort: {num: -1})?.num || 0
       obj.num = maxEventIdx + 1

@@ -1,8 +1,7 @@
 .idea
 smart.lock
 dump.rdb
-settings-private.json
-settings-sandbox.json
+settings-*.json
 
 lib-cov
 *.seed
