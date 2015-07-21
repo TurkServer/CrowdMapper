@@ -1,9 +1,13 @@
 TurkServer.initialize ->
   return if Datastream.find().count() > 0
 
-  if @instance.treatment().tutorialEnabled
+  treatment = @instance.treatment()
+
+  if treatment.tutorialEnabled
     Mapper.loadCSVTweets("tutorial.csv", 10)
-  else
+
+  else if treatment["wage"]?
+    # Typhoon Pablo data
     # Load initial tweets on first start
     # Meta-cleaned version has 1567 tweets
     Mapper.loadCSVTweets("PabloPh_UN_cm.csv", 2000)
@@ -16,6 +20,9 @@ TurkServer.initialize ->
         console.log "Error getting document"
         return
       ShareJS.initializeDoc(docId, res)
+
+  else
+    console.log "Initializing empty instance with no pre-loaded data."
 
 TurkServer.onConnect ->
   if @instance.treatment().tutorialEnabled

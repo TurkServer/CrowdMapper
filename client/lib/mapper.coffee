@@ -8,6 +8,17 @@ UI._allowJavascriptUrls()
 
 Mapper.events = new EventEmitter()
 
+Mapper.displayModal = (template, data, options) ->
+  # minimum options to get message to show
+  options ?= { message: " " }
+  dialog = bootbox.dialog(options)
+  # Take out the thing that bootbox rendered
+  dialog.find(".bootbox-body").remove()
+
+  # Since bootbox/bootstrap uses jQuery, this should clean up itself
+  Blaze.renderWithData(template, data, dialog.find(".modal-body")[0])
+  return dialog
+
 Mapper.switchTab = (page) ->
   return unless page is "docs" or page is "events" or page is "map"
   # Simulate click on navbar in index.coffee

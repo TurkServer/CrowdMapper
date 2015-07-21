@@ -150,16 +150,20 @@ Meteor.startup ->
   if Meteor.settings.demo
     demoBatchName = "SBTF demo"
 
+    TurkServer.ensureTreatmentExists
+      name: "tutorial_sbtf"
+      tutorial: "sbtf"
+      tutorialEnabled: true
+
     TurkServer.ensureBatchExists({name: demoBatchName, active: true})
 
     demoBatchId = Batches.findOne({name: demoBatchName})._id
 
-    # Create a new instance for this demo
-    Experiments.update("sbtf-demo", {$set: {batchId: demoBatchId}})
-
-    # Create a test assigner that puts everyone in this group
+    # Create a test assigner that puts everyone in this group, automatically
     demoBatch = TurkServer.Batch.getBatch(demoBatchId)
-    demoBatch.setAssigner( new TurkServer.Assigners.TestAssigner() )
+    demoBatch.setAssigner new TurkServer.Assigners.TutorialGroupAssigner(
+        [ "tutorial_sbtf" ], [ ], true
+      )
 
     console.log "Set up demo"
 

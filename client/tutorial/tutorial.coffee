@@ -1,4 +1,7 @@
-Template.tut_chatting.myusername = -> Meteor.users.findOne()?.username || "someone"
+Template.tut_chatting.helpers({
+  myusername: ->
+    Meteor.users.findOne()?.username || "someone"
+})
 
 editEvent = ->
   unless Events.findOne(editor: $exists: true)
@@ -17,17 +20,29 @@ joinChatroom = ->
     someRoom = ChatRooms.findOne()
     Session.set("room", someRoom._id) if someRoom?
 
-tutorialSteps = [
+experimentIntro = [
     template: "tut_welcome"
   ,
     template: "tut_whatis"
-  ,    
+  ,
     template: "tut_project"
-  ,    
+  ,
     template: "tut_yourtask"
   ,
     template: "tut_goal"
-  ,
+]
+
+sbtfIntro = [
+  {
+    template: "tut_sbtf_intro"
+  },
+  {
+    template: "tut_datainput"
+    spot: ".datastream-input"
+  }
+]
+
+tutorialSteps = [
     spot: ".datastream"
     template: "tut_datastream"
   ,
@@ -187,9 +202,11 @@ Template.tut_end.helpers
   stepCompleted: checked
 
 getRecruitingSteps = ->
+  steps = experimentIntro.concat(tutorialSteps)
+
   # replace templates with _recruiting if they exist
   # Don't modify original objects to avoid errors
-  copiedSteps = $.map(tutorialSteps, (obj) -> $.extend({}, obj))
+  copiedSteps = $.map(steps, (obj) -> $.extend({}, obj))
 
   for i, step of copiedSteps
     recruitingTemplate = step.template + "_recruiting"
@@ -200,7 +217,10 @@ getRecruitingSteps = ->
   ]
   
 getTutorialSteps = ->
-  return tutorialSteps.concat [
+
+  steps = experimentIntro
+  .concat(tutorialSteps)
+  .concat([
       template: "tut_groundrules"
     ,
       spot: ".payment"
@@ -209,7 +229,18 @@ getTutorialSteps = ->
       template: "tut_end"
       require:
         event: "check-consent"
-  ]
+  ])
+
+  return steps
+
+getSBTFSteps = ->
+  steps = sbtfIntro
+  .concat(tutorialSteps)
+  .concat([
+      template: "tut_sbtf_end"
+  ])
+
+  return steps
 
 Template.mapperTutorial.helpers
   tutorialEnabled: ->
@@ -221,6 +252,7 @@ Template.mapperTutorial.helpers
 
     steps = switch treatment?.tutorial
       when "recruiting" then getRecruitingSteps()
+      when "sbtf" then getSBTFSteps()
       when "pre_task" then getTutorialSteps()
       else
         Meteor._debug("Unknown tutorial type: " + treatment.tutorial)

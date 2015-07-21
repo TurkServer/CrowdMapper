@@ -20,10 +20,25 @@ Template.datastream.events
       bootbox.alert("Sorry! The URL <kbd>#{url}</kbd> seems to be invalid. Please fix it and try again.")
       return
 
-    Meteor.call("dataInsert", url)
+    Mapper.displayModal(Template.dataInputConfirm, { url }, {
+      title: 'Add this to the data stream?'
+      message: " "
+    })
+
+    #
 
     # Success; clear input
     input.val('')
+
+Template.dataInputConfirm.events
+  "submit form": (e, t) ->
+    e.preventDefault()
+    $(t.firstNode).closest(".bootbox.modal").modal("hide")
+    Meteor.call("dataInsert", @url)
+
+  "reset form": (e, t) ->
+    e.preventDefault()
+    $(t.firstNode).closest(".bootbox.modal").modal("hide")
 
 # We want events to exist and events.length > 0 to display
 # So we get all docs where events either doesn't exist or it's of size 0

@@ -12,6 +12,16 @@
     </div>
 </template>
 
+<template name="dataInputConfirm">
+    <form class="form-inline">
+        <div class="form-group">
+            <a href="{{url}}" class="embedly-card">{{url}}</a>
+        </div>
+        <button class="btn btn-primary" type="submit">Add</button>
+        <button class="btn" type="reset">Cancel</button>
+    </form>
+</template>
+
 <template name="dataList">
     <ul class="fill-flex scroll-vertical data-body bigger-labels">
         {{#each data}}
