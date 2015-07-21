@@ -45,7 +45,14 @@
 
 <template name="dataContent">
     {{#if url}}
-        <a href="{{url}}" class="embedly-card">{{url}}</a>
+        <a href="{{url}}"
+           class="embedly-card"
+           data-card-controls="0"
+           data-card-chrome="0"
+           data-card-height="200"
+           data-card-width="100%">
+            {{url}}
+        </a>
     {{/if}}
     {{#if text}}
         <span class="data-text">{{{replaceURLs text}}}</span>

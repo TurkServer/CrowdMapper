@@ -44,6 +44,15 @@ Handlebars.registerHelper "findTweet", -> Datastream.findOne(""+@)
 
 Handlebars.registerHelper "lookupUser", -> Meteor.users.findOne(""+@)
 
+embedly 'card', {
+  chrome: 0
+}
+# Resize embedly cards to be not so huge after render
+# This seems to control the iframe before responsive sizing
+embedly 'on', 'card.rendered', (iframe) ->
+  # TODO destroy the shitty embedly API
+  $(iframe).height(160)
+
 ###
   XXX tweet icon mouseover and dragging is handled at the global page level and the
   event page level respectively
