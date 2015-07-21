@@ -114,7 +114,7 @@ Meteor.startup ->
   checkSize()
   $(window).resize checkSize
   # Ask for username once user logs in
-  TurkServer.ensureUsername()
+  Meteor.defer TurkServer.ensureUsername, 5000
 
 ###
   Idle Monitoring

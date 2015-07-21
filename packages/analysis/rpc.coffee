@@ -1,4 +1,5 @@
 Meteor.defer ->
+  return if Meteor.settings.demo
   console.log "Trying setup for python RPC analysis server..."
 
   try
