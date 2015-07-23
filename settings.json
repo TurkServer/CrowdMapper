@@ -4,6 +4,9 @@
           "extent": [ 12800000, 525000, 14500000, 2450000 ],
           "bingAPIKey": "AtsCXPry0QFxHVXRBJDXPVVy88GhE6tTwtW61SNJoVl8AYwcNce_UsO3VZ3lGT3Q"
         },
+        "embedly": {
+          "key": "FILL_ME_IN"
+        },
         "turkserver": {
           "watchRoute": "/mapper"
         }

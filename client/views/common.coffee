@@ -51,7 +51,9 @@ embedly 'card', {
 # This seems to control the iframe before responsive sizing
 embedly 'on', 'card.rendered', (iframe) ->
   # TODO destroy the shitty embedly API
-  $(iframe).height(160)
+  # Clip iframe unless shown in preview form
+  unless $(iframe).closest(".modal-body").length
+    $(iframe).height(160)
 
 ###
   XXX tweet icon mouseover and dragging is handled at the global page level and the

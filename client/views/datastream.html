@@ -13,12 +13,14 @@
 </template>
 
 <template name="dataInputConfirm">
-    <form class="form-inline">
+    <form class="form">
         <div class="form-group">
-            <a href="{{url}}" class="embedly-card">{{url}}</a>
+            {{> urlEmbed}}
         </div>
-        <button class="btn btn-primary" type="submit">Add</button>
-        <button class="btn" type="reset">Cancel</button>
+        <div class="form-group">
+            <button class="btn btn-primary" type="submit">Add</button>
+            <button class="btn" type="reset">Cancel</button>
+        </div>
     </form>
 </template>
 
