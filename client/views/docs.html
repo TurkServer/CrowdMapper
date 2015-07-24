@@ -1,13 +1,13 @@
 <template name="docs">
     <div class="row-fluid fill-height">
-        <div class="col-xs-3 fill-height carrier">
+        <div class="col-xs-3 fill-height">
             {{#if loaded}}
                 {{> docTabs}}
             {{else}}
                 {{> spinner}}
             {{/if}}
         </div>
-        <div class="col-xs-9 fill-height carrier">
+        <div class="col-xs-9 fill-height">
             {{> docCurrent}}
         </div>
     </div>

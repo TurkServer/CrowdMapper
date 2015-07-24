@@ -32,13 +32,15 @@
 
 // Right sidebar layout - extra space is distributed evenly
 .user-list
-  flex: 0 1 15%
+  flex: 1
 
 .chat-overview
-  flex: 0 1 25%
+  flex: 2
 
 .chat-room
-  flex: 0 1 56%
+  flex: 5
+  // https://bugzilla.mozilla.org/show_bug.cgi?id=1108514
+  min-height: 0
 
 .user-pill-container, .tweet-icon-container
   border-radius: .25em // To match the label inside, so shadow is round
