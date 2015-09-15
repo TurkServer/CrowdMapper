@@ -92,6 +92,31 @@ Meteor.methods
 
     return {weights, instance, users, logs, chat}
 
+  # Export exit survey data including group treatments
+  "cm-export-exit-survey": ->
+    data = Assignments.find({
+      batchId: getExperimentBatchId()
+      status: "completed"
+    }).map (a) ->
+      props = {}
+
+      props.groupId = a.instances[1].id
+      props.treatment = Experiments.findOne(props.groupId).treatments[0]
+      props.username = Meteor.users.findOne({workerId: a.workerId}).username
+
+      _.extend(props, a.exitdata)
+
+      return props
+
+    return json2csv({
+      data: data,
+      fields: [ "groupId", "treatment", "username",
+                "age", "gender",
+                "approach", "specialize", "teamwork",
+                "workwith", "leadership", "misc"
+      ]
+    })
+
   # Copy the experiment worlds we're interested in to a new collection for
   # computing analysis results
   "cm-populate-analysis-worlds": (force) ->
