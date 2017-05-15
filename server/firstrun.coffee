@@ -130,7 +130,7 @@ Meteor.startup ->
   return if Experiments.findOne(pabloGoldStandard)?
   result = JSON.parse Assets.getText("#{pabloGoldStandard}.json")
 
-  Experiments.upsert(pabloGoldStandard, $set: {})
+  Experiments.upsert(pabloGoldStandard, {})
 
   for event in result.events
     event._groupId = pabloGoldStandard
