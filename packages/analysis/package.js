@@ -2,7 +2,6 @@
 Npm.depends({
   json2csv: "2.2.1",
   "simple-statistics": "0.9.0",
-  zerorpc: "0.9.3"
 });
 
 Package.on_use(function (api) {
