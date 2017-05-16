@@ -71,8 +71,8 @@ mizzao:build-fetcher@0.3.2
 mizzao:jquery-ui@1.11.4
 mizzao:openlayers@2.13.1_2
 mizzao:partitioner@0.5.9
-mizzao:sharejs@0.7.5
-mizzao:sharejs-ace@1.1.9
+mizzao:sharejs@0.9.0
+mizzao:sharejs-ace@1.4.1
 mizzao:timesync@0.4.0
 mizzao:turkserver@0.5.0
 mizzao:tutorials@0.6.7

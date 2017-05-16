@@ -22,7 +22,7 @@ accounts-ui
 webapp
 
 # Published, versioned shit
-iron:router@1.0.9
+iron:router
 mizzao:bootboxjs@4.4.0
 sacha:spin@2.3.1
 mizzao:animated-each@0.2.0
@@ -35,9 +35,13 @@ natestrauser:x-editable-bootstrap@1.5.2_2
 # Pulls in the openlayers code and images
 mizzao:openlayers@2.13.1
 
+# DavidSichau's 0.10.0 breaks mongo connectivity due to some bugs in Meteor 1.4
+# So we'll leave this for now and change it in the future if necessary
+mizzao:sharejs@0.9.0
+mizzao:sharejs-ace
+
 # Development packages
 mizzao:user-status
-mizzao:sharejs-ace
 mizzao:autocomplete
 mizzao:tutorials
 mizzao:partitioner # So we can use the APIs directly
